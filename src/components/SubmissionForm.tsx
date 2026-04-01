@@ -23,7 +23,7 @@ const formSchema = z.object({
   companyName: z.string().trim().min(1, "Campo obrigatório").max(100),
   responsibleName: z.string().trim().min(1, "Campo obrigatório").max(100),
   email: z.string().trim().email("E-mail inválido").max(255),
-  phone: z.string().trim().min(1, "Campo obrigatório").max(30),
+  phone: z.string().trim().min(1, "Campo obrigatório").max(30).regex(/^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/, "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321"),
   eventTitle: z.string().trim().min(1, "Campo obrigatório").max(150),
   date: z.string().trim().min(1, "Campo obrigatório").max(50),
   startTime: z.string().trim().min(1, "Campo obrigatório").max(20),
