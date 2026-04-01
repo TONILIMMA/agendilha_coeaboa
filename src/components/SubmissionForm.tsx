@@ -1,6 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSubmissions } from "@/contexts/SubmissionContext";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Upload, Music, UtensilsCrossed, Palette, Trophy, Tag, MoreHorizontal, Send, X } from "lucide-react";
