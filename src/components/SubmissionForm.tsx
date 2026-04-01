@@ -124,18 +124,23 @@ export default function SubmissionForm() {
   const descriptionLength = form.watch("description")?.length || 0;
 
   function onSubmit(data: FormData) {
-    setCurrentFormData({
+    const formData = {
       ...data,
       ...(flyerFile ? { flyerFileName: flyerFile.name } : {}),
       ...(bannerFile ? { bannerFileName: bannerFile.name } : {}),
-    });
-    toast.success("🎉 Envio realizado com sucesso!", {
-      description: "Sua divulgação será publicada em breve no AgendIlha!",
-    });
-    form.reset();
-    setFlyerFile(null);
-    setBannerFile(null);
-    setCurrentFormData(null);
+    };
+    setCurrentFormData(formData);
+    // Auto-save after setting data
+    setTimeout(() => {
+      saveToStorage();
+      toast.success("🎉 Envio realizado com sucesso!", {
+        description: "Sua divulgação foi salva. Veja em 'Envios' no menu.",
+      });
+      form.reset();
+      setFlyerFile(null);
+      setBannerFile(null);
+      setCurrentFormData(null);
+    }, 0);
   }
 
   return (
