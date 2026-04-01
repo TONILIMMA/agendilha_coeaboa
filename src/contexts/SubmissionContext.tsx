@@ -1,85 +1,95 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SubmissionEntry {
   id: string;
-  timestamp: string;
-  data: Record<string, unknown>;
+  created_at: string;
+  user_id: string;
+  company_name: string | null;
+  responsible_name: string | null;
+  email: string | null;
+  phone: string | null;
+  event_title: string;
+  date: string | null;
+  start_time: string | null;
+  location: string | null;
+  description: string | null;
+  video_link: string | null;
+  category: string | null;
 }
 
 interface SubmissionContextType {
-  currentFormData: Record<string, unknown> | null;
-  setCurrentFormData: (data: Record<string, unknown> | null) => void;
-  saveToStorage: () => void;
+  submissions: SubmissionEntry[];
+  loading: boolean;
+  fetchSubmissions: () => Promise<void>;
+  addSubmission: (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id">) => Promise<boolean>;
+  deleteSubmission: (id: string) => Promise<void>;
   savedCount: number;
-  getSavedSubmissions: () => SubmissionEntry[];
 }
-
-const STORAGE_KEY = "agendilha_submissions";
-const MAX_STORAGE_MB = 5;
 
 const SubmissionContext = createContext<SubmissionContextType | null>(null);
 
 export function SubmissionProvider({ children }: { children: ReactNode }) {
-  const [currentFormData, setCurrentFormData] = useState<Record<string, unknown> | null>(null);
-  const [savedCount, setSavedCount] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? (JSON.parse(stored) as SubmissionEntry[]).length : 0;
-    } catch {
-      return 0;
-    }
-  });
+  const { user } = useAuth();
+  const [submissions, setSubmissions] = useState<SubmissionEntry[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const getSavedSubmissions = useCallback((): SubmissionEntry[] => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
+  const fetchSubmissions = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("submissions")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      toast.error("Erro ao carregar envios");
+    } else {
+      setSubmissions(data || []);
+    }
+    setLoading(false);
+  }, [user]);
+
+  const addSubmission = useCallback(async (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id">) => {
+    if (!user) return false;
+    const { error } = await supabase
+      .from("submissions")
+      .insert({ ...data, user_id: user.id });
+
+    if (error) {
+      toast.error("Erro ao salvar envio", { description: error.message });
+      return false;
+    }
+    toast.success("🎉 Envio realizado com sucesso!", {
+      description: "Sua divulgação foi salva. Veja em 'Envios' no menu.",
+    });
+    await fetchSubmissions();
+    return true;
+  }, [user, fetchSubmissions]);
+
+  const deleteSubmission = useCallback(async (id: string) => {
+    const { error } = await supabase.from("submissions").delete().eq("id", id);
+    if (error) {
+      toast.error("Erro ao remover");
+    } else {
+      toast.success("Envio removido");
+      setSubmissions((prev) => prev.filter((s) => s.id !== id));
     }
   }, []);
 
-  const saveToStorage = useCallback(() => {
-    if (!currentFormData || Object.keys(currentFormData).length === 0) {
-      toast.info("Nenhuma informação para salvar", {
-        description: "Preencha o formulário antes de salvar.",
-      });
-      return;
-    }
-
-    try {
-      const submissions = getSavedSubmissions();
-      const newEntry: SubmissionEntry = {
-        id: crypto.randomUUID(),
-        timestamp: new Date().toISOString(),
-        data: currentFormData,
-      };
-      const updated = [...submissions, newEntry];
-      const json = JSON.stringify(updated);
-
-      // Check storage limit (~5MB)
-      if (new Blob([json]).size > MAX_STORAGE_MB * 1024 * 1024) {
-        toast.error("Limite de armazenamento excedido", {
-          description: "Remova submissões antigas para continuar salvando.",
-        });
-        return;
-      }
-
-      localStorage.setItem(STORAGE_KEY, json);
-      setSavedCount(updated.length);
-      toast.success("✅ Informações salvas com sucesso!", {
-        description: `${updated.length} submissão(ões) armazenada(s).`,
-      });
-    } catch {
-      toast.error("Erro ao salvar", {
-        description: "Não foi possível armazenar as informações.",
-      });
-    }
-  }, [currentFormData, getSavedSubmissions]);
-
   return (
-    <SubmissionContext.Provider value={{ currentFormData, setCurrentFormData, saveToStorage, savedCount, getSavedSubmissions }}>
+    <SubmissionContext.Provider
+      value={{
+        submissions,
+        loading,
+        fetchSubmissions,
+        addSubmission,
+        deleteSubmission,
+        savedCount: submissions.length,
+      }}
+    >
       {children}
     </SubmissionContext.Provider>
   );
