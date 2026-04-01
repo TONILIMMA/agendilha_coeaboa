@@ -1,0 +1,89 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+
+export interface ProfileAddress {
+  company_name: string;
+  responsible_name: string;
+  email: string;
+  phone: string;
+  address_street: string;
+  address_number: string;
+  address_neighborhood: string;
+  address_city: string;
+  address_state: string;
+  address_zip: string;
+  contact_social: string;
+}
+
+const emptyAddress: ProfileAddress = {
+  company_name: "",
+  responsible_name: "",
+  email: "",
+  phone: "",
+  address_street: "",
+  address_number: "",
+  address_neighborhood: "",
+  address_city: "",
+  address_state: "",
+  address_zip: "",
+  contact_social: "",
+};
+
+export function useProfile() {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<ProfileAddress>(emptyAddress);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setProfile(emptyAddress);
+      setLoaded(false);
+      return;
+    }
+    loadProfile(user.id);
+  }, [user]);
+
+  async function loadProfile(userId: string) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("company_name, responsible_name, email, phone, address_street, address_number, address_neighborhood, address_city, address_state, address_zip, contact_social")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (data) {
+      setProfile({
+        company_name: data.company_name || "",
+        responsible_name: data.responsible_name || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        address_street: data.address_street || "",
+        address_number: data.address_number || "",
+        address_neighborhood: data.address_neighborhood || "",
+        address_city: data.address_city || "",
+        address_state: data.address_state || "",
+        address_zip: data.address_zip || "",
+        contact_social: data.contact_social || "",
+      });
+    }
+    setLoaded(true);
+  }
+
+  async function saveProfile(data: Partial<ProfileAddress>) {
+    if (!user) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq("user_id", user.id);
+
+    if (error) {
+      toast.error("Erro ao salvar perfil");
+    } else {
+      setProfile((prev) => ({ ...prev, ...data }));
+      toast.success("Perfil atualizado!");
+    }
+  }
+
+  return { profile, loaded, saveProfile };
+}

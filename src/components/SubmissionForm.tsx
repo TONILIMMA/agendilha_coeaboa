@@ -1,7 +1,8 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
+import { useProfile } from "@/hooks/useProfile";
 import { z } from "zod";
 import { Upload, Music, UtensilsCrossed, Palette, Trophy, Tag, MoreHorizontal, Send, X } from "lucide-react";
 import heroBanner from "@/assets/hero-banner.jpg";
@@ -166,6 +167,7 @@ export default function SubmissionForm() {
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { addSubmission } = useSubmissions();
+  const { profile, loaded, saveProfile } = useProfile();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -180,6 +182,27 @@ export default function SubmissionForm() {
       authorization: undefined,
     },
   });
+
+  // Pre-fill form with saved profile data
+  useEffect(() => {
+    if (!loaded) return;
+    const fields = {
+      companyName: profile.company_name,
+      responsibleName: profile.responsible_name,
+      email: profile.email,
+      phone: profile.phone,
+      addressStreet: profile.address_street,
+      addressNumber: profile.address_number,
+      addressNeighborhood: profile.address_neighborhood,
+      addressCity: profile.address_city,
+      addressState: profile.address_state,
+      addressZip: profile.address_zip,
+      contactSocial: profile.contact_social,
+    };
+    Object.entries(fields).forEach(([key, value]) => {
+      if (value) form.setValue(key as any, value);
+    });
+  }, [loaded, profile]);
 
   const descriptionLength = form.watch("description")?.length || 0;
 
@@ -211,6 +234,20 @@ export default function SubmissionForm() {
     });
     setSubmitting(false);
     if (success) {
+      // Save reusable data to profile
+      saveProfile({
+        company_name: data.companyName,
+        responsible_name: data.responsibleName,
+        email: data.email,
+        phone: data.phone,
+        address_street: data.addressStreet || "",
+        address_number: data.addressNumber || "",
+        address_neighborhood: data.addressNeighborhood || "",
+        address_city: data.addressCity || "",
+        address_state: data.addressState || "",
+        address_zip: data.addressZip || "",
+        contact_social: data.contactSocial || "",
+      });
       form.reset();
       setFlyerFile(null);
       setBannerFile(null);
