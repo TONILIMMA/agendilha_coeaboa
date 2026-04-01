@@ -93,7 +93,7 @@ function FileUpload({ label, accept, file, onFileChange, required }: FileUploadP
 export default function SubmissionForm() {
   const [flyerFile, setFlyerFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const { setCurrentFormData } = useSubmissions();
+  const { setCurrentFormData, saveToStorage } = useSubmissions();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
