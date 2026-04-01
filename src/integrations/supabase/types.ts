@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          address_city: string | null
+          address_neighborhood: string | null
+          address_number: string | null
+          address_state: string | null
+          address_street: string | null
+          address_zip: string | null
+          company_name: string | null
+          contact_social: string | null
+          created_at: string
+          email: string | null
+          id: string
+          phone: string | null
+          responsible_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_city?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          company_name?: string | null
+          contact_social?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          responsible_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_city?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          company_name?: string | null
+          contact_social?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          responsible_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       submissions: {
         Row: {
           additional_details: string | null
