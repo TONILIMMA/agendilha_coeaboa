@@ -261,7 +261,7 @@ export default function SubmissionForm() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-background" />
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
           <h1 className="font-display text-3xl md:text-5xl font-extrabold text-primary-foreground drop-shadow-lg">
-            📌 Envio de Flyers e Banners
+            📌 Informações de Eventos
           </h1>
           <p className="mt-2 font-display text-lg md:text-xl font-semibold text-primary-foreground/90 drop-shadow">
             AgendIlha / Coé a Boa?
