@@ -83,7 +83,7 @@ function FileUpload({ label, accept, file, onFileChange, required }: FileUploadP
       </Label>
       <div
         onClick={() => inputRef.current?.click()}
-        className="relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 px-4 py-8 cursor-pointer transition-all hover:border-primary/60 hover:bg-primary/10 active:scale-[0.98] min-h-[80px]"
+        className="relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 px-3 sm:px-4 py-6 sm:py-8 cursor-pointer transition-all hover:border-primary/60 hover:bg-primary/10 active:scale-[0.98] min-h-[72px]"
       >
         <Upload className="h-6 w-6 text-primary/60" />
         {file ? (
