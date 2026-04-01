@@ -217,12 +217,17 @@ export default function SubmissionForm() {
                 <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                   <p className="text-sm font-medium text-foreground">📍 Endereço completo <span className="text-muted-foreground font-normal">(opcional)</span></p>
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <TextField control={form.control} name="addressStreet" label="Rua" required={false} />
+                    <CepField control={form.control} onCepFound={(data) => {
+                      form.setValue("addressStreet", data.logradouro || "");
+                      form.setValue("addressNeighborhood", data.bairro || "");
+                      form.setValue("addressCity", data.localidade || "");
+                      form.setValue("addressState", data.uf || "");
+                    }} />
                     <TextField control={form.control} name="addressNumber" label="Número" required={false} />
+                    <TextField control={form.control} name="addressStreet" label="Rua" required={false} />
                     <TextField control={form.control} name="addressNeighborhood" label="Bairro" required={false} />
                     <TextField control={form.control} name="addressCity" label="Cidade" required={false} />
                     <TextField control={form.control} name="addressState" label="Estado" required={false} />
-                    <TextField control={form.control} name="addressZip" label="CEP" required={false} />
                   </div>
                 </div>
 
