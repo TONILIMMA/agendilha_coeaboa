@@ -93,6 +93,7 @@ function FileUpload({ label, accept, file, onFileChange, required }: FileUploadP
 export default function SubmissionForm() {
   const [flyerFile, setFlyerFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const { setCurrentFormData } = useSubmissions();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -103,16 +104,38 @@ export default function SubmissionForm() {
     },
   });
 
+  const watchedValues = form.watch();
+
+  useEffect(() => {
+    const filled = Object.entries(watchedValues).filter(
+      ([, v]) => v !== "" && v !== undefined && v !== false
+    );
+    if (filled.length > 0) {
+      setCurrentFormData({
+        ...watchedValues,
+        ...(flyerFile ? { flyerFileName: flyerFile.name } : {}),
+        ...(bannerFile ? { bannerFileName: bannerFile.name } : {}),
+      });
+    } else {
+      setCurrentFormData(null);
+    }
+  }, [watchedValues, flyerFile, bannerFile, setCurrentFormData]);
+
   const descriptionLength = form.watch("description")?.length || 0;
 
   function onSubmit(data: FormData) {
-    console.log("Form data:", data, { flyerFile, bannerFile });
+    setCurrentFormData({
+      ...data,
+      ...(flyerFile ? { flyerFileName: flyerFile.name } : {}),
+      ...(bannerFile ? { bannerFileName: bannerFile.name } : {}),
+    });
     toast.success("🎉 Envio realizado com sucesso!", {
       description: "Sua divulgação será publicada em breve no AgendIlha!",
     });
     form.reset();
     setFlyerFile(null);
     setBannerFile(null);
+    setCurrentFormData(null);
   }
 
   return (
