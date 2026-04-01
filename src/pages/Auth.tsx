@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { LogIn, UserPlus, Loader2 } from "lucide-react";
+import { LogIn, UserPlus, Loader2, KeyRound } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Auth() {
   const { user, loading } = useAuth();
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<"login" | "signup" | "recovery">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -29,20 +30,37 @@ export default function Auth() {
     e.preventDefault();
     setSubmitting(true);
 
-    const { error } = isLogin
+    if (mode === "recovery") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+      setSubmitting(false);
+      if (error) {
+        toast.error("Erro ao enviar e-mail de recuperação", { description: error.message });
+      } else {
+        toast.success("E-mail enviado!", {
+          description: "Verifique sua caixa de entrada para redefinir a senha.",
+        });
+        setMode("login");
+      }
+      return;
+    }
+
+    const { error } = mode === "login"
       ? await signIn(email, password)
       : await signUp(email, password);
 
     setSubmitting(false);
 
     if (error) {
-      toast.error(isLogin ? "Erro ao entrar" : "Erro ao criar conta", {
+      toast.error(mode === "login" ? "Erro ao entrar" : "Erro ao criar conta", {
         description: error.message,
       });
-    } else if (!isLogin) {
+    } else if (mode === "signup") {
       toast.success("Conta criada!", {
-        description: "Verifique seu e-mail para confirmar o cadastro.",
+        description: "Você já pode fazer login.",
       });
+      setMode("login");
     }
   }
 
@@ -54,7 +72,9 @@ export default function Auth() {
             📌 AgendIlha
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {isLogin ? "Entre na sua conta" : "Crie sua conta"}
+            {mode === "login" && "Entre na sua conta"}
+            {mode === "signup" && "Crie sua conta"}
+            {mode === "recovery" && "Recupere sua senha"}
           </p>
         </div>
 
@@ -70,18 +90,20 @@ export default function Auth() {
               placeholder="seu@email.com"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              placeholder="Mínimo 6 caracteres"
-            />
-          </div>
+          {mode !== "recovery" && (
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+          )}
           <Button
             type="submit"
             disabled={submitting}
@@ -89,23 +111,37 @@ export default function Auth() {
           >
             {submitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : isLogin ? (
+            ) : mode === "login" ? (
               <LogIn className="mr-2 h-4 w-4" />
-            ) : (
+            ) : mode === "signup" ? (
               <UserPlus className="mr-2 h-4 w-4" />
+            ) : (
+              <KeyRound className="mr-2 h-4 w-4" />
             )}
-            {isLogin ? "Entrar" : "Criar conta"}
+            {mode === "login" && "Entrar"}
+            {mode === "signup" && "Criar conta"}
+            {mode === "recovery" && "Enviar e-mail de recuperação"}
           </Button>
         </form>
 
-        <p className="text-center text-sm text-muted-foreground">
-          {isLogin ? "Não tem conta?" : "Já tem conta?"}{" "}
+        {mode === "login" && (
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => setMode("recovery")}
+            className="block w-full text-center text-sm text-muted-foreground hover:text-primary transition-colors"
+          >
+            Esqueci minha senha
+          </button>
+        )}
+
+        <p className="text-center text-sm text-muted-foreground">
+          {mode === "login" ? "Não tem conta?" : mode === "signup" ? "Já tem conta?" : "Lembrou a senha?"}{" "}
+          <button
+            type="button"
+            onClick={() => setMode(mode === "signup" ? "login" : mode === "login" ? "signup" : "login")}
             className="text-primary font-medium hover:underline"
           >
-            {isLogin ? "Cadastre-se" : "Faça login"}
+            {mode === "signup" ? "Faça login" : mode === "login" ? "Cadastre-se" : "Faça login"}
           </button>
         </p>
       </div>
