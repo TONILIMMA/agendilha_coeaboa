@@ -5,13 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { LogIn, UserPlus, Loader2, KeyRound } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { LogIn, UserPlus, Loader2, Phone } from "lucide-react";
 
 export default function Auth() {
   const { user, loading } = useAuth();
-  const [mode, setMode] = useState<"login" | "signup" | "recovery">("login");
-  const [email, setEmail] = useState("");
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { signIn, signUp } = useAuth();
@@ -26,29 +25,41 @@ export default function Auth() {
 
   if (user) return <Navigate to="/" replace />;
 
+  function formatPhoneDisplay(value: string) {
+    const digits = value.replace(/\D/g, "");
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    if (digits.length <= 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+  }
+
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const digits = e.target.value.replace(/\D/g, "");
+    if (digits.length <= 11) {
+      setPhone(formatPhoneDisplay(digits));
+    }
+  }
+
+  function isValidPhone(value: string) {
+    const digits = value.replace(/\D/g, "");
+    return /^\d{2}9\d{8}$/.test(digits);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitting(true);
 
-    if (mode === "recovery") {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth`,
+    if (!isValidPhone(phone)) {
+      toast.error("Número inválido", {
+        description: "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321",
       });
-      setSubmitting(false);
-      if (error) {
-        toast.error("Erro ao enviar e-mail de recuperação", { description: error.message });
-      } else {
-        toast.success("E-mail enviado!", {
-          description: "Verifique sua caixa de entrada para redefinir a senha.",
-        });
-        setMode("login");
-      }
       return;
     }
 
+    setSubmitting(true);
+
     const { error } = mode === "login"
-      ? await signIn(email, password)
-      : await signUp(email, password);
+      ? await signIn(phone, password)
+      : await signUp(phone, password);
 
     setSubmitting(false);
 
@@ -58,7 +69,7 @@ export default function Auth() {
       });
     } else if (mode === "signup") {
       toast.success("Conta criada!", {
-        description: "Você já pode fazer login.",
+        description: "Você já pode fazer login com seu WhatsApp.",
       });
       setMode("login");
     }
@@ -72,38 +83,38 @@ export default function Auth() {
             📌 AgendIlha
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {mode === "login" && "Entre na sua conta"}
-            {mode === "signup" && "Crie sua conta"}
-            {mode === "recovery" && "Recupere sua senha"}
+            {mode === "login" ? "Entre na sua conta" : "Crie sua conta"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">E-mail</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="seu@email.com"
-            />
-          </div>
-          {mode !== "recovery" && (
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="phone">WhatsApp (com DDD)</Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={handlePhoneChange}
                 required
-                minLength={6}
-                placeholder="Mínimo 6 caracteres"
+                placeholder="(21) 98765-4321"
+                className="pl-10"
               />
             </div>
-          )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Senha</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              placeholder="Mínimo 6 caracteres"
+            />
+          </div>
           <Button
             type="submit"
             disabled={submitting}
@@ -113,35 +124,21 @@ export default function Auth() {
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : mode === "login" ? (
               <LogIn className="mr-2 h-4 w-4" />
-            ) : mode === "signup" ? (
-              <UserPlus className="mr-2 h-4 w-4" />
             ) : (
-              <KeyRound className="mr-2 h-4 w-4" />
+              <UserPlus className="mr-2 h-4 w-4" />
             )}
-            {mode === "login" && "Entrar"}
-            {mode === "signup" && "Criar conta"}
-            {mode === "recovery" && "Enviar e-mail de recuperação"}
+            {mode === "login" ? "Entrar" : "Criar conta"}
           </Button>
         </form>
 
-        {mode === "login" && (
-          <button
-            type="button"
-            onClick={() => setMode("recovery")}
-            className="block w-full text-center text-sm text-muted-foreground hover:text-primary transition-colors"
-          >
-            Esqueci minha senha
-          </button>
-        )}
-
         <p className="text-center text-sm text-muted-foreground">
-          {mode === "login" ? "Não tem conta?" : mode === "signup" ? "Já tem conta?" : "Lembrou a senha?"}{" "}
+          {mode === "login" ? "Não tem conta?" : "Já tem conta?"}{" "}
           <button
             type="button"
-            onClick={() => setMode(mode === "signup" ? "login" : mode === "login" ? "signup" : "login")}
+            onClick={() => setMode(mode === "login" ? "signup" : "login")}
             className="text-primary font-medium hover:underline"
           >
-            {mode === "signup" ? "Faça login" : mode === "login" ? "Cadastre-se" : "Faça login"}
+            {mode === "login" ? "Cadastre-se" : "Faça login"}
           </button>
         </p>
       </div>
