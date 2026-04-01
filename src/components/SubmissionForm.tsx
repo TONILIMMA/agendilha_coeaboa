@@ -1,7 +1,8 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
+import { useProfile } from "@/hooks/useProfile";
 import { z } from "zod";
 import { Upload, Music, UtensilsCrossed, Palette, Trophy, Tag, MoreHorizontal, Send, X } from "lucide-react";
 import heroBanner from "@/assets/hero-banner.jpg";
