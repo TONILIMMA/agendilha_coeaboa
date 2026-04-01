@@ -72,13 +72,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAdmin(!!data);
   }
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+  const formatPhone = (phone: string): string => {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.startsWith("55")) return `+${digits}`;
+    return `+55${digits}`;
+  };
+
+  const signUp = async (phone: string, password: string) => {
+    const { error } = await supabase.auth.signUp({ phone: formatPhone(phone), password });
     return { error: error as Error | null };
   };
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const signIn = async (phone: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ phone: formatPhone(phone), password });
     return { error: error as Error | null };
   };
 
