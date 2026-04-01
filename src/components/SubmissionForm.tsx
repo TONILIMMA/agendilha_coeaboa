@@ -100,7 +100,7 @@ export default function SubmissionForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       companyName: "", responsibleName: "", email: "", phone: "",
-      eventTitle: "", dateTime: "", location: "", description: "",
+      eventTitle: "", date: "", startTime: "", location: "", description: "",
       videoLink: "", category: "", authorization: undefined,
     },
   });
