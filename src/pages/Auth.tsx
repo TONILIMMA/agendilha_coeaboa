@@ -10,6 +10,7 @@ import { LogIn, UserPlus, Loader2, Phone } from "lucide-react";
 export default function Auth() {
   const { user, loading } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -48,6 +49,13 @@ export default function Auth() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    if (mode === "signup" && name.trim().length < 3) {
+      toast.error("Nome inválido", {
+        description: "Por favor, insira seu nome completo.",
+      });
+      return;
+    }
+
     if (!isValidPhone(phone)) {
       toast.error("Número inválido", {
         description: "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321",
@@ -59,7 +67,7 @@ export default function Auth() {
 
     const { error } = mode === "login"
       ? await signIn(phone, password)
-      : await signUp(phone, password);
+      : await signUp(phone, password, name.trim());
 
     setSubmitting(false);
 
@@ -88,6 +96,19 @@ export default function Auth() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === "signup" && (
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome Completo</Label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="Digite seu nome completo"
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="phone">WhatsApp (com DDD)</Label>
             <div className="relative">
