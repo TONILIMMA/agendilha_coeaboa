@@ -49,6 +49,13 @@ export default function Auth() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    if (mode === "signup" && name.trim().length < 3) {
+      toast.error("Nome inválido", {
+        description: "Por favor, insira seu nome completo.",
+      });
+      return;
+    }
+
     if (!isValidPhone(phone)) {
       toast.error("Número inválido", {
         description: "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321",
@@ -60,7 +67,7 @@ export default function Auth() {
 
     const { error } = mode === "login"
       ? await signIn(phone, password)
-      : await signUp(phone, password);
+      : await signUp(phone, password, name.trim());
 
     setSubmitting(false);
 

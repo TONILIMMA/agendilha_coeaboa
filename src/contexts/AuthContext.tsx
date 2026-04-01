@@ -78,8 +78,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return `+55${digits}`;
   };
 
-  const signUp = async (phone: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ phone: formatPhone(phone), password });
+  const signUp = async (phone: string, password: string, name?: string) => {
+    const formattedPhone = formatPhone(phone);
+    const { data, error } = await supabase.auth.signUp({ phone: formattedPhone, password });
+    if (!error && data.user && name) {
+      await supabase.from("profiles").update({ responsible_name: name, phone: formattedPhone }).eq("user_id", data.user.id);
+    }
     return { error: error as Error | null };
   };
 
