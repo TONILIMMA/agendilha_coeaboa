@@ -409,31 +409,28 @@ export default function SubmissionForm() {
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormControl>
-                        <RadioGroup onValueChange={field.onChange} value={field.value} className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {categories.map((cat) => {
-                            const Icon = cat.icon;
-                            const selected = field.value === cat.value;
-                            return (
-                              <Label
-                                key={cat.value}
-                                htmlFor={cat.value}
-                                className={`flex items-center gap-2 rounded-lg border-2 px-3 py-3 cursor-pointer transition-all text-sm font-medium ${
-                                  selected ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/40"
-                                }`}
-                              >
-                                <RadioGroupItem value={cat.value} id={cat.value} className="sr-only" />
-                                <Icon className="h-4 w-4 shrink-0" />
-                                {cat.label}
-                              </Label>
-                            );
-                          })}
-                        </RadioGroup>
-                      </FormControl>
+                      <FormLabel>Categoria <span className="text-accent">*</span></FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma categoria" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                {form.watch("category") === "outros" && (
+                  <div className="mt-3">
+                    <TextField control={form.control} name="additionalDetails" label="Especifique a categoria" required={false} />
+                  </div>
+                )}
               </Section>
 
               <FormField
