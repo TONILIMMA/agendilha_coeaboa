@@ -14,6 +14,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 
 const formSchema = z.object({
   companyName: z.string().trim().min(1, "Campo obrigatório").max(100),
@@ -24,9 +27,20 @@ const formSchema = z.object({
   date: z.string().trim().min(1, "Campo obrigatório").max(50),
   startTime: z.string().trim().min(1, "Campo obrigatório").max(20),
   location: z.string().trim().min(1, "Campo obrigatório").max(200),
+  addressStreet: z.string().trim().max(200).optional().or(z.literal("")),
+  addressNumber: z.string().trim().max(20).optional().or(z.literal("")),
+  addressNeighborhood: z.string().trim().max(100).optional().or(z.literal("")),
+  addressCity: z.string().trim().max(100).optional().or(z.literal("")),
+  addressState: z.string().trim().max(50).optional().or(z.literal("")),
+  addressZip: z.string().trim().max(20).optional().or(z.literal("")),
   description: z.string().trim().min(1, "Campo obrigatório").max(300, "Máximo de 300 caracteres"),
   videoLink: z.string().url("URL inválida").optional().or(z.literal("")),
   category: z.string().min(1, "Selecione uma categoria"),
+  promotionType: z.string().trim().max(100).optional().or(z.literal("")),
+  targetAudience: z.string().trim().max(200).optional().or(z.literal("")),
+  promotionRules: z.string().trim().max(500).optional().or(z.literal("")),
+  contactSocial: z.string().trim().max(300).optional().or(z.literal("")),
+  additionalDetails: z.string().trim().max(500).optional().or(z.literal("")),
   authorization: z.literal(true, {
     errorMap: () => ({ message: "Você precisa autorizar a publicação" }),
   }),
@@ -41,6 +55,16 @@ const categories = [
   { value: "esporte", label: "Esporte", icon: Trophy },
   { value: "promocoes", label: "Promoções / Ofertas", icon: Tag },
   { value: "outros", label: "Outros", icon: MoreHorizontal },
+];
+
+const promotionTypes = [
+  "Desconto",
+  "Brinde",
+  "Degustação",
+  "Apresentação / Show",
+  "Evento gratuito",
+  "Sorteio",
+  "Outro",
 ];
 
 interface FileUploadProps {
@@ -99,8 +123,13 @@ export default function SubmissionForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       companyName: "", responsibleName: "", email: "", phone: "",
-      eventTitle: "", date: "", startTime: "", location: "", description: "",
-      videoLink: "", category: "", authorization: undefined,
+      eventTitle: "", date: "", startTime: "", location: "",
+      addressStreet: "", addressNumber: "", addressNeighborhood: "",
+      addressCity: "", addressState: "", addressZip: "",
+      description: "", videoLink: "", category: "",
+      promotionType: "", targetAudience: "", promotionRules: "",
+      contactSocial: "", additionalDetails: "",
+      authorization: undefined,
     },
   });
 
@@ -117,9 +146,20 @@ export default function SubmissionForm() {
       date: data.date,
       start_time: data.startTime,
       location: data.location,
+      address_street: data.addressStreet || null,
+      address_number: data.addressNumber || null,
+      address_neighborhood: data.addressNeighborhood || null,
+      address_city: data.addressCity || null,
+      address_state: data.addressState || null,
+      address_zip: data.addressZip || null,
       description: data.description,
       video_link: data.videoLink || null,
       category: data.category,
+      promotion_type: data.promotionType || null,
+      target_audience: data.targetAudience || null,
+      promotion_rules: data.promotionRules || null,
+      contact_social: data.contactSocial || null,
+      additional_details: data.additionalDetails || null,
     });
     setSubmitting(false);
     if (success) {
@@ -170,8 +210,22 @@ export default function SubmissionForm() {
                   <TextField control={form.control} name="eventTitle" label="Título do evento ou promoção" className="sm:col-span-2" />
                   <TextField control={form.control} name="date" label="Data" type="date" />
                   <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
-                  <TextField control={form.control} name="location" label="Local" className="sm:col-span-2" />
+                  <TextField control={form.control} name="location" label="Nome do local / estabelecimento" className="sm:col-span-2" />
                 </div>
+
+                {/* Endereço detalhado */}
+                <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                  <p className="text-sm font-medium text-foreground">📍 Endereço completo <span className="text-muted-foreground font-normal">(opcional)</span></p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <TextField control={form.control} name="addressStreet" label="Rua" required={false} />
+                    <TextField control={form.control} name="addressNumber" label="Número" required={false} />
+                    <TextField control={form.control} name="addressNeighborhood" label="Bairro" required={false} />
+                    <TextField control={form.control} name="addressCity" label="Cidade" required={false} />
+                    <TextField control={form.control} name="addressState" label="Estado" required={false} />
+                    <TextField control={form.control} name="addressZip" label="CEP" required={false} />
+                  </div>
+                </div>
+
                 <FormField
                   control={form.control}
                   name="description"
@@ -190,6 +244,47 @@ export default function SubmissionForm() {
                 />
               </Section>
 
+              <Section title="🎯 Detalhes da Promoção">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="promotionType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tipo de promoção</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione o tipo" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {promotionTypes.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <TextField control={form.control} name="targetAudience" label="Público-alvo" required={false} />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="promotionRules"
+                  render={({ field }) => (
+                    <FormItem className="mt-4">
+                      <FormLabel>Regras ou condições</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} maxLength={500} rows={2} placeholder='Ex.: "Válido para compras acima de R$ 100", "Necessário apresentar CPF"...' className="resize-none" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Section>
+
               <Section title="📎 Upload de Materiais">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FileUpload label="Flyer" accept=".pdf,.jpg,.jpeg,.png" file={flyerFile} onFileChange={setFlyerFile} />
@@ -197,6 +292,25 @@ export default function SubmissionForm() {
                 </div>
                 <div className="mt-4">
                   <TextField control={form.control} name="videoLink" label="Link para vídeo (YouTube/Instagram)" required={false} />
+                </div>
+              </Section>
+
+              <Section title="📞 Contato e Informações Adicionais">
+                <div className="grid gap-4 sm:grid-cols-1">
+                  <TextField control={form.control} name="contactSocial" label="Redes sociais (Instagram, Facebook, etc.)" required={false} />
+                  <FormField
+                    control={form.control}
+                    name="additionalDetails"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Outros detalhes relevantes</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} maxLength={500} rows={3} placeholder="Ex.: estacionamento disponível, local acessível, necessário inscrição prévia..." className="resize-none" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </Section>
 
