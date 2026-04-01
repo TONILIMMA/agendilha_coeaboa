@@ -108,7 +108,7 @@ export default function SubmissionForm() {
 
   useEffect(() => {
     const filled = Object.entries(watchedValues).filter(
-      ([, v]) => v !== "" && v !== undefined && v !== false
+      ([, v]) => v !== "" && v !== undefined
     );
     if (filled.length > 0) {
       setCurrentFormData({
