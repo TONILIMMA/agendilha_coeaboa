@@ -22,7 +22,8 @@ const formSchema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255),
   phone: z.string().trim().min(1, "Campo obrigatório").max(30),
   eventTitle: z.string().trim().min(1, "Campo obrigatório").max(150),
-  dateTime: z.string().trim().min(1, "Campo obrigatório").max(100),
+  date: z.string().trim().min(1, "Campo obrigatório").max(50),
+  startTime: z.string().trim().min(1, "Campo obrigatório").max(20),
   location: z.string().trim().min(1, "Campo obrigatório").max(200),
   description: z.string().trim().min(1, "Campo obrigatório").max(300, "Máximo de 300 caracteres"),
   videoLink: z.string().url("URL inválida").optional().or(z.literal("")),
@@ -99,7 +100,7 @@ export default function SubmissionForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       companyName: "", responsibleName: "", email: "", phone: "",
-      eventTitle: "", dateTime: "", location: "", description: "",
+      eventTitle: "", date: "", startTime: "", location: "", description: "",
       videoLink: "", category: "", authorization: undefined,
     },
   });
@@ -185,8 +186,9 @@ export default function SubmissionForm() {
               <Section title="🎉 Informações do Evento / Promoção">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <TextField control={form.control} name="eventTitle" label="Título do evento ou promoção" className="sm:col-span-2" />
-                  <TextField control={form.control} name="dateTime" label="Data e horário" />
-                  <TextField control={form.control} name="location" label="Local" />
+                  <TextField control={form.control} name="date" label="Data" type="date" />
+                  <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
+                  <TextField control={form.control} name="location" label="Local" className="sm:col-span-2" />
                 </div>
                 <FormField
                   control={form.control}
