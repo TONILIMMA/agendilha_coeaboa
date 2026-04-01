@@ -10,6 +10,7 @@ import { LogIn, UserPlus, Loader2, Phone } from "lucide-react";
 export default function Auth() {
   const { user, loading } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
