@@ -49,6 +49,14 @@ const AppRoutes = () => (
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/events"
+        element={
+          <ProtectedRoute>
+            <AdminEvents />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </SubmissionProvider>
