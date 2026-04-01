@@ -40,6 +40,14 @@ const AppRoutes = () => (
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute>
+            <AdminUsers />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </SubmissionProvider>
