@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useProfile } from "@/hooks/useProfile";
 import { z } from "zod";
-import { Upload, Music, UtensilsCrossed, Palette, Trophy, Tag, MoreHorizontal, Send, X } from "lucide-react";
+import { Upload, Send, X, ChevronDown, ChevronUp } from "lucide-react";
 import heroBanner from "@/assets/hero-banner.jpg";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage
@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -84,22 +83,22 @@ function FileUpload({ label, accept, file, onFileChange, required }: FileUploadP
       </Label>
       <div
         onClick={() => inputRef.current?.click()}
-        className="relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 px-4 py-6 cursor-pointer transition-all hover:border-primary/60 hover:bg-primary/10"
+        className="relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 px-4 py-8 cursor-pointer transition-all hover:border-primary/60 hover:bg-primary/10 active:scale-[0.98] min-h-[80px]"
       >
         <Upload className="h-6 w-6 text-primary/60" />
         {file ? (
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground">{file.name}</span>
+            <span className="text-sm font-medium text-foreground truncate max-w-[200px]">{file.name}</span>
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onFileChange(null); }}
-              className="rounded-full p-0.5 hover:bg-muted"
+              className="rounded-full p-1.5 hover:bg-muted active:bg-muted/80 min-w-[36px] min-h-[36px] flex items-center justify-center"
             >
               <X className="h-4 w-4 text-muted-foreground" />
             </button>
           </div>
         ) : (
-          <span className="text-sm text-muted-foreground">Clique para enviar ({accept})</span>
+          <span className="text-sm text-muted-foreground text-center">Toque para enviar ({accept})</span>
         )}
         <input
           ref={inputRef}
@@ -146,7 +145,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
           <FormControl>
             <Input
               {...field}
+              inputMode="numeric"
               placeholder="00000-000"
+              className="h-12 text-base"
               onChange={(e) => {
                 field.onChange(e);
                 fetchCep(e.target.value);
@@ -165,6 +166,14 @@ export default function SubmissionForm() {
   const [flyerFile, setFlyerFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    anunciante: true,
+    evento: true,
+    promocao: false,
+    upload: false,
+    contato: false,
+    categoria: true,
+  });
   const { addSubmission } = useSubmissions();
   const { profile, loaded, saveProfile } = useProfile();
 
@@ -182,7 +191,6 @@ export default function SubmissionForm() {
     },
   });
 
-  // Pre-fill form with saved profile data
   useEffect(() => {
     if (!loaded) return;
     const fields = {
@@ -202,6 +210,10 @@ export default function SubmissionForm() {
       if (value) form.setValue(key as any, value);
     });
   }, [loaded, profile]);
+
+  const toggleSection = (key: string) => {
+    setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const descriptionLength = form.watch("description")?.length || 0;
 
@@ -233,7 +245,6 @@ export default function SubmissionForm() {
     });
     setSubmitting(false);
     if (success) {
-      // Save reusable data to profile
       saveProfile({
         company_name: data.companyName,
         responsible_name: data.responsibleName,
@@ -256,41 +267,40 @@ export default function SubmissionForm() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <div className="relative h-64 md:h-80 overflow-hidden">
+      <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
         <img src={heroBanner} alt="Paisagem tropical" className="absolute inset-0 w-full h-full object-cover" width={1920} height={640} />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-background" />
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
-          <h1 className="font-display text-3xl md:text-5xl font-extrabold text-primary-foreground drop-shadow-lg">
+          <h1 className="font-display text-2xl sm:text-3xl md:text-5xl font-extrabold text-primary-foreground drop-shadow-lg">
             📌 Informações de Eventos
           </h1>
-          <p className="mt-2 font-display text-lg md:text-xl font-semibold text-primary-foreground/90 drop-shadow">
+          <p className="mt-1.5 sm:mt-2 font-display text-base sm:text-lg md:text-xl font-semibold text-primary-foreground/90 drop-shadow">
             AgendIlha / Coé a Boa?
           </p>
         </div>
       </div>
 
       {/* Form Container */}
-      <div className="mx-auto max-w-2xl px-4 -mt-10 relative z-20 pb-16">
-        <div className="rounded-2xl bg-card shadow-elevated p-6 md:p-10">
-          <p className="text-muted-foreground text-sm md:text-base leading-relaxed mb-8">
+      <div className="mx-auto max-w-2xl px-3 sm:px-4 -mt-8 sm:-mt-10 relative z-20 pb-16">
+        <div className="rounded-2xl bg-card shadow-elevated p-4 sm:p-6 md:p-10">
+          <p className="text-muted-foreground text-sm leading-relaxed mb-6 sm:mb-8">
             O <strong className="text-secondary">Coé a Boa?</strong> é o portal que conecta a comunidade às melhores experiências locais.
             No <strong className="text-secondary">AgendIlha</strong>, você pode divulgar seus eventos, promoções e novidades com visibilidade garantida.
-            Preencha o formulário, envie seu flyer ou banner e sua divulgação estará pronta para alcançar o público certo.
           </p>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <Section title="👤 Dados do Anunciante">
-                <div className="grid gap-4 sm:grid-cols-2">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 sm:space-y-8">
+              <CollapsibleSection title="👤 Dados do Anunciante" sectionKey="anunciante" expanded={expandedSections.anunciante} onToggle={toggleSection}>
+                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                   <TextField control={form.control} name="companyName" label="Nome da empresa/organização" />
                   <TextField control={form.control} name="responsibleName" label="Nome do responsável" />
-                  <TextField control={form.control} name="email" label="E-mail de contato" type="email" />
-                  <TextField control={form.control} name="phone" label="Telefone/WhatsApp" />
+                  <TextField control={form.control} name="email" label="E-mail de contato" type="email" inputMode="email" />
+                  <TextField control={form.control} name="phone" label="Telefone/WhatsApp" type="tel" inputMode="tel" />
                 </div>
-              </Section>
+              </CollapsibleSection>
 
-              <Section title="🎉 Informações do Evento / Promoção">
-                <div className="grid gap-4 sm:grid-cols-2">
+              <CollapsibleSection title="🎉 Informações do Evento" sectionKey="evento" expanded={expandedSections.evento} onToggle={toggleSection}>
+                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                   <TextField control={form.control} name="eventTitle" label="Título do evento ou promoção" className="sm:col-span-2" />
                   <TextField control={form.control} name="date" label="Data" type="date" />
                   <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
@@ -298,16 +308,16 @@ export default function SubmissionForm() {
                 </div>
 
                 {/* Endereço detalhado */}
-                <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                <div className="mt-3 sm:mt-4 rounded-lg border border-border bg-muted/30 p-3 sm:p-4 space-y-3">
                   <p className="text-sm font-medium text-foreground">📍 Endereço completo <span className="text-muted-foreground font-normal">(opcional)</span></p>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                     <CepField control={form.control} onCepFound={(data) => {
                       form.setValue("addressStreet", data.logradouro || "");
                       form.setValue("addressNeighborhood", data.bairro || "");
                       form.setValue("addressCity", data.localidade || "");
                       form.setValue("addressState", data.uf || "");
                     }} />
-                    <TextField control={form.control} name="addressNumber" label="Número" required={false} />
+                    <TextField control={form.control} name="addressNumber" label="Número" required={false} inputMode="numeric" />
                     <TextField control={form.control} name="addressStreet" label="Rua" required={false} />
                     <TextField control={form.control} name="addressNeighborhood" label="Bairro" required={false} />
                     <TextField control={form.control} name="addressCity" label="Cidade" required={false} />
@@ -319,10 +329,10 @@ export default function SubmissionForm() {
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    <FormItem className="mt-4">
+                    <FormItem className="mt-3 sm:mt-4">
                       <FormLabel>Breve descrição – "Qual é a boa?"</FormLabel>
                       <FormControl>
-                        <Textarea {...field} maxLength={300} rows={3} placeholder="Descreva o que vai rolar..." className="resize-none" />
+                        <Textarea {...field} maxLength={300} rows={3} placeholder="Descreva o que vai rolar..." className="resize-none text-base min-h-[100px]" />
                       </FormControl>
                       <div className="flex justify-between">
                         <FormMessage />
@@ -331,10 +341,10 @@ export default function SubmissionForm() {
                     </FormItem>
                   )}
                 />
-              </Section>
+              </CollapsibleSection>
 
-              <Section title="🎯 Detalhes da Promoção">
-                <div className="grid gap-4 sm:grid-cols-2">
+              <CollapsibleSection title="🎯 Detalhes da Promoção" sectionKey="promocao" expanded={expandedSections.promocao} onToggle={toggleSection}>
+                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="promotionType"
@@ -343,13 +353,13 @@ export default function SubmissionForm() {
                         <FormLabel>Tipo de promoção</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="h-12 text-base">
                               <SelectValue placeholder="Selecione o tipo" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {promotionTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                              <SelectItem key={type} value={type} className="py-3 text-base">{type}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -363,29 +373,29 @@ export default function SubmissionForm() {
                   control={form.control}
                   name="promotionRules"
                   render={({ field }) => (
-                    <FormItem className="mt-4">
+                    <FormItem className="mt-3 sm:mt-4">
                       <FormLabel>Regras ou condições</FormLabel>
                       <FormControl>
-                        <Textarea {...field} maxLength={500} rows={2} placeholder='Ex.: "Válido para compras acima de R$ 100", "Necessário apresentar CPF"...' className="resize-none" />
+                        <Textarea {...field} maxLength={500} rows={2} placeholder='Ex.: "Válido para compras acima de R$ 100"...' className="resize-none text-base min-h-[80px]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </Section>
+              </CollapsibleSection>
 
-              <Section title="📎 Upload de Materiais">
-                <div className="grid gap-4 sm:grid-cols-2">
+              <CollapsibleSection title="📎 Upload de Materiais" sectionKey="upload" expanded={expandedSections.upload} onToggle={toggleSection}>
+                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                   <FileUpload label="Flyer" accept=".pdf,.jpg,.jpeg,.png" file={flyerFile} onFileChange={setFlyerFile} />
                   <FileUpload label="Banner" accept=".jpg,.jpeg,.png" file={bannerFile} onFileChange={setBannerFile} />
                 </div>
-                <div className="mt-4">
-                  <TextField control={form.control} name="videoLink" label="Link para vídeo (YouTube/Instagram)" required={false} />
+                <div className="mt-3 sm:mt-4">
+                  <TextField control={form.control} name="videoLink" label="Link para vídeo (YouTube/Instagram)" required={false} type="url" inputMode="url" />
                 </div>
-              </Section>
+              </CollapsibleSection>
 
-              <Section title="📞 Contato e Informações Adicionais">
-                <div className="grid gap-4 sm:grid-cols-1">
+              <CollapsibleSection title="📞 Contato e Informações Adicionais" sectionKey="contato" expanded={expandedSections.contato} onToggle={toggleSection}>
+                <div className="grid gap-3 sm:gap-4 grid-cols-1">
                   <TextField control={form.control} name="contactSocial" label="Redes sociais (Instagram, Facebook, etc.)" required={false} />
                   <FormField
                     control={form.control}
@@ -394,16 +404,16 @@ export default function SubmissionForm() {
                       <FormItem>
                         <FormLabel>Outros detalhes relevantes</FormLabel>
                         <FormControl>
-                          <Textarea {...field} maxLength={500} rows={3} placeholder="Ex.: estacionamento disponível, local acessível, necessário inscrição prévia..." className="resize-none" />
+                          <Textarea {...field} maxLength={500} rows={3} placeholder="Ex.: estacionamento disponível, local acessível..." className="resize-none text-base min-h-[80px]" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-              </Section>
+              </CollapsibleSection>
 
-              <Section title="📂 Categoria do Evento">
+              <CollapsibleSection title="📂 Categoria do Evento" sectionKey="categoria" expanded={expandedSections.categoria} onToggle={toggleSection}>
                 <FormField
                   control={form.control}
                   name="category"
@@ -412,13 +422,13 @@ export default function SubmissionForm() {
                       <FormLabel>Categoria <span className="text-accent">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="h-12 text-base">
                             <SelectValue placeholder="Selecione uma categoria" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {categories.map((cat) => (
-                            <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                            <SelectItem key={cat.value} value={cat.value} className="py-3 text-base">{cat.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -431,7 +441,7 @@ export default function SubmissionForm() {
                     <TextField control={form.control} name="additionalDetails" label="Especifique a categoria" required={false} />
                   </div>
                 )}
-              </Section>
+              </CollapsibleSection>
 
               <FormField
                 control={form.control}
@@ -440,7 +450,7 @@ export default function SubmissionForm() {
                   <FormItem className="rounded-lg border border-border bg-muted/50 p-4">
                     <div className="flex items-start gap-3">
                       <FormControl>
-                        <Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-0.5" />
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-0.5 h-5 w-5" />
                       </FormControl>
                       <div className="space-y-1">
                         <FormLabel className="text-sm font-medium leading-snug cursor-pointer">
@@ -457,7 +467,7 @@ export default function SubmissionForm() {
                 type="submit"
                 size="lg"
                 disabled={submitting}
-                className="w-full gradient-sunset text-primary-foreground font-display font-bold text-base tracking-wide shadow-elevated hover:opacity-90 transition-opacity"
+                className="w-full gradient-sunset text-primary-foreground font-display font-bold text-base tracking-wide shadow-elevated hover:opacity-90 active:scale-[0.98] transition-all min-h-[52px]"
               >
                 <Send className="mr-2 h-5 w-5" />
                 {submitting ? "Enviando..." : "Enviar Divulgação"}
@@ -470,19 +480,28 @@ export default function SubmissionForm() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function CollapsibleSection({ title, sectionKey, expanded, onToggle, children }: {
+  title: string; sectionKey: string; expanded: boolean; onToggle: (key: string) => void; children: React.ReactNode;
+}) {
   return (
-    <div className="space-y-4">
-      <h2 className="font-display text-lg font-bold text-foreground border-b border-border pb-2">{title}</h2>
-      {children}
+    <div className="space-y-3 sm:space-y-4">
+      <button
+        type="button"
+        onClick={() => onToggle(sectionKey)}
+        className="flex w-full items-center justify-between font-display text-base sm:text-lg font-bold text-foreground border-b border-border pb-2 active:opacity-70 transition-opacity"
+      >
+        <span>{title}</span>
+        {expanded ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
+      </button>
+      {expanded && <div className="animate-accordion-down">{children}</div>}
     </div>
   );
 }
 
 function TextField({
-  control, name, label, type = "text", className = "", required = true,
+  control, name, label, type = "text", className = "", required = true, inputMode,
 }: {
-  control: any; name: string; label: string; type?: string; className?: string; required?: boolean;
+  control: any; name: string; label: string; type?: string; className?: string; required?: boolean; inputMode?: "text" | "email" | "tel" | "url" | "numeric" | "search";
 }) {
   return (
     <FormField
@@ -490,8 +509,10 @@ function TextField({
       name={name}
       render={({ field }) => (
         <FormItem className={className}>
-          <FormLabel>{label} {required && <span className="text-accent">*</span>}</FormLabel>
-          <FormControl><Input {...field} type={type} /></FormControl>
+          <FormLabel className="text-sm">{label} {required && <span className="text-accent">*</span>}</FormLabel>
+          <FormControl>
+            <Input {...field} type={type} inputMode={inputMode} className="h-12 text-base" />
+          </FormControl>
           <FormMessage />
         </FormItem>
       )}
