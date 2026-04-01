@@ -15,9 +15,20 @@ interface SubmissionEntry {
   date: string | null;
   start_time: string | null;
   location: string | null;
+  address_street: string | null;
+  address_number: string | null;
+  address_neighborhood: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  address_zip: string | null;
   description: string | null;
   video_link: string | null;
   category: string | null;
+  promotion_type: string | null;
+  target_audience: string | null;
+  promotion_rules: string | null;
+  contact_social: string | null;
+  additional_details: string | null;
 }
 
 interface SubmissionContextType {
