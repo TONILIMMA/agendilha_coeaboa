@@ -1,4 +1,4 @@
-import { ClipboardList, LogOut, Users } from "lucide-react";
+import { CalendarDays, ClipboardList, LogOut, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
