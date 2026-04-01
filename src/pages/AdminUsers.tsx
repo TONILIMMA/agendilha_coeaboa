@@ -5,7 +5,7 @@ import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShieldCheck, ShieldOff, Loader2, Users } from "lucide-react";
+import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User } from "lucide-react";
 import { toast } from "sonner";
 
 interface UserWithRole {
@@ -13,6 +13,24 @@ interface UserWithRole {
   email: string;
   created_at: string;
   is_admin: boolean;
+  responsible_name: string | null;
+  phone: string | null;
+}
+
+function formatPhone(phone: string | null): string {
+  if (!phone) return "—";
+  const digits = phone.replace(/\D/g, "");
+  // Format as (XX) XXXXX-XXXX for Brazilian numbers
+  if (digits.length === 13 && digits.startsWith("55")) {
+    const ddd = digits.slice(2, 4);
+    const part1 = digits.slice(4, 9);
+    const part2 = digits.slice(9);
+    return `(${ddd}) ${part1}-${part2}`;
+  }
+  if (digits.length === 11) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  }
+  return phone;
 }
 
 export default function AdminUsers() {
@@ -68,21 +86,19 @@ export default function AdminUsers() {
     setToggling(targetUser.id);
     try {
       if (targetUser.is_admin) {
-        // Remove admin role
         const { error } = await supabase
           .from("user_roles")
           .delete()
           .eq("user_id", targetUser.id)
           .eq("role", "admin");
         if (error) throw error;
-        toast.success(`Admin removido de ${targetUser.email}`);
+        toast.success(`Admin removido de ${targetUser.responsible_name || targetUser.email}`);
       } else {
-        // Add admin role
         const { error } = await supabase
           .from("user_roles")
           .insert({ user_id: targetUser.id, role: "admin" });
         if (error) throw error;
-        toast.success(`${targetUser.email} agora é admin`);
+        toast.success(`${targetUser.responsible_name || targetUser.email} agora é admin`);
       }
       await fetchUsers();
     } catch (err: any) {
@@ -102,13 +118,13 @@ export default function AdminUsers() {
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-4xl px-2 sm:px-4 py-4 sm:py-8">
       <Card className="border-border shadow-lg">
-        <CardHeader className="flex flex-row items-center gap-3">
+        <CardHeader className="flex flex-row items-center gap-3 px-3 sm:px-6">
           <Users className="h-6 w-6 text-primary" />
-          <CardTitle className="text-xl font-display">Gerenciar Usuários</CardTitle>
+          <CardTitle className="text-lg sm:text-xl font-display">Gerenciar Usuários</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 sm:px-6">
           {loading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -116,27 +132,41 @@ export default function AdminUsers() {
           ) : users.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">Nenhum usuário encontrado</p>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="space-y-3 sm:space-y-0 sm:divide-y sm:divide-border">
               {users.map((u) => (
-                <div key={u.id} className="flex items-center justify-between py-3 gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-foreground truncate">{u.email}</p>
-                    <p className="text-xs text-muted-foreground">
+                <div
+                  key={u.id}
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 p-3 sm:py-3 sm:px-0 rounded-lg sm:rounded-none bg-muted/30 sm:bg-transparent"
+                >
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {u.responsible_name || "Sem nome"}
+                      </p>
+                      {u.is_admin && (
+                        <Badge className="bg-primary/10 text-primary border-primary/30 text-xs shrink-0">
+                          Admin
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <p className="text-sm text-muted-foreground">
+                        {formatPhone(u.phone)}
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted-foreground pl-6">
                       Cadastro: {new Date(u.created_at).toLocaleDateString("pt-BR")}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {u.is_admin && (
-                      <Badge className="bg-primary/10 text-primary border-primary/30 text-xs">
-                        Admin
-                      </Badge>
-                    )}
+                  <div className="flex justify-end">
                     <Button
                       size="sm"
                       variant={u.is_admin ? "destructive" : "outline"}
                       disabled={toggling === u.id || u.id === user?.id}
                       onClick={() => toggleAdmin(u)}
-                      className="text-xs"
+                      className="text-xs w-full sm:w-auto min-h-[44px] sm:min-h-0"
                     >
                       {toggling === u.id ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
