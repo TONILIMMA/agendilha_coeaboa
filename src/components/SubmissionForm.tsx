@@ -463,11 +463,11 @@ export default function SubmissionForm() {
                 )}
               />
 
-              <Button
+               <Button
                 type="submit"
                 size="lg"
                 disabled={submitting}
-                className="w-full gradient-sunset text-primary-foreground font-display font-bold text-base tracking-wide shadow-elevated hover:opacity-90 active:scale-[0.98] transition-all min-h-[52px]"
+                className="w-full gradient-sunset text-primary-foreground font-display font-bold text-sm xs:text-base tracking-wide shadow-elevated hover:opacity-90 active:scale-[0.98] transition-all min-h-[48px] sm:min-h-[52px]"
               >
                 <Send className="mr-2 h-5 w-5" />
                 {submitting ? "Enviando..." : "Enviar Divulgação"}
