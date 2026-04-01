@@ -1,4 +1,4 @@
-import { ClipboardList, LogOut, Users } from "lucide-react";
+import { CalendarDays, ClipboardList, LogOut, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -42,10 +42,16 @@ export default function Header() {
                 </Button>
               </SubmissionsPanel>
               {isAdmin && (
-                <Button size="sm" variant="outline" onClick={() => navigate("/admin/users")} className="text-xs">
-                  <Users className="h-4 w-4 mr-1" />
-                  Usuários
-                </Button>
+                <>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/admin/events")} className="text-xs">
+                    <CalendarDays className="h-4 w-4 mr-1" />
+                    Eventos
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/admin/users")} className="text-xs">
+                    <Users className="h-4 w-4 mr-1" />
+                    Usuários
+                  </Button>
+                </>
               )}
               <Button size="sm" variant="ghost" onClick={signOut} className="text-muted-foreground">
                 <LogOut className="h-4 w-4" />
