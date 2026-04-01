@@ -234,6 +234,20 @@ export default function SubmissionForm() {
     });
     setSubmitting(false);
     if (success) {
+      // Save reusable data to profile
+      saveProfile({
+        company_name: data.companyName,
+        responsible_name: data.responsibleName,
+        email: data.email,
+        phone: data.phone,
+        address_street: data.addressStreet || "",
+        address_number: data.addressNumber || "",
+        address_neighborhood: data.addressNeighborhood || "",
+        address_city: data.addressCity || "",
+        address_state: data.addressState || "",
+        address_zip: data.addressZip || "",
+        contact_social: data.contactSocial || "",
+      });
       form.reset();
       setFlyerFile(null);
       setBannerFile(null);
