@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AdminUsers from "./pages/AdminUsers";
+import AdminEvents from "./pages/AdminEvents";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
