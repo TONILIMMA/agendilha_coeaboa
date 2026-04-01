@@ -1,22 +1,11 @@
-import { useState } from "react";
-import { Save, Database, Loader2 } from "lucide-react";
+import { ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { Badge } from "@/components/ui/badge";
+import SubmissionsPanel from "@/components/SubmissionsPanel";
 
 export default function Header() {
-  const { saveToStorage, savedCount, currentFormData } = useSubmissions();
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    setSaving(true);
-    // Small delay for visual feedback
-    await new Promise((r) => setTimeout(r, 400));
-    saveToStorage();
-    setSaving(false);
-  };
-
-  const hasData = currentFormData && Object.keys(currentFormData).length > 0;
+  const { savedCount } = useSubmissions();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
@@ -26,34 +15,20 @@ export default function Header() {
           <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
         </div>
 
-        <div className="flex items-center gap-3">
-          {savedCount > 0 && (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Database className="h-4 w-4" />
-              <Badge variant="secondary" className="text-xs font-medium">
+        <SubmissionsPanel>
+          <Button
+            size="sm"
+            className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all"
+          >
+            <ClipboardList className="mr-1.5 h-4 w-4" />
+            Envios
+            {savedCount > 0 && (
+              <Badge variant="secondary" className="ml-1.5 text-xs font-medium bg-white/20 text-white">
                 {savedCount}
               </Badge>
-            </div>
-          )}
-
-          <Button
-            onClick={handleSave}
-            disabled={saving}
-            size="sm"
-            className={`font-display font-semibold transition-all ${
-              hasData
-                ? "gradient-sunset text-primary-foreground shadow-card hover:opacity-90"
-                : "bg-muted text-muted-foreground"
-            }`}
-          >
-            {saving ? (
-              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-1.5 h-4 w-4" />
             )}
-            {saving ? "Salvando..." : "Salvar"}
           </Button>
-        </div>
+        </SubmissionsPanel>
       </div>
     </header>
   );
