@@ -1,4 +1,5 @@
-import { ClipboardList, LogOut } from "lucide-react";
+import { ClipboardList, LogOut, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,6 +9,7 @@ import SubmissionsPanel from "@/components/SubmissionsPanel";
 export default function Header() {
   const { savedCount } = useSubmissions();
   const { user, signOut, isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
@@ -39,6 +41,12 @@ export default function Header() {
                   )}
                 </Button>
               </SubmissionsPanel>
+              {isAdmin && (
+                <Button size="sm" variant="outline" onClick={() => navigate("/admin/users")} className="text-xs">
+                  <Users className="h-4 w-4 mr-1" />
+                  Usuários
+                </Button>
+              )}
               <Button size="sm" variant="ghost" onClick={signOut} className="text-muted-foreground">
                 <LogOut className="h-4 w-4" />
               </Button>
