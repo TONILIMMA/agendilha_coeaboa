@@ -96,6 +96,19 @@ export default function Auth() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === "signup" && (
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome Completo</Label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="Digite seu nome completo"
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="phone">WhatsApp (com DDD)</Label>
             <div className="relative">
