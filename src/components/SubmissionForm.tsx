@@ -50,12 +50,11 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const categories = [
-  { value: "musica", label: "Música / Show", icon: Music },
-  { value: "gastronomia", label: "Gastronomia", icon: UtensilsCrossed },
-  { value: "cultura", label: "Cultura / Arte", icon: Palette },
-  { value: "esporte", label: "Esporte", icon: Trophy },
-  { value: "promocoes", label: "Promoções / Ofertas", icon: Tag },
-  { value: "outros", label: "Outros", icon: MoreHorizontal },
+  { value: "musica", label: "Música / Show" },
+  { value: "gastronomia", label: "Gastronomia" },
+  { value: "cultura", label: "Cultura / Arte" },
+  { value: "esporte", label: "Esporte" },
+  { value: "outros", label: "Outros" },
 ];
 
 const promotionTypes = [
