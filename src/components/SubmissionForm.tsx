@@ -113,6 +113,54 @@ function FileUpload({ label, accept, file, onFileChange, required }: FileUploadP
   );
 }
 
+interface ViaCepData {
+  logradouro?: string;
+  bairro?: string;
+  localidade?: string;
+  uf?: string;
+  erro?: boolean;
+}
+
+function CepField({ control, onCepFound }: { control: any; onCepFound: (data: ViaCepData) => void }) {
+  const [loading, setLoading] = useState(false);
+
+  const fetchCep = useCallback(async (cep: string) => {
+    const clean = cep.replace(/\D/g, "");
+    if (clean.length !== 8) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
+      const data: ViaCepData = await res.json();
+      if (!data.erro) onCepFound(data);
+    } catch { /* silently ignore */ }
+    setLoading(false);
+  }, [onCepFound]);
+
+  return (
+    <FormField
+      control={control}
+      name="addressZip"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>CEP</FormLabel>
+          <FormControl>
+            <Input
+              {...field}
+              placeholder="00000-000"
+              onChange={(e) => {
+                field.onChange(e);
+                fetchCep(e.target.value);
+              }}
+            />
+          </FormControl>
+          {loading && <p className="text-xs text-muted-foreground">Buscando endereço...</p>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
 export default function SubmissionForm() {
   const [flyerFile, setFlyerFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
@@ -411,54 +459,6 @@ function TextField({
         <FormItem className={className}>
           <FormLabel>{label} {required && <span className="text-accent">*</span>}</FormLabel>
           <FormControl><Input {...field} type={type} /></FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-interface ViaCepData {
-  logradouro?: string;
-  bairro?: string;
-  localidade?: string;
-  uf?: string;
-  erro?: boolean;
-}
-
-function CepField({ control, onCepFound }: { control: any; onCepFound: (data: ViaCepData) => void }) {
-  const [loading, setLoading] = useState(false);
-
-  const fetchCep = useCallback(async (cep: string) => {
-    const clean = cep.replace(/\D/g, "");
-    if (clean.length !== 8) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
-      const data: ViaCepData = await res.json();
-      if (!data.erro) onCepFound(data);
-    } catch { /* silently ignore */ }
-    setLoading(false);
-  }, [onCepFound]);
-
-  return (
-    <FormField
-      control={control}
-      name="addressZip"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>CEP</FormLabel>
-          <FormControl>
-            <Input
-              {...field}
-              placeholder="00000-000"
-              onChange={(e) => {
-                field.onChange(e);
-                fetchCep(e.target.value);
-              }}
-            />
-          </FormControl>
-          {loading && <p className="text-xs text-muted-foreground">Buscando endereço...</p>}
           <FormMessage />
         </FormItem>
       )}
