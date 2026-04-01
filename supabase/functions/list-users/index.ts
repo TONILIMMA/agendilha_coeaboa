@@ -57,15 +57,21 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get all roles
+    // Get all roles and profiles
     const { data: roles } = await adminClient.from("user_roles").select("*");
+    const { data: profiles } = await adminClient.from("profiles").select("*");
 
-    const usersWithRoles = users.map((u) => ({
-      id: u.id,
-      email: u.email,
-      created_at: u.created_at,
-      is_admin: roles?.some((r) => r.user_id === u.id && r.role === "admin") ?? false,
-    }));
+    const usersWithRoles = users.map((u) => {
+      const profile = profiles?.find((p) => p.user_id === u.id);
+      return {
+        id: u.id,
+        email: u.email,
+        created_at: u.created_at,
+        is_admin: roles?.some((r) => r.user_id === u.id && r.role === "admin") ?? false,
+        responsible_name: profile?.responsible_name ?? null,
+        phone: profile?.phone ?? null,
+      };
+    });
 
     return new Response(JSON.stringify(usersWithRoles), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
