@@ -72,23 +72,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAdmin(!!data);
   }
 
-  const formatPhone = (phone: string): string => {
+  const formatPhoneToEmail = (phone: string): string => {
     const digits = phone.replace(/\D/g, "");
-    if (digits.startsWith("55")) return `+${digits}`;
-    return `+55${digits}`;
+    const fullNumber = digits.startsWith("55") ? digits : `55${digits}`;
+    return `${fullNumber}@phone.agendilha.app`;
   };
 
   const signUp = async (phone: string, password: string, name?: string) => {
-    const formattedPhone = formatPhone(phone);
-    const { data, error } = await supabase.auth.signUp({ phone: formattedPhone, password });
+    const fakeEmail = formatPhoneToEmail(phone);
+    const { data, error } = await supabase.auth.signUp({ email: fakeEmail, password });
     if (!error && data.user && name) {
-      await supabase.from("profiles").update({ responsible_name: name, phone: formattedPhone }).eq("user_id", data.user.id);
+      const digits = phone.replace(/\D/g, "");
+      const fullPhone = digits.startsWith("55") ? `+${digits}` : `+55${digits}`;
+      await supabase.from("profiles").update({ responsible_name: name, phone: fullPhone }).eq("user_id", data.user.id);
     }
     return { error: error as Error | null };
   };
 
   const signIn = async (phone: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ phone: formatPhone(phone), password });
+    const fakeEmail = formatPhoneToEmail(phone);
+    const { error } = await supabase.auth.signInWithPassword({ email: fakeEmail, password });
     return { error: error as Error | null };
   };
 
