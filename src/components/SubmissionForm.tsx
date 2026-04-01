@@ -167,6 +167,7 @@ export default function SubmissionForm() {
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { addSubmission } = useSubmissions();
+  const { profile, loaded, saveProfile } = useProfile();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -181,6 +182,27 @@ export default function SubmissionForm() {
       authorization: undefined,
     },
   });
+
+  // Pre-fill form with saved profile data
+  useEffect(() => {
+    if (!loaded) return;
+    const fields = {
+      companyName: profile.company_name,
+      responsibleName: profile.responsible_name,
+      email: profile.email,
+      phone: profile.phone,
+      addressStreet: profile.address_street,
+      addressNumber: profile.address_number,
+      addressNeighborhood: profile.address_neighborhood,
+      addressCity: profile.address_city,
+      addressState: profile.address_state,
+      addressZip: profile.address_zip,
+      contactSocial: profile.contact_social,
+    };
+    Object.entries(fields).forEach(([key, value]) => {
+      if (value) form.setValue(key as any, value);
+    });
+  }, [loaded, profile]);
 
   const descriptionLength = form.watch("description")?.length || 0;
 
