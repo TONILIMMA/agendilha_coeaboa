@@ -267,22 +267,22 @@ export default function SubmissionForm() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
+      <div className="relative h-40 xs:h-48 sm:h-64 md:h-80 overflow-hidden">
         <img src={heroBanner} alt="Paisagem tropical" className="absolute inset-0 w-full h-full object-cover" width={1920} height={640} />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-background" />
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
-          <h1 className="font-display text-2xl sm:text-3xl md:text-5xl font-extrabold text-primary-foreground drop-shadow-lg">
+        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-3 sm:px-4">
+          <h1 className="font-display text-xl xs:text-2xl sm:text-3xl md:text-5xl font-extrabold text-primary-foreground drop-shadow-lg leading-tight">
             📌 Informações de Eventos
           </h1>
-          <p className="mt-1.5 sm:mt-2 font-display text-base sm:text-lg md:text-xl font-semibold text-primary-foreground/90 drop-shadow">
+          <p className="mt-1 sm:mt-2 font-display text-sm xs:text-base sm:text-lg md:text-xl font-semibold text-primary-foreground/90 drop-shadow">
             AgendIlha / Coé a Boa?
           </p>
         </div>
       </div>
 
       {/* Form Container */}
-      <div className="mx-auto max-w-2xl px-3 sm:px-4 -mt-8 sm:-mt-10 relative z-20 pb-16">
-        <div className="rounded-2xl bg-card shadow-elevated p-4 sm:p-6 md:p-10">
+      <div className="mx-auto max-w-2xl px-2 xs:px-3 sm:px-4 -mt-6 xs:-mt-8 sm:-mt-10 relative z-20 pb-12 sm:pb-16">
+        <div className="rounded-xl sm:rounded-2xl bg-card shadow-elevated p-3 xs:p-4 sm:p-6 md:p-10">
           <p className="text-muted-foreground text-sm leading-relaxed mb-6 sm:mb-8">
             O <strong className="text-secondary">Coé a Boa?</strong> é o portal que conecta a comunidade às melhores experiências locais.
             No <strong className="text-secondary">AgendIlha</strong>, você pode divulgar seus eventos, promoções e novidades com visibilidade garantida.
