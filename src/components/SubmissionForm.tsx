@@ -186,8 +186,9 @@ export default function SubmissionForm() {
               <Section title="🎉 Informações do Evento / Promoção">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <TextField control={form.control} name="eventTitle" label="Título do evento ou promoção" className="sm:col-span-2" />
-                  <TextField control={form.control} name="dateTime" label="Data e horário" />
-                  <TextField control={form.control} name="location" label="Local" />
+                  <TextField control={form.control} name="date" label="Data" type="date" />
+                  <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
+                  <TextField control={form.control} name="location" label="Local" className="sm:col-span-2" />
                 </div>
                 <FormField
                   control={form.control}
