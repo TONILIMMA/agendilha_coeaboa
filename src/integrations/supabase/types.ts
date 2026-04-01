@@ -16,8 +16,16 @@ export type Database = {
     Tables: {
       submissions: {
         Row: {
+          additional_details: string | null
+          address_city: string | null
+          address_neighborhood: string | null
+          address_number: string | null
+          address_state: string | null
+          address_street: string | null
+          address_zip: string | null
           category: string | null
           company_name: string | null
+          contact_social: string | null
           created_at: string
           date: string | null
           description: string | null
@@ -26,14 +34,25 @@ export type Database = {
           id: string
           location: string | null
           phone: string | null
+          promotion_rules: string | null
+          promotion_type: string | null
           responsible_name: string | null
           start_time: string | null
+          target_audience: string | null
           user_id: string
           video_link: string | null
         }
         Insert: {
+          additional_details?: string | null
+          address_city?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
           category?: string | null
           company_name?: string | null
+          contact_social?: string | null
           created_at?: string
           date?: string | null
           description?: string | null
@@ -42,14 +61,25 @@ export type Database = {
           id?: string
           location?: string | null
           phone?: string | null
+          promotion_rules?: string | null
+          promotion_type?: string | null
           responsible_name?: string | null
           start_time?: string | null
+          target_audience?: string | null
           user_id: string
           video_link?: string | null
         }
         Update: {
+          additional_details?: string | null
+          address_city?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
           category?: string | null
           company_name?: string | null
+          contact_social?: string | null
           created_at?: string
           date?: string | null
           description?: string | null
@@ -58,8 +88,11 @@ export type Database = {
           id?: string
           location?: string | null
           phone?: string | null
+          promotion_rules?: string | null
+          promotion_type?: string | null
           responsible_name?: string | null
           start_time?: string | null
+          target_audience?: string | null
           user_id?: string
           video_link?: string | null
         }
