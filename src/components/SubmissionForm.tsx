@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -217,12 +217,17 @@ export default function SubmissionForm() {
                 <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                   <p className="text-sm font-medium text-foreground">📍 Endereço completo <span className="text-muted-foreground font-normal">(opcional)</span></p>
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <TextField control={form.control} name="addressStreet" label="Rua" required={false} />
+                    <CepField control={form.control} onCepFound={(data) => {
+                      form.setValue("addressStreet", data.logradouro || "");
+                      form.setValue("addressNeighborhood", data.bairro || "");
+                      form.setValue("addressCity", data.localidade || "");
+                      form.setValue("addressState", data.uf || "");
+                    }} />
                     <TextField control={form.control} name="addressNumber" label="Número" required={false} />
+                    <TextField control={form.control} name="addressStreet" label="Rua" required={false} />
                     <TextField control={form.control} name="addressNeighborhood" label="Bairro" required={false} />
                     <TextField control={form.control} name="addressCity" label="Cidade" required={false} />
                     <TextField control={form.control} name="addressState" label="Estado" required={false} />
-                    <TextField control={form.control} name="addressZip" label="CEP" required={false} />
                   </div>
                 </div>
 
@@ -406,6 +411,54 @@ function TextField({
         <FormItem className={className}>
           <FormLabel>{label} {required && <span className="text-accent">*</span>}</FormLabel>
           <FormControl><Input {...field} type={type} /></FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+interface ViaCepData {
+  logradouro?: string;
+  bairro?: string;
+  localidade?: string;
+  uf?: string;
+  erro?: boolean;
+}
+
+function CepField({ control, onCepFound }: { control: any; onCepFound: (data: ViaCepData) => void }) {
+  const [loading, setLoading] = useState(false);
+
+  const fetchCep = useCallback(async (cep: string) => {
+    const clean = cep.replace(/\D/g, "");
+    if (clean.length !== 8) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
+      const data: ViaCepData = await res.json();
+      if (!data.erro) onCepFound(data);
+    } catch { /* silently ignore */ }
+    setLoading(false);
+  }, [onCepFound]);
+
+  return (
+    <FormField
+      control={control}
+      name="addressZip"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>CEP</FormLabel>
+          <FormControl>
+            <Input
+              {...field}
+              placeholder="00000-000"
+              onChange={(e) => {
+                field.onChange(e);
+                fetchCep(e.target.value);
+              }}
+            />
+          </FormControl>
+          {loading && <p className="text-xs text-muted-foreground">Buscando endereço...</p>}
           <FormMessage />
         </FormItem>
       )}
