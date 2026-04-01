@@ -50,13 +50,18 @@ function buildWhatsAppMessage(sub: any): string {
 function exportToCSV(submissions: any[]) {
   const headers = [
     "Data Envio", "Empresa", "Responsável", "E-mail", "Telefone",
-    "Evento", "Data", "Horário", "Local", "Descrição", "Categoria", "Vídeo",
+    "Evento", "Data", "Horário", "Local", "Rua", "Número", "Bairro", "Cidade", "Estado", "CEP",
+    "Descrição", "Categoria", "Tipo Promoção", "Público-alvo", "Regras", "Redes Sociais", "Detalhes Adicionais", "Vídeo",
   ];
   const rows = submissions.map((s) => [
     formatDate(s.created_at),
     s.company_name || "", s.responsible_name || "", s.email || "", s.phone || "",
     s.event_title || "", s.date || "", s.start_time || "", s.location || "",
-    s.description || "", categoryLabels[s.category || ""] || "", s.video_link || "",
+    s.address_street || "", s.address_number || "", s.address_neighborhood || "",
+    s.address_city || "", s.address_state || "", s.address_zip || "",
+    s.description || "", categoryLabels[s.category || ""] || "",
+    s.promotion_type || "", s.target_audience || "", s.promotion_rules || "",
+    s.contact_social || "", s.additional_details || "", s.video_link || "",
   ]);
   const csv = [headers, ...rows]
     .map((r) => r.map((c: string) => `"${String(c).replace(/"/g, '""')}"`).join(","))
