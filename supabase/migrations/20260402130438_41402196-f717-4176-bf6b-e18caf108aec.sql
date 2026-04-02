@@ -1,0 +1,1 @@
+ALTER TABLE public.submissions ADD COLUMN end_time text;
