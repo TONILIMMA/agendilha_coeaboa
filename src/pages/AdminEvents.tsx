@@ -171,6 +171,20 @@ export default function AdminEvents() {
           <h1 className="text-xl font-display font-bold text-foreground">Todos os Eventos</h1>
           <Badge variant="secondary" className="text-xs">{filtered.length}</Badge>
         </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            exportBulkEventsPdf(filtered);
+            toast.success("PDF com todos os eventos gerado!");
+          }}
+          disabled={filtered.length === 0}
+          className="text-xs"
+        >
+          <FileDown className="mr-1.5 h-3.5 w-3.5" />
+          Exportar Todos (PDF)
+        </Button>
+        </div>
       </div>
 
       {/* Filters */}
