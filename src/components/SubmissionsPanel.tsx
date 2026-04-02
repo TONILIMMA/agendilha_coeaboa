@@ -162,7 +162,7 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                   {sub.description && (
                     <p className="text-sm text-muted-foreground italic">"{sub.description}"</p>
                   )}
-                  <div className="flex items-center gap-2 pt-1">
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
                     <Button
                       size="sm"
                       onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
@@ -170,6 +170,18 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                     >
                       <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
                       WhatsApp
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        exportSingleEventPdf(sub);
+                        toast.success("PDF gerado!");
+                      }}
+                      className="text-xs"
+                    >
+                      <FileDown className="mr-1.5 h-3.5 w-3.5" />
+                      PDF
                     </Button>
                     <Button
                       size="sm"
