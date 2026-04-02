@@ -21,7 +21,7 @@ import {
 const formSchema = z.object({
   companyName: z.string().trim().min(1, "Campo obrigatório").max(100),
   responsibleName: z.string().trim().min(1, "Campo obrigatório").max(100),
-  email: z.string().trim().email("E-mail inválido").max(255),
+  email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
   phone: z.string().trim().min(1, "Campo obrigatório").max(30).regex(/^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/, "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321"),
   eventTitle: z.string().trim().min(1, "Campo obrigatório").max(150),
   date: z.string().trim().min(1, "Campo obrigatório").max(50).regex(/^\d{2}\/\d{2}\/\d{4}$/, "Use o formato dd/mm/aaaa"),
@@ -196,7 +196,7 @@ export default function SubmissionForm() {
     const fields = {
       companyName: profile.company_name,
       responsibleName: profile.responsible_name,
-      email: profile.email,
+      email: "",
       phone: profile.phone,
       addressStreet: profile.address_street,
       addressNumber: profile.address_number,
@@ -294,7 +294,7 @@ export default function SubmissionForm() {
                 <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                   <TextField control={form.control} name="companyName" label="Nome da empresa/organização" />
                   <TextField control={form.control} name="responsibleName" label="Nome do responsável" />
-                  <TextField control={form.control} name="email" label="E-mail de contato" type="email" inputMode="email" />
+                  <TextField control={form.control} name="email" label="E-mail de contato (opcional)" type="email" inputMode="email" required={false} />
                   <TextField control={form.control} name="phone" label="Telefone/WhatsApp" type="tel" inputMode="tel" />
                 </div>
               </CollapsibleSection>
