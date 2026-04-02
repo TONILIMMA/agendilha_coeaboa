@@ -114,7 +114,7 @@ function drawEventPage(doc: jsPDF, event: EventData, pageWidth: number) {
   if (event.additional_details) fields.push(["ℹ️ Detalhes:", event.additional_details]);
 
   for (const [label, value] of fields) {
-    if (y > 270) {
+    if (y > 255) {
       doc.addPage();
       y = 20;
     }
