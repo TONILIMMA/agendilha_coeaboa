@@ -26,6 +26,7 @@ const formSchema = z.object({
   eventTitle: z.string().trim().min(1, "Campo obrigatório").max(150),
   date: z.string().trim().min(1, "Campo obrigatório").max(50).regex(/^\d{2}\/\d{2}\/\d{4}$/, "Use o formato dd/mm/aaaa"),
   startTime: z.string().trim().min(1, "Campo obrigatório").max(20),
+  endTime: z.string().trim().min(1, "Campo obrigatório").max(20),
   location: z.string().trim().min(1, "Campo obrigatório").max(200),
   addressStreet: z.string().trim().max(200).optional().or(z.literal("")),
   addressNumber: z.string().trim().max(20).optional().or(z.literal("")),
