@@ -184,7 +184,7 @@ export default function AdminEvents() {
           <FileDown className="mr-1.5 h-3.5 w-3.5" />
           Exportar Todos (PDF)
         </Button>
-        </div>
+      </div>
       </div>
 
       {/* Filters */}
