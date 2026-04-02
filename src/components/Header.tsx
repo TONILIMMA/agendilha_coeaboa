@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
 import { Badge } from "@/components/ui/badge";
 import SubmissionsPanel from "@/components/SubmissionsPanel";
 
 export default function Header() {
   const { savedCount } = useSubmissions();
   const { user, signOut, isAdmin } = useAuth();
+  const { profile } = useProfile();
   const navigate = useNavigate();
 
   return (
@@ -25,6 +27,11 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-2">
+          {user && profile.responsible_name && (
+            <span className="hidden sm:inline text-sm font-medium text-foreground truncate max-w-[150px]">
+              Olá, {profile.responsible_name.split(" ")[0]}
+            </span>
+          )}
           {user && (
             <>
               <SubmissionsPanel>
