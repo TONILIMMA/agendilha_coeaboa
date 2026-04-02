@@ -5,7 +5,18 @@ import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface UserWithRole {
@@ -20,7 +31,6 @@ interface UserWithRole {
 function formatPhone(phone: string | null): string {
   if (!phone) return "—";
   const digits = phone.replace(/\D/g, "");
-  // Format as (XX) XXXXX-XXXX for Brazilian numbers
   if (digits.length === 13 && digits.startsWith("55")) {
     const ddd = digits.slice(2, 4);
     const part1 = digits.slice(4, 9);
@@ -38,6 +48,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   async function fetchUsers() {
     setLoading(true);
@@ -107,6 +118,46 @@ export default function AdminUsers() {
     setToggling(null);
   }
 
+  async function deleteUser(targetUser: UserWithRole) {
+    if (targetUser.id === user?.id) {
+      toast.error("Você não pode excluir a si mesmo");
+      return;
+    }
+    setDeleting(targetUser.id);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast.error("Sessão expirada.");
+        setDeleting(null);
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ user_id: targetUser.id }),
+        }
+      );
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err?.error || `Erro ${response.status}`);
+      }
+
+      toast.success(`Usuário ${targetUser.responsible_name || "removido"} excluído com sucesso`);
+      await fetchUsers();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao excluir usuário");
+    }
+    setDeleting(null);
+  }
+
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -160,13 +211,13 @@ export default function AdminUsers() {
                       Cadastro: {new Date(u.created_at).toLocaleDateString("pt-BR")}
                     </p>
                   </div>
-                  <div className="flex justify-end">
+                  <div className="flex gap-2 justify-end">
                     <Button
                       size="sm"
                       variant={u.is_admin ? "destructive" : "outline"}
                       disabled={toggling === u.id || u.id === user?.id}
                       onClick={() => toggleAdmin(u)}
-                      className="text-xs w-full sm:w-auto min-h-[44px] sm:min-h-0"
+                      className="text-xs min-h-[44px] sm:min-h-0"
                     >
                       {toggling === u.id ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -182,6 +233,45 @@ export default function AdminUsers() {
                         </>
                       )}
                     </Button>
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={u.id === user?.id || deleting === u.id}
+                          className="text-xs min-h-[44px] sm:min-h-0"
+                        >
+                          {deleting === u.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <>
+                              <Trash2 className="h-3.5 w-3.5 mr-1" />
+                              Excluir
+                            </>
+                          )}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir usuário?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja excluir{" "}
+                            <strong>{u.responsible_name || u.email}</strong>? Esta ação é irreversível
+                            e todos os dados do usuário serão removidos.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => deleteUser(u)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))}
