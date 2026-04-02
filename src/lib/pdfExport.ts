@@ -56,7 +56,7 @@ function addField(doc: jsPDF, label: string, value: string, x: number, y: number
   return y;
 }
 
-function drawEventPage(doc: jsPDF, event: EventData, pageWidth: number) {
+function drawEventPage(doc: jsPDF, event: EventData, pageWidth: number, isLastPage = true) {
   const margin = 20;
   const contentWidth = pageWidth - margin * 2;
   let y = margin;
