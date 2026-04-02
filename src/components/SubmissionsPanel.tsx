@@ -6,7 +6,8 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ClipboardList, MessageCircle, Trash2, Download, Loader2 } from "lucide-react";
+import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2 } from "lucide-react";
+import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 import { useState } from "react";
 
