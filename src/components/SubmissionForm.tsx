@@ -45,6 +45,14 @@ const formSchema = z.object({
   authorization: z.literal(true, {
     errorMap: () => ({ message: "Você precisa autorizar a publicação" }),
   }),
+}).refine((data) => {
+  if (data.startTime && data.endTime) {
+    return data.endTime > data.startTime;
+  }
+  return true;
+}, {
+  message: "O horário de término deve ser posterior ao horário de início",
+  path: ["endTime"],
 });
 
 type FormData = z.infer<typeof formSchema>;
