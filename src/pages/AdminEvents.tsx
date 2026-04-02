@@ -185,7 +185,6 @@ export default function AdminEvents() {
           Exportar Todos (PDF)
         </Button>
       </div>
-      </div>
 
       {/* Filters */}
       <Card className="mb-5 border-border">
