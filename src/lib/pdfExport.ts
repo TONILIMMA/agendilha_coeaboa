@@ -56,7 +56,7 @@ function addField(doc: jsPDF, label: string, value: string, x: number, y: number
   return y;
 }
 
-function drawEventPage(doc: jsPDF, event: EventData, pageWidth: number) {
+function drawEventPage(doc: jsPDF, event: EventData, pageWidth: number, isLastPage = true) {
   const margin = 20;
   const contentWidth = pageWidth - margin * 2;
   let y = margin;
@@ -133,6 +133,14 @@ function drawEventPage(doc: jsPDF, event: EventData, pageWidth: number) {
     margin,
     footerY
   );
+
+  if (isLastPage) {
+    const linkUrl = "https://coeaboa.lovable.app";
+    const linkText = "Para mais informações, acesse: coeaboa.lovable.app";
+    doc.setFontSize(9);
+    doc.setTextColor(232, 89, 12);
+    doc.textWithLink(linkText, margin, footerY + 5, { url: linkUrl });
+  }
 }
 
 export function exportSingleEventPdf(event: EventData) {
@@ -146,7 +154,7 @@ export function exportBulkEventsPdf(events: EventData[]) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   events.forEach((event, i) => {
     if (i > 0) doc.addPage();
-    drawEventPage(doc, event, 210);
+    drawEventPage(doc, event, 210, i === events.length - 1);
   });
   doc.save(`agendilha_eventos_${new Date().toISOString().slice(0, 10)}.pdf`);
 }
