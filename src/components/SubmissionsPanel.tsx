@@ -77,10 +77,49 @@ function exportToCSV(submissions: any[]) {
   toast.success("CSV exportado com sucesso!");
 }
 
+function buildBulkWhatsAppMessage(subs: any[]): string {
+  const lines = ["📋 *Eventos AgendIlha* 🌴", ""];
+  subs.forEach((sub, i) => {
+    lines.push(`${i + 1}. 📌 *${sub.event_title || "Evento"}*`);
+    lines.push(`   📅 ${sub.date || ""} às ${sub.start_time || ""}`);
+    lines.push(`   📍 ${sub.location || ""}`);
+    if (sub.description) lines.push(`   ${sub.description}`);
+    lines.push("");
+  });
+  lines.push("Divulgação via AgendIlha / Coé a Boa? 🌴");
+  return encodeURIComponent(lines.join("\n"));
+}
+
 export default function SubmissionsPanel({ children }: { children: React.ReactNode }) {
   const { submissions, loading, fetchSubmissions, deleteSubmission, savedCount } = useSubmissions();
   const { isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleAll = useCallback(() => {
+    setSelectedIds(prev =>
+      prev.size === submissions.length ? new Set() : new Set(submissions.map(s => s.id))
+    );
+  }, [submissions]);
+
+  const selectedSubs = submissions.filter(s => selectedIds.has(s.id));
+
+  const shareBulkWhatsApp = useCallback(() => {
+    if (selectedSubs.length === 0) {
+      toast.error("Selecione ao menos um evento.");
+      return;
+    }
+    window.open(`https://wa.me/?text=${buildBulkWhatsAppMessage(selectedSubs)}`, "_blank");
+    toast.success(`${selectedSubs.length} evento(s) compartilhado(s)!`);
+  }, [selectedSubs]);
 
   useEffect(() => {
     if (open) fetchSubmissions();
