@@ -302,7 +302,7 @@ export default function SubmissionForm() {
               <CollapsibleSection title="🎉 Informações do Evento" sectionKey="evento" expanded={expandedSections.evento} onToggle={toggleSection}>
                 <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                   <TextField control={form.control} name="eventTitle" label="Título do evento ou promoção" className="sm:col-span-2" />
-                  <TextField control={form.control} name="date" label="Data" type="date" />
+                  <TextField control={form.control} name="date" label="Data" placeholder="dd/mm/aaaa" inputMode="numeric" />
                   <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
                   <TextField control={form.control} name="location" label="Nome do local / estabelecimento" className="sm:col-span-2" />
                 </div>
