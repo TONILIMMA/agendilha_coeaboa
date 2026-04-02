@@ -14,6 +14,7 @@ import {
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 
 interface Submission {
   id: string;
