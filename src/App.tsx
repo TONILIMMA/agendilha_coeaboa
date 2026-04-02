@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import AdminUsers from "./pages/AdminUsers";
 import AdminEvents from "./pages/AdminEvents";
 import NotFound from "./pages/NotFound";
+import ProfileCompletionGate from "@/components/ProfileCompletionGate";
 import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
@@ -25,7 +26,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
   if (!user) return <Navigate to="/auth" replace />;
-  return <>{children}</>;
+  return <ProfileCompletionGate>{children}</ProfileCompletionGate>;
 }
 
 const AppRoutes = () => (
