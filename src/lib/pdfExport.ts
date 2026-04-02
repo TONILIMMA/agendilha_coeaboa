@@ -179,7 +179,8 @@ function drawEventPage(doc: jsPDF, event: EventData, isLastPage = true) {
   doc.text("INFORMAÇÕES DO EVENTO", MARGIN + 2, y + 1);
   y += 12;
 
-  y = addSectionField(doc, "Data e Horário", `${event.date || "—"}  •  ${event.start_time || "—"}`, MARGIN, y, CONTENT_W);
+  const timeStr = event.start_time ? `${event.start_time}${event.end_time ? ` às ${event.end_time}` : ""}` : "—";
+  y = addSectionField(doc, "Data e Horário", `${event.date || "—"}  •  ${timeStr}`, MARGIN, y, CONTENT_W);
   y = addSectionField(doc, "Local", event.location || "—", MARGIN, y, CONTENT_W);
 
   const addressParts = [
