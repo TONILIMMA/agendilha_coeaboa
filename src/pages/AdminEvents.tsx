@@ -81,53 +81,13 @@ function buildWhatsAppMessage(sub: Submission): string {
   return encodeURIComponent(lines.join("\n"));
 }
 
-function buildPdfContent(sub: Submission): string {
-  const lines = [
-    `EVENTO: ${sub.event_title}`,
-    `Data: ${sub.date || "—"} | Horário: ${sub.start_time || "—"}`,
-    `Local: ${sub.location || "—"}`,
-  ];
-  const addressParts = [sub.address_street, sub.address_number, sub.address_neighborhood, sub.address_city, sub.address_state, sub.address_zip].filter(Boolean);
-  if (addressParts.length) lines.push(`Endereço: ${addressParts.join(", ")}`);
-  lines.push(`Descrição: ${sub.description || "—"}`);
-  lines.push(`Empresa: ${sub.company_name || "—"}`);
-  lines.push(`Responsável: ${sub.responsible_name || "—"}`);
-  lines.push(`Telefone: ${sub.phone || "—"}`);
-  lines.push(`E-mail: ${sub.email || "—"}`);
-  lines.push(`Categoria: ${categoryLabels[sub.category || ""] || "—"}`);
-  if (sub.promotion_type) lines.push(`Tipo Promoção: ${sub.promotion_type}`);
-  if (sub.target_audience) lines.push(`Público-alvo: ${sub.target_audience}`);
-  if (sub.promotion_rules) lines.push(`Regras: ${sub.promotion_rules}`);
-  if (sub.contact_social) lines.push(`Redes Sociais: ${sub.contact_social}`);
-  if (sub.video_link) lines.push(`Vídeo: ${sub.video_link}`);
-  if (sub.additional_details) lines.push(`Detalhes: ${sub.additional_details}`);
-  return lines.join("\n");
+function buildPdfContent(_sub: Submission): string {
+  return "";
 }
 
 function downloadEventPdf(sub: Submission) {
-  const content = buildPdfContent(sub);
-  // Generate a simple printable HTML and trigger print/save as PDF
-  const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>${sub.event_title}</title>
-<style>
-  body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; color: #222; }
-  h1 { color: #e8590c; border-bottom: 2px solid #e8590c; padding-bottom: 8px; }
-  .field { margin: 6px 0; } .label { font-weight: bold; color: #555; }
-  .footer { margin-top: 30px; font-size: 12px; color: #999; border-top: 1px solid #ddd; padding-top: 10px; }
-</style></head><body>
-<h1>📌 ${sub.event_title}</h1>
-${content.split("\n").slice(1).map(l => {
-    const [label, ...rest] = l.split(": ");
-    return `<div class="field"><span class="label">${label}:</span> ${rest.join(": ") || "—"}</div>`;
-  }).join("")}
-<div class="footer">Gerado por AgendIlha / Coé a Boa? 🌴 — ${new Date().toLocaleDateString("pt-BR")}</div>
-</body></html>`;
-  const w = window.open("", "_blank");
-  if (w) {
-    w.document.write(html);
-    w.document.close();
-    setTimeout(() => w.print(), 400);
-  }
+  exportSingleEventPdf(sub);
+  toast.success("PDF gerado com sucesso!");
 }
 
 export default function AdminEvents() {
