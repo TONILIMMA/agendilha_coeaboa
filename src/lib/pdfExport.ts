@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { AGENDILHA_LOGO_BASE64 } from "./logoBase64";
 
 const categoryLabels: Record<string, string> = {
   musica: "Música / Show",
@@ -86,11 +87,25 @@ function drawHeader(doc: jsPDF) {
   doc.setFillColor(...BRAND_ORANGE);
   doc.rect(0, 0, PAGE_W, HEADER_H, "F");
 
-  // White title
+  // Logo image
+  try {
+    doc.addImage(
+      `data:image/png;base64,${AGENDILHA_LOGO_BASE64}`,
+      "PNG",
+      MARGIN,
+      2,
+      24,
+      12
+    );
+  } catch {
+    // Fallback if image fails
+  }
+
+  // White title (offset for logo)
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.text("AgendIlha  |  Coé a Boa?", MARGIN, 10);
+  doc.text("AgendIlha  |  Coé a Boa?", MARGIN + 26, 10);
 
   // Right-aligned date
   doc.setFont("helvetica", "normal");
