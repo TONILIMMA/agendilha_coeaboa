@@ -154,7 +154,7 @@ export function exportBulkEventsPdf(events: EventData[]) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   events.forEach((event, i) => {
     if (i > 0) doc.addPage();
-    drawEventPage(doc, event, 210);
+    drawEventPage(doc, event, 210, i === events.length - 1);
   });
   doc.save(`agendilha_eventos_${new Date().toISOString().slice(0, 10)}.pdf`);
 }
