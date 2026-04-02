@@ -122,7 +122,7 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
   }, [selectedSubs]);
 
   useEffect(() => {
-    if (open) fetchSubmissions();
+    if (open) { fetchSubmissions(); setSelectedIds(new Set()); }
   }, [open, fetchSubmissions]);
 
   return (
