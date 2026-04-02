@@ -30,7 +30,7 @@ function buildWhatsAppMessage(sub: any): string {
   const lines = [
     `📌 *${sub.event_title || "Evento"}*`,
     "",
-    `📅 ${sub.date || ""} às ${sub.start_time || ""}`,
+    `📅 ${sub.date || ""} às ${sub.start_time || ""}${sub.end_time ? ` - ${sub.end_time}` : ""}`,
     `📍 ${sub.location || ""}`,
   ];
   const addressParts = [sub.address_street, sub.address_number, sub.address_neighborhood, sub.address_city, sub.address_state, sub.address_zip].filter(Boolean);
