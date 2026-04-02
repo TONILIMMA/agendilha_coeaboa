@@ -228,6 +228,7 @@ export default function SubmissionForm() {
       event_title: data.eventTitle,
       date: data.date,
       start_time: data.startTime,
+      end_time: data.endTime,
       location: data.location,
       address_street: data.addressStreet || null,
       address_number: data.addressNumber || null,
