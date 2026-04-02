@@ -196,7 +196,7 @@ export default function SubmissionForm() {
     const fields = {
       companyName: profile.company_name,
       responsibleName: profile.responsible_name,
-      email: profile.email,
+      email: "",
       phone: profile.phone,
       addressStreet: profile.address_street,
       addressNumber: profile.address_number,
