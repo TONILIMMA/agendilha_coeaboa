@@ -24,7 +24,7 @@ const formSchema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255),
   phone: z.string().trim().min(1, "Campo obrigatório").max(30).regex(/^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/, "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321"),
   eventTitle: z.string().trim().min(1, "Campo obrigatório").max(150),
-  date: z.string().trim().min(1, "Campo obrigatório").max(50),
+  date: z.string().trim().min(1, "Campo obrigatório").max(50).regex(/^\d{2}\/\d{2}\/\d{4}$/, "Use o formato dd/mm/aaaa"),
   startTime: z.string().trim().min(1, "Campo obrigatório").max(20),
   location: z.string().trim().min(1, "Campo obrigatório").max(200),
   addressStreet: z.string().trim().max(200).optional().or(z.literal("")),
