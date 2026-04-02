@@ -84,6 +84,7 @@ export type Database = {
           date: string | null
           description: string | null
           email: string | null
+          end_time: string | null
           event_title: string
           id: string
           location: string | null
@@ -111,6 +112,7 @@ export type Database = {
           date?: string | null
           description?: string | null
           email?: string | null
+          end_time?: string | null
           event_title: string
           id?: string
           location?: string | null
@@ -138,6 +140,7 @@ export type Database = {
           date?: string | null
           description?: string | null
           email?: string | null
+          end_time?: string | null
           event_title?: string
           id?: string
           location?: string | null

@@ -27,6 +27,7 @@ interface Submission {
   event_title: string;
   date: string | null;
   start_time: string | null;
+  end_time: string | null;
   location: string | null;
   address_street: string | null;
   address_number: string | null;
@@ -81,7 +82,7 @@ function buildWhatsAppMessage(sub: Submission): string {
     "",
     `🗓️ ${dayOfWeek ? dayOfWeek + " " : ""}${sub.date || ""}`,
     "",
-    `🎙️ ${sub.start_time || ""} *${sub.event_title || "Evento"}*`,
+    `🎙️ ${sub.start_time || ""}${sub.end_time ? ` às ${sub.end_time}` : ""} *${sub.event_title || "Evento"}*`,
     `👉 ${sub.location || ""}`,
     `✔️ Mais informações: https://coeaboa.lovable.app/`,
   ];
@@ -258,7 +259,7 @@ export default function AdminEvents() {
                       {sub.date && (
                         <span className="flex items-center gap-1">
                           <Clock className="h-3.5 w-3.5" />
-                          {sub.date} {sub.start_time && `às ${sub.start_time}`}
+                          {sub.date} {sub.start_time && `às ${sub.start_time}`}{sub.end_time && ` - ${sub.end_time}`}
                         </span>
                       )}
                       {sub.location && (

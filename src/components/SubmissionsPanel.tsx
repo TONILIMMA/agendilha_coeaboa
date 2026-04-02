@@ -30,7 +30,7 @@ function buildWhatsAppMessage(sub: any): string {
   const lines = [
     `📌 *${sub.event_title || "Evento"}*`,
     "",
-    `📅 ${sub.date || ""} às ${sub.start_time || ""}`,
+    `📅 ${sub.date || ""} às ${sub.start_time || ""}${sub.end_time ? ` - ${sub.end_time}` : ""}`,
     `📍 ${sub.location || ""}`,
   ];
   const addressParts = [sub.address_street, sub.address_number, sub.address_neighborhood, sub.address_city, sub.address_state, sub.address_zip].filter(Boolean);
@@ -52,7 +52,7 @@ function buildBulkWhatsAppMessage(subs: any[]): string {
   const lines = ["📋 *Eventos AgendIlha* 🌴", ""];
   subs.forEach((sub, i) => {
     lines.push(`${i + 1}. 📌 *${sub.event_title || "Evento"}*`);
-    lines.push(`   📅 ${sub.date || ""} às ${sub.start_time || ""}`);
+    lines.push(`   📅 ${sub.date || ""} às ${sub.start_time || ""}${sub.end_time ? ` - ${sub.end_time}` : ""}`);
     lines.push(`   📍 ${sub.location || ""}`);
     if (sub.description) lines.push(`   ${sub.description}`);
     lines.push("");
@@ -64,13 +64,13 @@ function buildBulkWhatsAppMessage(subs: any[]): string {
 function exportToCSV(submissions: any[]) {
   const headers = [
     "Data Envio", "Empresa", "Responsável", "E-mail", "Telefone",
-    "Evento", "Data", "Horário", "Local", "Rua", "Número", "Bairro", "Cidade", "Estado", "CEP",
+    "Evento", "Data", "Horário Início", "Horário Término", "Local", "Rua", "Número", "Bairro", "Cidade", "Estado", "CEP",
     "Descrição", "Categoria", "Tipo Promoção", "Público-alvo", "Regras", "Redes Sociais", "Detalhes Adicionais", "Vídeo",
   ];
   const rows = submissions.map((s) => [
     formatDate(s.created_at),
     s.company_name || "", s.responsible_name || "", s.email || "", s.phone || "",
-    s.event_title || "", s.date || "", s.start_time || "", s.location || "",
+    s.event_title || "", s.date || "", s.start_time || "", s.end_time || "", s.location || "",
     s.address_street || "", s.address_number || "", s.address_neighborhood || "",
     s.address_city || "", s.address_state || "", s.address_zip || "",
     s.description || "", categoryLabels[s.category || ""] || "",
@@ -228,7 +228,7 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                         </div>
                         <div>
                           <span className="text-muted-foreground text-xs">Data/Hora:</span>
-                          <p className="text-foreground">{sub.date || "—"} {sub.start_time || ""}</p>
+                          <p className="text-foreground">{sub.date || "—"} {sub.start_time || ""}{sub.end_time ? ` - ${sub.end_time}` : ""}</p>
                         </div>
                       </div>
                       {sub.description && (

@@ -26,6 +26,7 @@ const formSchema = z.object({
   eventTitle: z.string().trim().min(1, "Campo obrigatório").max(150),
   date: z.string().trim().min(1, "Campo obrigatório").max(50).regex(/^\d{2}\/\d{2}\/\d{4}$/, "Use o formato dd/mm/aaaa"),
   startTime: z.string().trim().min(1, "Campo obrigatório").max(20),
+  endTime: z.string().trim().min(1, "Campo obrigatório").max(20),
   location: z.string().trim().min(1, "Campo obrigatório").max(200),
   addressStreet: z.string().trim().max(200).optional().or(z.literal("")),
   addressNumber: z.string().trim().max(20).optional().or(z.literal("")),
@@ -44,6 +45,14 @@ const formSchema = z.object({
   authorization: z.literal(true, {
     errorMap: () => ({ message: "Você precisa autorizar a publicação" }),
   }),
+}).refine((data) => {
+  if (data.startTime && data.endTime) {
+    return data.endTime > data.startTime;
+  }
+  return true;
+}, {
+  message: "O horário de término deve ser posterior ao horário de início",
+  path: ["endTime"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -181,7 +190,7 @@ export default function SubmissionForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       companyName: "", responsibleName: "", email: "", phone: "",
-      eventTitle: "", date: "", startTime: "", location: "",
+      eventTitle: "", date: "", startTime: "", endTime: "", location: "",
       addressStreet: "", addressNumber: "", addressNeighborhood: "",
       addressCity: "", addressState: "", addressZip: "",
       description: "", videoLink: "", category: "",
@@ -227,6 +236,7 @@ export default function SubmissionForm() {
       event_title: data.eventTitle,
       date: data.date,
       start_time: data.startTime,
+      end_time: data.endTime,
       location: data.location,
       address_street: data.addressStreet || null,
       address_number: data.addressNumber || null,
@@ -328,6 +338,7 @@ export default function SubmissionForm() {
                     )}
                   />
                   <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
+                  <TextField control={form.control} name="endTime" label="Previsão de término" type="time" />
                   <TextField control={form.control} name="location" label="Nome do local / estabelecimento" className="sm:col-span-2" />
                 </div>
 
