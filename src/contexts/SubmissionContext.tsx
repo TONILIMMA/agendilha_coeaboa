@@ -14,6 +14,7 @@ interface SubmissionEntry {
   event_title: string;
   date: string | null;
   start_time: string | null;
+  end_time: string | null;
   location: string | null;
   address_street: string | null;
   address_number: string | null;

@@ -259,7 +259,7 @@ export default function AdminEvents() {
                       {sub.date && (
                         <span className="flex items-center gap-1">
                           <Clock className="h-3.5 w-3.5" />
-                          {sub.date} {sub.start_time && `às ${sub.start_time}`}
+                          {sub.date} {sub.start_time && `às ${sub.start_time}`}{sub.end_time && ` - ${sub.end_time}`}
                         </span>
                       )}
                       {sub.location && (

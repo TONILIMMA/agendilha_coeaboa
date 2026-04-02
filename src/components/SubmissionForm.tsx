@@ -330,6 +330,7 @@ export default function SubmissionForm() {
                     )}
                   />
                   <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
+                  <TextField control={form.control} name="endTime" label="Previsão de término" type="time" />
                   <TextField control={form.control} name="location" label="Nome do local / estabelecimento" className="sm:col-span-2" />
                 </div>
 

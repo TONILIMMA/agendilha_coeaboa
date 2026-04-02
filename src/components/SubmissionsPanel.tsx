@@ -228,7 +228,7 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                         </div>
                         <div>
                           <span className="text-muted-foreground text-xs">Data/Hora:</span>
-                          <p className="text-foreground">{sub.date || "—"} {sub.start_time || ""}</p>
+                          <p className="text-foreground">{sub.date || "—"} {sub.start_time || ""}{sub.end_time ? ` - ${sub.end_time}` : ""}</p>
                         </div>
                       </div>
                       {sub.description && (
