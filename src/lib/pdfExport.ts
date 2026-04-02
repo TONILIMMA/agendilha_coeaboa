@@ -37,14 +37,23 @@ interface EventData {
 
 function addField(doc: jsPDF, label: string, value: string, x: number, y: number, maxWidth: number): number {
   if (!value || value === "—") return y;
+  const lineHeight = 5;
+  const gap = 3;
+
+  // Label on its own line
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
   doc.text(label, x, y);
-  const labelWidth = doc.getTextWidth(label + " ");
+  y += lineHeight + 1;
+
+  // Value below the label, full width, wrapped
   doc.setFont("helvetica", "normal");
-  const lines = doc.splitTextToSize(value, maxWidth - labelWidth);
-  doc.text(lines, x + labelWidth, y);
-  return y + lines.length * 5 + 2;
+  doc.setFontSize(10);
+  const lines = doc.splitTextToSize(value, maxWidth);
+  doc.text(lines, x + 4, y);
+  y += lines.length * lineHeight + gap;
+
+  return y;
 }
 
 function drawEventPage(doc: jsPDF, event: EventData, pageWidth: number) {
