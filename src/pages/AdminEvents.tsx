@@ -59,25 +59,32 @@ function formatDate(iso: string) {
   });
 }
 
+function getDayOfWeek(dateStr: string): string {
+  if (!dateStr) return "";
+  const parts = dateStr.split("/");
+  if (parts.length === 3) {
+    const [dd, mm, yyyy] = parts;
+    const d = new Date(`${yyyy}-${mm}-${dd}`);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString("pt-BR", { weekday: "long" }).replace(/^\w/, c => c.toUpperCase());
+    }
+  }
+  return "";
+}
+
 function buildWhatsAppMessage(sub: Submission): string {
+  const dayOfWeek = getDayOfWeek(sub.date || "");
   const lines = [
-    `📌 *${sub.event_title || "Evento"}*`,
+    `*AGENDILHA* - sua agenda de eventos da Ilha do Governador`,
+    `*Para mais informações:*`,
+    `https://coeaboa.lovable.app/`,
     "",
-    `📅 ${sub.date || ""} às ${sub.start_time || ""}`,
-    `📍 ${sub.location || ""}`,
+    `🗓️ ${dayOfWeek ? dayOfWeek + " " : ""}${sub.date || ""}`,
+    "",
+    `🎙️ ${sub.start_time || ""} *${sub.event_title || "Evento"}*`,
+    `👉 ${sub.location || ""}`,
+    `✔️ Mais informações: https://coeaboa.lovable.app/`,
   ];
-  const addressParts = [sub.address_street, sub.address_number, sub.address_neighborhood, sub.address_city, sub.address_state, sub.address_zip].filter(Boolean);
-  if (addressParts.length) lines.push(`🗺️ ${addressParts.join(", ")}`);
-  lines.push("", `${sub.description || ""}`);
-  if (sub.promotion_type) lines.push(`🎯 Tipo: ${sub.promotion_type}`);
-  if (sub.target_audience) lines.push(`👥 Público: ${sub.target_audience}`);
-  if (sub.promotion_rules) lines.push(`📋 Regras: ${sub.promotion_rules}`);
-  lines.push("", `🏢 ${sub.company_name || ""}`, `📞 ${sub.phone || ""}`);
-  lines.push(`📂 ${categoryLabels[sub.category || ""] || sub.category || ""}`);
-  if (sub.contact_social) lines.push(`📱 ${sub.contact_social}`);
-  if (sub.video_link) lines.push(`🎬 ${sub.video_link}`);
-  if (sub.additional_details) lines.push(`ℹ️ ${sub.additional_details}`);
-  lines.push("", "Divulgação via AgendIlha / Coé a Boa? 🌴");
   return encodeURIComponent(lines.join("\n"));
 }
 
