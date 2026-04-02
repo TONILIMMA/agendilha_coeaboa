@@ -81,10 +81,6 @@ function buildWhatsAppMessage(sub: Submission): string {
   return encodeURIComponent(lines.join("\n"));
 }
 
-function buildPdfContent(_sub: Submission): string {
-  return "";
-}
-
 function downloadEventPdf(sub: Submission) {
   exportSingleEventPdf(sub);
   toast.success("PDF gerado com sucesso!");
