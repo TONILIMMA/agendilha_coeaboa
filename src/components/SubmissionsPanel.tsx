@@ -6,7 +6,8 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ClipboardList, MessageCircle, Trash2, Download, Loader2 } from "lucide-react";
+import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2 } from "lucide-react";
+import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -110,10 +111,22 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
           </div>
         ) : (
           <>
-            <div className="flex justify-end mb-3">
+            <div className="flex flex-wrap justify-end gap-2 mb-3">
               <Button variant="outline" size="sm" onClick={() => exportToCSV(submissions)} className="text-xs">
                 <Download className="mr-1.5 h-3.5 w-3.5" />
                 Exportar CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  exportBulkEventsPdf(submissions);
+                  toast.success("PDF gerado com sucesso!");
+                }}
+                className="text-xs"
+              >
+                <FileDown className="mr-1.5 h-3.5 w-3.5" />
+                Exportar PDF
               </Button>
             </div>
             <div className="space-y-4">
@@ -149,7 +162,7 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                   {sub.description && (
                     <p className="text-sm text-muted-foreground italic">"{sub.description}"</p>
                   )}
-                  <div className="flex items-center gap-2 pt-1">
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
                     <Button
                       size="sm"
                       onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
@@ -157,6 +170,18 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                     >
                       <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
                       WhatsApp
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        exportSingleEventPdf(sub);
+                        toast.success("PDF gerado!");
+                      }}
+                      className="text-xs"
+                    >
+                      <FileDown className="mr-1.5 h-3.5 w-3.5" />
+                      PDF
                     </Button>
                     <Button
                       size="sm"
