@@ -70,7 +70,7 @@ function exportToCSV(submissions: any[]) {
   const rows = submissions.map((s) => [
     formatDate(s.created_at),
     s.company_name || "", s.responsible_name || "", s.email || "", s.phone || "",
-    s.event_title || "", s.date || "", s.start_time || "", s.location || "",
+    s.event_title || "", s.date || "", s.start_time || "", s.end_time || "", s.location || "",
     s.address_street || "", s.address_number || "", s.address_neighborhood || "",
     s.address_city || "", s.address_state || "", s.address_zip || "",
     s.description || "", categoryLabels[s.category || ""] || "",
