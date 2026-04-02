@@ -28,7 +28,7 @@ export default function Header() {
 
         <div className="flex items-center gap-2">
           {user && profile.responsible_name && (
-            <span className="hidden sm:inline text-sm font-medium text-foreground truncate max-w-[150px]">
+            <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-[100px] sm:max-w-[150px]">
               Olá, {profile.responsible_name.split(" ")[0]}
             </span>
           )}
