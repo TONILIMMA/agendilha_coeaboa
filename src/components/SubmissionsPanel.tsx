@@ -64,7 +64,7 @@ function buildBulkWhatsAppMessage(subs: any[]): string {
 function exportToCSV(submissions: any[]) {
   const headers = [
     "Data Envio", "Empresa", "Responsável", "E-mail", "Telefone",
-    "Evento", "Data", "Horário", "Local", "Rua", "Número", "Bairro", "Cidade", "Estado", "CEP",
+    "Evento", "Data", "Horário Início", "Horário Término", "Local", "Rua", "Número", "Bairro", "Cidade", "Estado", "CEP",
     "Descrição", "Categoria", "Tipo Promoção", "Público-alvo", "Regras", "Redes Sociais", "Detalhes Adicionais", "Vídeo",
   ];
   const rows = submissions.map((s) => [
