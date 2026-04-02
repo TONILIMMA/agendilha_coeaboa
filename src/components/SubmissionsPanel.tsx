@@ -48,6 +48,19 @@ function buildWhatsAppMessage(sub: any): string {
   return encodeURIComponent(lines.join("\n"));
 }
 
+function buildBulkWhatsAppMessage(subs: any[]): string {
+  const lines = ["📋 *Eventos AgendIlha* 🌴", ""];
+  subs.forEach((sub, i) => {
+    lines.push(`${i + 1}. 📌 *${sub.event_title || "Evento"}*`);
+    lines.push(`   📅 ${sub.date || ""} às ${sub.start_time || ""}`);
+    lines.push(`   📍 ${sub.location || ""}`);
+    if (sub.description) lines.push(`   ${sub.description}`);
+    lines.push("");
+  });
+  lines.push("Divulgação via AgendIlha / Coé a Boa? 🌴");
+  return encodeURIComponent(lines.join("\n"));
+}
+
 function exportToCSV(submissions: any[]) {
   const headers = [
     "Data Envio", "Empresa", "Responsável", "E-mail", "Telefone",
@@ -75,19 +88,6 @@ function exportToCSV(submissions: any[]) {
   a.click();
   URL.revokeObjectURL(url);
   toast.success("CSV exportado com sucesso!");
-}
-
-function buildBulkWhatsAppMessage(subs: any[]): string {
-  const lines = ["📋 *Eventos AgendIlha* 🌴", ""];
-  subs.forEach((sub, i) => {
-    lines.push(`${i + 1}. 📌 *${sub.event_title || "Evento"}*`);
-    lines.push(`   📅 ${sub.date || ""} às ${sub.start_time || ""}`);
-    lines.push(`   📍 ${sub.location || ""}`);
-    if (sub.description) lines.push(`   ${sub.description}`);
-    lines.push("");
-  });
-  lines.push("Divulgação via AgendIlha / Coé a Boa? 🌴");
-  return encodeURIComponent(lines.join("\n"));
 }
 
 export default function SubmissionsPanel({ children }: { children: React.ReactNode }) {
@@ -150,10 +150,31 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
           </div>
         ) : (
           <>
-            <div className="flex flex-wrap justify-end gap-2 mb-3">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mr-auto">
+                <Checkbox
+                  checked={selectedIds.size === submissions.length && submissions.length > 0}
+                  onCheckedChange={toggleAll}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {selectedIds.size > 0 ? `${selectedIds.size} selecionado(s)` : "Selecionar todos"}
+                </span>
+              </div>
+              {selectedIds.size > 0 && (
+                <Button
+                  size="sm"
+                  onClick={shareBulkWhatsApp}
+                  className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
+                >
+                  <Send className="mr-1.5 h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">WhatsApp em massa</span>
+                  <span className="sm:hidden">WhatsApp</span>
+                  &nbsp;({selectedIds.size})
+                </Button>
+              )}
               <Button variant="outline" size="sm" onClick={() => exportToCSV(submissions)} className="text-xs">
                 <Download className="mr-1.5 h-3.5 w-3.5" />
-                Exportar CSV
+                CSV
               </Button>
               <Button
                 variant="outline"
@@ -165,72 +186,86 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                 className="text-xs"
               >
                 <FileDown className="mr-1.5 h-3.5 w-3.5" />
-                Exportar PDF
+                PDF
               </Button>
             </div>
             <div className="space-y-4">
               {submissions.map((sub) => (
-                <div key={sub.id} className="rounded-lg border border-border bg-card p-4 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-display font-semibold text-foreground">{sub.event_title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{formatDate(sub.created_at)}</p>
+                <div
+                  key={sub.id}
+                  className={`rounded-lg border bg-card p-3 sm:p-4 space-y-3 transition-colors ${
+                    selectedIds.has(sub.id) ? "border-primary ring-1 ring-primary/30" : "border-border"
+                  }`}
+                >
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <Checkbox
+                      checked={selectedIds.has(sub.id)}
+                      onCheckedChange={() => toggleSelect(sub.id)}
+                      className="mt-1 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="font-display font-semibold text-foreground truncate">{sub.event_title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{formatDate(sub.created_at)}</p>
+                        </div>
+                        <Badge variant="outline" className="text-xs shrink-0">
+                          {categoryLabels[sub.category || ""] || "—"}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                        <div>
+                          <span className="text-muted-foreground text-xs">Empresa:</span>
+                          <p className="text-foreground">{sub.company_name || "—"}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground text-xs">Responsável:</span>
+                          <p className="text-foreground">{sub.responsible_name || "—"}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground text-xs">Local:</span>
+                          <p className="text-foreground">{sub.location || "—"}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground text-xs">Data/Hora:</span>
+                          <p className="text-foreground">{sub.date || "—"} {sub.start_time || ""}</p>
+                        </div>
+                      </div>
+                      {sub.description && (
+                        <p className="text-sm text-muted-foreground italic">"{sub.description}"</p>
+                      )}
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <Button
+                          size="sm"
+                          onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
+                          className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
+                        >
+                          <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
+                          WhatsApp
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            exportSingleEventPdf(sub);
+                            toast.success("PDF gerado!");
+                          }}
+                          className="text-xs"
+                        >
+                          <FileDown className="mr-1.5 h-3.5 w-3.5" />
+                          PDF
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => deleteSubmission(sub.id)}
+                          className="text-xs text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="mr-1 h-3.5 w-3.5" />
+                          Remover
+                        </Button>
+                      </div>
                     </div>
-                    <Badge variant="outline" className="text-xs shrink-0">
-                      {categoryLabels[sub.category || ""] || "—"}
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                    <div>
-                      <span className="text-muted-foreground text-xs">Empresa:</span>
-                      <p className="text-foreground">{sub.company_name || "—"}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground text-xs">Responsável:</span>
-                      <p className="text-foreground">{sub.responsible_name || "—"}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground text-xs">Local:</span>
-                      <p className="text-foreground">{sub.location || "—"}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground text-xs">Data/Hora:</span>
-                      <p className="text-foreground">{sub.date || "—"} {sub.start_time || ""}</p>
-                    </div>
-                  </div>
-                  {sub.description && (
-                    <p className="text-sm text-muted-foreground italic">"{sub.description}"</p>
-                  )}
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <Button
-                      size="sm"
-                      onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
-                      className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
-                    >
-                      <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
-                      WhatsApp
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        exportSingleEventPdf(sub);
-                        toast.success("PDF gerado!");
-                      }}
-                      className="text-xs"
-                    >
-                      <FileDown className="mr-1.5 h-3.5 w-3.5" />
-                      PDF
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => deleteSubmission(sub.id)}
-                      className="text-xs text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="mr-1 h-3.5 w-3.5" />
-                      Remover
-                    </Button>
                   </div>
                 </div>
               ))}
