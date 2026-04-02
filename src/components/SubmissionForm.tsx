@@ -24,7 +24,7 @@ const formSchema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255),
   phone: z.string().trim().min(1, "Campo obrigatório").max(30).regex(/^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/, "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321"),
   eventTitle: z.string().trim().min(1, "Campo obrigatório").max(150),
-  date: z.string().trim().min(1, "Campo obrigatório").max(50),
+  date: z.string().trim().min(1, "Campo obrigatório").max(50).regex(/^\d{2}\/\d{2}\/\d{4}$/, "Use o formato dd/mm/aaaa"),
   startTime: z.string().trim().min(1, "Campo obrigatório").max(20),
   location: z.string().trim().min(1, "Campo obrigatório").max(200),
   addressStreet: z.string().trim().max(200).optional().or(z.literal("")),
@@ -302,7 +302,31 @@ export default function SubmissionForm() {
               <CollapsibleSection title="🎉 Informações do Evento" sectionKey="evento" expanded={expandedSections.evento} onToggle={toggleSection}>
                 <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                   <TextField control={form.control} name="eventTitle" label="Título do evento ou promoção" className="sm:col-span-2" />
-                  <TextField control={form.control} name="date" label="Data" type="date" />
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">Data <span className="text-accent">*</span></FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="dd/mm/aaaa"
+                            inputMode="numeric"
+                            maxLength={10}
+                            className="h-12 text-base"
+                            onChange={(e) => {
+                              let v = e.target.value.replace(/\D/g, "").slice(0, 8);
+                              if (v.length > 4) v = v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4);
+                              else if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
+                              field.onChange(v);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
                   <TextField control={form.control} name="location" label="Nome do local / estabelecimento" className="sm:col-span-2" />
                 </div>
@@ -499,9 +523,9 @@ function CollapsibleSection({ title, sectionKey, expanded, onToggle, children }:
 }
 
 function TextField({
-  control, name, label, type = "text", className = "", required = true, inputMode,
+  control, name, label, type = "text", className = "", required = true, inputMode, placeholder,
 }: {
-  control: any; name: string; label: string; type?: string; className?: string; required?: boolean; inputMode?: "text" | "email" | "tel" | "url" | "numeric" | "search";
+  control: any; name: string; label: string; type?: string; className?: string; required?: boolean; inputMode?: "text" | "email" | "tel" | "url" | "numeric" | "search"; placeholder?: string;
 }) {
   return (
     <FormField
@@ -511,7 +535,7 @@ function TextField({
         <FormItem className={className}>
           <FormLabel className="text-sm">{label} {required && <span className="text-accent">*</span>}</FormLabel>
           <FormControl>
-            <Input {...field} type={type} inputMode={inputMode} className="h-12 text-base" />
+            <Input {...field} type={type} inputMode={inputMode} placeholder={placeholder} className="h-12 text-base" />
           </FormControl>
           <FormMessage />
         </FormItem>
