@@ -133,6 +133,14 @@ function drawEventPage(doc: jsPDF, event: EventData, pageWidth: number, isLastPa
     margin,
     footerY
   );
+
+  if (isLastPage) {
+    const linkUrl = "https://coeaboa.lovable.app";
+    const linkText = "Para mais informações, acesse: coeaboa.lovable.app";
+    doc.setFontSize(9);
+    doc.setTextColor(232, 89, 12);
+    doc.textWithLink(linkText, margin, footerY + 5, { url: linkUrl });
+  }
 }
 
 export function exportSingleEventPdf(event: EventData) {
