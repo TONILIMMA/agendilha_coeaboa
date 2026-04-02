@@ -111,10 +111,22 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
           </div>
         ) : (
           <>
-            <div className="flex justify-end mb-3">
+            <div className="flex flex-wrap justify-end gap-2 mb-3">
               <Button variant="outline" size="sm" onClick={() => exportToCSV(submissions)} className="text-xs">
                 <Download className="mr-1.5 h-3.5 w-3.5" />
                 Exportar CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  exportBulkEventsPdf(submissions);
+                  toast.success("PDF gerado com sucesso!");
+                }}
+                className="text-xs"
+              >
+                <FileDown className="mr-1.5 h-3.5 w-3.5" />
+                Exportar PDF
               </Button>
             </div>
             <div className="space-y-4">
