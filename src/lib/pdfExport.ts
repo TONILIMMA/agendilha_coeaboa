@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { AGENDILHA_LOGO_BASE64 } from "./logoBase64";
 
 const categoryLabels: Record<string, string> = {
   musica: "Música / Show",
