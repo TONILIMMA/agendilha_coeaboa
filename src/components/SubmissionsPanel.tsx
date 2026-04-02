@@ -52,7 +52,7 @@ function buildBulkWhatsAppMessage(subs: any[]): string {
   const lines = ["📋 *Eventos AgendIlha* 🌴", ""];
   subs.forEach((sub, i) => {
     lines.push(`${i + 1}. 📌 *${sub.event_title || "Evento"}*`);
-    lines.push(`   📅 ${sub.date || ""} às ${sub.start_time || ""}`);
+    lines.push(`   📅 ${sub.date || ""} às ${sub.start_time || ""}${sub.end_time ? ` - ${sub.end_time}` : ""}`);
     lines.push(`   📍 ${sub.location || ""}`);
     if (sub.description) lines.push(`   ${sub.description}`);
     lines.push("");
