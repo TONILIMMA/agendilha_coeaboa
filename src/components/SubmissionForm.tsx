@@ -499,9 +499,9 @@ function CollapsibleSection({ title, sectionKey, expanded, onToggle, children }:
 }
 
 function TextField({
-  control, name, label, type = "text", className = "", required = true, inputMode,
+  control, name, label, type = "text", className = "", required = true, inputMode, placeholder,
 }: {
-  control: any; name: string; label: string; type?: string; className?: string; required?: boolean; inputMode?: "text" | "email" | "tel" | "url" | "numeric" | "search";
+  control: any; name: string; label: string; type?: string; className?: string; required?: boolean; inputMode?: "text" | "email" | "tel" | "url" | "numeric" | "search"; placeholder?: string;
 }) {
   return (
     <FormField
@@ -511,7 +511,7 @@ function TextField({
         <FormItem className={className}>
           <FormLabel className="text-sm">{label} {required && <span className="text-accent">*</span>}</FormLabel>
           <FormControl>
-            <Input {...field} type={type} inputMode={inputMode} className="h-12 text-base" />
+            <Input {...field} type={type} inputMode={inputMode} placeholder={placeholder} className="h-12 text-base" />
           </FormControl>
           <FormMessage />
         </FormItem>
