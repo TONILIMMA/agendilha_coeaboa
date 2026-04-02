@@ -294,7 +294,7 @@ export default function SubmissionForm() {
                 <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                   <TextField control={form.control} name="companyName" label="Nome da empresa/organização" />
                   <TextField control={form.control} name="responsibleName" label="Nome do responsável" />
-                  <TextField control={form.control} name="email" label="E-mail de contato" type="email" inputMode="email" />
+                  <TextField control={form.control} name="email" label="E-mail de contato (opcional)" type="email" inputMode="email" required={false} />
                   <TextField control={form.control} name="phone" label="Telefone/WhatsApp" type="tel" inputMode="tel" />
                 </div>
               </CollapsibleSection>
