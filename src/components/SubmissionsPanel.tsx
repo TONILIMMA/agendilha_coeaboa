@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -6,10 +6,10 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2, Send } from "lucide-react";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
-import { useState } from "react";
 
 const categoryLabels: Record<string, string> = {
   musica: "Música / Show",
