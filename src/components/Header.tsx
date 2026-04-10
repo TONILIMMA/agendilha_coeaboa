@@ -31,17 +31,18 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-        <span className="hidden md:inline text-xs text-muted-foreground capitalize">{currentDate}</span>
-
-        <div className="flex items-center gap-2">
-          <span className="font-display text-lg font-bold text-primary">📌 AgendIlha</span>
-          <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
-          {isAdmin && (
-            <Badge variant="outline" className="text-xs text-accent border-accent">
-              Admin
-            </Badge>
-          )}
+      <div className="mx-auto flex h-auto max-w-5xl items-center justify-between px-4 py-2">
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <span className="font-display text-lg font-bold text-primary">📌 AgendIlha</span>
+            <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
+            {isAdmin && (
+              <Badge variant="outline" className="text-xs text-accent border-accent">
+                Admin
+              </Badge>
+            )}
+          </div>
+          <span className="text-[11px] text-muted-foreground capitalize">{currentDate}</span>
         </div>
 
         <div className="flex items-center gap-2">
