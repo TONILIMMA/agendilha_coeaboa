@@ -4,8 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useProfile } from "@/hooks/useProfile";
 import { z } from "zod";
-import { Upload, Send, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon } from "lucide-react";
 import { getWeekdayFromDate } from "@/lib/dateUtils";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import heroBanner from "@/assets/hero-banner.jpg";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage
@@ -25,7 +30,7 @@ const formSchema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
   phone: z.string().trim().min(1, "Campo obrigatório").max(30).regex(/^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/, "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321"),
   eventTitle: z.string().trim().min(1, "Campo obrigatório").max(150),
-  date: z.string().trim().min(1, "Campo obrigatório").max(50).regex(/^\d{2}\/\d{2}\/\d{4}$/, "Use o formato dd/mm/aaaa"),
+  date: z.string().trim().min(1, "Selecione a data do evento"),
   startTime: z.string().trim().min(1, "Campo obrigatório").max(20),
   endTime: z.string().trim().min(1, "Campo obrigatório").max(20),
   location: z.string().trim().min(1, "Campo obrigatório").max(200),
@@ -318,29 +323,53 @@ export default function SubmissionForm() {
                     name="date"
                     render={({ field }) => {
                       const weekday = getWeekdayFromDate(field.value || "");
+                      // Parse dd/mm/yyyy to Date for calendar
+                      let selectedDate: Date | undefined;
+                      if (field.value && /^\d{2}\/\d{2}\/\d{4}$/.test(field.value)) {
+                        const [d, m, y] = field.value.split("/").map(Number);
+                        selectedDate = new Date(y, m - 1, d);
+                      }
                       return (
-                        <FormItem>
-                          <FormLabel className="text-sm">Data <span className="text-accent">*</span></FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="dd/mm/aaaa"
-                              inputMode="numeric"
-                              maxLength={10}
-                              className="h-12 text-base"
-                              onChange={(e) => {
-                                let v = e.target.value.replace(/\D/g, "").slice(0, 8);
-                                if (v.length > 4) v = v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4);
-                                else if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
-                                field.onChange(v);
-                              }}
-                            />
-                          </FormControl>
-                          {weekday && (
-                            <p className="text-xs text-primary font-medium capitalize mt-1">
-                              📅 {weekday}
-                            </p>
-                          )}
+                        <FormItem className="flex flex-col">
+                          <FormLabel className="text-sm">Data do Evento <span className="text-accent">*</span></FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "h-12 w-full justify-start text-left text-base font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {field.value ? (
+                                    <span className="capitalize">
+                                      {field.value}
+                                      {weekday && <span className="ml-1 text-primary font-medium">({weekday})</span>}
+                                    </span>
+                                  ) : (
+                                    <span>Selecione a data</span>
+                                  )}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={selectedDate}
+                                onSelect={(date) => {
+                                  if (date) {
+                                    field.onChange(format(date, "dd/MM/yyyy"));
+                                  }
+                                }}
+                                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                locale={ptBR}
+                                initialFocus
+                                className={cn("p-3 pointer-events-auto")}
+                              />
+                            </PopoverContent>
+                          </Popover>
                           <FormMessage />
                         </FormItem>
                       );
