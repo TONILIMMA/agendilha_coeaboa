@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Clock, Share2, CalendarDays } from "lucide-react";
+import { formatDateWithWeekday } from "@/lib/dateUtils";
 
 const categoryLabels: Record<string, string> = {
   musica: "🎵 Música / Show",
@@ -30,14 +31,19 @@ interface Event {
 
 function formatDateLabel(dateStr: string | null): string {
   if (!dateStr) return "";
+  // The date from the DB could be DD/MM/YYYY or YYYY-MM-DD
+  const withWeekday = formatDateWithWeekday(dateStr);
+  if (withWeekday !== dateStr) return withWeekday;
+  // Fallback: try parsing YYYY-MM-DD for display
   try {
     const [y, m, d] = dateStr.split("-").map(Number);
     const date = new Date(y, m - 1, d);
-    return date.toLocaleDateString("pt-BR", {
-      weekday: "long",
+    const formatted = date.toLocaleDateString("pt-BR", {
       day: "numeric",
       month: "long",
     });
+    const weekday = date.toLocaleDateString("pt-BR", { weekday: "long" });
+    return `${formatted} (${weekday})`;
   } catch {
     return dateStr;
   }
