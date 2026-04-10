@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { CalendarDays, ClipboardList, LogOut, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,11 +8,26 @@ import { useProfile } from "@/hooks/useProfile";
 import { Badge } from "@/components/ui/badge";
 import SubmissionsPanel from "@/components/SubmissionsPanel";
 
+function useCurrentDate() {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return now.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 export default function Header() {
   const { savedCount } = useSubmissions();
   const { user, signOut, isAdmin } = useAuth();
   const { profile } = useProfile();
   const navigate = useNavigate();
+  const currentDate = useCurrentDate();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
