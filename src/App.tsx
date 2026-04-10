@@ -59,6 +59,7 @@ const AppRoutes = () => (
           </ProtectedRoute>
         }
       />
+      <Route path="/coeaboa" element={<CoeABoa />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </SubmissionProvider>
