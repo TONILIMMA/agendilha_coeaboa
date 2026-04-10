@@ -5,6 +5,7 @@ import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useProfile } from "@/hooks/useProfile";
 import { z } from "zod";
 import { Upload, Send, X, ChevronDown, ChevronUp } from "lucide-react";
+import { getWeekdayFromDate } from "@/lib/dateUtils";
 import heroBanner from "@/assets/hero-banner.jpg";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage
@@ -315,27 +316,35 @@ export default function SubmissionForm() {
                   <FormField
                     control={form.control}
                     name="date"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm">Data <span className="text-accent">*</span></FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="dd/mm/aaaa"
-                            inputMode="numeric"
-                            maxLength={10}
-                            className="h-12 text-base"
-                            onChange={(e) => {
-                              let v = e.target.value.replace(/\D/g, "").slice(0, 8);
-                              if (v.length > 4) v = v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4);
-                              else if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
-                              field.onChange(v);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const weekday = getWeekdayFromDate(field.value || "");
+                      return (
+                        <FormItem>
+                          <FormLabel className="text-sm">Data <span className="text-accent">*</span></FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="dd/mm/aaaa"
+                              inputMode="numeric"
+                              maxLength={10}
+                              className="h-12 text-base"
+                              onChange={(e) => {
+                                let v = e.target.value.replace(/\D/g, "").slice(0, 8);
+                                if (v.length > 4) v = v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4);
+                                else if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
+                                field.onChange(v);
+                              }}
+                            />
+                          </FormControl>
+                          {weekday && (
+                            <p className="text-xs text-primary font-medium capitalize mt-1">
+                              📅 {weekday}
+                            </p>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                   <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
                   <TextField control={form.control} name="endTime" label="Previsão de término" type="time" />
