@@ -502,6 +502,37 @@ export default function Eventos() {
 
               <p className="text-xs text-muted-foreground/60">Enviado em {formatDate(sub.created_at)}</p>
 
+              {/* Histórico de ações */}
+              {auditLogs[sub.id] && auditLogs[sub.id].length > 0 && (
+                <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                    <History className="h-3.5 w-3.5" />
+                    Histórico
+                  </div>
+                  {auditLogs[sub.id].map((log, i) => {
+                    const actionMap: Record<string, { icon: string; label: string }> = {
+                      approved: { icon: "✅", label: "Aprovou" },
+                      rejected: { icon: "❌", label: "Rejeitou" },
+                      edited: { icon: "✏️", label: "Editou" },
+                      deleted: { icon: "🗑️", label: "Moveu para lixeira" },
+                      restored: { icon: "♻️", label: "Restaurou" },
+                      pending: { icon: "⏳", label: "Voltou para pendente" },
+                    };
+                    const a = actionMap[log.action] || { icon: "📝", label: log.action };
+                    return (
+                      <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{a.icon}</span>
+                        <span className="font-medium">{log.user_name}</span>
+                        <span>{a.label}</span>
+                        <span className="ml-auto text-[10px] opacity-70">
+                          {new Date(log.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               {/* Actions inside card */}
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
                 {options.showApproval && isAdmin && (
