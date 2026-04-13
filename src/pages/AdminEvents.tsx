@@ -129,7 +129,17 @@ export default function AdminEvents() {
     } else {
       toast.success("Evento removido");
       setSubmissions((prev) => prev.filter((s) => s.id !== id));
+  }
+
+  async function handleStatusChange(id: string, newStatus: string) {
+    const { error } = await supabase.from("submissions").update({ status: newStatus } as any).eq("id", id);
+    if (error) {
+      toast.error("Erro ao atualizar status");
+    } else {
+      toast.success(newStatus === "approved" ? "Evento aprovado!" : newStatus === "rejected" ? "Evento rejeitado" : "Status atualizado");
+      setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
     }
+  }
   }
 
   const filtered = useMemo(() => {
@@ -247,15 +257,21 @@ export default function AdminEvents() {
             <Card key={sub.id} className="border-border hover:shadow-md transition-shadow">
               <CardContent className="p-4 sm:p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <div className="flex items-start gap-2 flex-wrap">
-                      <h3 className="font-display font-semibold text-foreground text-base">
-                        {sub.event_title}
-                      </h3>
-                      <Badge variant="outline" className="text-xs shrink-0">
-                        {categoryLabels[sub.category || ""] || "—"}
-                      </Badge>
-                    </div>
+                    <div className="flex-1 min-w-0 space-y-2">
+                     <div className="flex items-start gap-2 flex-wrap">
+                       <h3 className="font-display font-semibold text-foreground text-base">
+                         {sub.event_title}
+                       </h3>
+                       <Badge variant="outline" className="text-xs shrink-0">
+                         {categoryLabels[sub.category || ""] || "—"}
+                       </Badge>
+                       <Badge
+                         variant={sub.status === "approved" ? "default" : sub.status === "rejected" ? "destructive" : "secondary"}
+                         className="text-xs shrink-0"
+                       >
+                         {sub.status === "approved" ? "✅ Aprovado" : sub.status === "rejected" ? "❌ Rejeitado" : "⏳ Pendente"}
+                       </Badge>
+                     </div>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       {sub.date && (
@@ -291,6 +307,26 @@ export default function AdminEvents() {
                   </div>
 
                   <div className="flex sm:flex-col items-center gap-2 shrink-0">
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant={sub.status === "approved" ? "default" : "outline"}
+                        onClick={() => handleStatusChange(sub.id, sub.status === "approved" ? "pending" : "approved")}
+                        className="text-xs h-8 w-8 p-0"
+                        title="Aprovar"
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={sub.status === "rejected" ? "destructive" : "outline"}
+                        onClick={() => handleStatusChange(sub.id, sub.status === "rejected" ? "pending" : "rejected")}
+                        className="text-xs h-8 w-8 p-0"
+                        title="Rejeitar"
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
                     <Button
                       size="sm"
                       onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
