@@ -13,6 +13,7 @@ import AdminEvents from "./pages/AdminEvents";
 import CoeABoa from "./pages/CoeABoa";
 import AgendaCultural from "./pages/AgendaCultural";
 import Eventos from "./pages/Eventos";
+import AdminCollaborators from "./pages/AdminCollaborators";
 import NotFound from "./pages/NotFound";
 import ProfileCompletionGate from "@/components/ProfileCompletionGate";
 import { Loader2 } from "lucide-react";
