@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -180,7 +181,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 export default function SubmissionForm() {
   const [flyerFile, setFlyerFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     anunciante: true,
     evento: true,
@@ -277,6 +280,7 @@ export default function SubmissionForm() {
       form.reset();
       setFlyerFile(null);
       setBannerFile(null);
+      setSubmitted(true);
     }
   }
 
@@ -293,6 +297,14 @@ export default function SubmissionForm() {
           <p className="mt-1 sm:mt-2 font-display text-sm xs:text-base sm:text-lg md:text-xl font-semibold text-primary-foreground/90 drop-shadow">
             AgendIlha / Coé a Boa?
           </p>
+          {submitted && (
+            <Button
+              onClick={() => navigate("/agenda")}
+              className="mt-3 sm:mt-4 bg-accent text-accent-foreground hover:bg-accent/90 font-bold text-sm sm:text-base px-6 py-2 rounded-full shadow-lg animate-in fade-in zoom-in duration-300"
+            >
+              📅 Ver Agenda de Eventos
+            </Button>
+          )}
         </div>
       </div>
 
