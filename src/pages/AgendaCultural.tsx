@@ -1,9 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Clock, Share2, CalendarDays, ExternalLink } from "lucide-react";
+import { Loader2, MapPin, Clock, Share2, CalendarDays, ExternalLink, ArrowLeft } from "lucide-react";
 
 const categoryIcons: Record<string, string> = {
   musica: "🎸",
