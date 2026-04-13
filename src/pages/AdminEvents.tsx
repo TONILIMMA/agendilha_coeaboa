@@ -12,7 +12,8 @@ import {
 import {
   CalendarDays, Loader2, MessageCircle, Trash2, Search,
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
-  CheckCircle, XCircle, Clock3,
+  CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp,
+  Phone, Mail, Globe, Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
@@ -102,6 +103,7 @@ export default function AdminEvents() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "date">("newest");
 
   async function fetchAll() {
@@ -254,24 +256,29 @@ export default function AdminEvents() {
       ) : (
         <div className="space-y-4">
           {filtered.map((sub) => (
-            <Card key={sub.id} className="border-border hover:shadow-md transition-shadow">
+            <Card
+              key={sub.id}
+              className={`border-border hover:shadow-md transition-all cursor-pointer ${expandedId === sub.id ? "ring-2 ring-primary/30" : ""}`}
+              onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)}
+            >
               <CardContent className="p-4 sm:p-5">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0 space-y-2">
-                     <div className="flex items-start gap-2 flex-wrap">
-                       <h3 className="font-display font-semibold text-foreground text-base">
-                         {sub.event_title}
-                       </h3>
-                       <Badge variant="outline" className="text-xs shrink-0">
-                         {categoryLabels[sub.category || ""] || "—"}
-                       </Badge>
-                       <Badge
-                         variant={sub.status === "approved" ? "default" : sub.status === "rejected" ? "destructive" : "secondary"}
-                         className="text-xs shrink-0"
-                       >
-                         {sub.status === "approved" ? "✅ Aprovado" : sub.status === "rejected" ? "❌ Rejeitado" : "⏳ Pendente"}
-                       </Badge>
-                     </div>
+                {/* Summary row - always visible */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex items-start gap-2 flex-wrap">
+                      <h3 className="font-display font-semibold text-foreground text-base">
+                        {sub.event_title}
+                      </h3>
+                      <Badge variant="outline" className="text-xs shrink-0">
+                        {categoryLabels[sub.category || ""] || "—"}
+                      </Badge>
+                      <Badge
+                        variant={sub.status === "approved" ? "default" : sub.status === "rejected" ? "destructive" : "secondary"}
+                        className="text-xs shrink-0"
+                      >
+                        {sub.status === "approved" ? "✅ Aprovado" : sub.status === "rejected" ? "❌ Rejeitado" : "⏳ Pendente"}
+                      </Badge>
+                    </div>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       {sub.date && (
@@ -286,74 +293,142 @@ export default function AdminEvents() {
                           {sub.location}
                         </span>
                       )}
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 text-muted-foreground">
+                    {expandedId === sub.id ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                  </div>
+                </div>
+
+                {/* Expanded details */}
+                {expandedId === sub.id && (
+                  <div className="mt-4 pt-4 border-t border-border space-y-4 animate-in slide-in-from-top-2 duration-200" onClick={(e) => e.stopPropagation()}>
+                    {/* Full details */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                       {sub.company_name && (
-                        <span className="flex items-center gap-1">
-                          <Building2 className="h-3.5 w-3.5" />
-                          {sub.company_name}
-                        </span>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Building2 className="h-4 w-4 text-primary shrink-0" />
+                          <span><strong>Empresa:</strong> {sub.company_name}</span>
+                        </div>
+                      )}
+                      {sub.responsible_name && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Info className="h-4 w-4 text-primary shrink-0" />
+                          <span><strong>Responsável:</strong> {sub.responsible_name}</span>
+                        </div>
+                      )}
+                      {sub.phone && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Phone className="h-4 w-4 text-primary shrink-0" />
+                          <span><strong>Telefone:</strong> {sub.phone}</span>
+                        </div>
+                      )}
+                      {sub.email && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Mail className="h-4 w-4 text-primary shrink-0" />
+                          <span><strong>Email:</strong> {sub.email}</span>
+                        </div>
+                      )}
+                      {sub.address_street && (
+                        <div className="flex items-center gap-2 text-muted-foreground sm:col-span-2">
+                          <MapPin className="h-4 w-4 text-primary shrink-0" />
+                          <span><strong>Endereço:</strong> {[sub.address_street, sub.address_number, sub.address_neighborhood, sub.address_city, sub.address_state].filter(Boolean).join(", ")}{sub.address_zip ? ` – CEP: ${sub.address_zip}` : ""}</span>
+                        </div>
+                      )}
+                      {sub.contact_social && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Globe className="h-4 w-4 text-primary shrink-0" />
+                          <span><strong>Rede social:</strong> {sub.contact_social}</span>
+                        </div>
+                      )}
+                      {sub.video_link && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Globe className="h-4 w-4 text-primary shrink-0" />
+                          <span><strong>Vídeo:</strong> <a href={sub.video_link} target="_blank" rel="noopener noreferrer" className="text-primary underline">{sub.video_link}</a></span>
+                        </div>
                       )}
                     </div>
 
                     {sub.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2 italic">
-                        "{sub.description}"
-                      </p>
+                      <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
+                        <strong>Descrição:</strong>
+                        <p className="mt-1 italic">"{sub.description}"</p>
+                      </div>
+                    )}
+
+                    {(sub.promotion_type || sub.target_audience || sub.promotion_rules) && (
+                      <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3 space-y-1">
+                        {sub.promotion_type && <p><strong>Tipo de promoção:</strong> {sub.promotion_type}</p>}
+                        {sub.target_audience && <p><strong>Público-alvo:</strong> {sub.target_audience}</p>}
+                        {sub.promotion_rules && <p><strong>Regras:</strong> {sub.promotion_rules}</p>}
+                      </div>
+                    )}
+
+                    {sub.additional_details && (
+                      <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
+                        <strong>Detalhes adicionais:</strong>
+                        <p className="mt-1">{sub.additional_details}</p>
+                      </div>
                     )}
 
                     <p className="text-xs text-muted-foreground/60">
                       Enviado em {formatDate(sub.created_at)}
-                      {sub.responsible_name && ` por ${sub.responsible_name}`}
                     </p>
-                  </div>
 
-                  <div className="flex sm:flex-col items-center gap-2 shrink-0">
-                    <div className="flex gap-1">
+                    {/* Actions */}
+                    <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant={sub.status === "approved" ? "default" : "outline"}
+                          onClick={() => handleStatusChange(sub.id, sub.status === "approved" ? "pending" : "approved")}
+                          className="text-xs"
+                          title="Aprovar"
+                        >
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          Aprovar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={sub.status === "rejected" ? "destructive" : "outline"}
+                          onClick={() => handleStatusChange(sub.id, sub.status === "rejected" ? "pending" : "rejected")}
+                          className="text-xs"
+                          title="Rejeitar"
+                        >
+                          <XCircle className="h-4 w-4 mr-1" />
+                          Rejeitar
+                        </Button>
+                      </div>
                       <Button
                         size="sm"
-                        variant={sub.status === "approved" ? "default" : "outline"}
-                        onClick={() => handleStatusChange(sub.id, sub.status === "approved" ? "pending" : "approved")}
-                        className="text-xs h-8 w-8 p-0"
-                        title="Aprovar"
+                        onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
+                        className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
                       >
-                        <CheckCircle className="h-4 w-4" />
+                        <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
+                        WhatsApp
                       </Button>
                       <Button
                         size="sm"
-                        variant={sub.status === "rejected" ? "destructive" : "outline"}
-                        onClick={() => handleStatusChange(sub.id, sub.status === "rejected" ? "pending" : "rejected")}
-                        className="text-xs h-8 w-8 p-0"
-                        title="Rejeitar"
+                        variant="outline"
+                        onClick={() => downloadEventPdf(sub)}
+                        className="text-xs"
                       >
-                        <XCircle className="h-4 w-4" />
+                        <FileDown className="mr-1.5 h-3.5 w-3.5" />
+                        PDF
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(sub.id)}
+                        className="text-xs text-destructive hover:text-destructive ml-auto"
+                      >
+                        <Trash2 className="mr-1 h-3.5 w-3.5" />
+                        Excluir
                       </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
-                      className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
-                    >
-                      <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
-                      WhatsApp
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => downloadEventPdf(sub)}
-                      className="text-xs"
-                    >
-                      <FileDown className="mr-1.5 h-3.5 w-3.5" />
-                      PDF
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDelete(sub.id)}
-                      className="text-xs text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="mr-1 h-3.5 w-3.5" />
-                    </Button>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           ))}
