@@ -78,22 +78,30 @@ export type Database = {
           address_street: string | null
           address_zip: string | null
           category: string | null
+          commission: string | null
           company_name: string | null
+          concept_description: string | null
           contact_social: string | null
           created_at: string
           date: string | null
+          deleted_at: string | null
           description: string | null
           email: string | null
           end_time: string | null
           event_title: string
           id: string
           location: string | null
+          maintenance_cost: string | null
           phone: string | null
           promotion_rules: string | null
           promotion_type: string | null
           responsible_name: string | null
+          responsible_person: string | null
+          sale_price: string | null
+          stage: string
           start_time: string | null
           status: string
+          subscription_info: string | null
           target_audience: string | null
           user_id: string
           video_link: string | null
@@ -107,22 +115,30 @@ export type Database = {
           address_street?: string | null
           address_zip?: string | null
           category?: string | null
+          commission?: string | null
           company_name?: string | null
+          concept_description?: string | null
           contact_social?: string | null
           created_at?: string
           date?: string | null
+          deleted_at?: string | null
           description?: string | null
           email?: string | null
           end_time?: string | null
           event_title: string
           id?: string
           location?: string | null
+          maintenance_cost?: string | null
           phone?: string | null
           promotion_rules?: string | null
           promotion_type?: string | null
           responsible_name?: string | null
+          responsible_person?: string | null
+          sale_price?: string | null
+          stage?: string
           start_time?: string | null
           status?: string
+          subscription_info?: string | null
           target_audience?: string | null
           user_id: string
           video_link?: string | null
@@ -136,22 +152,30 @@ export type Database = {
           address_street?: string | null
           address_zip?: string | null
           category?: string | null
+          commission?: string | null
           company_name?: string | null
+          concept_description?: string | null
           contact_social?: string | null
           created_at?: string
           date?: string | null
+          deleted_at?: string | null
           description?: string | null
           email?: string | null
           end_time?: string | null
           event_title?: string
           id?: string
           location?: string | null
+          maintenance_cost?: string | null
           phone?: string | null
           promotion_rules?: string | null
           promotion_type?: string | null
           responsible_name?: string | null
+          responsible_person?: string | null
+          sale_price?: string | null
+          stage?: string
           start_time?: string | null
           status?: string
+          subscription_info?: string | null
           target_audience?: string | null
           user_id?: string
           video_link?: string | null

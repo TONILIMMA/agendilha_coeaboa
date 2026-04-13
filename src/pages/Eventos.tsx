@@ -1,0 +1,667 @@
+import { useEffect, useState, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  CalendarDays, Loader2, MessageCircle, Trash2, Search,
+  FileDown, MapPin, Clock, Building2,
+  CheckCircle, XCircle, ChevronDown, ChevronUp,
+  Phone, Mail, Globe, Info, Send, RotateCcw,
+  DollarSign, Users, Briefcase,
+} from "lucide-react";
+import { toast } from "sonner";
+import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
+
+interface Submission {
+  id: string;
+  created_at: string;
+  user_id: string;
+  company_name: string | null;
+  responsible_name: string | null;
+  email: string | null;
+  phone: string | null;
+  event_title: string;
+  date: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  location: string | null;
+  address_street: string | null;
+  address_number: string | null;
+  address_neighborhood: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  address_zip: string | null;
+  description: string | null;
+  video_link: string | null;
+  category: string | null;
+  promotion_type: string | null;
+  target_audience: string | null;
+  promotion_rules: string | null;
+  contact_social: string | null;
+  additional_details: string | null;
+  status: string;
+  sale_price: string | null;
+  maintenance_cost: string | null;
+  subscription_info: string | null;
+  commission: string | null;
+  stage: string;
+  concept_description: string | null;
+  responsible_person: string | null;
+  deleted_at: string | null;
+}
+
+const categoryLabels: Record<string, string> = {
+  musica: "Música / Show",
+  gastronomia: "Gastronomia",
+  cultura: "Cultura / Arte",
+  esporte: "Esporte",
+  promocoes: "Promoções / Ofertas",
+  outros: "Outros",
+};
+
+const stageLabels: Record<string, string> = {
+  development: "Em desenvolvimento",
+  confirmed: "Confirmado",
+  update: "Atualização",
+};
+
+const stageBadgeVariant: Record<string, "default" | "secondary" | "outline"> = {
+  development: "secondary",
+  confirmed: "default",
+  update: "outline",
+};
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit",
+  });
+}
+
+function getDayOfWeek(dateStr: string): string {
+  if (!dateStr) return "";
+  const parts = dateStr.split("/");
+  if (parts.length === 3) {
+    const [dd, mm, yyyy] = parts;
+    const d = new Date(`${yyyy}-${mm}-${dd}`);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString("pt-BR", { weekday: "long" }).replace(/^\w/, c => c.toUpperCase());
+    }
+  }
+  return "";
+}
+
+function buildWhatsAppMessage(sub: Submission): string {
+  const dayOfWeek = getDayOfWeek(sub.date || "");
+  const lines = [
+    `*AGENDILHA* - sua agenda de eventos da Ilha do Governador`,
+    `*Para mais informações:*`,
+    `https://coeaboa.lovable.app/`,
+    "",
+    `🗓️ ${dayOfWeek ? dayOfWeek + " " : ""}${sub.date || ""}`,
+    "",
+    `🎙️ ${sub.start_time || ""}${sub.end_time ? ` às ${sub.end_time}` : ""} *${sub.event_title || "Evento"}*`,
+    `👉 ${sub.location || ""}`,
+    `✔️ Mais informações: https://coeaboa.lovable.app/`,
+  ];
+  return encodeURIComponent(lines.join("\n"));
+}
+
+function getWeekRange(): { start: Date; end: Date } {
+  const now = new Date();
+  const day = now.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(now.getDate() + diffToMonday);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+  return { start: monday, end: sunday };
+}
+
+function parseEventDate(dateStr: string): Date | null {
+  const parts = dateStr.split("/");
+  if (parts.length === 3) {
+    const [dd, mm, yyyy] = parts;
+    const d = new Date(`${yyyy}-${mm}-${dd}`);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+
+function buildBulkWhatsAppMessage(events: Submission[]): string {
+  const { start } = getWeekRange();
+  const endOfWeek = new Date(start);
+  endOfWeek.setDate(start.getDate() + 6);
+  const formatBR = (d: Date) => d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  const lines: string[] = [
+    `📌 *AGENDILHA* - Eventos Confirmados da Semana`,
+    `📅 ${formatBR(start)} a ${formatBR(endOfWeek)}`,
+    ``,
+    `*Para mais informações:*`,
+    `https://coeaboa.lovable.app/`,
+    ``,
+  ];
+  const byDate = new Map<string, Submission[]>();
+  events.forEach((ev) => {
+    const key = ev.date || "Sem data";
+    if (!byDate.has(key)) byDate.set(key, []);
+    byDate.get(key)!.push(ev);
+  });
+  Array.from(byDate.keys()).sort().forEach((dateKey) => {
+    const dayOfWeek = getDayOfWeek(dateKey);
+    lines.push(`━━━━━━━━━━━━━━━`);
+    lines.push(`🗓️ *${dayOfWeek ? dayOfWeek + " - " : ""}${dateKey}*`);
+    lines.push(``);
+    byDate.get(dateKey)!.forEach((ev) => {
+      lines.push(`🎙️ ${ev.start_time || ""}${ev.end_time ? ` às ${ev.end_time}` : ""} - *${ev.event_title}*`);
+      if (ev.location) lines.push(`📍 ${ev.location}`);
+      if (ev.category) lines.push(`🏷️ ${categoryLabels[ev.category] || ev.category}`);
+      lines.push(``);
+    });
+  });
+  lines.push(`✔️ Mais informações: https://coeaboa.lovable.app/`);
+  return encodeURIComponent(lines.join("\n"));
+}
+
+function buildNotificationMessage(sub: Submission, status: string): string {
+  if (status === "approved") {
+    return [
+      `✅ *Evento Aprovado!*`, ``,
+      `Olá${sub.responsible_name ? `, ${sub.responsible_name}` : ""}! Seu evento foi aprovado no *AgendIlha*! 🎉`,
+      ``, `📌 *${sub.event_title}*`,
+      sub.date ? `🗓️ ${sub.date}${sub.start_time ? ` às ${sub.start_time}` : ""}` : "",
+      ``, `Seu evento será divulgado na agenda cultural da Ilha do Governador.`,
+      ``, `Acesse: https://coeaboa.lovable.app/`,
+    ].filter(Boolean).join("\n");
+  }
+  return [
+    `⚠️ *Atualização sobre seu evento*`, ``,
+    `Olá${sub.responsible_name ? `, ${sub.responsible_name}` : ""}! Infelizmente seu evento não foi aprovado desta vez.`,
+    ``, `📌 *${sub.event_title}*`,
+    ``, `Entre em contato conosco para mais informações ou faça uma nova submissão.`,
+    ``, `Acesse: https://coeaboa.lovable.app/`,
+  ].join("\n");
+}
+
+export default function Eventos() {
+  const { user, isAdmin, loading: authLoading } = useAuth();
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("pending");
+
+  async function fetchAll() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("submissions")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      toast.error("Erro ao carregar eventos");
+    } else {
+      setSubmissions((data as any[]) || []);
+    }
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    if (user) fetchAll();
+  }, [user]);
+
+  async function handleSoftDelete(id: string) {
+    const { error } = await supabase.from("submissions").update({ deleted_at: new Date().toISOString() } as any).eq("id", id);
+    if (error) {
+      toast.error("Erro ao mover para lixeira");
+    } else {
+      toast.success("Evento movido para a lixeira");
+      setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, deleted_at: new Date().toISOString() } : s));
+      setExpandedId(null);
+    }
+  }
+
+  async function handleRestore(id: string) {
+    const { error } = await supabase.from("submissions").update({ deleted_at: null } as any).eq("id", id);
+    if (error) {
+      toast.error("Erro ao restaurar evento");
+    } else {
+      toast.success("Evento restaurado!");
+      setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, deleted_at: null } : s));
+    }
+  }
+
+  async function handlePermanentDelete(id: string) {
+    const { error } = await supabase.from("submissions").delete().eq("id", id);
+    if (error) {
+      toast.error("Erro ao excluir definitivamente");
+    } else {
+      toast.success("Evento excluído definitivamente");
+      setSubmissions((prev) => prev.filter((s) => s.id !== id));
+    }
+  }
+
+  async function handleStatusChange(id: string, newStatus: string) {
+    const { error } = await supabase.from("submissions").update({ status: newStatus } as any).eq("id", id);
+    if (error) {
+      toast.error("Erro ao atualizar status");
+    } else {
+      toast.success(newStatus === "approved" ? "Evento aprovado!" : newStatus === "rejected" ? "Evento rejeitado" : "Status atualizado");
+      setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
+
+      if (newStatus === "approved" || newStatus === "rejected") {
+        const sub = submissions.find((s) => s.id === id);
+        if (sub?.phone) {
+          const phone = sub.phone.replace(/\D/g, "");
+          const fullPhone = phone.startsWith("55") ? phone : `55${phone}`;
+          const message = encodeURIComponent(buildNotificationMessage({ ...sub, status: newStatus }, newStatus));
+          window.open(`https://wa.me/${fullPhone}?text=${message}`, "_blank");
+        } else {
+          toast.info("Anunciante sem telefone cadastrado.");
+        }
+      }
+    }
+  }
+
+  const activeSubmissions = submissions.filter(s => !s.deleted_at);
+  const trashedSubmissions = submissions.filter(s => !!s.deleted_at);
+
+  const pendingEvents = activeSubmissions.filter(s => s.status === "pending");
+  const confirmedEvents = activeSubmissions.filter(s => s.status === "approved");
+
+  const getFiltered = (list: Submission[]) => {
+    let result = [...list];
+    if (categoryFilter !== "all") {
+      result = result.filter((s) => s.category === categoryFilter);
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (s) =>
+          s.event_title.toLowerCase().includes(q) ||
+          (s.company_name || "").toLowerCase().includes(q) ||
+          (s.location || "").toLowerCase().includes(q) ||
+          (s.responsible_name || "").toLowerCase().includes(q)
+      );
+    }
+    return result;
+  };
+
+  const filteredPending = useMemo(() => getFiltered(pendingEvents), [pendingEvents, categoryFilter, search]);
+  const filteredConfirmed = useMemo(() => getFiltered(confirmedEvents), [confirmedEvents, categoryFilter, search]);
+  const filteredTrash = useMemo(() => getFiltered(trashedSubmissions), [trashedSubmissions, categoryFilter, search]);
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  function renderEventCard(sub: Submission, options: { showApproval?: boolean; showTrashActions?: boolean } = {}) {
+    const isExpanded = expandedId === sub.id;
+    return (
+      <Card
+        key={sub.id}
+        className={`border-border hover:shadow-md transition-all cursor-pointer ${isExpanded ? "ring-2 ring-primary/30" : ""}`}
+        onClick={() => setExpandedId(isExpanded ? null : sub.id)}
+      >
+        <CardContent className="p-4 sm:p-5">
+          {/* Summary */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1 min-w-0 space-y-1.5">
+              <div className="flex items-start gap-2 flex-wrap">
+                <h3 className="font-display font-semibold text-foreground text-base">{sub.event_title}</h3>
+                <Badge variant="outline" className="text-xs shrink-0">
+                  {categoryLabels[sub.category || ""] || "—"}
+                </Badge>
+                <Badge
+                  variant={sub.status === "approved" ? "default" : sub.status === "rejected" ? "destructive" : "secondary"}
+                  className="text-xs shrink-0"
+                >
+                  {sub.status === "approved" ? "✅ Aprovado" : sub.status === "rejected" ? "❌ Rejeitado" : "⏳ Pendente"}
+                </Badge>
+                {sub.stage && (
+                  <Badge variant={stageBadgeVariant[sub.stage] || "outline"} className="text-xs shrink-0">
+                    {stageLabels[sub.stage] || sub.stage}
+                  </Badge>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                {sub.date && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" />
+                    {sub.date} {sub.start_time && `às ${sub.start_time}`}{sub.end_time && ` - ${sub.end_time}`}
+                  </span>
+                )}
+                {sub.location && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {sub.location}
+                  </span>
+                )}
+                {sub.responsible_person && (
+                  <span className="flex items-center gap-1">
+                    <Briefcase className="h-3.5 w-3.5" />
+                    {sub.responsible_person}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="shrink-0 text-muted-foreground">
+              {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            </div>
+          </div>
+
+          {/* Expanded */}
+          {isExpanded && (
+            <div className="mt-4 pt-4 border-t border-border space-y-4 animate-in slide-in-from-top-2 duration-200" onClick={(e) => e.stopPropagation()}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                {sub.company_name && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Building2 className="h-4 w-4 text-primary shrink-0" />
+                    <span><strong>Empresa:</strong> {sub.company_name}</span>
+                  </div>
+                )}
+                {sub.responsible_name && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Info className="h-4 w-4 text-primary shrink-0" />
+                    <span><strong>Responsável:</strong> {sub.responsible_name}</span>
+                  </div>
+                )}
+                {sub.phone && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Phone className="h-4 w-4 text-primary shrink-0" />
+                    <span><strong>Telefone:</strong> {sub.phone}</span>
+                  </div>
+                )}
+                {sub.email && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Mail className="h-4 w-4 text-primary shrink-0" />
+                    <span><strong>Email:</strong> {sub.email}</span>
+                  </div>
+                )}
+                {sub.address_street && (
+                  <div className="flex items-center gap-2 text-muted-foreground sm:col-span-2">
+                    <MapPin className="h-4 w-4 text-primary shrink-0" />
+                    <span><strong>Endereço:</strong> {[sub.address_street, sub.address_number, sub.address_neighborhood, sub.address_city, sub.address_state].filter(Boolean).join(", ")}{sub.address_zip ? ` – CEP: ${sub.address_zip}` : ""}</span>
+                  </div>
+                )}
+                {sub.contact_social && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Globe className="h-4 w-4 text-primary shrink-0" />
+                    <span><strong>Rede social:</strong> {sub.contact_social}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* New fields */}
+              {(sub.sale_price || sub.maintenance_cost || sub.subscription_info || sub.commission) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm bg-muted/50 rounded-lg p-3">
+                  {sub.sale_price && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <DollarSign className="h-4 w-4 text-primary shrink-0" />
+                      <span><strong>Valor de venda:</strong> {sub.sale_price}</span>
+                    </div>
+                  )}
+                  {sub.maintenance_cost && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <DollarSign className="h-4 w-4 text-primary shrink-0" />
+                      <span><strong>Manutenção:</strong> {sub.maintenance_cost}</span>
+                    </div>
+                  )}
+                  {sub.subscription_info && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Users className="h-4 w-4 text-primary shrink-0" />
+                      <span><strong>Assinatura:</strong> {sub.subscription_info}</span>
+                    </div>
+                  )}
+                  {sub.commission && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <DollarSign className="h-4 w-4 text-primary shrink-0" />
+                      <span><strong>Comissão:</strong> {sub.commission}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {sub.description && (
+                <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
+                  <strong>Descrição:</strong>
+                  <p className="mt-1 italic">"{sub.description}"</p>
+                </div>
+              )}
+
+              {sub.concept_description && (
+                <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
+                  <strong>Conceito / Ideias:</strong>
+                  <p className="mt-1">{sub.concept_description}</p>
+                </div>
+              )}
+
+              <p className="text-xs text-muted-foreground/60">Enviado em {formatDate(sub.created_at)}</p>
+
+              {/* Actions inside card */}
+              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
+                {options.showApproval && isAdmin && (
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant={sub.status === "approved" ? "default" : "outline"}
+                      onClick={() => handleStatusChange(sub.id, sub.status === "approved" ? "pending" : "approved")}
+                      className="text-xs"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      Aprovar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={sub.status === "rejected" ? "destructive" : "outline"}
+                      onClick={() => handleStatusChange(sub.id, sub.status === "rejected" ? "pending" : "rejected")}
+                      className="text-xs"
+                    >
+                      <XCircle className="h-4 w-4 mr-1" />
+                      Rejeitar
+                    </Button>
+                  </div>
+                )}
+                <Button
+                  size="sm"
+                  onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
+                  className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-primary-foreground text-xs"
+                >
+                  <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
+                  WhatsApp
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { exportSingleEventPdf(sub); toast.success("PDF gerado!"); }} className="text-xs">
+                  <FileDown className="mr-1.5 h-3.5 w-3.5" />
+                  PDF
+                </Button>
+
+                {options.showTrashActions ? (
+                  <>
+                    <Button size="sm" variant="outline" onClick={() => handleRestore(sub.id)} className="text-xs ml-auto">
+                      <RotateCcw className="mr-1 h-3.5 w-3.5" />
+                      Restaurar
+                    </Button>
+                    {isAdmin && (
+                      <Button size="sm" variant="ghost" onClick={() => handlePermanentDelete(sub.id)} className="text-xs text-destructive hover:text-destructive">
+                        <Trash2 className="mr-1 h-3.5 w-3.5" />
+                        Excluir definitivamente
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleSoftDelete(sub.id)}
+                    className="text-xs text-destructive hover:text-destructive ml-auto"
+                  >
+                    <Trash2 className="mr-1 h-3.5 w-3.5" />
+                    Remover
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  function renderList(list: Submission[], options: { showApproval?: boolean; showTrashActions?: boolean } = {}) {
+    if (loading) {
+      return (
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+    if (list.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <CalendarDays className="h-12 w-12 text-muted-foreground/40 mb-3" />
+          <p className="text-muted-foreground text-sm">Nenhum evento encontrado.</p>
+        </div>
+      );
+    }
+    return (
+      <div className="space-y-4">
+        {list.map((sub) => renderEventCard(sub, options))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-2">
+          <CalendarDays className="h-6 w-6 text-primary" />
+          <h1 className="text-xl font-display font-bold text-foreground">Eventos</h1>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              exportBulkEventsPdf(confirmedEvents);
+              toast.success("PDF gerado!");
+            }}
+            disabled={confirmedEvents.length === 0}
+            className="text-xs"
+          >
+            <FileDown className="mr-1.5 h-3.5 w-3.5" />
+            Exportar Confirmados (PDF)
+          </Button>
+          {isAdmin && (
+            <Button
+              size="sm"
+              onClick={() => {
+                const { start, end } = getWeekRange();
+                const weekApproved = confirmedEvents.filter((s) => {
+                  if (!s.date) return false;
+                  const d = parseEventDate(s.date);
+                  return d && d >= start && d <= end;
+                });
+                if (weekApproved.length === 0) {
+                  toast.warning("Nenhum evento confirmado para esta semana.");
+                  return;
+                }
+                const msg = buildBulkWhatsAppMessage(weekApproved);
+                window.open(`https://wa.me/?text=${msg}`, "_blank");
+                toast.success(`Mensagem com ${weekApproved.length} evento(s) da semana!`);
+              }}
+              className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-primary-foreground text-xs"
+            >
+              <Send className="mr-1.5 h-3.5 w-3.5" />
+              Enviar para Divulgação
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Search/Filter */}
+      <Card className="mb-5 border-border">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por título, empresa, local..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 h-10"
+              />
+            </div>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-full sm:w-[180px] h-10">
+                <SelectValue placeholder="Categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas categorias</SelectItem>
+                {Object.entries(categoryLabels).map(([k, v]) => (
+                  <SelectItem key={k} value={k}>{v}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="w-full grid grid-cols-3">
+          <TabsTrigger value="pending" className="text-xs sm:text-sm">
+            A serem liberados
+            <Badge variant="secondary" className="ml-1.5 text-xs">{pendingEvents.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="confirmed" className="text-xs sm:text-sm">
+            Confirmados
+            <Badge variant="secondary" className="ml-1.5 text-xs">{confirmedEvents.length}</Badge>
+          </TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger value="trash" className="text-xs sm:text-sm">
+              🗑️ Lixeira
+              <Badge variant="secondary" className="ml-1.5 text-xs">{trashedSubmissions.length}</Badge>
+            </TabsTrigger>
+          )}
+        </TabsList>
+
+        <TabsContent value="pending">
+          {!isAdmin ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <p className="text-muted-foreground text-sm">Somente administradores podem aprovar eventos.</p>
+            </div>
+          ) : (
+            renderList(filteredPending, { showApproval: true })
+          )}
+        </TabsContent>
+
+        <TabsContent value="confirmed">
+          {renderList(filteredConfirmed)}
+        </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="trash">
+            <div className="mb-3">
+              <p className="text-xs text-muted-foreground">Eventos na lixeira são excluídos definitivamente após 30 dias.</p>
+            </div>
+            {renderList(filteredTrash, { showTrashActions: true })}
+          </TabsContent>
+        )}
+      </Tabs>
+    </div>
+  );
+}

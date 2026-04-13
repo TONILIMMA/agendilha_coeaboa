@@ -47,8 +47,15 @@ const formSchema = z.object({
   promotionType: z.string().trim().max(100).optional().or(z.literal("")),
   targetAudience: z.string().trim().max(200).optional().or(z.literal("")),
   promotionRules: z.string().trim().max(500).optional().or(z.literal("")),
-  contactSocial: z.string().trim().max(300).optional().or(z.literal("")),
+      contactSocial: z.string().trim().max(300).optional().or(z.literal("")),
   additionalDetails: z.string().trim().max(500).optional().or(z.literal("")),
+  salePrice: z.string().trim().max(50).optional().or(z.literal("")),
+  maintenanceCost: z.string().trim().max(50).optional().or(z.literal("")),
+  subscriptionInfo: z.string().trim().max(200).optional().or(z.literal("")),
+  commission: z.string().trim().max(50).optional().or(z.literal("")),
+  stage: z.string().optional().or(z.literal("")),
+  conceptDescription: z.string().trim().max(1000).optional().or(z.literal("")),
+  responsiblePerson: z.string().trim().max(100).optional().or(z.literal("")),
   authorization: z.literal(true, {
     errorMap: () => ({ message: "Você precisa autorizar a publicação" }),
   }),
@@ -205,6 +212,8 @@ export default function SubmissionForm() {
       description: "", videoLink: "", category: "",
       promotionType: "", targetAudience: "", promotionRules: "",
       contactSocial: "", additionalDetails: "",
+      salePrice: "", maintenanceCost: "", subscriptionInfo: "",
+      commission: "", stage: "", conceptDescription: "", responsiblePerson: "",
       authorization: undefined,
     },
   });
@@ -261,6 +270,13 @@ export default function SubmissionForm() {
       promotion_rules: data.promotionRules || null,
       contact_social: data.contactSocial || null,
       additional_details: data.additionalDetails || null,
+      sale_price: data.salePrice || null,
+      maintenance_cost: data.maintenanceCost || null,
+      subscription_info: data.subscriptionInfo || null,
+      commission: data.commission || null,
+      stage: data.stage || "development",
+      concept_description: data.conceptDescription || null,
+      responsible_person: data.responsiblePerson || "Toni",
     });
     setSubmitting(false);
     if (success) {
@@ -496,6 +512,51 @@ export default function SubmissionForm() {
                     )}
                   />
                 </div>
+              </CollapsibleSection>
+
+              <CollapsibleSection title="💰 Valores e Gestão" sectionKey="valores" expanded={expandedSections.valores || false} onToggle={toggleSection}>
+                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
+                  <TextField control={form.control} name="salePrice" label="Valor de venda" required={false} placeholder="Ex.: R$ 50,00" />
+                  <TextField control={form.control} name="maintenanceCost" label="Custo de manutenção" required={false} placeholder="Ex.: R$ 200,00" />
+                  <TextField control={form.control} name="subscriptionInfo" label="Assinatura (se houver)" required={false} placeholder="Ex.: Mensal R$ 29,90" />
+                  <TextField control={form.control} name="commission" label="Comissão" required={false} placeholder="Ex.: 10%" />
+                  <TextField control={form.control} name="responsiblePerson" label="Responsável pelo evento" required={false} placeholder="Ex.: Toni" />
+                  <FormField
+                    control={form.control}
+                    name="stage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Estágio do evento</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-12 text-base">
+                              <SelectValue placeholder="Selecione o estágio" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="development" className="py-3 text-base">Em desenvolvimento</SelectItem>
+                            <SelectItem value="confirmed" className="py-3 text-base">Confirmado</SelectItem>
+                            <SelectItem value="update" className="py-3 text-base">Atualização</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="conceptDescription"
+                  render={({ field }) => (
+                    <FormItem className="mt-3 sm:mt-4">
+                      <FormLabel>Conceito / Ideias do evento</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} maxLength={1000} rows={3} placeholder="Descreva conceitos, ideias e contexto do evento..." className="resize-none text-base min-h-[80px]" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </CollapsibleSection>
 
               <CollapsibleSection title="📂 Categoria do Evento" sectionKey="categoria" expanded={expandedSections.categoria} onToggle={toggleSection}>
