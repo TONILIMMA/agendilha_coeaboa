@@ -256,19 +256,44 @@ export default function AdminEvents() {
           <h1 className="text-xl font-display font-bold text-foreground">Todos os Eventos</h1>
           <Badge variant="secondary" className="text-xs">{filtered.length}</Badge>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => {
-            exportBulkEventsPdf(filtered);
-            toast.success("PDF com todos os eventos gerado!");
-          }}
-          disabled={filtered.length === 0}
-          className="text-xs"
-        >
-          <FileDown className="mr-1.5 h-3.5 w-3.5" />
-          Exportar Todos (PDF)
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              exportBulkEventsPdf(filtered);
+              toast.success("PDF com todos os eventos gerado!");
+            }}
+            disabled={filtered.length === 0}
+            className="text-xs"
+          >
+            <FileDown className="mr-1.5 h-3.5 w-3.5" />
+            Exportar Todos (PDF)
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              const { start, end } = getWeekRange();
+              const weekApproved = submissions.filter((s) => {
+                if (s.status !== "approved") return false;
+                if (!s.date) return false;
+                const d = parseEventDate(s.date);
+                return d && d >= start && d <= end;
+              });
+              if (weekApproved.length === 0) {
+                toast.warning("Nenhum evento aprovado encontrado para esta semana.");
+                return;
+              }
+              const msg = buildBulkWhatsAppMessage(weekApproved);
+              window.open(`https://wa.me/?text=${msg}`, "_blank");
+              toast.success(`Mensagem gerada com ${weekApproved.length} evento(s) da semana!`);
+            }}
+            className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
+          >
+            <Send className="mr-1.5 h-3.5 w-3.5" />
+            Enviar para Divulgação
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
