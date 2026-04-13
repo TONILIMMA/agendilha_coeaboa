@@ -63,6 +63,14 @@ const AppRoutes = () => (
       />
       <Route path="/coeaboa" element={<CoeABoa />} />
       <Route path="/agenda" element={<AgendaCultural />} />
+      <Route
+        path="/eventos"
+        element={
+          <ProtectedRoute>
+            <Eventos />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </SubmissionProvider>
