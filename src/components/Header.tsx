@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { CalendarDays, ClipboardList, LogOut, Users, Menu, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +29,8 @@ export default function Header() {
   const navigate = useNavigate();
   const currentDate = useCurrentDate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+  const isHome = location.pathname === "/";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
@@ -36,6 +38,17 @@ export default function Header() {
         {/* Left: Brand + date */}
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
+            {!isHome && (
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => navigate("/")}
+                className="h-8 w-8 text-primary shrink-0"
+                aria-label="Voltar à página inicial"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            )}
             <span className="font-display text-lg font-bold text-primary">📌 AgendIlha</span>
             <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
             {isAdmin && (
