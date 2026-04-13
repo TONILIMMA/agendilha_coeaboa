@@ -16,7 +16,7 @@ import {
   FileDown, MapPin, Clock, Building2,
   CheckCircle, XCircle, ChevronDown, ChevronUp,
   Phone, Mail, Globe, Info, Send, RotateCcw,
-  DollarSign, Users, Briefcase,
+  DollarSign, Users, Briefcase, History,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
