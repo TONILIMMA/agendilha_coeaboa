@@ -86,11 +86,15 @@ export default function Header() {
               <CheckCircle className="h-4 w-4 mr-1" />
               Agenda
             </Button>
+            <Button size="sm" variant="outline" onClick={() => navigate("/eventos")} className="text-xs">
+              <CalendarDays className="h-4 w-4 mr-1" />
+              Eventos
+            </Button>
             {isAdmin && (
               <>
                 <Button size="sm" variant="outline" onClick={() => navigate("/admin/events")} className="text-xs">
                   <CalendarDays className="h-4 w-4 mr-1" />
-                  Eventos
+                  Admin Eventos
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => navigate("/admin/users")} className="text-xs">
                   <Users className="h-4 w-4 mr-1" />
@@ -151,7 +155,17 @@ export default function Header() {
             onClick={() => { navigate("/agenda"); setMenuOpen(false); }}
           >
             <CheckCircle className="h-4 w-4 mr-2" />
-            Eventos Confirmados
+            Agenda
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full justify-start text-xs"
+            onClick={() => { navigate("/eventos"); setMenuOpen(false); }}
+          >
+            <CalendarDays className="h-4 w-4 mr-2" />
+            Eventos
           </Button>
 
           {isAdmin && (
@@ -163,7 +177,7 @@ export default function Header() {
                 onClick={() => { navigate("/admin/events"); setMenuOpen(false); }}
               >
                 <CalendarDays className="h-4 w-4 mr-2" />
-                Eventos
+                Admin Eventos
               </Button>
               <Button
                 size="sm"
