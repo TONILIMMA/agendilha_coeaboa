@@ -23,6 +23,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          is_active: boolean
           name: string
           role_title: string
           updated_at: string
@@ -36,6 +37,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          is_active?: boolean
           name: string
           role_title?: string
           updated_at?: string
@@ -49,9 +51,37 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          is_active?: boolean
           name?: string
           role_title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      event_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          event_id: string
+          id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          event_id: string
+          id?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          notes?: string | null
           user_id?: string
         }
         Relationships: []
