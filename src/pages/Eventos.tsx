@@ -229,6 +229,7 @@ export default function Eventos() {
       toast.success("Evento movido para a lixeira");
       setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, deleted_at: new Date().toISOString() } : s));
       setExpandedId(null);
+      if (user) await supabase.from("event_audit_log").insert({ event_id: id, user_id: user.id, action: "deleted" } as any);
     }
   }
 
@@ -239,6 +240,7 @@ export default function Eventos() {
     } else {
       toast.success("Evento restaurado!");
       setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, deleted_at: null } : s));
+      if (user) await supabase.from("event_audit_log").insert({ event_id: id, user_id: user.id, action: "restored" } as any);
     }
   }
 
@@ -252,6 +254,16 @@ export default function Eventos() {
     }
   }
 
+  async function logAudit(eventId: string, action: string, notes?: string) {
+    if (!user) return;
+    await supabase.from("event_audit_log").insert({
+      event_id: eventId,
+      user_id: user.id,
+      action,
+      notes: notes || null,
+    } as any);
+  }
+
   async function handleStatusChange(id: string, newStatus: string) {
     const { error } = await supabase.from("submissions").update({ status: newStatus } as any).eq("id", id);
     if (error) {
@@ -259,6 +271,7 @@ export default function Eventos() {
     } else {
       toast.success(newStatus === "approved" ? "Evento aprovado!" : newStatus === "rejected" ? "Evento rejeitado" : "Status atualizado");
       setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
+      await logAudit(id, newStatus);
 
       if (newStatus === "approved" || newStatus === "rejected") {
         const sub = submissions.find((s) => s.id === id);
