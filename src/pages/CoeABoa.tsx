@@ -66,6 +66,7 @@ export default function CoeABoa() {
       const { data } = await supabase
         .from("submissions")
         .select("id, event_title, date, start_time, end_time, location, address_neighborhood, description, category, company_name, phone")
+        .eq("status", "approved")
         .order("date", { ascending: true, nullsFirst: false });
       setEvents((data as Event[]) || []);
       setLoading(false);

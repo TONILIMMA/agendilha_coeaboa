@@ -136,6 +136,7 @@ export default function AgendaCultural() {
         .select(
           "id, event_title, date, start_time, end_time, location, address_neighborhood, address_street, address_number, address_city, description, category, company_name, phone"
         )
+        .eq("status", "approved")
         .order("date", { ascending: true, nullsFirst: false });
       setEvents((data as Event[]) || []);
       setLoading(false);
