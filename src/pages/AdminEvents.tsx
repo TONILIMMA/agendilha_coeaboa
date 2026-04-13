@@ -129,6 +129,7 @@ export default function AdminEvents() {
     } else {
       toast.success("Evento removido");
       setSubmissions((prev) => prev.filter((s) => s.id !== id));
+    }
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
@@ -139,7 +140,6 @@ export default function AdminEvents() {
       toast.success(newStatus === "approved" ? "Evento aprovado!" : newStatus === "rejected" ? "Evento rejeitado" : "Status atualizado");
       setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
     }
-  }
   }
 
   const filtered = useMemo(() => {
