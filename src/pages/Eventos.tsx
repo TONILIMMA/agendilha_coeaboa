@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
+import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -544,6 +545,19 @@ export default function Eventos() {
         {list.map((sub) => renderEventCard(sub, options))}
       </div>
     );
+  }
+
+  // Block regular users - only collaborators and admins
+  if (!permissions.loaded) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAdmin && !permissions.isCollaborator) {
+    return <Navigate to="/" replace />;
   }
 
   return (
