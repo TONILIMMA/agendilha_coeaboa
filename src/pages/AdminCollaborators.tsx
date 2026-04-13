@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +43,8 @@ const emptyForm = {
 
 export default function AdminCollaborators() {
   const { user, isAdmin, loading: authLoading } = useAuth();
+  const perms = usePermissions();
+  const hasAccess = isAdmin || (perms.loaded && perms.canApprove);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -78,7 +81,7 @@ export default function AdminCollaborators() {
   }
 
   useEffect(() => {
-    if (isAdmin) {
+    if (hasAccess) {
       fetchCollaborators();
       fetchUsers();
     }
@@ -173,7 +176,7 @@ export default function AdminCollaborators() {
     );
   }
 
-  if (!user || !isAdmin) return <Navigate to="/" replace />;
+  if (!user || !hasAccess) return <Navigate to="/" replace />;
 
   const permissionLabels = [
     { key: "can_submit", label: "Enviar eventos", icon: "📤" },
