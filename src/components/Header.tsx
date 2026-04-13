@@ -23,6 +23,7 @@ function useCurrentDate() {
   });
 }
 
+// Header component
 export default function Header() {
   const { savedCount } = useSubmissions();
   const { user, signOut, isAdmin } = useAuth();
