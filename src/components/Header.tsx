@@ -56,11 +56,19 @@ export default function Header() {
             )}
             <span className="font-display text-lg font-bold text-primary">📌 AgendIlha</span>
             <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
-            {isAdmin && (
+            {isAdmin ? (
               <Badge variant="outline" className="text-xs text-accent border-accent">
                 Admin
               </Badge>
-            )}
+            ) : perms.loaded && perms.canApprove ? (
+              <Badge variant="outline" className="text-xs text-primary border-primary">
+                Master
+              </Badge>
+            ) : perms.loaded && perms.isCollaborator ? (
+              <Badge variant="outline" className="text-xs text-muted-foreground border-muted-foreground">
+                Colaborador
+              </Badge>
+            ) : null}
           </div>
           <span className="text-[10px] sm:text-[11px] text-muted-foreground capitalize block">{currentDate}</span>
         </div>
