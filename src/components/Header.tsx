@@ -192,6 +192,15 @@ export default function Header() {
                 <Users className="h-4 w-4 mr-2" />
                 Usuários
               </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full justify-start text-xs"
+                onClick={() => { navigate("/admin/collaborators"); setMenuOpen(false); }}
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Colaboradores
+              </Button>
             </>
           )}
 
