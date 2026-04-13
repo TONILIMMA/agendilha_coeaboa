@@ -136,6 +136,21 @@ export default function Auth() {
               placeholder="Mínimo 6 caracteres"
             />
           </div>
+          {mode === "login" && (
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => {
+                  toast.info("Recuperação de senha", {
+                    description: "Entre em contato com um administrador pelo WhatsApp para redefinir sua senha.",
+                  });
+                }}
+                className="text-xs text-primary hover:underline"
+              >
+                Esqueci minha senha
+              </button>
+            </div>
+          )}
           <Button
             type="submit"
             disabled={submitting}
