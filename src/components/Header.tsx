@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft } from "lucide-react";
+import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -82,6 +82,10 @@ export default function Header() {
                 )}
               </Button>
             </SubmissionsPanel>
+            <Button size="sm" variant="outline" onClick={() => navigate("/agenda")} className="text-xs">
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Agenda
+            </Button>
             {isAdmin && (
               <>
                 <Button size="sm" variant="outline" onClick={() => navigate("/admin/events")} className="text-xs">
@@ -139,6 +143,16 @@ export default function Header() {
               )}
             </Button>
           </SubmissionsPanel>
+
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full justify-start text-xs"
+            onClick={() => { navigate("/agenda"); setMenuOpen(false); }}
+          >
+            <CheckCircle className="h-4 w-4 mr-2" />
+            Eventos Confirmados
+          </Button>
 
           {isAdmin && (
             <>

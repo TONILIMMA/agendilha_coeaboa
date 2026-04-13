@@ -12,6 +12,7 @@ import {
 import {
   CalendarDays, Loader2, MessageCircle, Trash2, Search,
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
+  CheckCircle, XCircle, Clock3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
@@ -43,6 +44,7 @@ interface Submission {
   promotion_rules: string | null;
   contact_social: string | null;
   additional_details: string | null;
+  status: string;
 }
 
 const categoryLabels: Record<string, string> = {
