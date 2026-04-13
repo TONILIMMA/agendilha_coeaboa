@@ -30,8 +30,15 @@ interface SubmissionEntry {
   promotion_rules: string | null;
   contact_social: string | null;
   additional_details: string | null;
+  sale_price: string | null;
+  maintenance_cost: string | null;
+  subscription_info: string | null;
+  commission: string | null;
+  stage: string;
+  concept_description: string | null;
+  responsible_person: string | null;
+  deleted_at: string | null;
 }
-
 interface SubmissionContextType {
   submissions: SubmissionEntry[];
   loading: boolean;
