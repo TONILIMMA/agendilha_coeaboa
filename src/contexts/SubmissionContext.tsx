@@ -43,7 +43,7 @@ interface SubmissionContextType {
   submissions: SubmissionEntry[];
   loading: boolean;
   fetchSubmissions: () => Promise<void>;
-  addSubmission: (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id">) => Promise<boolean>;
+  addSubmission: (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "stage"> & { stage?: string }) => Promise<boolean>;
   deleteSubmission: (id: string) => Promise<void>;
   savedCount: number;
 }
