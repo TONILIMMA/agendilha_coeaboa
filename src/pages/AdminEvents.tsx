@@ -13,7 +13,7 @@ import {
   CalendarDays, Loader2, MessageCircle, Trash2, Search,
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
   CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp,
-  Phone, Mail, Globe, Info,
+  Phone, Mail, Globe, Info, Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
@@ -89,6 +89,73 @@ function buildWhatsAppMessage(sub: Submission): string {
     `👉 ${sub.location || ""}`,
     `✔️ Mais informações: https://coeaboa.lovable.app/`,
   ];
+  return encodeURIComponent(lines.join("\n"));
+}
+
+function getWeekRange(): { start: Date; end: Date } {
+  const now = new Date();
+  const day = now.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(now.getDate() + diffToMonday);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+  return { start: monday, end: sunday };
+}
+
+function parseEventDate(dateStr: string): Date | null {
+  const parts = dateStr.split("/");
+  if (parts.length === 3) {
+    const [dd, mm, yyyy] = parts;
+    const d = new Date(`${yyyy}-${mm}-${dd}`);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+
+function buildBulkWhatsAppMessage(events: Submission[]): string {
+  const { start } = getWeekRange();
+  const endOfWeek = new Date(start);
+  endOfWeek.setDate(start.getDate() + 6);
+
+  const formatBR = (d: Date) => d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+
+  const lines: string[] = [
+    `📌 *AGENDILHA* - Eventos Confirmados da Semana`,
+    `📅 ${formatBR(start)} a ${formatBR(endOfWeek)}`,
+    ``,
+    `*Para mais informações:*`,
+    `https://coeaboa.lovable.app/`,
+    ``,
+  ];
+
+  const byDate = new Map<string, Submission[]>();
+  events.forEach((ev) => {
+    const key = ev.date || "Sem data";
+    if (!byDate.has(key)) byDate.set(key, []);
+    byDate.get(key)!.push(ev);
+  });
+
+  const sortedDates = Array.from(byDate.keys()).sort((a, b) => a.localeCompare(b));
+
+  sortedDates.forEach((dateKey) => {
+    const dayOfWeek = getDayOfWeek(dateKey);
+    lines.push(`━━━━━━━━━━━━━━━`);
+    lines.push(`🗓️ *${dayOfWeek ? dayOfWeek + " - " : ""}${dateKey}*`);
+    lines.push(``);
+
+    byDate.get(dateKey)!.forEach((ev) => {
+      lines.push(`🎙️ ${ev.start_time || ""}${ev.end_time ? ` às ${ev.end_time}` : ""} - *${ev.event_title}*`);
+      if (ev.location) lines.push(`📍 ${ev.location}`);
+      if (ev.category) lines.push(`🏷️ ${categoryLabels[ev.category] || ev.category}`);
+      lines.push(``);
+    });
+  });
+
+  lines.push(`✔️ Mais informações: https://coeaboa.lovable.app/`);
+
   return encodeURIComponent(lines.join("\n"));
 }
 
@@ -189,19 +256,44 @@ export default function AdminEvents() {
           <h1 className="text-xl font-display font-bold text-foreground">Todos os Eventos</h1>
           <Badge variant="secondary" className="text-xs">{filtered.length}</Badge>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => {
-            exportBulkEventsPdf(filtered);
-            toast.success("PDF com todos os eventos gerado!");
-          }}
-          disabled={filtered.length === 0}
-          className="text-xs"
-        >
-          <FileDown className="mr-1.5 h-3.5 w-3.5" />
-          Exportar Todos (PDF)
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              exportBulkEventsPdf(filtered);
+              toast.success("PDF com todos os eventos gerado!");
+            }}
+            disabled={filtered.length === 0}
+            className="text-xs"
+          >
+            <FileDown className="mr-1.5 h-3.5 w-3.5" />
+            Exportar Todos (PDF)
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              const { start, end } = getWeekRange();
+              const weekApproved = submissions.filter((s) => {
+                if (s.status !== "approved") return false;
+                if (!s.date) return false;
+                const d = parseEventDate(s.date);
+                return d && d >= start && d <= end;
+              });
+              if (weekApproved.length === 0) {
+                toast.warning("Nenhum evento aprovado encontrado para esta semana.");
+                return;
+              }
+              const msg = buildBulkWhatsAppMessage(weekApproved);
+              window.open(`https://wa.me/?text=${msg}`, "_blank");
+              toast.success(`Mensagem gerada com ${weekApproved.length} evento(s) da semana!`);
+            }}
+            className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
+          >
+            <Send className="mr-1.5 h-3.5 w-3.5" />
+            Enviar para Divulgação
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
