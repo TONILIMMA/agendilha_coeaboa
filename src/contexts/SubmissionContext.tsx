@@ -71,11 +71,11 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, [user]);
 
-  const addSubmission = useCallback(async (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id">) => {
+  const addSubmission = useCallback(async (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "stage"> & { stage?: string }) => {
     if (!user) return false;
     const { error } = await supabase
       .from("submissions")
-      .insert({ ...data, user_id: user.id });
+      .insert({ ...data, user_id: user.id } as any);
 
     if (error) {
       toast.error("Erro ao salvar envio", { description: error.message });
