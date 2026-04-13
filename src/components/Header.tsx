@@ -90,7 +90,7 @@ export default function Header() {
               <CheckCircle className="h-4 w-4 mr-1" />
               Agenda
             </Button>
-            {(isAdmin || permissions.isCollaborator) && (
+            {showEventos && (
               <Button size="sm" variant="outline" onClick={() => navigate("/eventos")} className="text-xs">
                 <CalendarDays className="h-4 w-4 mr-1" />
                 Eventos
@@ -168,7 +168,7 @@ export default function Header() {
             Agenda
           </Button>
 
-          {(isAdmin || permissions.isCollaborator) && (
+          {showEventos && (
             <Button
               size="sm"
               variant="outline"
