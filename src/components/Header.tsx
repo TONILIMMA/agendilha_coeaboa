@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle } from "lucide-react";
+import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -99,6 +99,10 @@ export default function Header() {
                 <Button size="sm" variant="outline" onClick={() => navigate("/admin/users")} className="text-xs">
                   <Users className="h-4 w-4 mr-1" />
                   Usuários
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => navigate("/admin/collaborators")} className="text-xs">
+                  <Shield className="h-4 w-4 mr-1" />
+                  Colaboradores
                 </Button>
               </>
             )}
