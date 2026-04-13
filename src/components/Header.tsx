@@ -35,6 +35,7 @@ export default function Header() {
   const location = useLocation();
   const isHome = location.pathname === "/";
   const showEventos = isAdmin || (perms.loaded && perms.isCollaborator);
+  const showCollaborators = isAdmin || (perms.loaded && perms.canApprove);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
@@ -106,11 +107,13 @@ export default function Header() {
                   <Users className="h-4 w-4 mr-1" />
                   Usuários
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => navigate("/admin/collaborators")} className="text-xs">
-                  <Shield className="h-4 w-4 mr-1" />
-                  Colaboradores
-                </Button>
               </>
+            )}
+            {showCollaborators && (
+              <Button size="sm" variant="outline" onClick={() => navigate("/admin/collaborators")} className="text-xs">
+                <Shield className="h-4 w-4 mr-1" />
+                Colaboradores
+              </Button>
             )}
             <Button size="sm" variant="ghost" onClick={signOut} className="text-muted-foreground">
               <LogOut className="h-4 w-4" />
@@ -200,16 +203,19 @@ export default function Header() {
                 <Users className="h-4 w-4 mr-2" />
                 Usuários
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full justify-start text-xs"
-                onClick={() => { navigate("/admin/collaborators"); setMenuOpen(false); }}
-              >
-                <Shield className="h-4 w-4 mr-2" />
-                Colaboradores
-              </Button>
             </>
+          )}
+
+          {showCollaborators && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full justify-start text-xs"
+              onClick={() => { navigate("/admin/collaborators"); setMenuOpen(false); }}
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Colaboradores
+            </Button>
           )}
 
           <Button
