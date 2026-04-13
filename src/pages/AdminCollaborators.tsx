@@ -250,6 +250,13 @@ export default function AdminCollaborators() {
                   </div>
                 ))}
               </div>
+              <div className="flex items-center gap-3 pt-2 border-t border-border">
+                <Checkbox
+                  checked={form.is_active}
+                  onCheckedChange={(checked) => setForm(prev => ({ ...prev, is_active: !!checked }))}
+                />
+                <span className="text-sm font-medium">✅ Colaborador ativo</span>
+              </div>
             </div>
             <DialogFooter>
               <DialogClose asChild>
@@ -284,8 +291,14 @@ export default function AdminCollaborators() {
                     <div className="flex items-center gap-2">
                       <h3 className="font-display font-semibold text-foreground">{collab.name}</h3>
                       <Badge variant="outline" className="text-xs">{collab.role_title}</Badge>
+                      <Badge variant={collab.is_active ? "default" : "secondary"} className="text-xs">
+                        {collab.is_active ? "Ativo" : "Inativo"}
+                      </Badge>
                     </div>
                     {collab.email && <p className="text-xs text-muted-foreground">{collab.email}</p>}
+                    <p className="text-[10px] text-muted-foreground">
+                      Cadastrado em {new Date(collab.created_at).toLocaleDateString("pt-BR")}
+                    </p>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {collab.can_submit && <Badge variant="secondary" className="text-xs">📤 Enviar</Badge>}
                       {collab.can_approve && <Badge variant="secondary" className="text-xs">✅ Liberar</Badge>}
