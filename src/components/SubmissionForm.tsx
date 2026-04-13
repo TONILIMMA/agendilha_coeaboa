@@ -514,6 +514,51 @@ export default function SubmissionForm() {
                 </div>
               </CollapsibleSection>
 
+              <CollapsibleSection title="💰 Valores e Gestão" sectionKey="valores" expanded={expandedSections.valores || false} onToggle={toggleSection}>
+                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
+                  <TextField control={form.control} name="salePrice" label="Valor de venda" required={false} placeholder="Ex.: R$ 50,00" />
+                  <TextField control={form.control} name="maintenanceCost" label="Custo de manutenção" required={false} placeholder="Ex.: R$ 200,00" />
+                  <TextField control={form.control} name="subscriptionInfo" label="Assinatura (se houver)" required={false} placeholder="Ex.: Mensal R$ 29,90" />
+                  <TextField control={form.control} name="commission" label="Comissão" required={false} placeholder="Ex.: 10%" />
+                  <TextField control={form.control} name="responsiblePerson" label="Responsável pelo evento" required={false} placeholder="Ex.: Toni" />
+                  <FormField
+                    control={form.control}
+                    name="stage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Estágio do evento</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-12 text-base">
+                              <SelectValue placeholder="Selecione o estágio" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="development" className="py-3 text-base">Em desenvolvimento</SelectItem>
+                            <SelectItem value="confirmed" className="py-3 text-base">Confirmado</SelectItem>
+                            <SelectItem value="update" className="py-3 text-base">Atualização</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="conceptDescription"
+                  render={({ field }) => (
+                    <FormItem className="mt-3 sm:mt-4">
+                      <FormLabel>Conceito / Ideias do evento</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} maxLength={1000} rows={3} placeholder="Descreva conceitos, ideias e contexto do evento..." className="resize-none text-base min-h-[80px]" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CollapsibleSection>
+
               <CollapsibleSection title="📂 Categoria do Evento" sectionKey="categoria" expanded={expandedSections.categoria} onToggle={toggleSection}>
                 <FormField
                   control={form.control}
