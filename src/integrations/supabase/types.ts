@@ -93,6 +93,7 @@ export type Database = {
           promotion_type: string | null
           responsible_name: string | null
           start_time: string | null
+          status: string
           target_audience: string | null
           user_id: string
           video_link: string | null
@@ -121,6 +122,7 @@ export type Database = {
           promotion_type?: string | null
           responsible_name?: string | null
           start_time?: string | null
+          status?: string
           target_audience?: string | null
           user_id: string
           video_link?: string | null
@@ -149,6 +151,7 @@ export type Database = {
           promotion_type?: string | null
           responsible_name?: string | null
           start_time?: string | null
+          status?: string
           target_audience?: string | null
           user_id?: string
           video_link?: string | null
