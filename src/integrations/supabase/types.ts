@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      collaborators: {
+        Row: {
+          can_approve: boolean
+          can_delete: boolean
+          can_edit: boolean
+          can_submit: boolean
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          role_title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          can_approve?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_submit?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          role_title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          can_approve?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_submit?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          role_title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address_city: string | null
@@ -208,6 +250,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_permission: {
+        Args: { _permission: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
