@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CalendarDays, ClipboardList, LogOut, Users } from "lucide-react";
+import { CalendarDays, ClipboardList, LogOut, Users, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -28,10 +28,12 @@ export default function Header() {
   const { profile } = useProfile();
   const navigate = useNavigate();
   const currentDate = useCurrentDate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
       <div className="mx-auto flex h-auto max-w-5xl items-center justify-between px-4 py-2">
+        {/* Left: Brand + date */}
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-display text-lg font-bold text-primary">📌 AgendIlha</span>
@@ -45,47 +47,120 @@ export default function Header() {
           <span className="text-[10px] sm:text-[11px] text-muted-foreground capitalize block">{currentDate}</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {user && profile.responsible_name && (
-            <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-[100px] sm:max-w-[150px]">
-              Olá, {profile.responsible_name.split(" ")[0]}
-            </span>
-          )}
-          {user && (
-            <>
-              <SubmissionsPanel>
-                <Button
-                  size="sm"
-                  className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all"
-                >
-                  <ClipboardList className="mr-1.5 h-4 w-4" />
-                  Envios
-                  {savedCount > 0 && (
-                    <Badge variant="secondary" className="ml-1.5 text-xs font-medium bg-white/20 text-white">
-                      {savedCount}
-                    </Badge>
-                  )}
+        {/* Right: Desktop actions */}
+        {user && (
+          <div className="hidden sm:flex items-center gap-2">
+            {profile.responsible_name && (
+              <span className="text-sm font-medium text-foreground truncate max-w-[150px]">
+                Olá, {profile.responsible_name.split(" ")[0]}
+              </span>
+            )}
+            <SubmissionsPanel>
+              <Button
+                size="sm"
+                className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all"
+              >
+                <ClipboardList className="mr-1.5 h-4 w-4" />
+                Envios
+                {savedCount > 0 && (
+                  <Badge variant="secondary" className="ml-1.5 text-xs font-medium bg-white/20 text-white">
+                    {savedCount}
+                  </Badge>
+                )}
+              </Button>
+            </SubmissionsPanel>
+            {isAdmin && (
+              <>
+                <Button size="sm" variant="outline" onClick={() => navigate("/admin/events")} className="text-xs">
+                  <CalendarDays className="h-4 w-4 mr-1" />
+                  Eventos
                 </Button>
-              </SubmissionsPanel>
-              {isAdmin && (
-                <>
-                  <Button size="sm" variant="outline" onClick={() => navigate("/admin/events")} className="text-xs">
-                    <CalendarDays className="h-4 w-4 mr-1" />
-                    Eventos
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => navigate("/admin/users")} className="text-xs">
-                    <Users className="h-4 w-4 mr-1" />
-                    Usuários
-                  </Button>
-                </>
+                <Button size="sm" variant="outline" onClick={() => navigate("/admin/users")} className="text-xs">
+                  <Users className="h-4 w-4 mr-1" />
+                  Usuários
+                </Button>
+              </>
+            )}
+            <Button size="sm" variant="ghost" onClick={signOut} className="text-muted-foreground">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* Right: Mobile hamburger */}
+        {user && (
+          <div className="flex sm:hidden items-center gap-2">
+            {profile.responsible_name && (
+              <span className="text-xs font-medium text-foreground truncate max-w-[100px]">
+                Olá, {profile.responsible_name.split(" ")[0]}
+              </span>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setMenuOpen((v) => !v)}
+              className="text-foreground"
+              aria-label="Menu"
+            >
+              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile dropdown menu */}
+      {user && menuOpen && (
+        <div className="sm:hidden border-t border-border bg-card px-4 py-3 space-y-2 animate-in slide-in-from-top-2 duration-200">
+          <SubmissionsPanel>
+            <Button
+              size="sm"
+              className="w-full justify-start font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all"
+              onClick={() => setMenuOpen(false)}
+            >
+              <ClipboardList className="mr-2 h-4 w-4" />
+              Envios
+              {savedCount > 0 && (
+                <Badge variant="secondary" className="ml-auto text-xs font-medium bg-white/20 text-white">
+                  {savedCount}
+                </Badge>
               )}
-              <Button size="sm" variant="ghost" onClick={signOut} className="text-muted-foreground">
-                <LogOut className="h-4 w-4" />
+            </Button>
+          </SubmissionsPanel>
+
+          {isAdmin && (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full justify-start text-xs"
+                onClick={() => { navigate("/admin/events"); setMenuOpen(false); }}
+              >
+                <CalendarDays className="h-4 w-4 mr-2" />
+                Eventos
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full justify-start text-xs"
+                onClick={() => { navigate("/admin/users"); setMenuOpen(false); }}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Usuários
               </Button>
             </>
           )}
+
+          <Button
+            size="sm"
+            variant="ghost"
+            className="w-full justify-start text-muted-foreground"
+            onClick={() => { signOut(); setMenuOpen(false); }}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sair
+          </Button>
         </div>
-      </div>
+      )}
     </header>
   );
 }
