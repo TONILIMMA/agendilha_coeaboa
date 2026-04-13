@@ -361,7 +361,11 @@ export default function Eventos() {
       <Card
         key={sub.id}
         className={`border-border hover:shadow-md transition-all cursor-pointer ${isExpanded ? "ring-2 ring-primary/30" : ""}`}
-        onClick={() => setExpandedId(isExpanded ? null : sub.id)}
+        onClick={() => {
+          const newId = isExpanded ? null : sub.id;
+          setExpandedId(newId);
+          if (newId) fetchAuditLog(newId);
+        }}
       >
         <CardContent className="p-4 sm:p-5">
           {/* Summary */}
