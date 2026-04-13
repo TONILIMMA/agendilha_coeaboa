@@ -201,6 +201,35 @@ export default function AdminEvents() {
     }
   }
 
+  function buildNotificationMessage(sub: Submission, status: string): string {
+    if (status === "approved") {
+      return [
+        `✅ *Evento Aprovado!*`,
+        ``,
+        `Olá${sub.responsible_name ? `, ${sub.responsible_name}` : ""}! Seu evento foi aprovado no *AgendIlha*! 🎉`,
+        ``,
+        `📌 *${sub.event_title}*`,
+        sub.date ? `🗓️ ${sub.date}${sub.start_time ? ` às ${sub.start_time}` : ""}` : "",
+        ``,
+        `Seu evento será divulgado na agenda cultural da Ilha do Governador.`,
+        ``,
+        `Acesse: https://coeaboa.lovable.app/`,
+      ].filter(Boolean).join("\n");
+    } else {
+      return [
+        `⚠️ *Atualização sobre seu evento*`,
+        ``,
+        `Olá${sub.responsible_name ? `, ${sub.responsible_name}` : ""}! Infelizmente seu evento não foi aprovado desta vez.`,
+        ``,
+        `📌 *${sub.event_title}*`,
+        ``,
+        `Entre em contato conosco para mais informações ou faça uma nova submissão.`,
+        ``,
+        `Acesse: https://coeaboa.lovable.app/`,
+      ].join("\n");
+    }
+  }
+
   async function handleStatusChange(id: string, newStatus: string) {
     const { error } = await supabase.from("submissions").update({ status: newStatus } as any).eq("id", id);
     if (error) {
@@ -208,6 +237,19 @@ export default function AdminEvents() {
     } else {
       toast.success(newStatus === "approved" ? "Evento aprovado!" : newStatus === "rejected" ? "Evento rejeitado" : "Status atualizado");
       setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
+
+      // Send WhatsApp notification to advertiser
+      if (newStatus === "approved" || newStatus === "rejected") {
+        const sub = submissions.find((s) => s.id === id);
+        if (sub?.phone) {
+          const phone = sub.phone.replace(/\D/g, "");
+          const fullPhone = phone.startsWith("55") ? phone : `55${phone}`;
+          const message = encodeURIComponent(buildNotificationMessage({ ...sub, status: newStatus }, newStatus));
+          window.open(`https://wa.me/${fullPhone}?text=${message}`, "_blank");
+        } else {
+          toast.info("Anunciante sem telefone cadastrado. Notificação não enviada.");
+        }
+      }
     }
   }
 
