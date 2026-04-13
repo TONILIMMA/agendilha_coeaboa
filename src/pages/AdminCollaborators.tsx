@@ -24,6 +24,7 @@ interface Collaborator {
   can_approve: boolean;
   can_edit: boolean;
   can_delete: boolean;
+  is_active: boolean;
   created_at: string;
 }
 
@@ -36,6 +37,7 @@ const emptyForm = {
   can_approve: false,
   can_edit: false,
   can_delete: false,
+  is_active: true,
 };
 
 export default function AdminCollaborators() {
@@ -99,6 +101,7 @@ export default function AdminCollaborators() {
       can_approve: collab.can_approve,
       can_edit: collab.can_edit,
       can_delete: collab.can_delete,
+      is_active: collab.is_active,
     });
     setDialogOpen(true);
   }
@@ -123,6 +126,7 @@ export default function AdminCollaborators() {
       can_approve: form.can_approve,
       can_edit: form.can_edit,
       can_delete: form.can_delete,
+      is_active: form.is_active,
     };
 
     if (editingId) {
