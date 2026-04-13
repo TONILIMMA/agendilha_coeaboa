@@ -28,12 +28,13 @@ export default function Header() {
   const { savedCount } = useSubmissions();
   const { user, signOut, isAdmin } = useAuth();
   const { profile } = useProfile();
-  const permissions = usePermissions();
+  const perms = usePermissions();
   const navigate = useNavigate();
   const currentDate = useCurrentDate();
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const showEventos = isAdmin || (perms.loaded && perms.isCollaborator);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
@@ -89,7 +90,7 @@ export default function Header() {
               <CheckCircle className="h-4 w-4 mr-1" />
               Agenda
             </Button>
-            {(isAdmin || permissions.isCollaborator) && (
+            {showEventos && (
               <Button size="sm" variant="outline" onClick={() => navigate("/eventos")} className="text-xs">
                 <CalendarDays className="h-4 w-4 mr-1" />
                 Eventos
@@ -167,7 +168,7 @@ export default function Header() {
             Agenda
           </Button>
 
-          {(isAdmin || permissions.isCollaborator) && (
+          {showEventos && (
             <Button
               size="sm"
               variant="outline"
