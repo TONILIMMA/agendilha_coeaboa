@@ -36,11 +36,11 @@ export function usePermissions(): Permissions {
     async function load() {
       const { data } = await supabase
         .from("collaborators")
-        .select("can_submit, can_approve, can_edit, can_delete")
+        .select("can_submit, can_approve, can_edit, can_delete, is_active")
         .eq("user_id", user!.id)
         .maybeSingle();
 
-      if (data) {
+      if (data && (data as any).is_active !== false) {
         setPerms({
           canSubmit: data.can_submit,
           canApprove: data.can_approve,
