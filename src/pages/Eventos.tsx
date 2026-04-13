@@ -16,7 +16,7 @@ import {
   FileDown, MapPin, Clock, Building2,
   CheckCircle, XCircle, ChevronDown, ChevronUp,
   Phone, Mail, Globe, Info, Send, RotateCcw,
-  DollarSign, Users, Briefcase,
+  DollarSign, Users, Briefcase, History,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
@@ -202,6 +202,7 @@ export default function Eventos() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
+  const [auditLogs, setAuditLogs] = useState<Record<string, { action: string; created_at: string; user_name: string }[]>>({});
 
   async function fetchAll() {
     setLoading(true);
@@ -220,6 +221,35 @@ export default function Eventos() {
   useEffect(() => {
     if (user) fetchAll();
   }, [user]);
+
+  async function fetchAuditLog(eventId: string) {
+    if (auditLogs[eventId]) return;
+    const { data } = await supabase
+      .from("event_audit_log")
+      .select("action, created_at, user_id")
+      .eq("event_id", eventId)
+      .order("created_at", { ascending: false }) as any;
+    if (data && data.length > 0) {
+      // Fetch user names from profiles
+      const userIds = [...new Set(data.map((d: any) => d.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, responsible_name")
+        .in("user_id", userIds as string[]);
+      const nameMap: Record<string, string> = {};
+      (profiles || []).forEach((p: any) => { nameMap[p.user_id] = p.responsible_name || "Usuário"; });
+      setAuditLogs(prev => ({
+        ...prev,
+        [eventId]: data.map((d: any) => ({
+          action: d.action,
+          created_at: d.created_at,
+          user_name: nameMap[d.user_id] || "Usuário",
+        })),
+      }));
+    } else {
+      setAuditLogs(prev => ({ ...prev, [eventId]: [] }));
+    }
+  }
 
   async function handleSoftDelete(id: string) {
     const { error } = await supabase.from("submissions").update({ deleted_at: new Date().toISOString() } as any).eq("id", id);
@@ -331,7 +361,11 @@ export default function Eventos() {
       <Card
         key={sub.id}
         className={`border-border hover:shadow-md transition-all cursor-pointer ${isExpanded ? "ring-2 ring-primary/30" : ""}`}
-        onClick={() => setExpandedId(isExpanded ? null : sub.id)}
+        onClick={() => {
+          const newId = isExpanded ? null : sub.id;
+          setExpandedId(newId);
+          if (newId) fetchAuditLog(newId);
+        }}
       >
         <CardContent className="p-4 sm:p-5">
           {/* Summary */}
@@ -467,6 +501,37 @@ export default function Eventos() {
               )}
 
               <p className="text-xs text-muted-foreground/60">Enviado em {formatDate(sub.created_at)}</p>
+
+              {/* Histórico de ações */}
+              {auditLogs[sub.id] && auditLogs[sub.id].length > 0 && (
+                <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                    <History className="h-3.5 w-3.5" />
+                    Histórico
+                  </div>
+                  {auditLogs[sub.id].map((log, i) => {
+                    const actionMap: Record<string, { icon: string; label: string }> = {
+                      approved: { icon: "✅", label: "Aprovou" },
+                      rejected: { icon: "❌", label: "Rejeitou" },
+                      edited: { icon: "✏️", label: "Editou" },
+                      deleted: { icon: "🗑️", label: "Moveu para lixeira" },
+                      restored: { icon: "♻️", label: "Restaurou" },
+                      pending: { icon: "⏳", label: "Voltou para pendente" },
+                    };
+                    const a = actionMap[log.action] || { icon: "📝", label: log.action };
+                    return (
+                      <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{a.icon}</span>
+                        <span className="font-medium">{log.user_name}</span>
+                        <span>{a.label}</span>
+                        <span className="ml-auto text-[10px] opacity-70">
+                          {new Date(log.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
               {/* Actions inside card */}
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
