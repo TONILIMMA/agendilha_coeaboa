@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
 import SubmissionsPanel from "@/components/SubmissionsPanel";
 
@@ -26,6 +27,7 @@ export default function Header() {
   const { savedCount } = useSubmissions();
   const { user, signOut, isAdmin } = useAuth();
   const { profile } = useProfile();
+  const permissions = usePermissions();
   const navigate = useNavigate();
   const currentDate = useCurrentDate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -86,10 +88,12 @@ export default function Header() {
               <CheckCircle className="h-4 w-4 mr-1" />
               Agenda
             </Button>
-            <Button size="sm" variant="outline" onClick={() => navigate("/eventos")} className="text-xs">
-              <CalendarDays className="h-4 w-4 mr-1" />
-              Eventos
-            </Button>
+            {(isAdmin || permissions.isCollaborator) && (
+              <Button size="sm" variant="outline" onClick={() => navigate("/eventos")} className="text-xs">
+                <CalendarDays className="h-4 w-4 mr-1" />
+                Eventos
+              </Button>
+            )}
             {isAdmin && (
               <>
                 <Button size="sm" variant="outline" onClick={() => navigate("/admin/events")} className="text-xs">
@@ -162,15 +166,17 @@ export default function Header() {
             Agenda
           </Button>
 
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full justify-start text-xs"
-            onClick={() => { navigate("/eventos"); setMenuOpen(false); }}
-          >
-            <CalendarDays className="h-4 w-4 mr-2" />
-            Eventos
-          </Button>
+          {(isAdmin || permissions.isCollaborator) && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full justify-start text-xs"
+              onClick={() => { navigate("/eventos"); setMenuOpen(false); }}
+            >
+              <CalendarDays className="h-4 w-4 mr-2" />
+              Eventos
+            </Button>
+          )}
 
           {isAdmin && (
             <>
