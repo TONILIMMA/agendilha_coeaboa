@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -193,6 +194,7 @@ function buildNotificationMessage(sub: Submission, status: string): string {
 
 export default function Eventos() {
   const { user, isAdmin, loading: authLoading } = useAuth();
+  const permissions = usePermissions();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -631,7 +633,7 @@ export default function Eventos() {
             Confirmados
             <Badge variant="secondary" className="ml-1.5 text-xs">{confirmedEvents.length}</Badge>
           </TabsTrigger>
-          {isAdmin && (
+          {(isAdmin || permissions.canDelete) && (
             <TabsTrigger value="trash" className="text-xs sm:text-sm">
               🗑️ Lixeira
               <Badge variant="secondary" className="ml-1.5 text-xs">{trashedSubmissions.length}</Badge>
@@ -640,9 +642,9 @@ export default function Eventos() {
         </TabsList>
 
         <TabsContent value="pending">
-          {!isAdmin ? (
+          {!permissions.canApprove ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <p className="text-muted-foreground text-sm">Somente administradores podem aprovar eventos.</p>
+              <p className="text-muted-foreground text-sm">Você não tem permissão para aprovar eventos.</p>
             </div>
           ) : (
             renderList(filteredPending, { showApproval: true })
@@ -653,7 +655,7 @@ export default function Eventos() {
           {renderList(filteredConfirmed)}
         </TabsContent>
 
-        {isAdmin && (
+        {(isAdmin || permissions.canDelete) && (
           <TabsContent value="trash">
             <div className="mb-3">
               <p className="text-xs text-muted-foreground">Eventos na lixeira são excluídos definitivamente após 30 dias.</p>

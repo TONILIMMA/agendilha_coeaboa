@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle } from "lucide-react";
+import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -100,6 +100,10 @@ export default function Header() {
                   <Users className="h-4 w-4 mr-1" />
                   Usuários
                 </Button>
+                <Button size="sm" variant="outline" onClick={() => navigate("/admin/collaborators")} className="text-xs">
+                  <Shield className="h-4 w-4 mr-1" />
+                  Colaboradores
+                </Button>
               </>
             )}
             <Button size="sm" variant="ghost" onClick={signOut} className="text-muted-foreground">
@@ -187,6 +191,15 @@ export default function Header() {
               >
                 <Users className="h-4 w-4 mr-2" />
                 Usuários
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full justify-start text-xs"
+                onClick={() => { navigate("/admin/collaborators"); setMenuOpen(false); }}
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Colaboradores
               </Button>
             </>
           )}
