@@ -202,6 +202,7 @@ export default function Eventos() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
+  const [auditLogs, setAuditLogs] = useState<Record<string, { action: string; created_at: string; user_name: string }[]>>({});
 
   async function fetchAll() {
     setLoading(true);
