@@ -111,9 +111,9 @@ export default function Header() {
             {hasAdminLinks && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button size="sm" variant="outline" className="px-2" aria-label="Menu administrativo">
-                    <Settings className="h-4 w-4" />
-                    <span className="hidden sm:inline ml-1 text-xs">Admin</span>
+                  <Button size="sm" variant="outline" className="px-2 gap-1" aria-label="Menu administrativo">
+                    <Menu className="h-4 w-4" />
+                    <span className="hidden sm:inline text-xs">Admin</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
