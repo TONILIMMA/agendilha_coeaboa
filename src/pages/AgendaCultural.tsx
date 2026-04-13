@@ -127,6 +127,7 @@ function isThisWeek(dateStr: string | null): boolean {
 export default function AgendaCultural() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function load() {
@@ -172,13 +173,24 @@ export default function AgendaCultural() {
       {/* Header */}
       <header className="bg-primary text-primary-foreground">
         <div className="mx-auto max-w-4xl px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-center sm:text-left">
+          <div className="flex items-center gap-3">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => navigate("/")}
+              className="text-primary-foreground hover:bg-primary-foreground/15 shrink-0"
+              aria-label="Voltar à página inicial"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="text-center sm:text-left">
             <h1 className="text-3xl sm:text-4xl font-bold font-display">
               🌴 AgendIlha
             </h1>
             <p className="text-sm opacity-90 mt-1">
               Agenda Cultural da Ilha do Governador
             </p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <a
