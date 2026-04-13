@@ -32,8 +32,8 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
       <div className="mx-auto flex h-auto max-w-5xl items-center justify-between px-4 py-2">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-display text-lg font-bold text-primary">📌 AgendIlha</span>
             <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
             {isAdmin && (
@@ -42,7 +42,7 @@ export default function Header() {
               </Badge>
             )}
           </div>
-          <span className="text-[11px] text-muted-foreground capitalize">{currentDate}</span>
+          <span className="text-[10px] sm:text-[11px] text-muted-foreground capitalize block">{currentDate}</span>
         </div>
 
         <div className="flex items-center gap-2">
