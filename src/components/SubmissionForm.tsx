@@ -212,6 +212,8 @@ export default function SubmissionForm() {
       description: "", videoLink: "", category: "",
       promotionType: "", targetAudience: "", promotionRules: "",
       contactSocial: "", additionalDetails: "",
+      salePrice: "", maintenanceCost: "", subscriptionInfo: "",
+      commission: "", stage: "", conceptDescription: "", responsiblePerson: "",
       authorization: undefined,
     },
   });
@@ -268,6 +270,13 @@ export default function SubmissionForm() {
       promotion_rules: data.promotionRules || null,
       contact_social: data.contactSocial || null,
       additional_details: data.additionalDetails || null,
+      sale_price: data.salePrice || null,
+      maintenance_cost: data.maintenanceCost || null,
+      subscription_info: data.subscriptionInfo || null,
+      commission: data.commission || null,
+      stage: data.stage || "development",
+      concept_description: data.conceptDescription || null,
+      responsible_person: data.responsiblePerson || "Toni",
     });
     setSubmitting(false);
     if (success) {
