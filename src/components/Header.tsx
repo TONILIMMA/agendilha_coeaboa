@@ -97,75 +97,91 @@ export default function Header() {
           </div>
 
           {/* Right actions */}
-          {user && (
+          {user && (() => {
+            // Compute a display name with sensible fallbacks
+            const fullName =
+              profile.responsible_name?.trim() ||
+              profile.company_name?.trim() ||
+              (user.email && !user.email.endsWith("@phone.agendilha.app") ? user.email.split("@")[0] : "") ||
+              profile.phone?.replace(/\D/g, "").slice(-4) ||
+              "Usuário";
+            const firstName = fullName.split(" ")[0];
+            const roleLabel = isAdmin
+              ? "Admin Master"
+              : perms.canApprove
+              ? "Admin"
+              : perms.isCollaborator
+              ? "Colaborador"
+              : "Divulgador";
+
+            return (
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-              {/* User name dropdown — admin shortcuts */}
-              {profile.responsible_name ? (
-                hasAdminLinks ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 px-1.5 gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:bg-accent/10"
-                        aria-label="Menu do usuário"
-                      >
-                        <Avatar className="h-6 w-6">
-                          <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground">
-                            {getInitials(profile.responsible_name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="truncate max-w-[80px] sm:max-w-[120px]">
-                          {profile.responsible_name.split(" ")[0]}
-                        </span>
-                        <ChevronDown className="h-3.5 w-3.5 opacity-70" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuLabel className="text-xs">
-                        <div className="font-semibold text-foreground truncate">{profile.responsible_name}</div>
-                        <div className="text-muted-foreground font-normal text-[11px] mt-0.5">
-                          {isAdmin ? "Administrador" : perms.canApprove ? "Master" : "Colaborador"}
-                        </div>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {isAdmin && (
-                        <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
-                          <Users className="h-4 w-4 mr-2" />
-                          Ver Usuários
-                        </DropdownMenuItem>
-                      )}
-                      {showCollaborators && (
-                        <DropdownMenuItem onClick={() => navigate("/admin/collaborators")} className="cursor-pointer">
-                          <Shield className="h-4 w-4 mr-2" />
-                          Colaboradores
-                        </DropdownMenuItem>
-                      )}
-                      {isAdmin && (
-                        <DropdownMenuItem onClick={() => navigate("/admin/events")} className="cursor-pointer">
-                          <CalendarDays className="h-4 w-4 mr-2" />
-                          Admin Eventos
-                        </DropdownMenuItem>
-                      )}
-                      {showEventos && (
-                        <DropdownMenuItem onClick={() => navigate("/eventos")} className="cursor-pointer">
-                          <CalendarDays className="h-4 w-4 mr-2" />
-                          Meus Eventos
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:text-destructive">
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Sair
+              {/* User name dropdown */}
+              {hasAdminLinks ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 px-1.5 gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:bg-accent/10"
+                      aria-label="Menu do usuário"
+                    >
+                      <Avatar className="h-6 w-6">
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground">
+                          {getInitials(fullName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="truncate max-w-[80px] sm:max-w-[120px]">{firstName}</span>
+                      <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="text-xs">
+                      <div className="font-semibold text-foreground truncate">{fullName}</div>
+                      <div className="text-muted-foreground font-normal text-[11px] mt-0.5">{roleLabel}</div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
+                        <Users className="h-4 w-4 mr-2" />
+                        Ver Usuários
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
-                  <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-[100px] sm:max-w-[140px]">
-                    Olá, {profile.responsible_name.split(" ")[0]}
-                  </span>
-                )
-              ) : null}
+                    )}
+                    {showCollaborators && (
+                      <DropdownMenuItem onClick={() => navigate("/admin/collaborators")} className="cursor-pointer">
+                        <Shield className="h-4 w-4 mr-2" />
+                        Colaboradores
+                      </DropdownMenuItem>
+                    )}
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate("/admin/events")} className="cursor-pointer">
+                        <CalendarDays className="h-4 w-4 mr-2" />
+                        Admin Eventos
+                      </DropdownMenuItem>
+                    )}
+                    {showEventos && (
+                      <DropdownMenuItem onClick={() => navigate("/eventos")} className="cursor-pointer">
+                        <CalendarDays className="h-4 w-4 mr-2" />
+                        Meus Eventos
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:text-destructive">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sair
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-foreground">
+                  <Avatar className="h-6 w-6">
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground">
+                      {getInitials(fullName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="truncate max-w-[100px] sm:max-w-[140px]">Olá, {firstName}</span>
+                </span>
+              )}
 
               {/* Envios */}
               <Tooltip>
@@ -214,7 +230,8 @@ export default function Header() {
                 </Tooltip>
               )}
             </div>
-          )}
+            );
+          })()}
         </div>
       </header>
     </TooltipProvider>
