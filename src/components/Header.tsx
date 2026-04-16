@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog, Crown } from "lucide-react";
+import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog, Crown, Trophy } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -144,92 +144,77 @@ export default function Header() {
 
             return (
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-              {/* User name dropdown */}
-              {hasAdminLinks ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 px-1.5 gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:bg-accent/10"
-                      aria-label="Menu do usuário"
-                    >
-                      <div className="relative">
-                        <Avatar className={`h-6 w-6 ${isMaster ? "ring-2 ring-secondary ring-offset-1 ring-offset-background" : ""}`}>
-                          <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground">
-                            {getInitials(fullName)}
-                          </AvatarFallback>
-                        </Avatar>
-                        {isMaster && (
-                          <Crown
-                            className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 text-secondary fill-secondary drop-shadow-sm"
-                            strokeWidth={2}
-                            aria-label="Admin Master"
-                          />
-                        )}
-                      </div>
-                      <span className="truncate max-w-[80px] sm:max-w-[120px]">{firstName}</span>
-                      <ChevronDown className="h-3.5 w-3.5 opacity-70" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel className="text-xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-semibold text-foreground truncate">{fullName}</span>
-                        {isMaster && <Crown className="h-3.5 w-3.5 text-secondary fill-secondary shrink-0" strokeWidth={2} />}
-                      </div>
-                      <div className={`font-normal text-[11px] mt-0.5 ${isMaster ? "text-secondary font-semibold" : "text-muted-foreground"}`}>
-                        {roleLabel}
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {isAdmin && (
-                      <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
-                        <Users className="h-4 w-4 mr-2" />
-                        Cadastros &gt; Usuários
-                      </DropdownMenuItem>
-                    )}
-                    {isMaster && (
-                      <DropdownMenuItem onClick={() => navigate("/admin/master")} className="cursor-pointer">
-                        <Crown className="h-4 w-4 mr-2 text-secondary" />
-                        Painel Master
-                      </DropdownMenuItem>
-                    )}
-                    {showCollaborators && (
-                      <DropdownMenuItem onClick={() => navigate("/admin/collaborators")} className="cursor-pointer">
-                        <Shield className="h-4 w-4 mr-2" />
-                        Colaboradores
-                      </DropdownMenuItem>
-                    )}
-                    {isAdmin && (
-                      <DropdownMenuItem onClick={() => navigate("/admin/events")} className="cursor-pointer">
-                        <CalendarDays className="h-4 w-4 mr-2" />
-                        Admin Eventos
-                      </DropdownMenuItem>
-                    )}
-                    {showEventos && (
-                      <DropdownMenuItem onClick={() => navigate("/eventos")} className="cursor-pointer">
-                        <CalendarDays className="h-4 w-4 mr-2" />
-                        Meus Eventos
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:text-destructive">
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Sair
+              {/* User dropdown — always available when logged in */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 px-1.5 gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:bg-accent/10"
+                    aria-label="Menu do usuário"
+                  >
+                    <div className="relative">
+                      <Avatar className={`h-6 w-6 ${isMaster ? "ring-2 ring-secondary ring-offset-1 ring-offset-background" : ""}`}>
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground">
+                          {getInitials(fullName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      {isMaster && (
+                        <Crown
+                          className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 text-secondary fill-secondary drop-shadow-sm"
+                          strokeWidth={2}
+                          aria-label="Admin Master"
+                        />
+                      )}
+                    </div>
+                    <span className="truncate max-w-[80px] sm:max-w-[120px]">{firstName}</span>
+                    <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-foreground truncate">{fullName}</span>
+                      {isMaster && <Crown className="h-3.5 w-3.5 text-secondary fill-secondary shrink-0" strokeWidth={2} />}
+                    </div>
+                    <div className={`font-normal text-[11px] mt-0.5 ${isMaster ? "text-secondary font-semibold" : "text-muted-foreground"}`}>
+                      {roleLabel}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+
+                  {/* Admin & Master: Eventos */}
+                  {(isAdmin || isMaster) && (
+                    <DropdownMenuItem onClick={() => navigate("/admin/events")} className="cursor-pointer">
+                      <CalendarDays className="h-4 w-4 mr-2 text-primary" />
+                      Eventos
                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-foreground">
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground">
-                      {getInitials(fullName)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="truncate max-w-[100px] sm:max-w-[140px]">Olá, {firstName}</span>
-                </span>
-              )}
+                  )}
+
+                  {/* Master only: Usuários */}
+                  {isMaster && (
+                    <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
+                      <Users className="h-4 w-4 mr-2 text-primary" />
+                      Usuários
+                    </DropdownMenuItem>
+                  )}
+
+                  {/* Master only: Ranking */}
+                  {isMaster && (
+                    <DropdownMenuItem onClick={() => navigate("/ranking")} className="cursor-pointer">
+                      <Trophy className="h-4 w-4 mr-2 text-secondary" />
+                      Ranking
+                    </DropdownMenuItem>
+                  )}
+
+                  {(isAdmin || isMaster) && <DropdownMenuSeparator />}
+
+                  <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:text-destructive">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {/* Envios */}
               <Tooltip>
