@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { AGENDILHA_LOGO_BASE64 } from "./logoBase64";
+import { AGENDILHA_LOGO_BASE64, LOGO_MIME } from "./logoBase64";
 
 const categoryLabels: Record<string, string> = {
   musica: "Música / Show",
@@ -88,14 +88,15 @@ function drawHeader(doc: jsPDF) {
   doc.setFillColor(...BRAND_ORANGE);
   doc.rect(0, 0, PAGE_W, HEADER_H, "F");
 
-  // Logo image
+  // Logo image (square Coé a Boa logo)
   try {
+    const mime = LOGO_MIME === "JPEG" ? "jpeg" : "png";
     doc.addImage(
-      `data:image/png;base64,${AGENDILHA_LOGO_BASE64}`,
-      "PNG",
+      `data:image/${mime};base64,${AGENDILHA_LOGO_BASE64}`,
+      LOGO_MIME,
       MARGIN,
       2,
-      24,
+      12,
       12
     );
   } catch {
@@ -106,7 +107,7 @@ function drawHeader(doc: jsPDF) {
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.text("AgendIlha  |  Coé a Boa?", MARGIN + 26, 10);
+  doc.text("Coé a Boa?  |  Agenda Cultural", MARGIN + 16, 10);
 
   // Right-aligned date
   doc.setFont("helvetica", "normal");
