@@ -640,48 +640,105 @@ export default function Eventos() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-display font-bold text-foreground">Eventos</h1>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              exportBulkEventsPdf(confirmedEvents);
-              toast.success("PDF gerado!");
-            }}
-            disabled={confirmedEvents.length === 0}
-            className="text-xs"
-          >
-            <FileDown className="mr-1.5 h-3.5 w-3.5" />
-            Exportar Confirmados (PDF)
-          </Button>
-          {isAdmin && (
+      {/* Modern dashboard header */}
+      <div className="mb-6 rounded-2xl border border-border bg-card/60 backdrop-blur-md p-5 shadow-sm animate-in fade-in duration-300">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <CalendarDays className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-display font-bold text-foreground leading-tight">Envios</h1>
+              <p className="text-xs text-muted-foreground">Painel de controle e moderação</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               size="sm"
+              variant="outline"
               onClick={() => {
-                const { start, end } = getWeekRange();
-                const weekApproved = confirmedEvents.filter((s) => {
-                  if (!s.date) return false;
-                  const d = parseEventDate(s.date);
-                  return d && d >= start && d <= end;
-                });
-                if (weekApproved.length === 0) {
-                  toast.warning("Nenhum evento confirmado para esta semana.");
-                  return;
-                }
-                const msg = buildBulkWhatsAppMessage(weekApproved);
-                window.open(`https://wa.me/?text=${msg}`, "_blank");
-                toast.success(`Mensagem com ${weekApproved.length} evento(s) da semana!`);
+                exportBulkEventsPdf(confirmedEvents);
+                toast.success("PDF gerado!");
               }}
-              className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-primary-foreground text-xs"
+              disabled={confirmedEvents.length === 0}
+              className="text-xs rounded-full"
             >
-              <Send className="mr-1.5 h-3.5 w-3.5" />
-              Enviar para Divulgação
+              <FileDown className="mr-1.5 h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Exportar Confirmados</span>
+              <span className="sm:hidden">PDF</span>
             </Button>
+            {isAdmin && (
+              <Button
+                size="sm"
+                onClick={() => {
+                  const { start, end } = getWeekRange();
+                  const weekApproved = confirmedEvents.filter((s) => {
+                    if (!s.date) return false;
+                    const d = parseEventDate(s.date);
+                    return d && d >= start && d <= end;
+                  });
+                  if (weekApproved.length === 0) {
+                    toast.warning("Nenhum evento confirmado para esta semana.");
+                    return;
+                  }
+                  const msg = buildBulkWhatsAppMessage(weekApproved);
+                  window.open(`https://wa.me/?text=${msg}`, "_blank");
+                  toast.success(`Mensagem com ${weekApproved.length} evento(s) da semana!`);
+                }}
+                className="text-xs rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <Send className="mr-1.5 h-3.5 w-3.5" />
+                Divulgar semana
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Status cards */}
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <button
+            onClick={() => setActiveTab("pending")}
+            className={`text-left rounded-xl border p-3 transition-all hover:scale-[1.02] active:scale-[0.98] ${
+              activeTab === "pending"
+                ? "bg-[hsl(45,93%,47%)]/10 border-[hsl(45,93%,47%)]/40 ring-2 ring-[hsl(45,93%,47%)]/30"
+                : "bg-background/60 border-border hover:border-[hsl(45,93%,47%)]/30"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Pendentes</span>
+              <Clock className="h-3.5 w-3.5 text-[hsl(35,90%,40%)]" />
+            </div>
+            <div className="mt-1 text-2xl font-display font-bold text-foreground">{pendingEvents.length}</div>
+          </button>
+          <button
+            onClick={() => setActiveTab("confirmed")}
+            className={`text-left rounded-xl border p-3 transition-all hover:scale-[1.02] active:scale-[0.98] ${
+              activeTab === "confirmed"
+                ? "bg-primary/10 border-primary/40 ring-2 ring-primary/30"
+                : "bg-background/60 border-border hover:border-primary/30"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Confirmados</span>
+              <CheckCircle className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <div className="mt-1 text-2xl font-display font-bold text-foreground">{confirmedEvents.length}</div>
+          </button>
+          {(isAdmin || permissions.canDelete) && (
+            <button
+              onClick={() => setActiveTab("trash")}
+              className={`text-left rounded-xl border p-3 transition-all hover:scale-[1.02] active:scale-[0.98] col-span-2 sm:col-span-1 ${
+                activeTab === "trash"
+                  ? "bg-muted border-border ring-2 ring-muted-foreground/20"
+                  : "bg-background/60 border-border hover:border-muted-foreground/30"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Lixeira</span>
+                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <div className="mt-1 text-2xl font-display font-bold text-foreground">{trashedSubmissions.length}</div>
+            </button>
           )}
         </div>
       </div>
