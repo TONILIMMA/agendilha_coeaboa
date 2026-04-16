@@ -1,59 +1,51 @@
 
 
-## Análise atual
+## Análise
 
-**Sistema de Aprovação (`SubmissionsPanel.tsx`)** — já implementa:
-- 3 status com cores/ícones (✅ verde / ⏳ amarelo / ❌ vermelho)
-- Textarea de observação aparece só em Pendente/Reprovado, oculta em Aprovado
-- Botão "Salvar observação" para edição posterior em Pendentes
-- Histórico via `event_audit_log` (componente `StatusHistory`)
-- Validação obrigatória de motivo na reprovação
+**Já implementado:**
+- Sistema de aprovação (Aprovado/Pendente/Reprovado) com cores, ícones, justificativa condicional, fluxo automático para Agenda Cultural, histórico — tudo concluído nas iterações anteriores.
+- "Master" já existe como conceito virtual: o admin **mais antigo** (`useUserBadge.ts`) é tratado como Master com badge "Admin Master" + ícone Crown.
+- Landing.tsx já tem header glass, hamburger mobile, gradiente, scroll reveal, microinterações e avatar com iniciais (`HeaderUserMenu`).
 
-**Landing (`Landing.tsx`)** — já tem header glass com scroll, hamburger mobile, gradiente eco, cards de ecossistema com hover/scroll-reveal, CTA Agenda.
+**Faltando:** a página exclusiva "Painel Master" com privilégios de gestão e ranking de divulgadores.
 
-## Lacunas identificadas
+## Plano
 
-1. **Botões de status no admin não diferenciam visualmente o status atual** de forma forte — o "Aprovar" usa apenas tom claro quando inativo. Falta um indicador "ativo/atual" mais óbvio.
-2. **Observação em modo Pendente fica incompleta**: o usuário comum vê a observação só quando admin escreveu, mas o admin não vê visualmente o resumo do status atual com cor de fundo do card.
-3. **Histórico mostra `user_id.slice(0,8)`** em vez do nome do moderador.
-4. **Avatar do usuário no header da Landing** — `HeaderUserMenu` precisa ser verificado para garantir fallback de iniciais (item explícito do prompt).
-5. **Microinterações** — botões da moderação podem ganhar fade-in/animação de feedback ao clicar.
-6. **Landing Agenda CTA** — já existe o botão "Baixar PDF" mas leva para `/coeaboa`, não dispara export. Item do prompt: "feedback visual claro de sucesso/erro" no export.
+### 1. Formalizar o papel "Master" no banco
+- Adicionar valor `'master'` ao enum `app_role` (migration).
+- Helper RPC `is_master(_user_id uuid)` (SECURITY DEFINER) que retorna true se o user tem role `master` **ou** é o admin mais antigo (fallback transitório). Usado pelas RLS futuras e UI.
+- Atualizar `useUserBadge.ts` para usar `is_master` em vez do cálculo "oldest admin".
 
-## Plano de implementação
+### 2. Nova página `/admin/master` — Painel Master
+Arquivo `src/pages/AdminMaster.tsx`, rota protegida (redireciona se não Master).
 
-### 1. Refinar `SubmissionsPanel.tsx` — moderação mais clara
-- Adicionar **borda lateral colorida** no card do envio conforme status (verde/âmbar/vermelho) para leitura imediata.
-- Marcar visualmente o botão de status **ativo** com `ring-2` + `font-semibold` para destacar qual está aplicado agora.
-- No bloco de moderação, exibir um pequeno cabeçalho "Status atual: ✅ Aprovado" com cor.
-- Garantir transição suave (`transition-all duration-200`) nas trocas de status.
+Conteúdo:
+- **Estatísticas no topo (cards glass):** total de usuários, total de admins, total de eventos aprovados.
+- **Gestão de admins:** lista de todos os usuários com role admin/master. Ações:
+  - Promover usuário a Admin
+  - Promover Admin a Admin Master
+  - Remover Admin / Remover Master (com salvaguarda: não pode remover a si mesmo nem deixar zero masters).
+  - Reusa edge function `list-users` existente (sem mudanças) + insert/delete em `user_roles`.
+- **Ranking de divulgadores:** filtros por período (semanal/mensal/anual/todos). Query agregada em `submissions` agrupando por `user_id` + status `approved`, ordenando por contagem. Join com `profiles` para nome. Mostra posição, nome, nº eventos aprovados, nº pendentes/reprovados como métrica secundária.
 
-### 2. Histórico com nome do moderador (`StatusHistory`)
-- Após buscar logs, fazer um segundo query em `collaborators` (e fallback `profiles`) para mapear `user_id → name`.
-- Substituir `l.user_id.slice(0,8)` por `nome` quando disponível.
+### 3. Integração no menu
+- `HeaderUserMenu.tsx`: adicionar item "Painel Master" visível apenas quando `status === "master"`, apontando para `/admin/master`.
+- `App.tsx`: registrar rota `/admin/master` protegida (e atrás do `AdminPinGate` por consistência com `/admin/users`).
 
-### 3. Verificar/garantir avatar com iniciais no `HeaderUserMenu`
-- Ler o componente; se ainda não houver fallback de iniciais a partir de `responsible_name`/`email`, adicionar usando `<Avatar>` shadcn com `AvatarFallback`.
+### 4. RLS / Segurança
+- Política de `user_roles`: permitir INSERT/DELETE de role `master` apenas para masters (via novo helper `is_master`).
+- Manter políticas atuais de admin intactas — admins continuam podendo nomear admins, mas só Master nomeia/remove Master.
 
-### 4. Landing — feedback no export PDF
-- No botão "Baixar PDF" da seção Agenda CTA, em vez de só linkar para `/coeaboa`, manter o link mas garantir que na página `CoeABoa`/`AgendaCultural` o botão de export já mostra `toast.success`/`toast.error` (validar; caso falte, adicionar).
-
-### 5. Microinterações sutis na Landing
-- Adicionar `hover:scale-[1.02]` e `active:scale-[0.98]` nos botões CTA principais (já há shadow-elevated; reforçar transição).
-- Garantir classe `animate-fade-in` em mensagens de toast já vem do Sonner.
+### 5. Estilo
+- Cards do Painel Master em **glassmorphism** (`bg-white/60 backdrop-blur-md border border-white/40`) sobre gradiente verde→azul→cinza local (sem mudar tema global).
+- Animações sutis (`animate-fade-in`, `hover:scale-[1.01]`).
+- Ícone Crown reforçando identidade "Master".
 
 ## Detalhes técnicos
-
-- **Arquivos a editar:**
-  - `src/components/SubmissionsPanel.tsx` — borda lateral por status, destaque do botão ativo, header "Status atual".
-  - `src/components/SubmissionsPanel.tsx` (sub-componente `StatusHistory`) — join com `collaborators` para nome do autor.
-  - `src/components/HeaderUserMenu.tsx` — verificar/ajustar `AvatarFallback` com iniciais.
-  - `src/pages/Landing.tsx` — micro-hover nos botões CTA.
-  - `src/pages/CoeABoa.tsx` / `src/pages/AgendaCultural.tsx` — confirmar `toast` de sucesso no export PDF (apenas se ausente).
-
-- **Banco de dados:** sem mudanças. O `event_audit_log` e o campo `rejection_reason` já cobrem histórico e observação.
-
-- **Sem novas dependências.** Apenas Tailwind, lucide-react e shadcn já no projeto.
-
-- **Permissões/RLS:** sem alterações; consulta de `collaborators` para mapear nomes já está coberta pela policy "Managers can view all collaborators" (admins). Para usuários comuns o histórico não é exibido (bloco de moderação só aparece para `isAdmin`).
+- **Migration:** `ALTER TYPE app_role ADD VALUE 'master'` + função `is_master`.
+- **Sem novas dependências.**
+- **Arquivos novos:** `src/pages/AdminMaster.tsx`.
+- **Arquivos editados:** `src/App.tsx`, `src/components/HeaderUserMenu.tsx`, `src/hooks/useUserBadge.ts`.
+- **Ranking:** consulta cliente em `submissions` filtrando `status='approved'` e `created_at` ≥ período; agrupamento feito em JS (volume baixo previsto).
+- **Salvaguardas no UI:** botão de remover master desabilitado se restar apenas 1 master.
 
