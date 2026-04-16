@@ -157,29 +157,25 @@ export default function ForgotPassword() {
           <div className="space-y-4">
             {generatedCode && (
               <Alert>
-                <MessageCircle className="h-4 w-4" />
+                <ShieldCheck className="h-4 w-4" />
                 <AlertDescription className="space-y-3">
-                  <p className="text-sm">
-                    Seu código é:
-                  </p>
-                  <p className="text-2xl font-bold tracking-widest text-center text-primary font-mono">
+                  <p className="text-sm">Seu código de verificação:</p>
+                  <p className="text-3xl font-bold tracking-widest text-center text-primary font-mono py-2">
                     {generatedCode}
-                  </p>
-                  <p className="text-xs">
-                    Envie este código para você mesmo no WhatsApp para confirmar a posse do número, depois cole abaixo.
                   </p>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     className="w-full"
-                    asChild
+                    onClick={handleCopyCode}
                   >
-                    <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                      <MessageCircle className="mr-2 h-4 w-4" />
-                      Abrir WhatsApp
-                    </a>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copiar código
                   </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Digite ou cole o código no campo abaixo. Validade: 15 minutos.
+                  </p>
                 </AlertDescription>
               </Alert>
             )}
