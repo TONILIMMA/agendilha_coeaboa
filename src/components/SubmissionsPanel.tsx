@@ -427,30 +427,36 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                               </p>
                             )}
                           </div>
-                          {(sub.status === "pending" || sub.status === "rejected") && (
-                            <div className="space-y-1">
-                              <label className="text-xs text-muted-foreground">
-                                Observação {sub.status === "rejected" ? "(motivo da reprovação — obrigatório)" : "(opcional para pendência)"}
-                              </label>
-                              <Textarea
-                                value={reasonDrafts[sub.id] ?? sub.rejection_reason ?? ""}
-                                onChange={(e) => setReasonDrafts((p) => ({ ...p, [sub.id]: e.target.value }))}
-                                placeholder="Ex.: Faltou foto de divulgação, ajustar horário, etc."
-                                rows={2}
-                                className="text-sm"
-                              />
-                              {sub.status === "pending" && (reasonDrafts[sub.id] ?? "").trim() !== (sub.rejection_reason ?? "") && (
+                          <div className="space-y-1">
+                            <label className="text-xs text-muted-foreground">
+                              Observação{" "}
+                              {sub.status === "rejected"
+                                ? "(motivo da reprovação — obrigatório)"
+                                : sub.status === "pending"
+                                ? "(opcional para pendência)"
+                                : "(necessária ao reprovar; opcional para pendência)"}
+                            </label>
+                            <Textarea
+                              value={reasonDrafts[sub.id] ?? sub.rejection_reason ?? ""}
+                              onChange={(e) => setReasonDrafts((p) => ({ ...p, [sub.id]: e.target.value }))}
+                              placeholder="Ex.: Faltou foto de divulgação, ajustar horário, etc."
+                              rows={2}
+                              className="text-sm"
+                            />
+                            {(sub.status === "pending" || sub.status === "rejected") &&
+                              (reasonDrafts[sub.id] ?? "").trim() !== (sub.rejection_reason ?? "") && (
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => updateStatus(sub.id, "pending", reasonDrafts[sub.id] || null)}
+                                  onClick={() =>
+                                    updateStatus(sub.id, sub.status as "pending" | "rejected", reasonDrafts[sub.id] || null)
+                                  }
                                   className="text-xs mt-1"
                                 >
                                   Salvar observação
                                 </Button>
                               )}
-                            </div>
-                          )}
+                          </div>
                           <StatusHistory eventId={sub.id} />
                         </div>
                       )}
