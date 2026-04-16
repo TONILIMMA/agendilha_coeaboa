@@ -50,6 +50,8 @@
     --gradient-eco: linear-gradient(160deg, hsl(30 20% 94%) 0%, hsl(25 35% 88%) 45%, hsl(20 12% 82%) 100%);
     --gradient-eco-deep: linear-gradient(135deg, hsl(220 8% 28%) 0%, hsl(20 35% 38%) 55%, hsl(22 55% 52%) 100%);
     --gradient-warm: linear-gradient(135deg, hsl(30 25% 94%) 0%, hsl(20 50% 86%) 100%);
+    --gradient-sunset: linear-gradient(135deg, hsl(28 85% 58%) 0%, hsl(22 75% 50%) 50%, hsl(18 65% 42%) 100%);
+    --gradient-pumpkin-strip: linear-gradient(90deg, hsl(30 25% 96% / 0) 0%, hsl(28 70% 88% / 0.8) 25%, hsl(22 80% 72%) 50%, hsl(28 70% 88% / 0.8) 75%, hsl(30 25% 96% / 0) 100%);
     --gradient-mesh:
       radial-gradient(at 12% 18%, hsl(220 12% 82% / 0.65) 0px, transparent 55%),
       radial-gradient(at 88% 14%, hsl(25 60% 82% / 0.7) 0px, transparent 55%),
@@ -94,6 +96,8 @@
   .gradient-eco { background: var(--gradient-eco); }
   .gradient-eco-deep { background: var(--gradient-eco-deep); }
   .gradient-warm { background: var(--gradient-warm); }
+  .gradient-sunset { background: var(--gradient-sunset); }
+  .gradient-pumpkin-strip { background: var(--gradient-pumpkin-strip); }
   .gradient-mesh { background-image: var(--gradient-mesh); }
 
   .shadow-card { box-shadow: var(--shadow-card); }
