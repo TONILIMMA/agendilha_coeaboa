@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog } from "lucide-react";
+import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog, Crown } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -144,7 +144,13 @@ export default function Header() {
                     {isAdmin && (
                       <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
                         <Users className="h-4 w-4 mr-2" />
-                        Ver Usuários
+                        Cadastros &gt; Usuários
+                      </DropdownMenuItem>
+                    )}
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate("/admin/master")} className="cursor-pointer">
+                        <Crown className="h-4 w-4 mr-2 text-secondary" />
+                        Painel Master
                       </DropdownMenuItem>
                     )}
                     {showCollaborators && (
