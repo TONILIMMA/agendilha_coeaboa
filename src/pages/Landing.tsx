@@ -143,27 +143,27 @@ export default function Landing() {
           </button>
         </nav>
 
-        {/* Mobile drawer */}
+        {/* Mobile drawer — fullscreen glass */}
         {mobileOpen && (
-          <div className="md:hidden glass-strong border-t border-white/40 animate-fade-in">
-            <ul className="px-4 py-3 space-y-1 text-sm">
+          <div className="md:hidden fixed inset-x-0 top-14 bottom-0 glass-strong border-t border-white/40 animate-fade-in overflow-y-auto">
+            <ul className="px-6 py-6 space-y-1 text-base">
               {sitelinks.map((l) => (
                 <li key={l.href}>
                   <a
                     href={l.href}
                     onClick={() => setMobileOpen(false)}
-                    className="block py-2 px-2 rounded-md hover:bg-white/60 text-foreground/80"
+                    className="block py-4 px-3 rounded-xl text-foreground/85 hover:bg-white/60 active:bg-white/80 transition font-medium"
                   >
                     {l.label}
                   </a>
                 </li>
               ))}
-              <li className="pt-2 flex gap-2">
-                <Link to="/auth" className="flex-1">
-                  <Button size="sm" variant="outline" className="w-full">Entrar</Button>
+              <li className="pt-4 flex flex-col gap-2.5">
+                <Link to="/auth" onClick={() => setMobileOpen(false)}>
+                  <Button size="lg" variant="outline" className="w-full bg-white/70">Entrar</Button>
                 </Link>
-                <Link to="/coeaboa" className="flex-1">
-                  <Button size="sm" className="w-full gradient-eco-deep text-white">Ver agenda</Button>
+                <Link to="/coeaboa" onClick={() => setMobileOpen(false)}>
+                  <Button size="lg" className="w-full gradient-eco-deep text-white">Ver agenda</Button>
                 </Link>
               </li>
             </ul>
@@ -174,38 +174,38 @@ export default function Landing() {
       {/* ── Hero ── */}
       <section
         id="top"
-        className="relative pt-24 pb-20 sm:pt-32 sm:pb-28 overflow-hidden gradient-eco"
+        className="relative pt-20 pb-14 sm:pt-32 sm:pb-28 overflow-hidden gradient-eco"
       >
         {/* soft ambient blobs */}
-        <div aria-hidden className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-emerald-300/30 blur-3xl" />
-        <div aria-hidden className="absolute top-20 right-[-80px] h-80 w-80 rounded-full bg-sky-300/30 blur-3xl" />
-        <div aria-hidden className="absolute bottom-[-60px] left-1/3 h-72 w-72 rounded-full bg-slate-300/30 blur-3xl" />
+        <div aria-hidden className="absolute -top-24 -left-24 h-56 sm:h-72 w-56 sm:w-72 rounded-full bg-emerald-300/30 blur-3xl" />
+        <div aria-hidden className="absolute top-20 right-[-80px] h-60 sm:h-80 w-60 sm:w-80 rounded-full bg-sky-300/30 blur-3xl" />
+        <div aria-hidden className="absolute bottom-[-60px] left-1/3 h-56 sm:h-72 w-56 sm:w-72 rounded-full bg-slate-300/30 blur-3xl" />
 
-        <div className="relative mx-auto max-w-3xl px-6 text-center animate-fade-in">
-          <div className="inline-flex flex-col items-center glass-strong rounded-3xl px-8 py-8 sm:px-12 sm:py-10 shadow-glass">
-            <div className="rounded-full p-1.5 ring-1 ring-foreground/10 bg-white/70 shadow-card">
+        <div className="relative mx-auto max-w-3xl px-5 sm:px-6 text-center animate-fade-in">
+          <div className="inline-flex flex-col items-center glass-strong rounded-3xl px-6 py-6 sm:px-12 sm:py-10 shadow-glass">
+            <div className="rounded-full p-1 sm:p-1.5 ring-1 ring-foreground/10 bg-white/70 shadow-card">
               <img
                 src={logo}
                 alt="Coé a Boa?"
-                className="h-24 w-24 sm:h-28 sm:w-28 rounded-full"
+                className="h-20 w-20 sm:h-28 sm:w-28 rounded-full"
               />
             </div>
-            <h1 className="mt-6 font-display text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
+            <h1 className="mt-4 sm:mt-6 font-display text-2xl sm:text-4xl font-semibold tracking-tight text-foreground">
               Coé a Boa<span className="text-primary">?</span>
             </h1>
-            <p className="mt-2 text-sm sm:text-base text-foreground/70 max-w-md">
+            <p className="mt-1.5 sm:mt-2 text-[13px] sm:text-base text-foreground/70 max-w-md leading-relaxed">
               A agenda cultural da Ilha do Governador.
               Eventos, divulgação e comunidade num só lugar.
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/coeaboa">
-                <Button size="lg" className="gradient-eco-deep text-white shadow-glass hover:opacity-95 hover-scale">
+            <div className="mt-5 sm:mt-6 flex flex-col xs:flex-row flex-wrap items-stretch xs:items-center justify-center gap-2.5 w-full xs:w-auto">
+              <Link to="/coeaboa" className="w-full xs:w-auto">
+                <Button size="lg" className="w-full gradient-eco-deep text-white shadow-glass hover:opacity-95 hover-scale">
                   Ver agenda <ArrowRight className="ml-1.5 h-4 w-4" />
                 </Button>
               </Link>
-              <Link to="/auth">
-                <Button size="lg" variant="outline" className="bg-white/60 hover:bg-white/80">
+              <Link to="/auth" className="w-full xs:w-auto">
+                <Button size="lg" variant="outline" className="w-full bg-white/60 hover:bg-white/80">
                   Cadastrar evento
                 </Button>
               </Link>
