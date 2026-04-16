@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings } from "lucide-react";
+import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -91,11 +91,68 @@ export default function Header() {
           {/* Right actions */}
           {user && (
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-              {profile.responsible_name && (
-                <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-[100px] sm:max-w-[140px]">
-                  Olá, {profile.responsible_name.split(" ")[0]}
-                </span>
-              )}
+              {/* User name dropdown — admin shortcuts */}
+              {profile.responsible_name ? (
+                hasAdminLinks ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 px-2 gap-1 text-xs sm:text-sm font-medium text-foreground hover:bg-accent/10"
+                        aria-label="Menu do usuário"
+                      >
+                        <span className="truncate max-w-[90px] sm:max-w-[140px]">
+                          Olá, {profile.responsible_name.split(" ")[0]}
+                        </span>
+                        <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel className="text-xs">
+                        <div className="font-semibold text-foreground truncate">{profile.responsible_name}</div>
+                        <div className="text-muted-foreground font-normal text-[11px] mt-0.5">
+                          {isAdmin ? "Administrador" : perms.canApprove ? "Master" : "Colaborador"}
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {isAdmin && (
+                        <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
+                          <Users className="h-4 w-4 mr-2" />
+                          Ver Usuários
+                        </DropdownMenuItem>
+                      )}
+                      {showCollaborators && (
+                        <DropdownMenuItem onClick={() => navigate("/admin/collaborators")} className="cursor-pointer">
+                          <Shield className="h-4 w-4 mr-2" />
+                          Colaboradores
+                        </DropdownMenuItem>
+                      )}
+                      {isAdmin && (
+                        <DropdownMenuItem onClick={() => navigate("/admin/events")} className="cursor-pointer">
+                          <CalendarDays className="h-4 w-4 mr-2" />
+                          Admin Eventos
+                        </DropdownMenuItem>
+                      )}
+                      {showEventos && (
+                        <DropdownMenuItem onClick={() => navigate("/eventos")} className="cursor-pointer">
+                          <CalendarDays className="h-4 w-4 mr-2" />
+                          Meus Eventos
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:text-destructive">
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sair
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-[100px] sm:max-w-[140px]">
+                    Olá, {profile.responsible_name.split(" ")[0]}
+                  </span>
+                )
+              ) : null}
 
               {/* Envios */}
               <Tooltip>
@@ -132,62 +189,17 @@ export default function Header() {
                 <TooltipContent>Ver Agenda Cultural pública</TooltipContent>
               </Tooltip>
 
-              {/* Admin dropdown (hamburger) */}
-              {hasAdminLinks && (
-                <DropdownMenu>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuTrigger asChild>
-                        <Button size="sm" variant="outline" className="px-2 gap-1" aria-label="Menu administrativo">
-                          <Menu className="h-4 w-4" />
-                          <span className="text-xs">Admin</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>Painel administrativo</TooltipContent>
-                  </Tooltip>
-                  <DropdownMenuContent align="end" className="w-52">
-                    <DropdownMenuLabel className="text-xs text-muted-foreground">Administração</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {showEventos && (
-                      <DropdownMenuItem onClick={() => navigate("/eventos")} className="cursor-pointer">
-                        <CalendarDays className="h-4 w-4 mr-2" />
-                        Eventos
-                      </DropdownMenuItem>
-                    )}
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuItem onClick={() => navigate("/admin/events")} className="cursor-pointer">
-                          <CalendarDays className="h-4 w-4 mr-2" />
-                          Admin Eventos
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    {showCollaborators && (
-                      <DropdownMenuItem onClick={() => navigate("/admin/collaborators")} className="cursor-pointer">
-                        <Shield className="h-4 w-4 mr-2" />
-                        Colaboradores
-                      </DropdownMenuItem>
-                    )}
-                    {isAdmin && (
-                      <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
-                        <Users className="h-4 w-4 mr-2" />
-                        Usuários
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              {/* Logout (icon only — full menu lives in user dropdown) */}
+              {!hasAdminLinks && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="ghost" onClick={signOut} aria-label="Sair da conta" className="text-muted-foreground px-2">
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Sair da conta</TooltipContent>
+                </Tooltip>
               )}
-
-              {/* Logout */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button size="sm" variant="ghost" onClick={signOut} aria-label="Sair da conta" className="text-muted-foreground px-2">
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Sair da conta</TooltipContent>
-              </Tooltip>
             </div>
           )}
         </div>
