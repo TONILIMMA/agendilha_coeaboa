@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Clock, Share2, CalendarDays } from "lucide-react";
+import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown } from "lucide-react";
 import { formatDateWithWeekday } from "@/lib/dateUtils";
+import { exportBulkEventsPdf } from "@/lib/pdfExport";
 
 const categoryLabels: Record<string, string> = {
   musica: "🎵 Música / Show",
@@ -96,6 +97,17 @@ export default function CoeABoa() {
         <h1 className="text-3xl sm:text-4xl font-bold font-display">Coé a Boa? 🤙</h1>
         <p className="mt-2 text-sm opacity-90 capitalize">{today}</p>
         <p className="mt-1 text-xs opacity-75">Agenda de eventos da Ilha do Governador</p>
+        {events.length > 0 && (
+          <Button
+            size="sm"
+            variant="secondary"
+            className="mt-4"
+            onClick={() => exportBulkEventsPdf(events)}
+          >
+            <FileDown className="h-4 w-4 mr-1" />
+            Baixar Agenda em PDF
+          </Button>
+        )}
       </div>
 
       <div className="mx-auto max-w-3xl px-4 py-6">
