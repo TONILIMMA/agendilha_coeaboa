@@ -81,8 +81,9 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
       toast.error("Erro ao salvar envio", { description: error.message });
       return false;
     }
-    toast.success("🎉 Envio realizado com sucesso!", {
-      description: "Sua divulgação foi salva. Veja em 'Envios' no menu.",
+    toast.success("✅ Recebemos seu evento com sucesso!", {
+      description: "Está em análise para divulgação. Você pode acompanhar o status em 'Envios' no menu.",
+      duration: 6000,
     });
     await fetchSubmissions();
     return true;
