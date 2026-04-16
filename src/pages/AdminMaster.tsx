@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Crown,
   Shield,
@@ -63,7 +64,18 @@ export default function AdminMaster() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const [period, setPeriod] = useState<Period>("month");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [ranking, setRanking] = useState<RankRow[]>([]);
+
+  const categoryOptions: { value: string; label: string }[] = [
+    { value: "all", label: "Todas" },
+    { value: "musica", label: "Música" },
+    { value: "gastronomia", label: "Gastronomia" },
+    { value: "cultura", label: "Cultura / Arte" },
+    { value: "esporte", label: "Esporte" },
+    { value: "promocoes", label: "Promoções" },
+    { value: "outros", label: "Outros" },
+  ];
 
   async function loadAll() {
     setLoading(true);
@@ -140,12 +152,13 @@ export default function AdminMaster() {
     }
   }
 
-  async function loadRanking(p: Period) {
+  async function loadRanking(p: Period, cat: string) {
     const cutoff = periodCutoff(p);
     let q = supabase
       .from("submissions")
-      .select("user_id, status, created_at");
+      .select("user_id, status, created_at, category");
     if (cutoff) q = q.gte("created_at", cutoff.toISOString());
+    if (cat !== "all") q = q.eq("category", cat);
     const { data } = await q;
 
     const map = new Map<string, { approved: number; other: number }>();
@@ -193,9 +206,9 @@ export default function AdminMaster() {
   }, [authLoading, user, status]);
 
   useEffect(() => {
-    if (status === "master") loadRanking(period);
+    if (status === "master") loadRanking(period, categoryFilter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [period, status]);
+  }, [period, categoryFilter, status]);
 
   const masterCount = useMemo(
     () => admins.filter((a) => a.is_master).length,
@@ -414,20 +427,34 @@ export default function AdminMaster() {
 
         {/* Ranking */}
         <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between gap-4">
+          <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <Trophy className="h-5 w-5 text-secondary" />
               Ranking de divulgadores
             </CardTitle>
-            <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-              <TabsList>
-                {(Object.keys(periodLabels) as Period[]).map((p) => (
-                  <TabsTrigger key={p} value={p}>
-                    {periodLabels[p]}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+            <div className="flex flex-wrap items-center gap-2">
+              <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
+                <TabsList>
+                  {(Object.keys(periodLabels) as Period[]).map((p) => (
+                    <TabsTrigger key={p} value={p}>
+                      {periodLabels[p]}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="h-9 w-[160px] rounded-full bg-white/70 border-white/60 text-xs">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((c) => (
+                    <SelectItem key={c.value} value={c.value} className="text-sm">
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             {ranking.length === 0 ? (
