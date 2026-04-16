@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { Loader2, Phone, ArrowLeft, MessageCircle, KeyRound, CheckCircle2 } from "lucide-react";
+import { Loader2, Phone, ArrowLeft, KeyRound, CheckCircle2, Copy, ShieldCheck } from "lucide-react";
 
 type Step = "phone" | "code" | "newPassword" | "done";
 
@@ -60,10 +60,9 @@ export default function ForgotPassword() {
       setGeneratedCode(data.code);
       setStep("code");
       toast.success("Código gerado!", {
-        description: "Confirme posse do seu WhatsApp enviando o código.",
+        description: "Use o código exibido na tela para continuar.",
       });
     } else {
-      // No user found — but show same message for security
       toast.success("Se o número estiver cadastrado, um código foi gerado.");
       setStep("code");
     }
@@ -110,9 +109,10 @@ export default function ForgotPassword() {
     setStep("done");
   }
 
-  const whatsappLink = `https://wa.me/?text=${encodeURIComponent(
-    `Meu código de verificação AgendIlha: ${generatedCode}`
-  )}`;
+  function handleCopyCode() {
+    navigator.clipboard.writeText(generatedCode);
+    toast.success("Código copiado!");
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background px-4">
@@ -157,29 +157,25 @@ export default function ForgotPassword() {
           <div className="space-y-4">
             {generatedCode && (
               <Alert>
-                <MessageCircle className="h-4 w-4" />
+                <ShieldCheck className="h-4 w-4" />
                 <AlertDescription className="space-y-3">
-                  <p className="text-sm">
-                    Seu código é:
-                  </p>
-                  <p className="text-2xl font-bold tracking-widest text-center text-primary font-mono">
+                  <p className="text-sm">Seu código de verificação:</p>
+                  <p className="text-3xl font-bold tracking-widest text-center text-primary font-mono py-2">
                     {generatedCode}
-                  </p>
-                  <p className="text-xs">
-                    Envie este código para você mesmo no WhatsApp para confirmar a posse do número, depois cole abaixo.
                   </p>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     className="w-full"
-                    asChild
+                    onClick={handleCopyCode}
                   >
-                    <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                      <MessageCircle className="mr-2 h-4 w-4" />
-                      Abrir WhatsApp
-                    </a>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copiar código
                   </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Digite ou cole o código no campo abaixo. Validade: 15 minutos.
+                  </p>
                 </AlertDescription>
               </Alert>
             )}
