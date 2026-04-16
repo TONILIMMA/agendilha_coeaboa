@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2, Send } from "lucide-react";
+import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2, Send, RotateCcw, AlertCircle } from "lucide-react";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 
@@ -91,7 +91,7 @@ function exportToCSV(submissions: any[]) {
 }
 
 export default function SubmissionsPanel({ children }: { children: React.ReactNode }) {
-  const { submissions, loading, fetchSubmissions, deleteSubmission, savedCount } = useSubmissions();
+  const { submissions, loading, fetchSubmissions, deleteSubmission, resubmit, savedCount } = useSubmissions();
   const { isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
