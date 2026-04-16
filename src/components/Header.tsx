@@ -142,30 +142,71 @@ export default function Header() {
               ? "Colaborador"
               : "Divulgador";
 
+            // Role-aware icon for the trigger
+            const RoleIcon = isMaster ? Crown : isAdmin ? Shield : UserCog;
+            const roleAccent = isMaster
+              ? "text-secondary"
+              : isAdmin
+              ? "text-accent"
+              : "text-muted-foreground";
+
             return (
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-              {/* User dropdown — always available when logged in */}
+              {/* Envios */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <SubmissionsPanel>
+                      <Button
+                        size="sm"
+                        aria-label="Ver meus envios"
+                        className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all text-xs sm:text-sm px-2 sm:px-3"
+                      >
+                        <ClipboardList className="h-4 w-4 mr-1.5" />
+                        <span>Envios</span>
+                        {savedCount > 0 && (
+                          <Badge variant="secondary" className="ml-1 text-xs font-medium bg-white/20 text-white">
+                            {savedCount}
+                          </Badge>
+                        )}
+                      </Button>
+                    </SubmissionsPanel>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>Meus envios e rascunhos</TooltipContent>
+              </Tooltip>
+
+              {/* Agenda */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/agenda")} aria-label="Agenda Cultural" className="text-xs px-2 sm:px-3">
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    <span>Agenda</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Ver Agenda Cultural pública</TooltipContent>
+              </Tooltip>
+
+              {/* User dropdown — moved to the far right */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     size="sm"
                     variant="ghost"
                     className="h-8 px-1.5 gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:bg-accent/10"
-                    aria-label="Menu do usuário"
+                    aria-label={`Menu do ${roleLabel}`}
                   >
                     <div className="relative">
-                      <Avatar className={`h-6 w-6 ${isMaster ? "ring-2 ring-secondary ring-offset-1 ring-offset-background" : ""}`}>
+                      <Avatar className={`h-6 w-6 ${isMaster ? "ring-2 ring-secondary ring-offset-1 ring-offset-background" : isAdmin ? "ring-2 ring-accent ring-offset-1 ring-offset-background" : ""}`}>
                         <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground">
                           {getInitials(fullName)}
                         </AvatarFallback>
                       </Avatar>
-                      {isMaster && (
-                        <Crown
-                          className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 text-secondary fill-secondary drop-shadow-sm"
-                          strokeWidth={2}
-                          aria-label="Admin Master"
-                        />
-                      )}
+                      <RoleIcon
+                        className={`absolute -top-1.5 -right-1.5 h-3.5 w-3.5 ${roleAccent} ${isMaster ? "fill-secondary" : ""} drop-shadow-sm`}
+                        strokeWidth={2}
+                        aria-label={roleLabel}
+                      />
                     </div>
                     <span className="truncate max-w-[80px] sm:max-w-[120px]">{firstName}</span>
                     <ChevronDown className="h-3.5 w-3.5 opacity-70" />
@@ -216,42 +257,7 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Envios */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <SubmissionsPanel>
-                      <Button
-                        size="sm"
-                        aria-label="Ver meus envios"
-                        className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all text-xs sm:text-sm px-2 sm:px-3"
-                      >
-                        <ClipboardList className="h-4 w-4 mr-1.5" />
-                        <span>Envios</span>
-                        {savedCount > 0 && (
-                          <Badge variant="secondary" className="ml-1 text-xs font-medium bg-white/20 text-white">
-                            {savedCount}
-                          </Badge>
-                        )}
-                      </Button>
-                    </SubmissionsPanel>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>Meus envios e rascunhos</TooltipContent>
-              </Tooltip>
-
-              {/* Agenda */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button size="sm" variant="outline" onClick={() => navigate("/agenda")} aria-label="Agenda Cultural" className="text-xs px-2 sm:px-3">
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    <span>Agenda</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Ver Agenda Cultural pública</TooltipContent>
-              </Tooltip>
-
-              {/* Logout is now inside the user dropdown */}
+              {/* Logout is inside the user dropdown above */}
             </div>
             );
           })()}
