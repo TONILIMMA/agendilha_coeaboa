@@ -17,8 +17,11 @@ export default {
         'xs': '375px',
       },
       fontFamily: {
-        display: ['Poppins', 'sans-serif'],
+        display: ['Fraunces', 'serif'],
         body: ['Inter', 'sans-serif'],
+      },
+      letterSpacing: {
+        tightest: '-0.04em',
       },
       colors: {
         border: "hsl(var(--border))",
