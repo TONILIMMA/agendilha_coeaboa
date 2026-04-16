@@ -15,6 +15,7 @@ import CoeABoa from "./pages/CoeABoa";
 import AgendaCultural from "./pages/AgendaCultural";
 import Eventos from "./pages/Eventos";
 import AdminCollaborators from "./pages/AdminCollaborators";
+import AdminMaster from "./pages/AdminMaster";
 import AdminPinGate from "@/components/AdminPinGate";
 import NotFound from "./pages/NotFound";
 import Landing from "./pages/Landing";
@@ -84,6 +85,16 @@ const AppRoutes = () => (
         element={
           <ProtectedRoute>
             <AdminCollaborators />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/master"
+        element={
+          <ProtectedRoute>
+            <AdminPinGate>
+              <AdminMaster />
+            </AdminPinGate>
           </ProtectedRoute>
         }
       />

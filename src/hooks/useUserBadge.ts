@@ -38,23 +38,21 @@ export function useUserBadge(): UserBadge {
     let cancelled = false;
 
     (async () => {
-      // Determine if this user is the "Master" admin: oldest admin role.
+      // Check master via RPC (formal master role OR fallback: oldest admin)
+      const { data: masterFlag } = await supabase.rpc("is_master", {
+        _user_id: user.id,
+      });
+
+      if (cancelled) return;
+
+      if (masterFlag === true) {
+        setStatus("master");
+        setStatusLoaded(true);
+        return;
+      }
+
       if (isAdmin) {
-        const { data: oldestAdmin } = await supabase
-          .from("user_roles")
-          .select("user_id, created_at")
-          .eq("role", "admin")
-          .order("created_at", { ascending: true })
-          .limit(1)
-          .maybeSingle();
-
-        if (cancelled) return;
-
-        if (oldestAdmin?.user_id === user.id) {
-          setStatus("master");
-        } else {
-          setStatus("admin");
-        }
+        setStatus("admin");
         setStatusLoaded(true);
         return;
       }

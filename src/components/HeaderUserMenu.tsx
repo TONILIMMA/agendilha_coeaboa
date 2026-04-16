@@ -176,6 +176,14 @@ export function HeaderUserMenu({ variant = "desktop", onNavigate }: Props) {
             </Link>
           </DropdownMenuItem>
         )}
+        {status === "master" && (
+          <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+            <Link to="/admin/master">
+              <Crown className="h-4 w-4 mr-2" />
+              Painel Master
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleLogout}
