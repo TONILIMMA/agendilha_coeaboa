@@ -79,10 +79,19 @@ Deno.serve(async (req) => {
     });
 
     if (updateError) {
-      return new Response(JSON.stringify({ error: updateError.message }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      const msg = updateError.message || "";
+      const isWeak = /weak|pwned|leaked|easy to guess|short/i.test(msg);
+      return new Response(
+        JSON.stringify({
+          error: isWeak
+            ? "Senha muito fraca ou já vazada em outros sites. Use uma senha mais forte (combine letras, números e símbolos não óbvios)."
+            : msg,
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     await admin.from("password_reset_codes").update({ used: true }).eq("id", record.id);
