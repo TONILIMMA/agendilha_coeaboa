@@ -271,6 +271,61 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                           ⏳ Em análise pela coordenação do AgendIlha.
                         </p>
                       )}
+                      {isAdmin && (
+                        <div className="rounded-md border border-border bg-muted/30 p-3 space-y-2">
+                          <p className="text-xs font-semibold text-foreground">Moderação</p>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              size="sm"
+                              variant={sub.status === "approved" ? "default" : "outline"}
+                              onClick={() => updateStatus(sub.id, "approved")}
+                              className="text-xs"
+                            >
+                              <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
+                              Aprovar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={sub.status === "pending" ? "secondary" : "outline"}
+                              onClick={() => updateStatus(sub.id, "pending")}
+                              className="text-xs"
+                            >
+                              <Clock className="mr-1 h-3.5 w-3.5" />
+                              Pendente
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={sub.status === "rejected" ? "destructive" : "outline"}
+                              onClick={() => {
+                                const reason = (reasonDrafts[sub.id] ?? sub.rejection_reason ?? "").trim();
+                                if (!reason) {
+                                  toast.error("Informe o motivo da reprovação no campo abaixo.");
+                                  return;
+                                }
+                                updateStatus(sub.id, "rejected", reason);
+                              }}
+                              className="text-xs"
+                            >
+                              <XCircle className="mr-1 h-3.5 w-3.5" />
+                              Reprovar
+                            </Button>
+                          </div>
+                          {(sub.status !== "approved") && (
+                            <div className="space-y-1">
+                              <label className="text-xs text-muted-foreground">
+                                Observação {sub.status === "rejected" ? "(motivo da reprovação)" : "(opcional para pendência)"}
+                              </label>
+                              <Textarea
+                                value={reasonDrafts[sub.id] ?? sub.rejection_reason ?? ""}
+                                onChange={(e) => setReasonDrafts((p) => ({ ...p, [sub.id]: e.target.value }))}
+                                placeholder="Ex.: Faltou foto de divulgação, ajustar horário, etc."
+                                rows={2}
+                                className="text-sm"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
                       <div className="flex flex-wrap items-center gap-2 pt-1">
                         {sub.status === "rejected" && (
                           <Button
