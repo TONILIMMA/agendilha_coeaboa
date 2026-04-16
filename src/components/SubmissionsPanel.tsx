@@ -92,10 +92,11 @@ function exportToCSV(submissions: any[]) {
 }
 
 export default function SubmissionsPanel({ children }: { children: React.ReactNode }) {
-  const { submissions, loading, fetchSubmissions, deleteSubmission, resubmit, savedCount } = useSubmissions();
+  const { submissions, loading, fetchSubmissions, deleteSubmission, resubmit, updateStatus, savedCount } = useSubmissions();
   const { isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [reasonDrafts, setReasonDrafts] = useState<Record<string, string>>({});
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds(prev => {
