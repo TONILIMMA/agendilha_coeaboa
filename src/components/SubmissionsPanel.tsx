@@ -7,7 +7,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2, Send, RotateCcw, AlertCircle } from "lucide-react";
+import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2, Send, RotateCcw, AlertCircle, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 
@@ -91,10 +92,11 @@ function exportToCSV(submissions: any[]) {
 }
 
 export default function SubmissionsPanel({ children }: { children: React.ReactNode }) {
-  const { submissions, loading, fetchSubmissions, deleteSubmission, resubmit, savedCount } = useSubmissions();
+  const { submissions, loading, fetchSubmissions, deleteSubmission, resubmit, updateStatus, savedCount } = useSubmissions();
   const { isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [reasonDrafts, setReasonDrafts] = useState<Record<string, string>>({});
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -268,6 +270,61 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                         <p className="text-xs text-muted-foreground italic">
                           ⏳ Em análise pela coordenação do AgendIlha.
                         </p>
+                      )}
+                      {isAdmin && (
+                        <div className="rounded-md border border-border bg-muted/30 p-3 space-y-2">
+                          <p className="text-xs font-semibold text-foreground">Moderação</p>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              size="sm"
+                              variant={sub.status === "approved" ? "default" : "outline"}
+                              onClick={() => updateStatus(sub.id, "approved")}
+                              className="text-xs"
+                            >
+                              <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
+                              Aprovar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={sub.status === "pending" ? "secondary" : "outline"}
+                              onClick={() => updateStatus(sub.id, "pending")}
+                              className="text-xs"
+                            >
+                              <Clock className="mr-1 h-3.5 w-3.5" />
+                              Pendente
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={sub.status === "rejected" ? "destructive" : "outline"}
+                              onClick={() => {
+                                const reason = (reasonDrafts[sub.id] ?? sub.rejection_reason ?? "").trim();
+                                if (!reason) {
+                                  toast.error("Informe o motivo da reprovação no campo abaixo.");
+                                  return;
+                                }
+                                updateStatus(sub.id, "rejected", reason);
+                              }}
+                              className="text-xs"
+                            >
+                              <XCircle className="mr-1 h-3.5 w-3.5" />
+                              Reprovar
+                            </Button>
+                          </div>
+                          {(sub.status !== "approved") && (
+                            <div className="space-y-1">
+                              <label className="text-xs text-muted-foreground">
+                                Observação {sub.status === "rejected" ? "(motivo da reprovação)" : "(opcional para pendência)"}
+                              </label>
+                              <Textarea
+                                value={reasonDrafts[sub.id] ?? sub.rejection_reason ?? ""}
+                                onChange={(e) => setReasonDrafts((p) => ({ ...p, [sub.id]: e.target.value }))}
+                                placeholder="Ex.: Faltou foto de divulgação, ajustar horário, etc."
+                                rows={2}
+                                className="text-sm"
+                              />
+                            </div>
+                          )}
+                        </div>
                       )}
                       <div className="flex flex-wrap items-center gap-2 pt-1">
                         {sub.status === "rejected" && (
