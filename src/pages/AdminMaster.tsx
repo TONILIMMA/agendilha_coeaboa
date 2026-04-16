@@ -63,7 +63,18 @@ export default function AdminMaster() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const [period, setPeriod] = useState<Period>("month");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [ranking, setRanking] = useState<RankRow[]>([]);
+
+  const categoryOptions: { value: string; label: string }[] = [
+    { value: "all", label: "Todas" },
+    { value: "musica", label: "Música" },
+    { value: "gastronomia", label: "Gastronomia" },
+    { value: "cultura", label: "Cultura / Arte" },
+    { value: "esporte", label: "Esporte" },
+    { value: "promocoes", label: "Promoções" },
+    { value: "outros", label: "Outros" },
+  ];
 
   async function loadAll() {
     setLoading(true);
@@ -140,12 +151,13 @@ export default function AdminMaster() {
     }
   }
 
-  async function loadRanking(p: Period) {
+  async function loadRanking(p: Period, cat: string) {
     const cutoff = periodCutoff(p);
     let q = supabase
       .from("submissions")
-      .select("user_id, status, created_at");
+      .select("user_id, status, created_at, category");
     if (cutoff) q = q.gte("created_at", cutoff.toISOString());
+    if (cat !== "all") q = q.eq("category", cat);
     const { data } = await q;
 
     const map = new Map<string, { approved: number; other: number }>();
@@ -193,9 +205,9 @@ export default function AdminMaster() {
   }, [authLoading, user, status]);
 
   useEffect(() => {
-    if (status === "master") loadRanking(period);
+    if (status === "master") loadRanking(period, categoryFilter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [period, status]);
+  }, [period, categoryFilter, status]);
 
   const masterCount = useMemo(
     () => admins.filter((a) => a.is_master).length,
