@@ -17,6 +17,7 @@ import Eventos from "./pages/Eventos";
 import AdminCollaborators from "./pages/AdminCollaborators";
 import AdminPinGate from "@/components/AdminPinGate";
 import NotFound from "./pages/NotFound";
+import Landing from "./pages/Landing";
 
 import { Loader2 } from "lucide-react";
 
@@ -41,6 +42,7 @@ const AppRoutes = () => (
     <Routes>
       <Route path="/auth" element={<Auth />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/lp" element={<Landing />} />
       <Route
         path="/"
         element={
