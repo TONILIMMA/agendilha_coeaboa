@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Clock, Share2, CalendarDays, ExternalLink, ArrowLeft } from "lucide-react";
+import { Loader2, MapPin, Clock, Share2, CalendarDays, ExternalLink, ArrowLeft, FileDown } from "lucide-react";
+import { exportBulkEventsPdf } from "@/lib/pdfExport";
+import { toast } from "sonner";
 
 const categoryIcons: Record<string, string> = {
   musica: "🎸",
@@ -216,11 +218,28 @@ export default function AgendaCultural() {
 
       {/* Subtitle bar */}
       <div className="bg-accent/50 border-b border-border">
-        <div className="mx-auto max-w-4xl px-4 py-3 flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="mx-auto max-w-4xl px-4 py-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <CalendarDays className="h-4 w-4 text-primary" />
           <span className="font-medium text-foreground">Agenda da Semana</span>
           <span className="mx-1">·</span>
           <span className="capitalize">{today}</span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="ml-auto text-xs"
+            disabled={loading || weekEvents.length === 0}
+            onClick={() => {
+              if (weekEvents.length === 0) {
+                toast.error("Nenhum evento aprovado para exportar.");
+                return;
+              }
+              exportBulkEventsPdf(weekEvents as any);
+              toast.success(`PDF da agenda gerado com ${weekEvents.length} evento(s)!`);
+            }}
+          >
+            <FileDown className="h-3.5 w-3.5 mr-1.5" />
+            Baixar PDF da Agenda
+          </Button>
         </div>
       </div>
 
