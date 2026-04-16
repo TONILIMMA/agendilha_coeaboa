@@ -250,6 +250,21 @@ export default function AgendaCultural() {
           </div>
         ) : (
           <div className="space-y-10">
+            <div className="flex items-center justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs"
+                disabled={upcomingEvents.length === 0}
+                onClick={() => {
+                  exportBulkEventsPdf(upcomingEvents as any);
+                  toast.success(`PDF da agenda gerado com ${upcomingEvents.length} evento(s)!`);
+                }}
+              >
+                <FileDown className="h-3.5 w-3.5 mr-1.5" />
+                Baixar PDF da Agenda
+              </Button>
+            </div>
             {sortedDays.map((dayKey) => (
               <section key={dayKey}>
                 <div className="flex items-center gap-3 mb-4">
