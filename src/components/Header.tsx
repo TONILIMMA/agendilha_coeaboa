@@ -230,7 +230,8 @@ export default function Header() {
                 </Tooltip>
               )}
             </div>
-          )}
+            );
+          })()}
         </div>
       </header>
     </TooltipProvider>
