@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { Loader2, Phone, ArrowLeft, MessageCircle, KeyRound, CheckCircle2 } from "lucide-react";
+import { Loader2, Phone, ArrowLeft, KeyRound, CheckCircle2, Copy, ShieldCheck } from "lucide-react";
 
 type Step = "phone" | "code" | "newPassword" | "done";
 
