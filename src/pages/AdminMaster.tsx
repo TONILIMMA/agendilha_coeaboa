@@ -426,20 +426,34 @@ export default function AdminMaster() {
 
         {/* Ranking */}
         <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between gap-4">
+          <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <Trophy className="h-5 w-5 text-secondary" />
               Ranking de divulgadores
             </CardTitle>
-            <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-              <TabsList>
-                {(Object.keys(periodLabels) as Period[]).map((p) => (
-                  <TabsTrigger key={p} value={p}>
-                    {periodLabels[p]}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+            <div className="flex flex-wrap items-center gap-2">
+              <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
+                <TabsList>
+                  {(Object.keys(periodLabels) as Period[]).map((p) => (
+                    <TabsTrigger key={p} value={p}>
+                      {periodLabels[p]}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="h-9 w-[160px] rounded-full bg-white/70 border-white/60 text-xs">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((c) => (
+                    <SelectItem key={c.value} value={c.value} className="text-sm">
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             {ranking.length === 0 ? (
