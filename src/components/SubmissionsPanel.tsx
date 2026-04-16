@@ -7,10 +7,61 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2, Send, RotateCcw, AlertCircle, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2, Send, RotateCcw, AlertCircle, CheckCircle2, XCircle, Clock, History } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
+
+function StatusHistory({ eventId }: { eventId: string }) {
+  const [open, setOpen] = useState(false);
+  const [logs, setLogs] = useState<any[] | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("event_audit_log")
+      .select("id, action, notes, created_at, user_id")
+      .eq("event_id", eventId)
+      .order("created_at", { ascending: false });
+    setLogs(data || []);
+    setLoading(false);
+  };
+
+  return (
+    <div className="border-t border-border pt-2 mt-2">
+      <button
+        type="button"
+        onClick={() => { const next = !open; setOpen(next); if (next && logs === null) load(); }}
+        className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+      >
+        <History className="h-3.5 w-3.5" />
+        {open ? "Ocultar histórico" : "Ver histórico de alterações"}
+      </button>
+      {open && (
+        <div className="mt-2 space-y-1.5">
+          {loading && <p className="text-xs text-muted-foreground">Carregando…</p>}
+          {!loading && logs && logs.length === 0 && (
+            <p className="text-xs text-muted-foreground italic">Sem alterações registradas.</p>
+          )}
+          {!loading && logs && logs.map((l) => (
+            <div key={l.id} className="text-xs rounded border border-border bg-muted/40 px-2 py-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-medium text-foreground">{l.action}</span>
+                <span className="text-muted-foreground">
+                  {new Date(l.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+              {l.notes && <p className="text-muted-foreground mt-0.5 break-words">{l.notes}</p>}
+              <p className="text-[10px] text-muted-foreground/70 mt-0.5">por {l.user_id.slice(0, 8)}…</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const categoryLabels: Record<string, string> = {
   musica: "Música / Show",
