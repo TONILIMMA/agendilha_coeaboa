@@ -240,6 +240,8 @@ export default function Header() {
           })()}
         </div>
       </header>
+      {/* Decorative pumpkin/terracotta strip below the header */}
+      <div className="sticky top-[var(--header-strip-offset,0)] z-40 h-1 w-full gradient-pumpkin-strip shadow-[0_2px_8px_-2px_hsl(22_70%_55%/0.25)]" aria-hidden="true" />
     </TooltipProvider>
   );
 }
