@@ -17,11 +17,13 @@ export default {
         'xs': '375px',
       },
       fontFamily: {
-        display: ['"Instrument Serif"', 'serif'],
+        display: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        serif: ['"Instrument Serif"', 'serif'],
         body: ['Geist', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['"Geist Mono"', 'ui-monospace', 'monospace'],
       },
       letterSpacing: {
-        tightest: '-0.04em',
+        tightest: '-0.045em',
       },
       colors: {
         border: "hsl(var(--border))",
