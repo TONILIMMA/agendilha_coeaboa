@@ -197,6 +197,7 @@ export type Database = {
           phone: string | null
           promotion_rules: string | null
           promotion_type: string | null
+          rejection_reason: string | null
           responsible_name: string | null
           responsible_person: string | null
           sale_price: string | null
@@ -234,6 +235,7 @@ export type Database = {
           phone?: string | null
           promotion_rules?: string | null
           promotion_type?: string | null
+          rejection_reason?: string | null
           responsible_name?: string | null
           responsible_person?: string | null
           sale_price?: string | null
@@ -271,6 +273,7 @@ export type Database = {
           phone?: string | null
           promotion_rules?: string | null
           promotion_type?: string | null
+          rejection_reason?: string | null
           responsible_name?: string | null
           responsible_person?: string | null
           sale_price?: string | null
