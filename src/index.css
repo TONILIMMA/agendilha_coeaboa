@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -56,8 +56,8 @@
     --glass-bg: hsl(0 0% 100% / 0.6);
     --glass-border: hsl(0 0% 100% / 0.5);
 
-    --font-display: 'Inter', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    --font-display: 'Instrument Serif', 'Times New Roman', serif;
+    --font-body: 'Geist', 'Inter', system-ui, sans-serif;
   }
 
   * {
@@ -71,6 +71,8 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.02em;
   }
 }
 

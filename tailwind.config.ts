@@ -17,8 +17,8 @@ export default {
         'xs': '375px',
       },
       fontFamily: {
-        display: ['Inter', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
+        display: ['"Instrument Serif"', 'serif'],
+        body: ['Geist', 'Inter', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
         tightest: '-0.04em',
