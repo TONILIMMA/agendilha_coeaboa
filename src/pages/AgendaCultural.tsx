@@ -150,21 +150,35 @@ export default function AgendaCultural() {
     load();
   }, []);
 
-  const weekEvents = useMemo(() => events.filter((e) => isThisWeek(e.date)), [events]);
+  const upcomingEvents = useMemo(
+    () => events.filter((e) => isUpcoming(e.date)),
+    [events]
+  );
 
   const grouped = useMemo(() => {
-    const map: Record<string, Event[]> = {};
-    for (const ev of weekEvents) {
-      const wd = getWeekday(ev.date) || "sem-data";
-      if (!map[wd]) map[wd] = [];
-      map[wd].push(ev);
+    const map: Record<string, { label: string; sortKey: string; items: Event[] }> = {};
+    for (const ev of upcomingEvents) {
+      const d = parseDateToObj(ev.date);
+      const key = d
+        ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+        : "sem-data";
+      if (!map[key]) {
+        map[key] = {
+          label: formatDayLabel(ev.date),
+          sortKey: key === "sem-data" ? "9999-99-99" : key,
+          items: [],
+        };
+      }
+      map[key].items.push(ev);
     }
     return map;
-  }, [weekEvents]);
+  }, [upcomingEvents]);
 
   const sortedDays = useMemo(
     () =>
-      weekdayOrder.filter((wd) => grouped[wd]?.length),
+      Object.entries(grouped)
+        .sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey))
+        .map(([key]) => key),
     [grouped]
   );
 
