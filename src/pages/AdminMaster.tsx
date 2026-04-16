@@ -17,6 +17,7 @@ import {
   ShieldPlus,
   ShieldOff,
   Trophy,
+  UserPlus,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -62,6 +63,7 @@ export default function AdminMaster() {
   const [allUsers, setAllUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [bootstrapping, setBootstrapping] = useState(false);
 
   const [period, setPeriod] = useState<Period>("month");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -264,6 +266,41 @@ export default function AdminMaster() {
     if (error) return toast.error("Erro: " + error.message);
     toast.success("Master removido");
     loadAll();
+  }
+
+  async function bootstrapToniLima() {
+    setBootstrapping(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast.error("Sessão expirada.");
+        return;
+      }
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/bootstrap-master`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            name: "TONI LIMA",
+            phone: "21998554322",
+            password: "Master@2025",
+          }),
+        }
+      );
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Falha ao cadastrar");
+      toast.success("TONI LIMA cadastrado como Admin Master! Senha: Master@2025");
+      loadAll();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao cadastrar");
+    } finally {
+      setBootstrapping(false);
+    }
   }
 
   if (authLoading || !badgeLoaded) {
