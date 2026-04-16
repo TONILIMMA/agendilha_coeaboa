@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -47,16 +47,16 @@
 
     --gradient-sunset: linear-gradient(135deg, hsl(24 95% 53%), hsl(340 75% 55%));
     --gradient-ocean: linear-gradient(135deg, hsl(174 62% 40%), hsl(200 70% 50%));
-    --gradient-eco: linear-gradient(140deg, hsl(150 30% 96%) 0%, hsl(190 40% 95%) 45%, hsl(30 35% 96%) 100%);
-    --gradient-eco-deep: linear-gradient(135deg, hsl(165 35% 28%) 0%, hsl(195 40% 38%) 55%, hsl(220 12% 45%) 100%);
-    --gradient-mesh: radial-gradient(at 20% 20%, hsl(150 50% 88% / 0.6) 0px, transparent 50%), radial-gradient(at 80% 10%, hsl(200 60% 88% / 0.5) 0px, transparent 50%), radial-gradient(at 70% 80%, hsl(30 60% 92% / 0.5) 0px, transparent 50%);
+    --gradient-eco: linear-gradient(140deg, hsl(150 45% 92%) 0%, hsl(195 55% 90%) 50%, hsl(220 12% 92%) 100%);
+    --gradient-eco-deep: linear-gradient(135deg, hsl(160 45% 32%) 0%, hsl(200 55% 42%) 55%, hsl(220 12% 48%) 100%);
+    --gradient-mesh: radial-gradient(at 18% 18%, hsl(150 60% 85% / 0.7) 0px, transparent 55%), radial-gradient(at 82% 12%, hsl(200 70% 86% / 0.65) 0px, transparent 55%), radial-gradient(at 70% 85%, hsl(220 25% 90% / 0.6) 0px, transparent 55%);
     --shadow-card: 0 1px 2px hsl(220 15% 20% / 0.04), 0 8px 24px -8px hsl(220 15% 20% / 0.08);
     --shadow-elevated: 0 4px 12px -2px hsl(220 15% 20% / 0.06), 0 20px 48px -12px hsl(220 15% 20% / 0.14);
     --shadow-glass: 0 1px 0 0 hsl(0 0% 100% / 0.6) inset, 0 8px 32px -8px hsl(220 30% 20% / 0.1);
     --glass-bg: hsl(0 0% 100% / 0.6);
     --glass-border: hsl(0 0% 100% / 0.5);
 
-    --font-display: 'Fraunces', serif;
+    --font-display: 'Inter', sans-serif;
     --font-body: 'Inter', sans-serif;
   }
 
