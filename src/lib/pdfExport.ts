@@ -49,38 +49,69 @@ const CONTENT_W = PAGE_W - MARGIN * 2;
 const HEADER_H = 16;
 const FOOTER_Y = 280;
 
+// Single-page layout limit (above footer divider)
+const MAX_Y = FOOTER_Y - 8;
+
+interface FieldOpts {
+  labelSize?: number;
+  valueSize?: number;
+  lineHeight?: number;
+  gap?: number;
+}
+
 function addSectionField(
   doc: jsPDF,
   label: string,
   value: string,
   x: number,
   y: number,
-  maxWidth: number
+  maxWidth: number,
+  opts: FieldOpts = {}
 ): number {
   if (!value || value === "—") return y;
 
-  // Check page break
-  if (y > 258) {
-    doc.addPage();
-    y = 22;
-  }
+  const labelSize = opts.labelSize ?? 9;
+  const valueSize = opts.valueSize ?? 11;
+  const lineHeight = opts.lineHeight ?? 5.5;
+  const gap = opts.gap ?? 5;
+
+  // Stop rendering if we've run out of room (single-page constraint)
+  if (y > MAX_Y - 8) return y;
 
   // Label
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
+  doc.setFontSize(labelSize);
   doc.setTextColor(...MEDIUM_TEXT);
   doc.text(label.toUpperCase(), x, y);
-  y += 5;
+  y += labelSize * 0.55;
 
-  // Value
+  // Value — clamp lines so we never overflow the page
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
+  doc.setFontSize(valueSize);
   doc.setTextColor(...DARK_TEXT);
-  const lines = doc.splitTextToSize(value, maxWidth - 4);
+  const allLines: string[] = doc.splitTextToSize(value, maxWidth - 4);
+  const remaining = MAX_Y - y;
+  const maxLines = Math.max(1, Math.floor(remaining / lineHeight) - 1);
+  let lines = allLines;
+  if (allLines.length > maxLines) {
+    lines = allLines.slice(0, maxLines);
+    const last = lines[lines.length - 1] ?? "";
+    lines[lines.length - 1] = last.replace(/\s+\S*$/, "") + "…";
+  }
   doc.text(lines, x + 2, y);
-  y += lines.length * 5.5 + 5;
+  y += lines.length * lineHeight + gap;
 
   return y;
+}
+
+function drawSectionHeader(doc: jsPDF, title: string, y: number): number {
+  doc.setFillColor(...SECTION_BG);
+  doc.rect(MARGIN - 2, y - 4, CONTENT_W + 4, 7, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...BRAND_ORANGE);
+  doc.text(title, MARGIN + 2, y + 1);
+  return y + 12;
 }
 
 function drawHeader(doc: jsPDF) {
@@ -144,6 +175,21 @@ function drawEventPage(doc: jsPDF, event: EventData, isLastPage = true) {
   drawHeader(doc);
   let y = HEADER_H + 10;
 
+  // Decide compactness based on amount of content (single-page constraint)
+  const extrasCount = [
+    event.promotion_type,
+    event.target_audience,
+    event.promotion_rules,
+    event.video_link,
+    event.additional_details,
+    event.contact_social,
+  ].filter(Boolean).length;
+  const descLen = (event.description || "").length;
+  const compact = extrasCount >= 3 || descLen > 320;
+  const fieldOpts: FieldOpts = compact
+    ? { labelSize: 8, valueSize: 9.5, lineHeight: 4.6, gap: 3 }
+    : {};
+
   // Category badge
   const catLabel = categoryLabels[event.category || ""] || event.category || "";
   if (catLabel) {
@@ -154,35 +200,30 @@ function drawEventPage(doc: jsPDF, event: EventData, isLastPage = true) {
     doc.setFontSize(8);
     doc.setTextColor(...BRAND_ORANGE);
     doc.text(catLabel, MARGIN + 5, y + 1);
-    y += 12;
+    y += 10;
   }
 
-  // Event title
+  // Event title — auto-shrink long titles
   doc.setTextColor(...DARK_TEXT);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  const titleLines = doc.splitTextToSize(event.event_title, CONTENT_W);
+  const titleSize = event.event_title.length > 60 ? 14 : event.event_title.length > 40 ? 16 : 18;
+  doc.setFontSize(titleSize);
+  const titleLines = doc.splitTextToSize(event.event_title, CONTENT_W).slice(0, 2);
   doc.text(titleLines, MARGIN, y);
-  y += titleLines.length * 8 + 4;
+  y += titleLines.length * (titleSize * 0.45) + 3;
 
   // Orange divider under title
   doc.setDrawColor(...BRAND_ORANGE);
   doc.setLineWidth(0.8);
   doc.line(MARGIN, y, MARGIN + 40, y);
-  y += 10;
+  y += compact ? 7 : 10;
 
   // ── Section: Informações do Evento ──
-  doc.setFillColor(...SECTION_BG);
-  doc.rect(MARGIN - 2, y - 4, CONTENT_W + 4, 7, "F");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(...BRAND_ORANGE);
-  doc.text("INFORMAÇÕES DO EVENTO", MARGIN + 2, y + 1);
-  y += 12;
+  y = drawSectionHeader(doc, "INFORMAÇÕES DO EVENTO", y);
 
   const timeStr = event.start_time ? `${event.start_time}${event.end_time ? ` às ${event.end_time}` : ""}` : "—";
-  y = addSectionField(doc, "Data e Horário", `${event.date || "—"}  •  ${timeStr}`, MARGIN, y, CONTENT_W);
-  y = addSectionField(doc, "Local", event.location || "—", MARGIN, y, CONTENT_W);
+  y = addSectionField(doc, "Data e Horário", `${event.date || "—"}  •  ${timeStr}`, MARGIN, y, CONTENT_W, fieldOpts);
+  y = addSectionField(doc, "Local", event.location || "—", MARGIN, y, CONTENT_W, fieldOpts);
 
   const addressParts = [
     event.address_street,
@@ -193,48 +234,34 @@ function drawEventPage(doc: jsPDF, event: EventData, isLastPage = true) {
     event.address_zip,
   ].filter(Boolean);
   if (addressParts.length) {
-    y = addSectionField(doc, "Endereço", addressParts.join(", "), MARGIN, y, CONTENT_W);
+    y = addSectionField(doc, "Endereço", addressParts.join(", "), MARGIN, y, CONTENT_W, fieldOpts);
   }
 
-  y = addSectionField(doc, "Descrição", event.description || "—", MARGIN, y, CONTENT_W);
-  y += 2;
+  y = addSectionField(doc, "Descrição", event.description || "—", MARGIN, y, CONTENT_W, fieldOpts);
+  y += compact ? 1 : 2;
 
-  // ── Section: Contato e Responsável ──
-  if (y > 240) { doc.addPage(); y = 22; }
-  doc.setFillColor(...SECTION_BG);
-  doc.rect(MARGIN - 2, y - 4, CONTENT_W + 4, 7, "F");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(...BRAND_ORANGE);
-  doc.text("CONTATO E RESPONSÁVEL", MARGIN + 2, y + 1);
-  y += 12;
-
-  y = addSectionField(doc, "Empresa", event.company_name || "—", MARGIN, y, CONTENT_W);
-  y = addSectionField(doc, "Responsável", event.responsible_name || "—", MARGIN, y, CONTENT_W);
-  y = addSectionField(doc, "Telefone", event.phone || "—", MARGIN, y, CONTENT_W);
-  y = addSectionField(doc, "E-mail", event.email || "—", MARGIN, y, CONTENT_W);
-  if (event.contact_social) {
-    y = addSectionField(doc, "Redes Sociais", event.contact_social, MARGIN, y, CONTENT_W);
+  // ── Section: Contato e Responsável (no page break) ──
+  if (y < MAX_Y - 20) {
+    y = drawSectionHeader(doc, "CONTATO E RESPONSÁVEL", y);
+    y = addSectionField(doc, "Empresa", event.company_name || "—", MARGIN, y, CONTENT_W, fieldOpts);
+    y = addSectionField(doc, "Responsável", event.responsible_name || "—", MARGIN, y, CONTENT_W, fieldOpts);
+    y = addSectionField(doc, "Telefone", event.phone || "—", MARGIN, y, CONTENT_W, fieldOpts);
+    y = addSectionField(doc, "E-mail", event.email || "—", MARGIN, y, CONTENT_W, fieldOpts);
+    if (event.contact_social) {
+      y = addSectionField(doc, "Redes Sociais", event.contact_social, MARGIN, y, CONTENT_W, fieldOpts);
+    }
+    y += compact ? 1 : 2;
   }
-  y += 2;
 
-  // ── Section: Detalhes Adicionais (conditional) ──
+  // ── Section: Detalhes Adicionais (conditional, no page break) ──
   const hasExtras = event.promotion_type || event.target_audience || event.promotion_rules || event.video_link || event.additional_details;
-  if (hasExtras) {
-    if (y > 240) { doc.addPage(); y = 22; }
-    doc.setFillColor(...SECTION_BG);
-    doc.rect(MARGIN - 2, y - 4, CONTENT_W + 4, 7, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.setTextColor(...BRAND_ORANGE);
-    doc.text("DETALHES ADICIONAIS", MARGIN + 2, y + 1);
-    y += 12;
-
-    if (event.promotion_type) y = addSectionField(doc, "Tipo de Promoção", event.promotion_type, MARGIN, y, CONTENT_W);
-    if (event.target_audience) y = addSectionField(doc, "Público-alvo", event.target_audience, MARGIN, y, CONTENT_W);
-    if (event.promotion_rules) y = addSectionField(doc, "Regras", event.promotion_rules, MARGIN, y, CONTENT_W);
-    if (event.video_link) y = addSectionField(doc, "Link de Vídeo", event.video_link, MARGIN, y, CONTENT_W);
-    if (event.additional_details) y = addSectionField(doc, "Observações", event.additional_details, MARGIN, y, CONTENT_W);
+  if (hasExtras && y < MAX_Y - 20) {
+    y = drawSectionHeader(doc, "DETALHES ADICIONAIS", y);
+    if (event.promotion_type) y = addSectionField(doc, "Tipo de Promoção", event.promotion_type, MARGIN, y, CONTENT_W, fieldOpts);
+    if (event.target_audience) y = addSectionField(doc, "Público-alvo", event.target_audience, MARGIN, y, CONTENT_W, fieldOpts);
+    if (event.promotion_rules) y = addSectionField(doc, "Regras", event.promotion_rules, MARGIN, y, CONTENT_W, fieldOpts);
+    if (event.video_link) y = addSectionField(doc, "Link de Vídeo", event.video_link, MARGIN, y, CONTENT_W, fieldOpts);
+    if (event.additional_details) y = addSectionField(doc, "Observações", event.additional_details, MARGIN, y, CONTENT_W, fieldOpts);
   }
 
   drawFooter(doc, isLastPage);
