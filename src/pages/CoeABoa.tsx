@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown } from "lucide-react";
 import { formatDateWithWeekday } from "@/lib/dateUtils";
 import { exportBulkEventsPdf } from "@/lib/pdfExport";
+import { toast } from "sonner";
 
 const categoryLabels: Record<string, string> = {
   musica: "🎵 Música / Show",
@@ -101,8 +102,15 @@ export default function CoeABoa() {
           <Button
             size="sm"
             variant="secondary"
-            className="mt-4"
-            onClick={() => exportBulkEventsPdf(events)}
+            className="mt-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            onClick={() => {
+              try {
+                exportBulkEventsPdf(events);
+                toast.success("📄 Agenda exportada em PDF!");
+              } catch (err: any) {
+                toast.error("Falha ao gerar PDF", { description: err?.message });
+              }
+            }}
           >
             <FileDown className="h-4 w-4 mr-1" />
             Baixar Agenda em PDF

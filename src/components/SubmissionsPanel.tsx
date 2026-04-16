@@ -17,6 +17,7 @@ function StatusHistory({ eventId }: { eventId: string }) {
   const [open, setOpen] = useState(false);
   const [logs, setLogs] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [names, setNames] = useState<Record<string, string>>({});
 
   const load = async () => {
     setLoading(true);
@@ -25,7 +26,28 @@ function StatusHistory({ eventId }: { eventId: string }) {
       .select("id, action, notes, created_at, user_id")
       .eq("event_id", eventId)
       .order("created_at", { ascending: false });
-    setLogs(data || []);
+    const rows = data || [];
+    setLogs(rows);
+    const ids = Array.from(new Set(rows.map((r: any) => r.user_id)));
+    if (ids.length) {
+      const map: Record<string, string> = {};
+      const { data: collabs } = await supabase
+        .from("collaborators")
+        .select("user_id, name")
+        .in("user_id", ids);
+      collabs?.forEach((c: any) => { if (c.name) map[c.user_id] = c.name; });
+      const missing = ids.filter((id) => !map[id]);
+      if (missing.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("user_id, responsible_name, email")
+          .in("user_id", missing);
+        profs?.forEach((p: any) => {
+          map[p.user_id] = p.responsible_name || p.email || "";
+        });
+      }
+      setNames(map);
+    }
     setLoading(false);
   };
 
@@ -54,7 +76,7 @@ function StatusHistory({ eventId }: { eventId: string }) {
                 </span>
               </div>
               {l.notes && <p className="text-muted-foreground mt-0.5 break-words">{l.notes}</p>}
-              <p className="text-[10px] text-muted-foreground/70 mt-0.5">por {l.user_id.slice(0, 8)}…</p>
+              <p className="text-[10px] text-muted-foreground/70 mt-0.5">por {names[l.user_id] || `${l.user_id.slice(0, 8)}…`}</p>
             </div>
           ))}
         </div>
@@ -246,7 +268,11 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
               {submissions.map((sub) => (
                 <div
                   key={sub.id}
-                  className={`rounded-lg border bg-card p-3 sm:p-4 space-y-3 transition-colors ${
+                  className={`rounded-lg border bg-card p-3 sm:p-4 space-y-3 transition-all duration-200 border-l-4 ${
+                    sub.status === "approved" ? "border-l-[hsl(142,70%,40%)]"
+                    : sub.status === "rejected" ? "border-l-destructive"
+                    : "border-l-[hsl(45,93%,47%)]"
+                  } ${
                     selectedIds.has(sub.id) ? "border-primary ring-1 ring-primary/30" : "border-border"
                   }`}
                 >
@@ -337,14 +363,23 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                       )}
                       {isAdmin && (
                         <div className="rounded-md border border-border bg-muted/30 p-3 space-y-2">
-                          <p className="text-xs font-semibold text-foreground">Moderação</p>
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-semibold text-foreground">Moderação</p>
+                            <span className={`text-[11px] font-mono px-2 py-0.5 rounded-full border ${
+                              sub.status === "approved" ? "bg-[hsl(142,70%,40%)]/10 text-[hsl(142,70%,30%)] border-[hsl(142,70%,40%)]/40"
+                              : sub.status === "rejected" ? "bg-destructive/10 text-destructive border-destructive/40"
+                              : "bg-[hsl(45,93%,47%)]/10 text-[hsl(35,90%,35%)] border-[hsl(45,93%,47%)]/40"
+                            }`}>
+                              Status atual: {sub.status === "approved" ? "✅ Aprovado" : sub.status === "rejected" ? "❌ Reprovado" : "⏳ Pendente"}
+                            </span>
+                          </div>
                           <div className="flex flex-wrap gap-2">
                             <Button
                               size="sm"
                               onClick={() => updateStatus(sub.id, "approved")}
-                              className={`text-xs ${
+                              className={`text-xs transition-all duration-200 active:scale-95 ${
                                 sub.status === "approved"
-                                  ? "bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white"
+                                  ? "bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white font-semibold ring-2 ring-[hsl(142,70%,40%)]/40 ring-offset-1"
                                   : "bg-[hsl(142,70%,40%)]/10 hover:bg-[hsl(142,70%,40%)]/20 text-[hsl(142,70%,30%)] border border-[hsl(142,70%,40%)]/40"
                               }`}
                             >
@@ -354,9 +389,9 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                             <Button
                               size="sm"
                               onClick={() => updateStatus(sub.id, "pending")}
-                              className={`text-xs ${
+                              className={`text-xs transition-all duration-200 active:scale-95 ${
                                 sub.status === "pending"
-                                  ? "bg-[hsl(45,93%,47%)] hover:bg-[hsl(45,93%,42%)] text-white"
+                                  ? "bg-[hsl(45,93%,47%)] hover:bg-[hsl(45,93%,42%)] text-white font-semibold ring-2 ring-[hsl(45,93%,47%)]/40 ring-offset-1"
                                   : "bg-[hsl(45,93%,47%)]/10 hover:bg-[hsl(45,93%,47%)]/20 text-[hsl(35,90%,35%)] border border-[hsl(45,93%,47%)]/40"
                               }`}
                             >
@@ -374,9 +409,9 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                                 updateStatus(sub.id, "rejected", reason);
                               }}
                               variant={sub.status === "rejected" ? "destructive" : "outline"}
-                              className={`text-xs ${
+                              className={`text-xs transition-all duration-200 active:scale-95 ${
                                 sub.status === "rejected"
-                                  ? ""
+                                  ? "font-semibold ring-2 ring-destructive/40 ring-offset-1"
                                   : "bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/40"
                               }`}
                             >
