@@ -114,16 +114,20 @@ function buildWhatsAppShare(ev: Event) {
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
-function isThisWeek(dateStr: string | null): boolean {
+function isUpcoming(dateStr: string | null): boolean {
   const d = parseDateToObj(dateStr);
-  if (!d) return false;
-  const now = new Date();
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  startOfWeek.setHours(0, 0, 0, 0);
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 7);
-  return d >= startOfWeek && d < endOfWeek;
+  if (!d) return true; // sem data → mostra mesmo assim
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return d >= today;
+}
+
+function formatDayLabel(dateStr: string | null): string {
+  const d = parseDateToObj(dateStr);
+  if (!d || isNaN(d.getTime())) return "Sem data definida";
+  const wd = d.toLocaleDateString("pt-BR", { weekday: "long" });
+  const dayMonth = d.toLocaleDateString("pt-BR", { day: "numeric", month: "long" });
+  return `${wd.charAt(0).toUpperCase()}${wd.slice(1)} · ${dayMonth}`;
 }
 
 export default function AgendaCultural() {
