@@ -216,6 +216,7 @@ export default function AdminEvents() {
         `Acesse: https://coeaboa.lovable.app/`,
       ].filter(Boolean).join("\n");
     } else {
+      const reason = (sub as any).rejection_reason as string | null | undefined;
       return [
         `⚠️ *Atualização sobre seu evento*`,
         ``,
@@ -223,10 +224,12 @@ export default function AdminEvents() {
         ``,
         `📌 *${sub.event_title}*`,
         ``,
-        `Entre em contato conosco para mais informações ou faça uma nova submissão.`,
+        reason ? `📝 *Motivo:* ${reason}` : "",
+        reason ? `` : "",
+        `Você pode ajustar e reenviar pelo app, em "Envios".`,
         ``,
         `Acesse: https://coeaboa.lovable.app/`,
-      ].join("\n");
+      ].filter(Boolean).join("\n");
     }
   }
 
