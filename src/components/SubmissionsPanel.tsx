@@ -277,25 +277,30 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                           <div className="flex flex-wrap gap-2">
                             <Button
                               size="sm"
-                              variant={sub.status === "approved" ? "default" : "outline"}
                               onClick={() => updateStatus(sub.id, "approved")}
-                              className="text-xs"
+                              className={`text-xs ${
+                                sub.status === "approved"
+                                  ? "bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white"
+                                  : "bg-[hsl(142,70%,40%)]/10 hover:bg-[hsl(142,70%,40%)]/20 text-[hsl(142,70%,30%)] border border-[hsl(142,70%,40%)]/40"
+                              }`}
                             >
                               <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
                               Aprovar
                             </Button>
                             <Button
                               size="sm"
-                              variant={sub.status === "pending" ? "secondary" : "outline"}
                               onClick={() => updateStatus(sub.id, "pending")}
-                              className="text-xs"
+                              className={`text-xs ${
+                                sub.status === "pending"
+                                  ? "bg-[hsl(45,93%,47%)] hover:bg-[hsl(45,93%,42%)] text-white"
+                                  : "bg-[hsl(45,93%,47%)]/10 hover:bg-[hsl(45,93%,47%)]/20 text-[hsl(35,90%,35%)] border border-[hsl(45,93%,47%)]/40"
+                              }`}
                             >
                               <Clock className="mr-1 h-3.5 w-3.5" />
                               Pendente
                             </Button>
                             <Button
                               size="sm"
-                              variant={sub.status === "rejected" ? "destructive" : "outline"}
                               onClick={() => {
                                 const reason = (reasonDrafts[sub.id] ?? sub.rejection_reason ?? "").trim();
                                 if (!reason) {
@@ -304,16 +309,21 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                                 }
                                 updateStatus(sub.id, "rejected", reason);
                               }}
-                              className="text-xs"
+                              variant={sub.status === "rejected" ? "destructive" : "outline"}
+                              className={`text-xs ${
+                                sub.status === "rejected"
+                                  ? ""
+                                  : "bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/40"
+                              }`}
                             >
                               <XCircle className="mr-1 h-3.5 w-3.5" />
                               Reprovar
                             </Button>
                           </div>
-                          {(sub.status !== "approved") && (
+                          {(sub.status === "pending" || sub.status === "rejected") && (
                             <div className="space-y-1">
                               <label className="text-xs text-muted-foreground">
-                                Observação {sub.status === "rejected" ? "(motivo da reprovação)" : "(opcional para pendência)"}
+                                Observação {sub.status === "rejected" ? "(motivo da reprovação — obrigatório)" : "(opcional para pendência)"}
                               </label>
                               <Textarea
                                 value={reasonDrafts[sub.id] ?? sub.rejection_reason ?? ""}
@@ -322,6 +332,16 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                                 rows={2}
                                 className="text-sm"
                               />
+                              {sub.status === "pending" && (reasonDrafts[sub.id] ?? "").trim() !== (sub.rejection_reason ?? "") && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => updateStatus(sub.id, "pending", reasonDrafts[sub.id] || null)}
+                                  className="text-xs mt-1"
+                                >
+                                  Salvar observação
+                                </Button>
+                              )}
                             </div>
                           )}
                         </div>
