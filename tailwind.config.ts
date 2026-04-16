@@ -17,7 +17,7 @@ export default {
         'xs': '375px',
       },
       fontFamily: {
-        display: ['Fraunces', 'serif'],
+        display: ['Inter', 'sans-serif'],
         body: ['Inter', 'sans-serif'],
       },
       letterSpacing: {
