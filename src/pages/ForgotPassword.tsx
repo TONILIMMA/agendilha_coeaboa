@@ -60,10 +60,9 @@ export default function ForgotPassword() {
       setGeneratedCode(data.code);
       setStep("code");
       toast.success("Código gerado!", {
-        description: "Confirme posse do seu WhatsApp enviando o código.",
+        description: "Use o código exibido na tela para continuar.",
       });
     } else {
-      // No user found — but show same message for security
       toast.success("Se o número estiver cadastrado, um código foi gerado.");
       setStep("code");
     }
