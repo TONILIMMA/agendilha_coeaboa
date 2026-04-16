@@ -6,6 +6,7 @@ import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useUserBadge } from "@/hooks/useUserBadge";
 import { Badge } from "@/components/ui/badge";
 import SubmissionsPanel from "@/components/SubmissionsPanel";
 import {
@@ -45,15 +46,40 @@ function useCurrentDate() {
   });
 }
 
-function RoleBadge({ isAdmin, perms }: { isAdmin: boolean; perms: { loaded: boolean; canApprove: boolean; isCollaborator: boolean } }) {
-  if (isAdmin) {
-    return <Badge variant="outline" className="text-xs text-accent border-accent">Admin</Badge>;
+function RoleBadge({
+  status,
+  isAdmin,
+  perms,
+}: {
+  status: "master" | "admin" | "collaborator" | "user" | null;
+  isAdmin: boolean;
+  perms: { loaded: boolean; canApprove: boolean; isCollaborator: boolean };
+}) {
+  if (status === "master") {
+    return (
+      <Badge
+        variant="outline"
+        className="text-xs gap-1 border-secondary text-secondary bg-secondary/10 font-semibold shadow-sm"
+      >
+        <Crown className="h-3 w-3" strokeWidth={2.5} />
+        Admin Master
+      </Badge>
+    );
   }
-  if (perms.loaded && perms.canApprove) {
-    return <Badge variant="outline" className="text-xs text-primary border-primary">Master</Badge>;
+  if (isAdmin) {
+    return (
+      <Badge variant="outline" className="text-xs gap-1 text-accent border-accent">
+        <Shield className="h-3 w-3" strokeWidth={2.5} />
+        Admin
+      </Badge>
+    );
   }
   if (perms.loaded && perms.isCollaborator) {
-    return <Badge variant="outline" className="text-xs text-muted-foreground border-muted-foreground">Colaborador</Badge>;
+    return (
+      <Badge variant="outline" className="text-xs text-muted-foreground border-muted-foreground">
+        Colaborador
+      </Badge>
+    );
   }
   return null;
 }
@@ -63,6 +89,8 @@ export default function Header() {
   const { user, signOut, isAdmin } = useAuth();
   const { profile } = useProfile();
   const perms = usePermissions();
+  const { status } = useUserBadge();
+  const isMaster = status === "master";
   const navigate = useNavigate();
   const currentDate = useCurrentDate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,7 +119,7 @@ export default function Header() {
               )}
               <span className="font-display text-base sm:text-lg font-bold text-primary whitespace-nowrap">📌 AgendIlha</span>
               <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
-              <RoleBadge isAdmin={isAdmin} perms={perms} />
+              <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />
             </div>
             <span className="text-[10px] sm:text-[11px] text-muted-foreground capitalize block">{currentDate}</span>
           </div>
@@ -106,9 +134,9 @@ export default function Header() {
               profile.phone?.replace(/\D/g, "").slice(-4) ||
               "Usuário";
             const firstName = fullName.split(" ")[0];
-            const roleLabel = isAdmin
+            const roleLabel = isMaster
               ? "Admin Master"
-              : perms.canApprove
+              : isAdmin
               ? "Admin"
               : perms.isCollaborator
               ? "Colaborador"
@@ -126,19 +154,33 @@ export default function Header() {
                       className="h-8 px-1.5 gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:bg-accent/10"
                       aria-label="Menu do usuário"
                     >
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground">
-                          {getInitials(fullName)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="relative">
+                        <Avatar className={`h-6 w-6 ${isMaster ? "ring-2 ring-secondary ring-offset-1 ring-offset-background" : ""}`}>
+                          <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground">
+                            {getInitials(fullName)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {isMaster && (
+                          <Crown
+                            className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 text-secondary fill-secondary drop-shadow-sm"
+                            strokeWidth={2}
+                            aria-label="Admin Master"
+                          />
+                        )}
+                      </div>
                       <span className="truncate max-w-[80px] sm:max-w-[120px]">{firstName}</span>
                       <ChevronDown className="h-3.5 w-3.5 opacity-70" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuLabel className="text-xs">
-                      <div className="font-semibold text-foreground truncate">{fullName}</div>
-                      <div className="text-muted-foreground font-normal text-[11px] mt-0.5">{roleLabel}</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-foreground truncate">{fullName}</span>
+                        {isMaster && <Crown className="h-3.5 w-3.5 text-secondary fill-secondary shrink-0" strokeWidth={2} />}
+                      </div>
+                      <div className={`font-normal text-[11px] mt-0.5 ${isMaster ? "text-secondary font-semibold" : "text-muted-foreground"}`}>
+                        {roleLabel}
+                      </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {isAdmin && (
@@ -147,7 +189,7 @@ export default function Header() {
                         Cadastros &gt; Usuários
                       </DropdownMenuItem>
                     )}
-                    {isAdmin && (
+                    {isMaster && (
                       <DropdownMenuItem onClick={() => navigate("/admin/master")} className="cursor-pointer">
                         <Crown className="h-4 w-4 mr-2 text-secondary" />
                         Painel Master
