@@ -251,17 +251,7 @@ export default function Header() {
                 <TooltipContent>Ver Agenda Cultural pública</TooltipContent>
               </Tooltip>
 
-              {/* Logout (icon only — full menu lives in user dropdown) */}
-              {!hasAdminLinks && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button size="sm" variant="ghost" onClick={signOut} aria-label="Sair da conta" className="text-muted-foreground px-2">
-                      <LogOut className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Sair da conta</TooltipContent>
-                </Tooltip>
-              )}
+              {/* Logout is now inside the user dropdown */}
             </div>
             );
           })()}
