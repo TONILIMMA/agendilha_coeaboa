@@ -317,18 +317,32 @@ export default function AdminMaster() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-muted pt-20 pb-16">
       <div className="container max-w-6xl mx-auto px-4 space-y-8 animate-fade-in">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-secondary/15 border border-secondary/30 flex items-center justify-center">
-            <Crown className="h-6 w-6 text-secondary" />
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-2xl bg-secondary/15 border border-secondary/30 flex items-center justify-center">
+              <Crown className="h-6 w-6 text-secondary" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-display font-semibold text-foreground">
+                Painel Master
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Controle total da plataforma
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-display font-semibold text-foreground">
-              Painel Master
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Controle total da plataforma
-            </p>
-          </div>
+          <Button
+            onClick={bootstrapToniLima}
+            disabled={bootstrapping}
+            className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-sm"
+          >
+            {bootstrapping ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <UserPlus className="h-4 w-4" />
+            )}
+            Cadastrar TONI LIMA como Master
+          </Button>
         </div>
 
         {/* Stats */}
