@@ -234,33 +234,7 @@ export default function AgendaCultural() {
         </div>
       </header>
 
-      {/* Subtitle bar */}
-      <div className="bg-accent/50 border-b border-border">
-        <div className="mx-auto max-w-4xl px-4 py-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <CalendarDays className="h-4 w-4 text-primary" />
-          <span className="font-medium text-foreground">Próximos eventos</span>
-          <span className="mx-1">·</span>
-          <span className="capitalize">{today}</span>
-          <Badge variant="secondary" className="text-xs">{upcomingEvents.length} evento(s)</Badge>
-          <Button
-            size="sm"
-            variant="outline"
-            className="ml-auto text-xs"
-            disabled={loading || upcomingEvents.length === 0}
-            onClick={() => {
-              if (upcomingEvents.length === 0) {
-                toast.error("Nenhum evento aprovado para exportar.");
-                return;
-              }
-              exportBulkEventsPdf(upcomingEvents as any);
-              toast.success(`PDF da agenda gerado com ${upcomingEvents.length} evento(s)!`);
-            }}
-          >
-            <FileDown className="h-3.5 w-3.5 mr-1.5" />
-            Baixar PDF da Agenda
-          </Button>
-        </div>
-      </div>
+      {/* (faixa de subtítulo removida conforme solicitado) */}
 
       {/* Content */}
       <main className="mx-auto max-w-4xl px-4 py-8">
@@ -276,6 +250,21 @@ export default function AgendaCultural() {
           </div>
         ) : (
           <div className="space-y-10">
+            <div className="flex items-center justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs"
+                disabled={upcomingEvents.length === 0}
+                onClick={() => {
+                  exportBulkEventsPdf(upcomingEvents as any);
+                  toast.success(`PDF da agenda gerado com ${upcomingEvents.length} evento(s)!`);
+                }}
+              >
+                <FileDown className="h-3.5 w-3.5 mr-1.5" />
+                Baixar PDF da Agenda
+              </Button>
+            </div>
             {sortedDays.map((dayKey) => (
               <section key={dayKey}>
                 <div className="flex items-center gap-3 mb-4">
