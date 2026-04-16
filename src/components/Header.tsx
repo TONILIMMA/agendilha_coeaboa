@@ -22,6 +22,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
 
 function useCurrentDate() {
   const [now, setNow] = useState(new Date());
@@ -99,11 +107,16 @@ export default function Header() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 px-2 gap-1 text-xs sm:text-sm font-medium text-foreground hover:bg-accent/10"
+                        className="h-8 px-1.5 gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:bg-accent/10"
                         aria-label="Menu do usuário"
                       >
-                        <span className="truncate max-w-[90px] sm:max-w-[140px]">
-                          Olá, {profile.responsible_name.split(" ")[0]}
+                        <Avatar className="h-6 w-6">
+                          <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-[10px] font-semibold text-primary-foreground">
+                            {getInitials(profile.responsible_name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="truncate max-w-[80px] sm:max-w-[120px]">
+                          {profile.responsible_name.split(" ")[0]}
                         </span>
                         <ChevronDown className="h-3.5 w-3.5 opacity-70" />
                       </Button>
