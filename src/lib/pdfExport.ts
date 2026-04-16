@@ -43,6 +43,15 @@ const MEDIUM_TEXT: [number, number, number] = [100, 100, 100];
 const LIGHT_LINE: [number, number, number] = [220, 220, 220];
 const SECTION_BG: [number, number, number] = [250, 245, 240];
 
+function formatWhatsApp(raw?: string | null): string {
+  if (!raw) return "";
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  if (digits.length === 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  if (digits.length === 13) return `+${digits.slice(0, 2)} (${digits.slice(2, 4)}) ${digits.slice(4, 9)}-${digits.slice(9)}`;
+  return raw;
+}
+
 const PAGE_W = 210;
 const MARGIN = 18;
 const CONTENT_W = PAGE_W - MARGIN * 2;
