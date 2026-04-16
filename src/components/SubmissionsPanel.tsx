@@ -318,9 +318,22 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                         </div>
                       )}
                       {sub.status === "pending" && (
-                        <p className="text-xs text-muted-foreground italic">
-                          ⏳ Em análise pela coordenação do AgendIlha.
-                        </p>
+                        <>
+                          <p className="text-xs text-muted-foreground italic">
+                            ⏳ Em análise pela coordenação do AgendIlha.
+                          </p>
+                          {sub.rejection_reason && (
+                            <div className="rounded-md border border-[hsl(45,93%,47%)]/40 bg-[hsl(45,93%,47%)]/10 p-3 text-sm">
+                              <div className="flex items-start gap-2">
+                                <Clock className="h-4 w-4 text-[hsl(35,90%,35%)] mt-0.5 shrink-0" />
+                                <div className="space-y-1">
+                                  <p className="font-medium text-[hsl(35,90%,35%)]">Observação da coordenação</p>
+                                  <p className="text-foreground/90">{sub.rejection_reason}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
                       {isAdmin && (
                         <div className="rounded-md border border-border bg-muted/30 p-3 space-y-2">
