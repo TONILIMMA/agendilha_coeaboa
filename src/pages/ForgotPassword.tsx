@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { Loader2, Phone, ArrowLeft, KeyRound, CheckCircle2, Copy, ShieldCheck } from "lucide-react";
+import { PasswordStrengthMeter, calculatePasswordScore } from "@/components/PasswordStrengthMeter";
 
 type Step = "phone" | "code" | "newPassword" | "done";
 
@@ -91,6 +92,12 @@ export default function ForgotPassword() {
     e.preventDefault();
     if (newPassword.length < 6) {
       toast.error("Senha deve ter no mínimo 6 caracteres");
+      return;
+    }
+    if (calculatePasswordScore(newPassword) < 3) {
+      toast.error("Senha muito fraca", {
+        description: "Atenda aos requisitos exibidos para criar uma senha mais segura.",
+      });
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -221,8 +228,9 @@ export default function ForgotPassword() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
                 minLength={6}
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
               />
+              <PasswordStrengthMeter password={newPassword} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirme a senha</Label>
