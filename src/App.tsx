@@ -15,6 +15,7 @@ import CoeABoa from "./pages/CoeABoa";
 import AgendaCultural from "./pages/AgendaCultural";
 import Eventos from "./pages/Eventos";
 import AdminCollaborators from "./pages/AdminCollaborators";
+import AdminPinGate from "@/components/AdminPinGate";
 import NotFound from "./pages/NotFound";
 
 import { Loader2 } from "lucide-react";
@@ -52,7 +53,9 @@ const AppRoutes = () => (
         path="/admin/users"
         element={
           <ProtectedRoute>
-            <AdminUsers />
+            <AdminPinGate>
+              <AdminUsers />
+            </AdminPinGate>
           </ProtectedRoute>
         }
       />

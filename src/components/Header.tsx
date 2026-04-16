@@ -92,7 +92,7 @@ export default function Header() {
           {user && (
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               {profile.responsible_name && (
-                <span className="hidden sm:inline text-sm font-medium text-foreground truncate max-w-[120px]">
+                <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-[100px] sm:max-w-[140px]">
                   Olá, {profile.responsible_name.split(" ")[0]}
                 </span>
               )}
@@ -107,8 +107,8 @@ export default function Header() {
                         aria-label="Ver meus envios"
                         className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all text-xs sm:text-sm px-2 sm:px-3"
                       >
-                        <ClipboardList className="h-4 w-4 sm:mr-1.5" />
-                        <span className="hidden sm:inline">Envios</span>
+                        <ClipboardList className="h-4 w-4 mr-1.5" />
+                        <span>Envios</span>
                         {savedCount > 0 && (
                           <Badge variant="secondary" className="ml-1 text-xs font-medium bg-white/20 text-white">
                             {savedCount}
@@ -125,8 +125,8 @@ export default function Header() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button size="sm" variant="outline" onClick={() => navigate("/agenda")} aria-label="Agenda Cultural" className="text-xs px-2 sm:px-3">
-                    <CheckCircle className="h-4 w-4 sm:mr-1" />
-                    <span className="hidden sm:inline">Agenda</span>
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    <span>Agenda</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Ver Agenda Cultural pública</TooltipContent>
@@ -140,7 +140,7 @@ export default function Header() {
                       <DropdownMenuTrigger asChild>
                         <Button size="sm" variant="outline" className="px-2 gap-1" aria-label="Menu administrativo">
                           <Menu className="h-4 w-4" />
-                          <span className="hidden sm:inline text-xs">Admin</span>
+                          <span className="text-xs">Admin</span>
                         </Button>
                       </DropdownMenuTrigger>
                     </TooltipTrigger>
@@ -161,16 +161,18 @@ export default function Header() {
                           <CalendarDays className="h-4 w-4 mr-2" />
                           Admin Eventos
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
-                          <Users className="h-4 w-4 mr-2" />
-                          Usuários
-                        </DropdownMenuItem>
                       </>
                     )}
                     {showCollaborators && (
                       <DropdownMenuItem onClick={() => navigate("/admin/collaborators")} className="cursor-pointer">
                         <Shield className="h-4 w-4 mr-2" />
                         Colaboradores
+                      </DropdownMenuItem>
+                    )}
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
+                        <Users className="h-4 w-4 mr-2" />
+                        Usuários
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>
