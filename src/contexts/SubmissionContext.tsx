@@ -137,9 +137,13 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
       notes: noteParts.join(" | "),
     } as any);
 
-    setSubmissions((prev) => prev.map((s) => (s.id === id ? { ...s, ...payload } : s)));
+    if (status === "approved") {
+      setSubmissions((prev) => prev.filter((s) => s.id !== id));
+    } else {
+      setSubmissions((prev) => prev.map((s) => (s.id === id ? { ...s, ...payload } : s)));
+    }
     toast.success(
-      status === "approved" ? "Evento aprovado!" : status === "rejected" ? "Evento reprovado." : "Marcado como pendente."
+      status === "approved" ? "Evento aprovado e movido para a Agenda Cultural!" : status === "rejected" ? "Evento reprovado." : "Marcado como pendente."
     );
   }, [user]);
 
