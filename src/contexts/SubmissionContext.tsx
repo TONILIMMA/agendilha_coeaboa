@@ -38,13 +38,16 @@ interface SubmissionEntry {
   concept_description: string | null;
   responsible_person: string | null;
   deleted_at: string | null;
+  status: string;
+  rejection_reason: string | null;
 }
 interface SubmissionContextType {
   submissions: SubmissionEntry[];
   loading: boolean;
   fetchSubmissions: () => Promise<void>;
-  addSubmission: (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "stage"> & { stage?: string }) => Promise<boolean>;
+  addSubmission: (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "stage" | "status" | "rejection_reason"> & { stage?: string }) => Promise<boolean>;
   deleteSubmission: (id: string) => Promise<void>;
+  resubmit: (id: string) => Promise<void>;
   savedCount: number;
 }
 
@@ -99,6 +102,21 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const resubmit = useCallback(async (id: string) => {
+    const { error } = await supabase
+      .from("submissions")
+      .update({ status: "pending", rejection_reason: null } as any)
+      .eq("id", id);
+    if (error) {
+      toast.error("Erro ao reenviar", { description: error.message });
+    } else {
+      toast.success("Evento reenviado para análise!");
+      setSubmissions((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, status: "pending", rejection_reason: null } : s))
+      );
+    }
+  }, []);
+
   return (
     <SubmissionContext.Provider
       value={{
@@ -107,6 +125,7 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
         fetchSubmissions,
         addSubmission,
         deleteSubmission,
+        resubmit,
         savedCount: submissions.length,
       }}
     >
