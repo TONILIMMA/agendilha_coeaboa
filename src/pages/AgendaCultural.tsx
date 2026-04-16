@@ -191,50 +191,30 @@ export default function AgendaCultural() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-primary text-primary-foreground">
-        <div className="mx-auto max-w-4xl px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+      {/* Header clean */}
+      <header className="border-b border-border bg-background">
+        <div className="mx-auto max-w-4xl px-4 py-5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
             <Button
               size="icon"
               variant="ghost"
               onClick={() => navigate("/")}
-              className="text-primary-foreground hover:bg-primary-foreground/15 shrink-0"
+              className="shrink-0"
               aria-label="Voltar à página inicial"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div className="text-center sm:text-left">
-            <h1 className="text-3xl sm:text-4xl font-bold font-display">
-              🌴 AgendIlha
-            </h1>
-            <p className="text-sm opacity-90 mt-1">
-              Agenda Cultural da Ilha do Governador
-            </p>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold font-display text-foreground truncate">
+                🌴 AgendIlha
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 capitalize">
+                {today}
+              </p>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <a
-              href="https://instagram.com/agendilha"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium bg-primary-foreground/15 hover:bg-primary-foreground/25 rounded-full px-4 py-2 transition-colors"
-            >
-              📸 @agendilha
-            </a>
-            <a
-              href="https://chat.whatsapp.com/agendilha"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium bg-primary-foreground/15 hover:bg-primary-foreground/25 rounded-full px-4 py-2 transition-colors"
-            >
-              💬 WhatsApp
-            </a>
           </div>
         </div>
       </header>
-
-      {/* (faixa de subtítulo removida conforme solicitado) */}
 
       {/* Content */}
       <main className="mx-auto max-w-4xl px-4 py-8">
