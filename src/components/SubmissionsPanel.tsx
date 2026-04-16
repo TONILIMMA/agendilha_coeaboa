@@ -376,51 +376,56 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                               Status atual: {sub.status === "approved" ? "✅ Aprovado" : sub.status === "rejected" ? "❌ Reprovado" : "⏳ Pendente"}
                             </span>
                           </div>
-                          <div className="flex flex-wrap gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => updateStatus(sub.id, "approved")}
-                              className={`text-xs transition-all duration-200 active:scale-95 ${
-                                sub.status === "approved"
-                                  ? "bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white font-semibold ring-2 ring-[hsl(142,70%,40%)]/40 ring-offset-1"
-                                  : "bg-[hsl(142,70%,40%)]/10 hover:bg-[hsl(142,70%,40%)]/20 text-[hsl(142,70%,30%)] border border-[hsl(142,70%,40%)]/40"
-                              }`}
-                            >
-                              <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
-                              Aprovar
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => updateStatus(sub.id, "pending")}
-                              className={`text-xs transition-all duration-200 active:scale-95 ${
-                                sub.status === "pending"
-                                  ? "bg-[hsl(45,93%,47%)] hover:bg-[hsl(45,93%,42%)] text-white font-semibold ring-2 ring-[hsl(45,93%,47%)]/40 ring-offset-1"
-                                  : "bg-[hsl(45,93%,47%)]/10 hover:bg-[hsl(45,93%,47%)]/20 text-[hsl(35,90%,35%)] border border-[hsl(45,93%,47%)]/40"
-                              }`}
-                            >
-                              <Clock className="mr-1 h-3.5 w-3.5" />
-                              Pendente
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                const reason = (reasonDrafts[sub.id] ?? sub.rejection_reason ?? "").trim();
-                                if (!reason) {
-                                  toast.error("Informe o motivo da reprovação no campo abaixo.");
-                                  return;
+                          <div className="space-y-2">
+                            <label className="text-xs text-muted-foreground">Alterar status</label>
+                            <Select
+                              value={sub.status}
+                              onValueChange={(newStatus) => {
+                                if (newStatus === sub.status) return;
+                                if (newStatus === "rejected") {
+                                  const reason = (reasonDrafts[sub.id] ?? sub.rejection_reason ?? "").trim();
+                                  if (!reason) {
+                                    toast.error("Informe o motivo da reprovação no campo abaixo antes de selecionar 'Reprovado'.");
+                                    return;
+                                  }
+                                  updateStatus(sub.id, "rejected", reason);
+                                } else if (newStatus === "approved") {
+                                  updateStatus(sub.id, "approved");
+                                } else {
+                                  updateStatus(sub.id, "pending", reasonDrafts[sub.id] || sub.rejection_reason || null);
                                 }
-                                updateStatus(sub.id, "rejected", reason);
                               }}
-                              variant={sub.status === "rejected" ? "destructive" : "outline"}
-                              className={`text-xs transition-all duration-200 active:scale-95 ${
-                                sub.status === "rejected"
-                                  ? "font-semibold ring-2 ring-destructive/40 ring-offset-1"
-                                  : "bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/40"
-                              }`}
                             >
-                              <XCircle className="mr-1 h-3.5 w-3.5" />
-                              Reprovar
-                            </Button>
+                              <SelectTrigger className="h-9 text-xs">
+                                <SelectValue placeholder="Selecione um status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="approved">
+                                  <span className="inline-flex items-center gap-2">
+                                    <CheckCircle2 className="h-3.5 w-3.5 text-[hsl(142,70%,40%)]" />
+                                    Aprovado
+                                  </span>
+                                </SelectItem>
+                                <SelectItem value="pending">
+                                  <span className="inline-flex items-center gap-2">
+                                    <Clock className="h-3.5 w-3.5 text-[hsl(45,93%,47%)]" />
+                                    Pendente
+                                  </span>
+                                </SelectItem>
+                                <SelectItem value="rejected">
+                                  <span className="inline-flex items-center gap-2">
+                                    <XCircle className="h-3.5 w-3.5 text-destructive" />
+                                    Reprovado
+                                  </span>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            {sub.status === "approved" && (
+                              <p className="text-[11px] text-[hsl(142,70%,30%)] flex items-center gap-1">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Publicado na Agenda Cultural
+                              </p>
+                            )}
                           </div>
                           {(sub.status === "pending" || sub.status === "rejected") && (
                             <div className="space-y-1">
