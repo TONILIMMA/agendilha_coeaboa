@@ -237,19 +237,39 @@ export default function Landing() {
 
       {/* ── Ecossistema ── */}
       <section id="ecossistema" className="relative py-16 sm:py-20 gradient-eco">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="text-center mb-12 reveal">
+        <div className="mx-auto max-w-6xl px-0 sm:px-6">
+          <div className="text-center mb-10 sm:mb-12 reveal px-6">
             <p className="text-xs font-medium tracking-widest uppercase text-emerald-700">Ecossistema</p>
             <h2 className="mt-2 font-display text-2xl sm:text-3xl font-semibold">
               Conectando pessoas, eventos e tecnologia
             </h2>
+            <p className="md:hidden mt-2 text-xs text-foreground/55">Deslize para o lado →</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* Mobile: horizontal snap carousel · Desktop: grid */}
+          <div
+            className="
+              flex sm:grid
+              sm:grid-cols-2 lg:grid-cols-3
+              gap-4 sm:gap-5
+              overflow-x-auto sm:overflow-visible
+              snap-x snap-mandatory sm:snap-none
+              scroll-px-6 px-6 sm:px-0
+              pb-4 sm:pb-0
+              scrollbar-none
+              [-webkit-overflow-scrolling:touch]
+            "
+          >
             {ecosystem.map((c, i) => (
               <div
                 key={c.title}
-                className="reveal glass rounded-2xl p-6 hover-scale shadow-card hover:shadow-glass transition-shadow"
+                className="
+                  reveal glass rounded-2xl p-5 sm:p-6
+                  shadow-card hover:shadow-glass transition-all
+                  hover-scale active:scale-[0.98]
+                  shrink-0 sm:shrink basis-[78%] xs:basis-[68%] sm:basis-auto
+                  snap-start
+                "
                 style={{ transitionDelay: `${i * 60}ms` }}
               >
                 <div className={`inline-flex items-center justify-center rounded-xl p-3 mb-4 bg-gradient-to-br ${c.tone}`}>
