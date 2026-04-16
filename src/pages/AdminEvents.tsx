@@ -216,6 +216,7 @@ export default function AdminEvents() {
         `Acesse: https://coeaboa.lovable.app/`,
       ].filter(Boolean).join("\n");
     } else {
+      const reason = (sub as any).rejection_reason as string | null | undefined;
       return [
         `⚠️ *Atualização sobre seu evento*`,
         ``,
@@ -223,20 +224,36 @@ export default function AdminEvents() {
         ``,
         `📌 *${sub.event_title}*`,
         ``,
-        `Entre em contato conosco para mais informações ou faça uma nova submissão.`,
+        reason ? `📝 *Motivo:* ${reason}` : "",
+        reason ? `` : "",
+        `Você pode ajustar e reenviar pelo app, em "Envios".`,
         ``,
         `Acesse: https://coeaboa.lovable.app/`,
-      ].join("\n");
+      ].filter(Boolean).join("\n");
     }
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
-    const { error } = await supabase.from("submissions").update({ status: newStatus } as any).eq("id", id);
+    let rejectionReason: string | null = null;
+    if (newStatus === "rejected") {
+      const reason = window.prompt(
+        "Informe o motivo da reprovação (será exibido ao divulgador):",
+        ""
+      );
+      if (reason === null) return; // cancelled
+      rejectionReason = reason.trim() || null;
+    }
+
+    const updatePayload: any = { status: newStatus };
+    if (newStatus === "rejected") updatePayload.rejection_reason = rejectionReason;
+    if (newStatus === "approved" || newStatus === "pending") updatePayload.rejection_reason = null;
+
+    const { error } = await supabase.from("submissions").update(updatePayload).eq("id", id);
     if (error) {
       toast.error("Erro ao atualizar status");
     } else {
       toast.success(newStatus === "approved" ? "Evento aprovado!" : newStatus === "rejected" ? "Evento rejeitado" : "Status atualizado");
-      setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
+      setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus, ...(("rejection_reason" in updatePayload) ? { rejection_reason: updatePayload.rejection_reason } : {}) } as any : s));
 
       // Send WhatsApp notification to advertiser
       if (newStatus === "approved" || newStatus === "rejected") {
@@ -244,7 +261,7 @@ export default function AdminEvents() {
         if (sub?.phone) {
           const phone = sub.phone.replace(/\D/g, "");
           const fullPhone = phone.startsWith("55") ? phone : `55${phone}`;
-          const message = encodeURIComponent(buildNotificationMessage({ ...sub, status: newStatus }, newStatus));
+          const message = encodeURIComponent(buildNotificationMessage({ ...sub, status: newStatus, rejection_reason: rejectionReason } as any, newStatus));
           window.open(`https://wa.me/${fullPhone}?text=${message}`, "_blank");
         } else {
           toast.info("Anunciante sem telefone cadastrado. Notificação não enviada.");

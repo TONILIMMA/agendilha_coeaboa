@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2, Send } from "lucide-react";
+import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2, Send, RotateCcw, AlertCircle } from "lucide-react";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 
@@ -91,7 +91,7 @@ function exportToCSV(submissions: any[]) {
 }
 
 export default function SubmissionsPanel({ children }: { children: React.ReactNode }) {
-  const { submissions, loading, fetchSubmissions, deleteSubmission, savedCount } = useSubmissions();
+  const { submissions, loading, fetchSubmissions, deleteSubmission, resubmit, savedCount } = useSubmissions();
   const { isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -209,9 +209,23 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                           <p className="font-display font-semibold text-foreground truncate">{sub.event_title}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{formatDate(sub.created_at)}</p>
                         </div>
-                        <Badge variant="outline" className="text-xs shrink-0">
-                          {categoryLabels[sub.category || ""] || "—"}
-                        </Badge>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <Badge
+                            variant={
+                              sub.status === "approved" ? "default"
+                              : sub.status === "rejected" ? "destructive"
+                              : "secondary"
+                            }
+                            className="text-xs"
+                          >
+                            {sub.status === "approved" ? "✅ Aprovado"
+                              : sub.status === "rejected" ? "❌ Reprovado"
+                              : "⏳ Em análise"}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {categoryLabels[sub.category || ""] || "—"}
+                          </Badge>
+                        </div>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm">
                         <div>
@@ -234,15 +248,48 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                       {sub.description && (
                         <p className="text-sm text-muted-foreground italic">"{sub.description}"</p>
                       )}
+                      {sub.status === "rejected" && (
+                        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm">
+                          <div className="flex items-start gap-2">
+                            <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                            <div className="space-y-1">
+                              <p className="font-medium text-destructive">Motivo da reprovação</p>
+                              <p className="text-foreground/90">
+                                {sub.rejection_reason || "A coordenação não informou um motivo. Entre em contato para mais detalhes."}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Faça os ajustes necessários e clique em <strong>Reenviar</strong> para nova análise.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {sub.status === "pending" && (
+                        <p className="text-xs text-muted-foreground italic">
+                          ⏳ Em análise pela coordenação do AgendIlha.
+                        </p>
+                      )}
                       <div className="flex flex-wrap items-center gap-2 pt-1">
-                        <Button
-                          size="sm"
-                          onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
-                          className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
-                        >
-                          <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
-                          WhatsApp
-                        </Button>
+                        {sub.status === "rejected" && (
+                          <Button
+                            size="sm"
+                            onClick={() => resubmit(sub.id)}
+                            className="text-xs"
+                          >
+                            <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+                            Reenviar para análise
+                          </Button>
+                        )}
+                        {sub.status === "approved" && (
+                          <Button
+                            size="sm"
+                            onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
+                            className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
+                          >
+                            <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
+                            WhatsApp
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           variant="outline"
@@ -259,7 +306,7 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                           size="sm"
                           variant="ghost"
                           onClick={() => deleteSubmission(sub.id)}
-                          className="text-xs text-destructive hover:text-destructive"
+                          className="text-xs text-destructive hover:text-destructive ml-auto"
                         >
                           <Trash2 className="mr-1 h-3.5 w-3.5" />
                           Remover
