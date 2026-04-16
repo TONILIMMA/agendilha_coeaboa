@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Clock, Share2, CalendarDays, ExternalLink, ArrowLeft } from "lucide-react";
+import { Loader2, MapPin, Clock, Share2, CalendarDays, ExternalLink, ArrowLeft, FileDown } from "lucide-react";
+import { exportBulkEventsPdf } from "@/lib/pdfExport";
+import { toast } from "sonner";
 
 const categoryIcons: Record<string, string> = {
   musica: "🎸",
