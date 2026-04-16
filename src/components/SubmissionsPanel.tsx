@@ -395,6 +395,7 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                               )}
                             </div>
                           )}
+                          <StatusHistory eventId={sub.id} />
                         </div>
                       )}
                       <div className="flex flex-wrap items-center gap-2 pt-1">
