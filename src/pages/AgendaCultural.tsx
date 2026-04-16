@@ -114,16 +114,20 @@ function buildWhatsAppShare(ev: Event) {
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
-function isThisWeek(dateStr: string | null): boolean {
+function isUpcoming(dateStr: string | null): boolean {
   const d = parseDateToObj(dateStr);
-  if (!d) return false;
-  const now = new Date();
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  startOfWeek.setHours(0, 0, 0, 0);
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 7);
-  return d >= startOfWeek && d < endOfWeek;
+  if (!d) return true; // sem data → mostra mesmo assim
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return d >= today;
+}
+
+function formatDayLabel(dateStr: string | null): string {
+  const d = parseDateToObj(dateStr);
+  if (!d || isNaN(d.getTime())) return "Sem data definida";
+  const wd = d.toLocaleDateString("pt-BR", { weekday: "long" });
+  const dayMonth = d.toLocaleDateString("pt-BR", { day: "numeric", month: "long" });
+  return `${wd.charAt(0).toUpperCase()}${wd.slice(1)} · ${dayMonth}`;
 }
 
 export default function AgendaCultural() {
@@ -146,21 +150,35 @@ export default function AgendaCultural() {
     load();
   }, []);
 
-  const weekEvents = useMemo(() => events.filter((e) => isThisWeek(e.date)), [events]);
+  const upcomingEvents = useMemo(
+    () => events.filter((e) => isUpcoming(e.date)),
+    [events]
+  );
 
   const grouped = useMemo(() => {
-    const map: Record<string, Event[]> = {};
-    for (const ev of weekEvents) {
-      const wd = getWeekday(ev.date) || "sem-data";
-      if (!map[wd]) map[wd] = [];
-      map[wd].push(ev);
+    const map: Record<string, { label: string; sortKey: string; items: Event[] }> = {};
+    for (const ev of upcomingEvents) {
+      const d = parseDateToObj(ev.date);
+      const key = d
+        ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+        : "sem-data";
+      if (!map[key]) {
+        map[key] = {
+          label: formatDayLabel(ev.date),
+          sortKey: key === "sem-data" ? "9999-99-99" : key,
+          items: [],
+        };
+      }
+      map[key].items.push(ev);
     }
     return map;
-  }, [weekEvents]);
+  }, [upcomingEvents]);
 
   const sortedDays = useMemo(
     () =>
-      weekdayOrder.filter((wd) => grouped[wd]?.length),
+      Object.entries(grouped)
+        .sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey))
+        .map(([key]) => key),
     [grouped]
   );
 
@@ -220,21 +238,22 @@ export default function AgendaCultural() {
       <div className="bg-accent/50 border-b border-border">
         <div className="mx-auto max-w-4xl px-4 py-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <CalendarDays className="h-4 w-4 text-primary" />
-          <span className="font-medium text-foreground">Agenda da Semana</span>
+          <span className="font-medium text-foreground">Próximos eventos</span>
           <span className="mx-1">·</span>
           <span className="capitalize">{today}</span>
+          <Badge variant="secondary" className="text-xs">{upcomingEvents.length} evento(s)</Badge>
           <Button
             size="sm"
             variant="outline"
             className="ml-auto text-xs"
-            disabled={loading || weekEvents.length === 0}
+            disabled={loading || upcomingEvents.length === 0}
             onClick={() => {
-              if (weekEvents.length === 0) {
+              if (upcomingEvents.length === 0) {
                 toast.error("Nenhum evento aprovado para exportar.");
                 return;
               }
-              exportBulkEventsPdf(weekEvents as any);
-              toast.success(`PDF da agenda gerado com ${weekEvents.length} evento(s)!`);
+              exportBulkEventsPdf(upcomingEvents as any);
+              toast.success(`PDF da agenda gerado com ${upcomingEvents.length} evento(s)!`);
             }}
           >
             <FileDown className="h-3.5 w-3.5 mr-1.5" />
@@ -252,31 +271,26 @@ export default function AgendaCultural() {
         ) : sortedDays.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground">
             <CalendarDays className="mx-auto h-12 w-12 mb-3 opacity-40" />
-            <p className="text-lg font-medium">Nenhum evento nesta semana</p>
+            <p className="text-lg font-medium">Nenhum evento aprovado disponível</p>
             <p className="text-sm mt-1">Volte em breve!</p>
           </div>
         ) : (
           <div className="space-y-10">
-            {sortedDays.map((wd) => (
-              <section key={wd}>
+            {sortedDays.map((dayKey) => (
+              <section key={dayKey}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                     <CalendarDays className="h-4 w-4 text-primary" />
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-foreground">
-                      {weekdayLabels[wd] || wd}
+                      {grouped[dayKey].label}
                     </h2>
-                    {grouped[wd]?.[0]?.date && (
-                      <p className="text-xs text-muted-foreground">
-                        {formatDateShort(grouped[wd][0].date)}
-                      </p>
-                    )}
                   </div>
                 </div>
 
                 <div className="space-y-3 pl-4 border-l-2 border-primary/20">
-                  {grouped[wd].map((ev) => {
+                  {grouped[dayKey].items.map((ev) => {
                     const icon = categoryIcons[ev.category || ""] || "📌";
                     return (
                       <Card
