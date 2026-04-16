@@ -48,11 +48,21 @@ Deno.serve(async (req) => {
     }
 
     const { data: isMaster } = await anonClient.rpc("is_master", { _user_id: user.id });
-    if (!isMaster) {
-      return new Response(JSON.stringify({ error: "Forbidden — only the Admin Master can bootstrap a new master." }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const { data: isAdmin } = await anonClient.rpc("has_role", { _user_id: user.id, _role: "admin" });
+
+    // Allow if caller is the current Master, OR if no formal master exists yet AND caller is admin (initial bootstrap)
+    const adminCheck = createClient(supabaseUrl, serviceRoleKey);
+    const { count: masterCount } = await adminCheck
+      .from("user_roles")
+      .select("id", { count: "exact", head: true })
+      .eq("role", "master");
+
+    const allowed = isMaster || (masterCount === 0 && isAdmin);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden — only the Admin Master (or any admin during initial bootstrap) can create a master." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     const body = (await req.json()) as Payload;
