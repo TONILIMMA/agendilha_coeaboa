@@ -9,6 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ClipboardList, MessageCircle, Trash2, Download, FileDown, Loader2, Send, RotateCcw, AlertCircle, CheckCircle2, XCircle, Clock, History } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
