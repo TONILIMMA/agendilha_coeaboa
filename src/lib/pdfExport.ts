@@ -254,7 +254,7 @@ function drawEventPage(doc: jsPDF, event: EventData, isLastPage = true) {
     y = drawSectionHeader(doc, "CONTATO E RESPONSÁVEL", y);
     y = addSectionField(doc, "Empresa", event.company_name || "—", MARGIN, y, CONTENT_W, fieldOpts);
     y = addSectionField(doc, "Responsável", event.responsible_name || "—", MARGIN, y, CONTENT_W, fieldOpts);
-    y = addSectionField(doc, "Telefone", event.phone || "—", MARGIN, y, CONTENT_W, fieldOpts);
+    y = addSectionField(doc, "WhatsApp do Divulgador", formatWhatsApp(event.phone) || "—", MARGIN, y, CONTENT_W, fieldOpts);
     y = addSectionField(doc, "E-mail", event.email || "—", MARGIN, y, CONTENT_W, fieldOpts);
     if (event.contact_social) {
       y = addSectionField(doc, "Redes Sociais", event.contact_social, MARGIN, y, CONTENT_W, fieldOpts);
