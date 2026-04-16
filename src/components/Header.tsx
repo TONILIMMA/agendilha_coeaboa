@@ -161,16 +161,18 @@ export default function Header() {
                           <CalendarDays className="h-4 w-4 mr-2" />
                           Admin Eventos
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
-                          <Users className="h-4 w-4 mr-2" />
-                          Usuários
-                        </DropdownMenuItem>
                       </>
                     )}
                     {showCollaborators && (
                       <DropdownMenuItem onClick={() => navigate("/admin/collaborators")} className="cursor-pointer">
                         <Shield className="h-4 w-4 mr-2" />
                         Colaboradores
+                      </DropdownMenuItem>
+                    )}
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
+                        <Users className="h-4 w-4 mr-2" />
+                        Usuários
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>
