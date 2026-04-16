@@ -17,6 +17,7 @@ function StatusHistory({ eventId }: { eventId: string }) {
   const [open, setOpen] = useState(false);
   const [logs, setLogs] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [names, setNames] = useState<Record<string, string>>({});
 
   const load = async () => {
     setLoading(true);
@@ -25,7 +26,28 @@ function StatusHistory({ eventId }: { eventId: string }) {
       .select("id, action, notes, created_at, user_id")
       .eq("event_id", eventId)
       .order("created_at", { ascending: false });
-    setLogs(data || []);
+    const rows = data || [];
+    setLogs(rows);
+    const ids = Array.from(new Set(rows.map((r: any) => r.user_id)));
+    if (ids.length) {
+      const map: Record<string, string> = {};
+      const { data: collabs } = await supabase
+        .from("collaborators")
+        .select("user_id, name")
+        .in("user_id", ids);
+      collabs?.forEach((c: any) => { if (c.name) map[c.user_id] = c.name; });
+      const missing = ids.filter((id) => !map[id]);
+      if (missing.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("user_id, responsible_name, email")
+          .in("user_id", missing);
+        profs?.forEach((p: any) => {
+          map[p.user_id] = p.responsible_name || p.email || "";
+        });
+      }
+      setNames(map);
+    }
     setLoading(false);
   };
 
