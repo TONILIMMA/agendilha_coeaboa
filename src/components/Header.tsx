@@ -189,62 +189,17 @@ export default function Header() {
                 <TooltipContent>Ver Agenda Cultural pública</TooltipContent>
               </Tooltip>
 
-              {/* Admin dropdown (hamburger) */}
-              {hasAdminLinks && (
-                <DropdownMenu>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuTrigger asChild>
-                        <Button size="sm" variant="outline" className="px-2 gap-1" aria-label="Menu administrativo">
-                          <Menu className="h-4 w-4" />
-                          <span className="text-xs">Admin</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>Painel administrativo</TooltipContent>
-                  </Tooltip>
-                  <DropdownMenuContent align="end" className="w-52">
-                    <DropdownMenuLabel className="text-xs text-muted-foreground">Administração</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {showEventos && (
-                      <DropdownMenuItem onClick={() => navigate("/eventos")} className="cursor-pointer">
-                        <CalendarDays className="h-4 w-4 mr-2" />
-                        Eventos
-                      </DropdownMenuItem>
-                    )}
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuItem onClick={() => navigate("/admin/events")} className="cursor-pointer">
-                          <CalendarDays className="h-4 w-4 mr-2" />
-                          Admin Eventos
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    {showCollaborators && (
-                      <DropdownMenuItem onClick={() => navigate("/admin/collaborators")} className="cursor-pointer">
-                        <Shield className="h-4 w-4 mr-2" />
-                        Colaboradores
-                      </DropdownMenuItem>
-                    )}
-                    {isAdmin && (
-                      <DropdownMenuItem onClick={() => navigate("/admin/users")} className="cursor-pointer">
-                        <Users className="h-4 w-4 mr-2" />
-                        Usuários
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              {/* Logout (icon only — full menu lives in user dropdown) */}
+              {!hasAdminLinks && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="ghost" onClick={signOut} aria-label="Sair da conta" className="text-muted-foreground px-2">
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Sair da conta</TooltipContent>
+                </Tooltip>
               )}
-
-              {/* Logout */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button size="sm" variant="ghost" onClick={signOut} aria-label="Sair da conta" className="text-muted-foreground px-2">
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Sair da conta</TooltipContent>
-              </Tooltip>
             </div>
           )}
         </div>
