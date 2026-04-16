@@ -109,9 +109,10 @@ export default function ForgotPassword() {
     setStep("done");
   }
 
-  const whatsappLink = `https://wa.me/?text=${encodeURIComponent(
-    `Meu código de verificação AgendIlha: ${generatedCode}`
-  )}`;
+  function handleCopyCode() {
+    navigator.clipboard.writeText(generatedCode);
+    toast.success("Código copiado!");
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background px-4">
