@@ -49,38 +49,69 @@ const CONTENT_W = PAGE_W - MARGIN * 2;
 const HEADER_H = 16;
 const FOOTER_Y = 280;
 
+// Single-page layout limit (above footer divider)
+const MAX_Y = FOOTER_Y - 8;
+
+interface FieldOpts {
+  labelSize?: number;
+  valueSize?: number;
+  lineHeight?: number;
+  gap?: number;
+}
+
 function addSectionField(
   doc: jsPDF,
   label: string,
   value: string,
   x: number,
   y: number,
-  maxWidth: number
+  maxWidth: number,
+  opts: FieldOpts = {}
 ): number {
   if (!value || value === "—") return y;
 
-  // Check page break
-  if (y > 258) {
-    doc.addPage();
-    y = 22;
-  }
+  const labelSize = opts.labelSize ?? 9;
+  const valueSize = opts.valueSize ?? 11;
+  const lineHeight = opts.lineHeight ?? 5.5;
+  const gap = opts.gap ?? 5;
+
+  // Stop rendering if we've run out of room (single-page constraint)
+  if (y > MAX_Y - 8) return y;
 
   // Label
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
+  doc.setFontSize(labelSize);
   doc.setTextColor(...MEDIUM_TEXT);
   doc.text(label.toUpperCase(), x, y);
-  y += 5;
+  y += labelSize * 0.55;
 
-  // Value
+  // Value — clamp lines so we never overflow the page
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
+  doc.setFontSize(valueSize);
   doc.setTextColor(...DARK_TEXT);
-  const lines = doc.splitTextToSize(value, maxWidth - 4);
+  const allLines: string[] = doc.splitTextToSize(value, maxWidth - 4);
+  const remaining = MAX_Y - y;
+  const maxLines = Math.max(1, Math.floor(remaining / lineHeight) - 1);
+  let lines = allLines;
+  if (allLines.length > maxLines) {
+    lines = allLines.slice(0, maxLines);
+    const last = lines[lines.length - 1] ?? "";
+    lines[lines.length - 1] = last.replace(/\s+\S*$/, "") + "…";
+  }
   doc.text(lines, x + 2, y);
-  y += lines.length * 5.5 + 5;
+  y += lines.length * lineHeight + gap;
 
   return y;
+}
+
+function drawSectionHeader(doc: jsPDF, title: string, y: number): number {
+  doc.setFillColor(...SECTION_BG);
+  doc.rect(MARGIN - 2, y - 4, CONTENT_W + 4, 7, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...BRAND_ORANGE);
+  doc.text(title, MARGIN + 2, y + 1);
+  return y + 12;
 }
 
 function drawHeader(doc: jsPDF) {
