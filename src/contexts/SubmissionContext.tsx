@@ -119,17 +119,28 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateStatus = useCallback(async (id: string, status: "pending" | "approved" | "rejected", reason?: string | null) => {
-    const payload: any = { status, rejection_reason: status === "rejected" ? (reason || null) : null };
+    if (!user) return;
+    const payload: any = { status, rejection_reason: status === "rejected" ? (reason || null) : (status === "pending" ? (reason ?? null) : null) };
     const { error } = await supabase.from("submissions").update(payload).eq("id", id);
     if (error) {
       toast.error("Erro ao atualizar status", { description: error.message });
       return;
     }
+    // Audit log
+    const noteParts = [`status=${status}`];
+    if (payload.rejection_reason) noteParts.push(`obs="${payload.rejection_reason}"`);
+    await supabase.from("event_audit_log").insert({
+      event_id: id,
+      user_id: user.id,
+      action: `status_change:${status}`,
+      notes: noteParts.join(" | "),
+    } as any);
+
     setSubmissions((prev) => prev.map((s) => (s.id === id ? { ...s, ...payload } : s)));
     toast.success(
       status === "approved" ? "Evento aprovado!" : status === "rejected" ? "Evento reprovado." : "Marcado como pendente."
     );
-  }, []);
+  }, [user]);
 
   return (
     <SubmissionContext.Provider
