@@ -177,8 +177,8 @@ export default function Landing() {
               Agenda cultural · Ilha do Governador
             </div>
 
-            <h1 className="mt-5 sm:mt-6 text-[clamp(1.75rem,5vw,3rem)] font-semibold tracking-tight leading-[1.1] text-foreground text-balance">
-              Coé a Boa<span className="text-primary">?</span>
+            <h1 className="mt-5 sm:mt-6 font-display text-[clamp(2.25rem,6.5vw,4rem)] font-normal tracking-tightest leading-[0.95] text-foreground text-balance">
+              Coé a Boa<em className="text-primary not-italic">?</em>
             </h1>
             <p className="mt-3 text-sm sm:text-base text-foreground/65 max-w-md leading-relaxed">
               A agenda cultural da Ilha do Governador. Eventos, divulgação
@@ -210,8 +210,8 @@ export default function Landing() {
       <section id="oferecemos" className="py-20 sm:py-28 bg-background">
         <div className="mx-auto max-w-5xl px-6 text-center reveal">
           <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-emerald-700">O que oferecemos</p>
-          <h2 className="mt-4 text-2xl sm:text-4xl font-semibold tracking-tight leading-tight text-balance max-w-2xl mx-auto">
-            Uma plataforma feita para a cultura local
+          <h2 className="mt-4 font-display text-3xl sm:text-5xl font-normal tracking-tight leading-[1.05] text-balance max-w-2xl mx-auto">
+            Uma plataforma feita para a <em className="text-foreground/70">cultura local</em>
           </h2>
           <p className="mt-5 text-foreground/65 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
             Da curadoria à divulgação: tudo o que você precisa para promover eventos
@@ -225,8 +225,8 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-10 sm:mb-14 reveal px-6 max-w-2xl mx-auto">
             <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-sky-700">Ecossistema</p>
-            <h2 className="mt-4 text-2xl sm:text-4xl font-semibold tracking-tight leading-tight">
-              Pessoas, eventos e tecnologia em harmonia
+            <h2 className="mt-4 font-display text-3xl sm:text-5xl font-normal tracking-tight leading-[1.05]">
+              Pessoas, eventos e tecnologia <em className="text-foreground/70">em harmonia</em>
             </h2>
             <p className="md:hidden mt-3 text-xs text-foreground/55">Deslize para o lado →</p>
           </div>
@@ -275,8 +275,8 @@ export default function Landing() {
         <div className="mx-auto max-w-5xl px-6">
           <div className="text-center mb-12 sm:mb-14 reveal max-w-xl mx-auto">
             <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-slate-600">Nossos diferenciais</p>
-            <h2 className="mt-4 text-2xl sm:text-4xl font-semibold tracking-tight">
-              Por que escolher o Coé a Boa<span className="text-primary">?</span>
+            <h2 className="mt-4 font-display text-3xl sm:text-5xl font-normal tracking-tight">
+              Por que escolher o <em className="text-foreground/70">Coé a Boa<span className="not-italic text-primary">?</span></em>
             </h2>
           </div>
 
@@ -308,8 +308,8 @@ export default function Landing() {
             <div className="relative flex flex-col lg:flex-row items-start lg:items-end gap-8 justify-between">
               <div className="max-w-xl">
                 <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-white/65">Agenda Cultural</p>
-                <h3 className="mt-4 text-2xl sm:text-4xl font-semibold tracking-tight leading-[1.1] text-balance">
-                  Exporte. Compartilhe. <span className="text-white/75">Divulgue.</span>
+                <h3 className="mt-4 font-display text-3xl sm:text-5xl font-normal tracking-tight leading-[1.0] text-balance">
+                  Exporte. Compartilhe. <em className="text-white/75">Divulgue.</em>
                 </h3>
                 <p className="mt-4 text-white/70 text-sm sm:text-base leading-relaxed max-w-md">
                   Gere a Agenda Cultural em PDF ou crie uma landing page para divulgar
@@ -338,8 +338,8 @@ export default function Landing() {
       <section id="contato" className="py-20 sm:py-28 bg-background">
         <div className="mx-auto max-w-2xl px-6 text-center reveal">
           <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-emerald-700">Fale com o atendente</p>
-          <h3 className="mt-4 text-2xl sm:text-4xl font-semibold tracking-tight leading-tight text-balance">
-            Vamos conversar
+          <h3 className="mt-4 font-display text-3xl sm:text-5xl font-normal tracking-tight leading-[1.05] text-balance">
+            Vamos <em className="text-foreground/70">conversar</em>
           </h3>
           <p className="mt-5 text-foreground/65 text-sm sm:text-base leading-relaxed max-w-md mx-auto">
             Tem um evento, parceria ou ideia? Nossa equipe está pronta para te atender.
