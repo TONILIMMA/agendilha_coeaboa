@@ -16,7 +16,7 @@ import AgendaCultural from "./pages/AgendaCultural";
 import Eventos from "./pages/Eventos";
 import AdminCollaborators from "./pages/AdminCollaborators";
 import NotFound from "./pages/NotFound";
-import ProfileCompletionGate from "@/components/ProfileCompletionGate";
+
 import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
@@ -31,7 +31,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
   if (!user) return <Navigate to="/auth" replace />;
-  return <ProfileCompletionGate>{children}</ProfileCompletionGate>;
+  return <>{children}</>;
 }
 
 const AppRoutes = () => (
