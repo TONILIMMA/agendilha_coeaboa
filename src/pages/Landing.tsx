@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeaderUserMenu } from "@/components/HeaderUserMenu";
 import logo from "@/assets/coeaboa-logo.jpg";
 
 const sitelinks = [
@@ -105,15 +106,8 @@ export default function Landing() {
             ))}
           </ul>
 
-          <div className="hidden md:flex items-center gap-1.5">
-            <Link to="/auth">
-              <Button size="sm" variant="ghost" className="text-foreground/75 hover:text-foreground rounded-full px-4">Entrar</Button>
-            </Link>
-            <Link to="/coeaboa">
-              <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-4">
-                Ver agenda
-              </Button>
-            </Link>
+          <div className="hidden md:block">
+            <HeaderUserMenu variant="desktop" />
           </div>
 
           <button
@@ -140,13 +134,8 @@ export default function Landing() {
                   </a>
                 </li>
               ))}
-              <li className="pt-6 flex flex-col gap-2.5">
-                <Link to="/auth" onClick={() => setMobileOpen(false)}>
-                  <Button size="lg" variant="outline" className="w-full rounded-full bg-white/70">Entrar</Button>
-                </Link>
-                <Link to="/coeaboa" onClick={() => setMobileOpen(false)}>
-                  <Button size="lg" className="w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90">Ver agenda</Button>
-                </Link>
+              <li className="pt-6">
+                <HeaderUserMenu variant="mobile" onNavigate={() => setMobileOpen(false)} />
               </li>
             </ul>
           </div>
