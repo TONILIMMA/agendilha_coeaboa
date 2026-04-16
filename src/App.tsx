@@ -8,6 +8,7 @@ import { SubmissionProvider } from "@/contexts/SubmissionContext";
 import Header from "@/components/Header";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
 import AdminUsers from "./pages/AdminUsers";
 import AdminEvents from "./pages/AdminEvents";
 import CoeABoa from "./pages/CoeABoa";
@@ -38,6 +39,7 @@ const AppRoutes = () => (
     <Header />
     <Routes>
       <Route path="/auth" element={<Auth />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route
         path="/"
         element={

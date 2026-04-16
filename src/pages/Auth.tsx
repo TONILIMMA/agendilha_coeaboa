@@ -138,17 +138,12 @@ export default function Auth() {
           </div>
           {mode === "login" && (
             <div className="text-right">
-              <button
-                type="button"
-                onClick={() => {
-                  toast.info("Recuperação de senha", {
-                    description: "Entre em contato com um administrador pelo WhatsApp para redefinir sua senha.",
-                  });
-                }}
+              <a
+                href="/forgot-password"
                 className="text-xs text-primary hover:underline"
               >
                 Esqueci minha senha
-              </button>
+              </a>
             </div>
           )}
           <Button
