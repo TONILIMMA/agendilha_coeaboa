@@ -16,6 +16,7 @@ import AgendaCultural from "./pages/AgendaCultural";
 import Eventos from "./pages/Eventos";
 import AdminCollaborators from "./pages/AdminCollaborators";
 import AdminMaster from "./pages/AdminMaster";
+import Ranking from "./pages/Ranking";
 import AdminPinGate from "@/components/AdminPinGate";
 import NotFound from "./pages/NotFound";
 import Landing from "./pages/Landing";
@@ -95,6 +96,14 @@ const AppRoutes = () => (
             <AdminPinGate>
               <AdminMaster />
             </AdminPinGate>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ranking"
+        element={
+          <ProtectedRoute>
+            <Ranking />
           </ProtectedRoute>
         }
       />
