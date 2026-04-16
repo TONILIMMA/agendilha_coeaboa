@@ -65,6 +65,7 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase
       .from("submissions")
       .select("*")
+      .neq("status", "approved")
       .order("created_at", { ascending: false });
 
     if (error) {
