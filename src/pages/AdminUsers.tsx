@@ -208,14 +208,14 @@ export default function AdminUsers() {
                   className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 p-3 sm:py-3 sm:px-0 rounded-lg sm:rounded-none bg-muted/30 sm:bg-transparent"
                 >
                   <div className="min-w-0 flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <User className="h-4 w-4 text-muted-foreground shrink-0" />
                       <p className="text-sm font-medium text-foreground truncate">
                         {u.responsible_name || "Sem nome"}
                       </p>
-                      {u.is_admin && (
-                        <Badge className="bg-primary/10 text-primary border-primary/30 text-xs shrink-0">
-                          Admin
+                      {u.status && (
+                        <Badge className={`text-xs shrink-0 ${statusBadgeClass[u.status]}`}>
+                          {statusLabel[u.status]}
                         </Badge>
                       )}
                     </div>
