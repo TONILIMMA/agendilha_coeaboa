@@ -73,7 +73,7 @@ export function HeaderUserMenu({ variant = "desktop", onNavigate }: Props) {
 
   const Icon = status ? statusIcon[status] : UserIcon;
   const badgeStyle = status ? statusStyles[status] : statusStyles.user;
-  const showStatusBadge = status === "master" || status === "admin";
+  const showStatusBadge = !!status;
 
   const handleLogout = async () => {
     await signOut();
