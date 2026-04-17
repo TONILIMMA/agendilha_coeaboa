@@ -74,6 +74,31 @@ export function useUserBadge(): UserBadge {
         setStatus("user");
       }
       setStatusLoaded(true);
+
+      // Auto-popular profile.responsible_name a partir do user_metadata
+      // para usuários antigos cujo profile não tem nome salvo.
+      const metaName =
+        (user.user_metadata as any)?.full_name ||
+        (user.user_metadata as any)?.name ||
+        "";
+      if (metaName) {
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("id, responsible_name")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (cancelled) return;
+        if (existingProfile && !existingProfile.responsible_name) {
+          await supabase
+            .from("profiles")
+            .update({ responsible_name: metaName })
+            .eq("user_id", user.id);
+        } else if (!existingProfile) {
+          await supabase
+            .from("profiles")
+            .insert({ user_id: user.id, responsible_name: metaName });
+        }
+      }
     })();
 
     return () => {
