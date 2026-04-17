@@ -70,6 +70,56 @@ export default function AdminMaster() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [bootstrapping, setBootstrapping] = useState(false);
 
+  // Edit user dialog
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  function openEdit(u: AdminUser) {
+    setEditingUser(u);
+    setEditName(u.responsible_name || "");
+    setEditPhone(u.phone || "");
+  }
+
+  async function saveEdit() {
+    if (!editingUser) return;
+    if (editName.trim().length < 2) {
+      toast.error("Nome muito curto");
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Sessão expirada");
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            user_id: editingUser.id,
+            responsible_name: editName.trim(),
+            phone: editPhone.trim(),
+          }),
+        }
+      );
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || "Falha ao salvar");
+      toast.success("Usuário atualizado");
+      setEditingUser(null);
+      loadAll();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao salvar");
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
   const [period, setPeriod] = useState<Period>("month");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [ranking, setRanking] = useState<RankRow[]>([]);
