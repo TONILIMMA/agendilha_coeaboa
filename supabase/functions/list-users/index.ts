@@ -60,7 +60,9 @@ Deno.serve(async (req) => {
     // Get all roles, profiles and collaborators
     const { data: roles } = await adminClient.from("user_roles").select("*");
     const { data: profiles } = await adminClient.from("profiles").select("*");
-    const { data: collaborators } = await adminClient.from("collaborators").select("user_id, name, is_active");
+    const { data: collaborators } = await adminClient.from("collaborators").select("user_id, name, email, is_active");
+
+    const normalizeDigits = (value: string | null | undefined) => (value ?? "").replace(/\D/g, "");
 
     // Determine the master user (formal master OR fallback: oldest admin)
     const masterRow = roles?.find((r) => r.role === "master");
@@ -73,8 +75,25 @@ Deno.serve(async (req) => {
     }
 
     const usersWithRoles = users.map((u) => {
-      const profile = profiles?.find((p) => p.user_id === u.id);
-      const collab = collaborators?.find((c) => c.user_id === u.id);
+      const emailLocal = u.email?.split("@")[0] || "";
+      const isPhonePlaceholder = u.email?.endsWith("@phone.agendilha.app");
+      const placeholderDigits = isPhonePlaceholder ? normalizeDigits(emailLocal) : "";
+      const meta = (u.user_metadata || {}) as Record<string, unknown>;
+
+      const profile = profiles?.find((p) => {
+        if (p.user_id === u.id) return true;
+        if (!placeholderDigits) return false;
+        const profileDigits = normalizeDigits(p.phone);
+        return !!profileDigits && (profileDigits === placeholderDigits || profileDigits === `55${placeholderDigits}` || `55${profileDigits}` === placeholderDigits);
+      });
+
+      const collab = collaborators?.find((c) => {
+        if (c.user_id === u.id) return true;
+        if (u.email && c.email === u.email) return true;
+        if (!placeholderDigits) return false;
+        return normalizeDigits(c.email) === placeholderDigits;
+      });
+
       const isAdminRole = roles?.some((r) => r.user_id === u.id && r.role === "admin") ?? false;
       const isMasterRole = roles?.some((r) => r.user_id === u.id && r.role === "master") ?? false;
       const isMaster = isMasterRole || u.id === masterUserId;
@@ -85,17 +104,14 @@ Deno.serve(async (req) => {
       else if (collab && collab.is_active !== false) status = "collaborator";
       else status = "user";
 
-      const meta = (u.user_metadata || {}) as Record<string, unknown>;
-      const emailLocal = u.email?.split("@")[0] || "";
-      const isPhonePlaceholder = u.email?.endsWith("@phone.agendilha.app");
       const pickFirstText = (...values: unknown[]) =>
         values.find((value): value is string => typeof value === "string" && value.trim().length > 0) ?? null;
 
       const responsible_name = pickFirstText(
         profile?.responsible_name,
+        collab?.name,
         meta.full_name,
         meta.name,
-        collab?.name,
         profile?.company_name,
         isPhonePlaceholder ? null : emailLocal,
       );
