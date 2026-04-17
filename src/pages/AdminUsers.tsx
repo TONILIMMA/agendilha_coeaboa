@@ -19,14 +19,32 @@ import {
 import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+type UserStatus = "master" | "admin" | "collaborator" | "user";
+
 interface UserWithRole {
   id: string;
   email: string;
   created_at: string;
   is_admin: boolean;
+  is_master?: boolean;
+  status?: UserStatus;
   responsible_name: string | null;
   phone: string | null;
 }
+
+const statusLabel: Record<UserStatus, string> = {
+  master: "Admin Master",
+  admin: "Admin",
+  collaborator: "Divulgador",
+  user: "Divulgador",
+};
+
+const statusBadgeClass: Record<UserStatus, string> = {
+  master: "bg-secondary/15 text-secondary border-secondary/40",
+  admin: "bg-primary/10 text-primary border-primary/30",
+  collaborator: "bg-muted text-foreground/80 border-border",
+  user: "bg-muted text-foreground/80 border-border",
+};
 
 function formatPhone(phone: string | null): string {
   if (!phone) return "—";
