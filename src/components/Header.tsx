@@ -126,25 +126,8 @@ export default function Header() {
 
           {/* Right actions */}
           {user && (() => {
-            // Compute a display name with sensible fallbacks
-            const meta = (user.user_metadata || {}) as Record<string, any>;
-            const isPhoneEmail = user.email?.endsWith("@phone.agendilha.app");
-            const emailLocal = user.email?.split("@")[0] || "";
-            const phoneDigits = (profile.phone || meta.phone || (isPhoneEmail ? emailLocal : "")).replace(/\D/g, "");
-            const phonePretty = phoneDigits
-              ? phoneDigits.length >= 10
-                ? `(${phoneDigits.slice(-11, -9)}) ${phoneDigits.slice(-9, -4)}-${phoneDigits.slice(-4)}`
-                : phoneDigits
-              : "";
-
-            const fullName =
-              profile.responsible_name?.trim() ||
-              profile.company_name?.trim() ||
-              meta.full_name?.trim() ||
-              meta.name?.trim() ||
-              (!isPhoneEmail && user.email ? emailLocal : "") ||
-              phonePretty ||
-              "Divulgador";
+            // Use centralized name resolution from useUserBadge (profile → company → collaborator → metadata → email/phone)
+            const fullName = badgeName && badgeName !== "Usuário" ? badgeName : "Divulgador";
             const firstName = fullName.split(" ")[0];
             const roleLabel = isMaster
               ? "Admin Master"
