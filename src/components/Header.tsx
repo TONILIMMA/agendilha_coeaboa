@@ -89,7 +89,7 @@ export default function Header() {
   const { user, signOut, isAdmin } = useAuth();
   const { profile } = useProfile();
   const perms = usePermissions();
-  const { status } = useUserBadge();
+  const { status, name: badgeName } = useUserBadge();
   const isMaster = status === "master";
   const navigate = useNavigate();
   const currentDate = useCurrentDate();
