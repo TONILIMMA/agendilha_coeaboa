@@ -57,19 +57,62 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get all roles and profiles
+    // Get all roles, profiles and collaborators
     const { data: roles } = await adminClient.from("user_roles").select("*");
     const { data: profiles } = await adminClient.from("profiles").select("*");
+    const { data: collaborators } = await adminClient.from("collaborators").select("user_id, name, is_active");
+
+    // Determine the master user (formal master OR fallback: oldest admin)
+    const masterRow = roles?.find((r) => r.role === "master");
+    let masterUserId: string | null = masterRow?.user_id ?? null;
+    if (!masterUserId) {
+      const adminRoles = (roles ?? [])
+        .filter((r) => r.role === "admin")
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      masterUserId = adminRoles[0]?.user_id ?? null;
+    }
 
     const usersWithRoles = users.map((u) => {
       const profile = profiles?.find((p) => p.user_id === u.id);
+      const collab = collaborators?.find((c) => c.user_id === u.id);
+      const isAdminRole = roles?.some((r) => r.user_id === u.id && r.role === "admin") ?? false;
+      const isMasterRole = roles?.some((r) => r.user_id === u.id && r.role === "master") ?? false;
+      const isMaster = isMasterRole || u.id === masterUserId;
+
+      let status: "master" | "admin" | "collaborator" | "user";
+      if (isMaster) status = "master";
+      else if (isAdminRole) status = "admin";
+      else if (collab && collab.is_active !== false) status = "collaborator";
+      else status = "user";
+
+      const meta = (u.user_metadata || {}) as Record<string, any>;
+      const emailLocal = u.email?.split("@")[0] || "";
+      const isPhonePlaceholder = u.email?.endsWith("@phone.agendilha.app");
+
+      const responsible_name =
+        profile?.responsible_name ||
+        profile?.company_name ||
+        collab?.name ||
+        meta.full_name ||
+        meta.name ||
+        (isPhonePlaceholder ? null : emailLocal) ||
+        null;
+
+      const phone =
+        profile?.phone ||
+        meta.phone ||
+        (isPhonePlaceholder ? emailLocal : null) ||
+        null;
+
       return {
         id: u.id,
         email: u.email,
         created_at: u.created_at,
-        is_admin: roles?.some((r) => r.user_id === u.id && r.role === "admin") ?? false,
-        responsible_name: profile?.responsible_name ?? null,
-        phone: profile?.phone ?? null,
+        is_admin: isAdminRole,
+        is_master: isMaster,
+        status,
+        responsible_name,
+        phone,
       };
     });
 
