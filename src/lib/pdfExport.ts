@@ -254,7 +254,47 @@ function drawEventPage(doc: jsPDF, event: EventData, isLastPage = true) {
     y = drawSectionHeader(doc, "CONTATO E RESPONSÁVEL", y);
     y = addSectionField(doc, "Empresa", event.company_name || "—", MARGIN, y, CONTENT_W, fieldOpts);
     y = addSectionField(doc, "Responsável", event.responsible_name || "—", MARGIN, y, CONTENT_W, fieldOpts);
-    y = addSectionField(doc, "WhatsApp do Divulgador", formatWhatsApp(event.phone) || "—", MARGIN, y, CONTENT_W, fieldOpts);
+
+    // WhatsApp do Divulgador (clickable with icon)
+    const phoneFormatted = formatWhatsApp(event.phone);
+    if (phoneFormatted) {
+      const labelSize = fieldOpts.labelSize ?? 9;
+      const valueSize = fieldOpts.valueSize ?? 11;
+      const lineHeight = fieldOpts.lineHeight ?? 5.5;
+      const gap = fieldOpts.gap ?? 5;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(labelSize);
+      doc.setTextColor(...MEDIUM_TEXT);
+      doc.text("WHATSAPP DO DIVULGADOR", MARGIN, y);
+      y += labelSize * 0.55;
+
+      // WhatsApp green circle icon
+      const iconX = MARGIN + 2;
+      const iconY = y + 1;
+      const iconR = 2.2;
+      doc.setFillColor(37, 211, 102); // WhatsApp green
+      doc.circle(iconX, iconY, iconR, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(3.2);
+      doc.text("W", iconX, iconY + 1, { align: "center" });
+
+      // Clickable phone text
+      const digits = (event.phone || "").replace(/\D/g, "");
+      const waUrl = digits ? `https://wa.me/${digits.length <= 11 ? "55" + digits : digits}` : "";
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(valueSize);
+      doc.setTextColor(37, 211, 102);
+      const textX = iconX + iconR + 2.5;
+      if (waUrl) {
+        doc.textWithLink(phoneFormatted, textX, y + 2, { url: waUrl });
+      } else {
+        doc.text(phoneFormatted, textX, y + 2);
+      }
+      y += lineHeight + gap;
+    }
+
     y = addSectionField(doc, "E-mail", event.email || "—", MARGIN, y, CONTENT_W, fieldOpts);
     if (event.contact_social) {
       y = addSectionField(doc, "Redes Sociais", event.contact_social, MARGIN, y, CONTENT_W, fieldOpts);
