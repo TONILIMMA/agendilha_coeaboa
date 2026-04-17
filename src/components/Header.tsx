@@ -188,7 +188,7 @@ export default function Header() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8 px-1.5 gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:bg-accent/10"
+                    className="h-8 px-2 gap-1.5 text-xs sm:text-sm font-semibold text-primary hover:bg-primary/10 hover:text-primary"
                     aria-label={`Menu do ${roleLabel}`}
                   >
                     <div className="relative">
