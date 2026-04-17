@@ -127,13 +127,13 @@ export function HeaderUserMenu({ variant = "desktop", onNavigate }: Props) {
           <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-display text-xs font-medium">
             {initials}
           </div>
-          <div className="hidden sm:flex flex-col items-start leading-tight">
+          <div className="flex flex-col items-start leading-tight">
             <span className="font-display text-[13px] font-medium text-foreground max-w-[140px] truncate">
               {loaded ? name.split(" ")[0] : "..."}
             </span>
             {showStatusBadge && (
               <span
-                className={`mt-0.5 inline-flex items-center gap-1 px-1.5 py-0 rounded-full border font-mono text-[8px] tracking-wider uppercase ${badgeStyle}`}
+                className={`mt-0.5 hidden sm:inline-flex items-center gap-1 px-1.5 py-0 rounded-full border font-mono text-[8px] tracking-wider uppercase ${badgeStyle}`}
               >
                 <Icon className="h-2 w-2" strokeWidth={2.5} />
                 {label}
