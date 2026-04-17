@@ -68,6 +68,67 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [isMaster, setIsMaster] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("is_master", { _user_id: user.id }).then(({ data }) => {
+      setIsMaster(data === true);
+    });
+  }, [user]);
+
+  function startEdit(u: UserWithRole) {
+    setEditingId(u.id);
+    setEditName(u.responsible_name || "");
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditName("");
+  }
+
+  async function saveEdit(targetUser: UserWithRole) {
+    const trimmed = editName.trim();
+    if (trimmed.length < 2) {
+      toast.error("Nome muito curto");
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast.error("Sessão expirada.");
+        setSavingEdit(false);
+        return;
+      }
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ user_id: targetUser.id, responsible_name: trimmed }),
+        }
+      );
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err?.error || `Erro ${response.status}`);
+      }
+      toast.success("Nome atualizado");
+      cancelEdit();
+      await fetchUsers();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao atualizar nome");
+    }
+    setSavingEdit(false);
+  }
+
 
   async function fetchUsers() {
     setLoading(true);
