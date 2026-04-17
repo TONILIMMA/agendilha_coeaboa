@@ -272,13 +272,59 @@ export default function AdminUsers() {
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <User className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {u.responsible_name || "Sem nome"}
-                      </p>
-                      {u.status && (
-                        <Badge className={`text-xs shrink-0 ${statusBadgeClass[u.status]}`}>
-                          {statusLabel[u.status]}
-                        </Badge>
+                      {editingId === u.id ? (
+                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                          <Input
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            placeholder="Nome do usuário"
+                            className="h-8 text-sm"
+                            autoFocus
+                            disabled={savingEdit}
+                          />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-primary"
+                            disabled={savingEdit}
+                            onClick={() => saveEdit(u)}
+                            aria-label="Salvar nome"
+                          >
+                            {savingEdit ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-4 w-4" />}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-muted-foreground"
+                            disabled={savingEdit}
+                            onClick={cancelEdit}
+                            aria-label="Cancelar edição"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {u.responsible_name || "Sem nome"}
+                          </p>
+                          {isMaster && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                              onClick={() => startEdit(u)}
+                              aria-label="Editar nome"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                          {u.status && (
+                            <Badge className={`text-xs shrink-0 ${statusBadgeClass[u.status]}`}>
+                              {statusLabel[u.status]}
+                            </Badge>
+                          )}
+                        </>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
