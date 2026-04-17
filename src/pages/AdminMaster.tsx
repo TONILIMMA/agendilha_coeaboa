@@ -515,21 +515,42 @@ export default function AdminMaster() {
             {/* Promote a non-admin */}
             <div className="pt-4 border-t border-white/60">
               <div className="text-xs uppercase tracking-wider text-muted-foreground font-mono mb-2">
-                Promover usuário a Admin
+                Promover usuário a Admin / Editar
               </div>
-              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+              <div className="space-y-1.5 max-h-64 overflow-y-auto">
                 {allUsers.filter((u) => !u.is_admin && !u.is_master).map((u) => (
-                  <Button
+                  <div
                     key={u.id}
-                    size="sm"
-                    variant="outline"
-                    disabled={busyId === u.id}
-                    onClick={() => promoteToAdmin(u.id)}
-                    className="rounded-full"
+                    className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white/40 border border-white/50"
                   >
-                    <ShieldPlus className="h-3.5 w-3.5 mr-1" />
-                    {u.responsible_name || u.email}
-                  </Button>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-foreground truncate">
+                        {u.responsible_name || "Sem nome"}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {u.phone || u.email}
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => openEdit(u)}
+                        className="h-8 px-2"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={busyId === u.id}
+                        onClick={() => promoteToAdmin(u.id)}
+                        className="h-8"
+                      >
+                        <ShieldPlus className="h-3.5 w-3.5 mr-1" /> Admin
+                      </Button>
+                    </div>
+                  </div>
                 ))}
                 {allUsers.filter((u) => !u.is_admin && !u.is_master).length === 0 && (
                   <p className="text-sm text-muted-foreground">Sem usuários elegíveis.</p>
