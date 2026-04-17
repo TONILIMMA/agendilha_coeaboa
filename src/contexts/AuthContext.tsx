@@ -79,14 +79,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (phone: string, password: string, name?: string) => {
+    const cleanName = name?.trim();
+    const digits = phone.replace(/\D/g, "");
+    const fullPhone = digits.startsWith("55") ? `+${digits}` : `+55${digits}`;
     const fakeEmail = formatPhoneToEmail(phone);
-    const { data, error } = await supabase.auth.signUp({ email: fakeEmail, password });
-    if (!error && data.user && name) {
-      const digits = phone.replace(/\D/g, "");
-      const fullPhone = digits.startsWith("55") ? `+${digits}` : `+55${digits}`;
-      await supabase.from("profiles").update({ responsible_name: name, phone: fullPhone }).eq("user_id", data.user.id);
+
+    const { data, error } = await supabase.auth.signUp({
+      email: fakeEmail,
+      password,
+      options: {
+        data: {
+          name: cleanName ?? null,
+          full_name: cleanName ?? null,
+          phone: fullPhone,
+        },
+      },
+    });
+
+    if (error || !data.user || !cleanName) {
+      return { error: error as Error | null };
     }
-    return { error: error as Error | null };
+
+    const profilePayload = {
+      responsible_name: cleanName,
+      phone: fullPhone,
+    };
+
+    const { data: existingProfile, error: profileLookupError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    if (profileLookupError) {
+      return { error: profileLookupError as Error };
+    }
+
+    const profileRequest = existingProfile
+      ? supabase.from("profiles").update(profilePayload).eq("user_id", data.user.id)
+      : supabase.from("profiles").insert({ user_id: data.user.id, ...profilePayload });
+
+    const { error: profileError } = await profileRequest;
+    return { error: (profileError ?? error) as Error | null };
   };
 
   const signIn = async (phone: string, password: string) => {
