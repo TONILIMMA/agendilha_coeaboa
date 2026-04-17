@@ -246,6 +246,44 @@ function drawEventPage(doc: jsPDF, event: EventData, isLastPage = true) {
     y = addSectionField(doc, "Endereço", addressParts.join(", "), MARGIN, y, CONTENT_W, fieldOpts);
   }
 
+  // Uber link — clickable, uses full address (or location as fallback)
+  const uberDestination = addressParts.length
+    ? addressParts.join(", ")
+    : event.location || "";
+  if (uberDestination) {
+    const labelSize = fieldOpts.labelSize ?? 9;
+    const valueSize = fieldOpts.valueSize ?? 11;
+    const lineHeight = fieldOpts.lineHeight ?? 5.5;
+    const gap = fieldOpts.gap ?? 5;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(labelSize);
+    doc.setTextColor(...MEDIUM_TEXT);
+    doc.text("COMO CHEGAR", MARGIN, y);
+    y += labelSize * 0.55;
+
+    // Black Uber pill icon
+    const iconX = MARGIN + 2;
+    const iconY = y + 0.3;
+    const pillW = 9;
+    const pillH = 4.2;
+    doc.setFillColor(0, 0, 0);
+    doc.roundedRect(iconX - 1, iconY - 1, pillW, pillH, 1, 1, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6);
+    doc.text("Uber", iconX + pillW / 2 - 1, iconY + 1.9, { align: "center" });
+
+    // Clickable link
+    const uberUrl = `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]=${encodeURIComponent(uberDestination)}`;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(valueSize);
+    doc.setTextColor(0, 0, 0);
+    const textX = iconX + pillW + 2;
+    doc.textWithLink("Ir de Uber até o evento", textX, y + 2, { url: uberUrl });
+    y += lineHeight + gap;
+  }
+
   y = addSectionField(doc, "Descrição", event.description || "—", MARGIN, y, CONTENT_W, fieldOpts);
   y += compact ? 1 : 2;
 
