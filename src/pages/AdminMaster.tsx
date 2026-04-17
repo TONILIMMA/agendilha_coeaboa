@@ -29,6 +29,7 @@ interface AdminUser {
   id: string;
   email: string;
   responsible_name: string | null;
+  phone: string | null;
   is_admin: boolean;
   is_master: boolean;
 }
