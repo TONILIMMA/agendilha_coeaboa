@@ -102,8 +102,8 @@ export function useUserBadge(): UserBadge {
   const labelMap: Record<NonNullable<UserStatus>, string> = {
     master: "Admin Master",
     admin: "Admin",
-    collaborator: "Colaborador",
-    user: "Usuário",
+    collaborator: "Divulgador",
+    user: "Divulgador",
   };
   const label = status ? labelMap[status] : "";
 
