@@ -85,24 +85,26 @@ Deno.serve(async (req) => {
       else if (collab && collab.is_active !== false) status = "collaborator";
       else status = "user";
 
-      const meta = (u.user_metadata || {}) as Record<string, any>;
+      const meta = (u.user_metadata || {}) as Record<string, unknown>;
       const emailLocal = u.email?.split("@")[0] || "";
       const isPhonePlaceholder = u.email?.endsWith("@phone.agendilha.app");
+      const pickFirstText = (...values: unknown[]) =>
+        values.find((value): value is string => typeof value === "string" && value.trim().length > 0) ?? null;
 
-      const responsible_name =
-        profile?.responsible_name ||
-        profile?.company_name ||
-        collab?.name ||
-        meta.full_name ||
-        meta.name ||
-        (isPhonePlaceholder ? null : emailLocal) ||
-        null;
+      const responsible_name = pickFirstText(
+        profile?.responsible_name,
+        meta.full_name,
+        meta.name,
+        collab?.name,
+        profile?.company_name,
+        isPhonePlaceholder ? null : emailLocal,
+      );
 
-      const phone =
-        profile?.phone ||
-        meta.phone ||
-        (isPhonePlaceholder ? emailLocal : null) ||
-        null;
+      const phone = pickFirstText(
+        profile?.phone,
+        meta.phone,
+        isPhonePlaceholder ? emailLocal : null,
+      );
 
       return {
         id: u.id,
