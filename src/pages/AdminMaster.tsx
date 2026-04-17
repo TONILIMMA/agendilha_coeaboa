@@ -8,6 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Crown,
   Shield,
@@ -18,6 +21,7 @@ import {
   ShieldOff,
   Trophy,
   UserPlus,
+  Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,6 +29,7 @@ interface AdminUser {
   id: string;
   email: string;
   responsible_name: string | null;
+  phone: string | null;
   is_admin: boolean;
   is_master: boolean;
 }
@@ -65,6 +70,56 @@ export default function AdminMaster() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [bootstrapping, setBootstrapping] = useState(false);
 
+  // Edit user dialog
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  function openEdit(u: AdminUser) {
+    setEditingUser(u);
+    setEditName(u.responsible_name || "");
+    setEditPhone(u.phone || "");
+  }
+
+  async function saveEdit() {
+    if (!editingUser) return;
+    if (editName.trim().length < 2) {
+      toast.error("Nome muito curto");
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Sessão expirada");
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            user_id: editingUser.id,
+            responsible_name: editName.trim(),
+            phone: editPhone.trim(),
+          }),
+        }
+      );
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || "Falha ao salvar");
+      toast.success("Usuário atualizado");
+      setEditingUser(null);
+      loadAll();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao salvar");
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
   const [period, setPeriod] = useState<Period>("month");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [ranking, setRanking] = useState<RankRow[]>([]);
@@ -104,6 +159,7 @@ export default function AdminMaster() {
         id: string;
         email: string;
         responsible_name: string | null;
+        phone: string | null;
         is_admin: boolean;
       }> = await res.json();
 
@@ -413,6 +469,13 @@ export default function AdminMaster() {
                       <div className="text-xs text-muted-foreground truncate">{u.email}</div>
                     </div>
                     <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openEdit(u)}
+                      >
+                        <Pencil className="h-3.5 w-3.5 mr-1" /> Editar
+                      </Button>
                       {!u.is_master && (
                         <Button
                           size="sm"
@@ -452,21 +515,42 @@ export default function AdminMaster() {
             {/* Promote a non-admin */}
             <div className="pt-4 border-t border-white/60">
               <div className="text-xs uppercase tracking-wider text-muted-foreground font-mono mb-2">
-                Promover usuário a Admin
+                Promover usuário a Admin / Editar
               </div>
-              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+              <div className="space-y-1.5 max-h-64 overflow-y-auto">
                 {allUsers.filter((u) => !u.is_admin && !u.is_master).map((u) => (
-                  <Button
+                  <div
                     key={u.id}
-                    size="sm"
-                    variant="outline"
-                    disabled={busyId === u.id}
-                    onClick={() => promoteToAdmin(u.id)}
-                    className="rounded-full"
+                    className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white/40 border border-white/50"
                   >
-                    <ShieldPlus className="h-3.5 w-3.5 mr-1" />
-                    {u.responsible_name || u.email}
-                  </Button>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-foreground truncate">
+                        {u.responsible_name || "Sem nome"}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {u.phone || u.email}
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => openEdit(u)}
+                        className="h-8 px-2"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={busyId === u.id}
+                        onClick={() => promoteToAdmin(u.id)}
+                        className="h-8"
+                      >
+                        <ShieldPlus className="h-3.5 w-3.5 mr-1" /> Admin
+                      </Button>
+                    </div>
+                  </div>
                 ))}
                 {allUsers.filter((u) => !u.is_admin && !u.is_master).length === 0 && (
                   <p className="text-sm text-muted-foreground">Sem usuários elegíveis.</p>
@@ -553,6 +637,47 @@ export default function AdminMaster() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit user dialog */}
+      <Dialog open={!!editingUser} onOpenChange={(o) => !o && setEditingUser(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar usuário</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Nome completo</Label>
+              <Input
+                id="edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Nome do usuário"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">WhatsApp</Label>
+              <Input
+                id="edit-phone"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="(21) 98765-4321"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              E-mail/login: <span className="font-mono">{editingUser?.email}</span>
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditingUser(null)} disabled={savingEdit}>
+              Cancelar
+            </Button>
+            <Button onClick={saveEdit} disabled={savingEdit}>
+              {savingEdit && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
