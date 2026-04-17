@@ -469,6 +469,13 @@ export default function AdminMaster() {
                       <div className="text-xs text-muted-foreground truncate">{u.email}</div>
                     </div>
                     <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openEdit(u)}
+                      >
+                        <Pencil className="h-3.5 w-3.5 mr-1" /> Editar
+                      </Button>
                       {!u.is_master && (
                         <Button
                           size="sm"
