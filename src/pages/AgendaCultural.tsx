@@ -82,17 +82,35 @@ function buildFullAddress(ev: Event): string {
   return parts.join(" – ");
 }
 
-function buildWhatsAppShare(ev: Event, isAgenda = false) {
-  const agendaUrl = `${window.location.origin}/agenda`;
+const getShareUrl = (eventId?: string) => {
+  const base = `${window.location.origin}/agenda`;
+  return eventId ? `${base}?event=${eventId}` : base;
+};
+
+const getShareData = (ev?: Event) => {
+  const isAgenda = !ev;
+  const title = isAgenda ? "Agenda Cultural da Ilha" : `Evento: ${ev.event_title}`;
+  const url = getShareUrl(ev?.id);
   
-  if (isAgenda) {
-    const msg = `🌴 *Confira a Agenda Cultural da Ilha do Governador!* 🌴\n\nVeja a programação completa e atualizada em:\n${agendaUrl}`;
-    return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  let text = isAgenda 
+    ? "Confira a programação completa da Ilha do Governador!" 
+    : `Confira este evento e a agenda completa no AgendIlha!`;
+
+  if (ev) {
+    const time = ev.start_time ? `${ev.start_time}` : "";
+    const addr = buildFullAddress(ev);
+    const eventDetails = `🗓️ *${ev.event_title}*${time ? `\n⏰ ${time}` : ""}${addr ? `\n📍 ${addr}` : ""}`;
+    text = `${eventDetails}\n\n🌴 Veja os detalhes no AgendIlha:`;
+  } else {
+    text = `🌴 *Confira a Agenda Cultural da Ilha do Governador!* 🌴\n\nVeja a programação completa e atualizada em:`;
   }
-  
-  const time = ev.start_time ? `${ev.start_time}` : "";
-  const addr = buildFullAddress(ev);
-  const msg = `🗓️ *${ev.event_title}*\n${time ? `⏰ ${time}\n` : ""}${addr ? `📍 ${addr}\n` : ""}\n🌴 Veja os detalhes no AgendIlha:\n${agendaUrl}?event=${ev.id}`;
+
+  return { title, text, url };
+};
+
+function buildWhatsAppShare(ev?: Event) {
+  const { text, url } = getShareData(ev);
+  const msg = `${text}\n${url}`;
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
