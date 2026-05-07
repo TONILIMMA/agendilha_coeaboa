@@ -45,14 +45,15 @@ const AppRoutes = () => (
       <Route path="/auth" element={<Auth />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/lp" element={<Landing />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Index />
-          </ProtectedRoute>
-        }
-      />
+       <Route path="/" element={<Landing />} />
+       <Route
+         path="/enviar-evento"
+         element={
+           <ProtectedRoute>
+             <Index />
+           </ProtectedRoute>
+         }
+       />
       <Route
         path="/admin/users"
         element={
