@@ -760,9 +760,9 @@ function buildUberLink(ev: Event): string {
                   </div>
                 </div>
 
-                {/* Footer - Fixed at bottom */}
-                <div className="p-8 sm:p-12 bg-card/70 dark:bg-card/90 backdrop-blur-xl border-t border-border/50 dark:border-border/10 shrink-0">
-                  <div className="flex flex-col gap-8">
+                 {/* Footer - Fixed at bottom */}
+                 <div className="p-6 sm:p-10 lg:p-12 bg-card/70 backdrop-blur-xl border-t border-border/50 shrink-0">
+                   <div className="flex flex-col gap-6 sm:gap-8">
                     <div className="flex flex-col gap-4">
                       <div className="flex flex-col sm:flex-row gap-4 w-full">
                         <Button 
