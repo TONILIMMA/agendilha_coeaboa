@@ -286,15 +286,15 @@ export default function Landing() {
                   via WhatsApp, redes sociais ou imprensa.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3 shrink-0">
-                 <Link to="/agenda">
-                  <Button className="rounded-full h-12 px-8 bg-white text-primary hover:bg-white/95 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-black shadow-lg border-2 border-white">
-                    <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
+              <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full lg:w-auto">
+                 <Link to="/agenda" className="w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto rounded-full h-12 px-8 bg-white text-primary hover:bg-white/95 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-black shadow-lg border-2 border-white">
+                    Abrir agenda
                   </Button>
                 </Link>
-                <Link to="/agenda">
-                  <Button variant="outline" className="rounded-full h-12 px-8 bg-transparent border-white text-white hover:bg-white/10 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-black border-2">
-                    Ver agenda completa
+                <Link to="/agenda" className="w-full sm:w-auto">
+                  <Button variant="outline" className="w-full sm:w-auto rounded-full h-12 px-8 bg-transparent border-white text-white hover:bg-white/10 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-black border-2">
+                    <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
                   </Button>
                 </Link>
               </div>
