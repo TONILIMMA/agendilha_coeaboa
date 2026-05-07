@@ -466,6 +466,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_shares: { Args: { event_id: string }; Returns: undefined }
+      increment_views: { Args: { event_id: string }; Returns: undefined }
       is_master: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
