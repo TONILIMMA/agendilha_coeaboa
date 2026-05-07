@@ -191,30 +191,32 @@ export default function AdminEvents() {
   return (
     <div className="min-h-screen bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* Header Area */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <LayoutDashboard className="h-8 w-8 text-primary" />
-              Gestão de Eventos
-            </h1>
-            <p className="text-muted-foreground mt-1 text-lg">Área operacional para moderação e distribuição de eventos.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
-            <Button variant="outline" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
-            <Button 
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => {
-                const approved = submissions.filter(s => s.status === 'approved');
-                if (approved.length === 0) return toast.warning("Sem eventos aprovados.");
-                window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
-              }}
-            >
-              <Send className="h-4 w-4 mr-2" /> Divulgação WhatsApp
-            </Button>
-          </div>
-        </div>
+         {/* Header Area */}
+         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+           <div className="space-y-1">
+             <div className="flex items-center gap-2 text-primary">
+               <LayoutDashboard className="h-5 w-5" />
+               <span className="text-xs font-black uppercase tracking-[0.2em]">Backoffice</span>
+             </div>
+             <h1 className="text-4xl font-black tracking-tight text-foreground">Gestão de Eventos</h1>
+             <p className="text-muted-foreground text-base">Moderação, curadoria e distribuição da agenda hiperlocal.</p>
+           </div>
+           <div className="flex flex-wrap gap-3">
+             <Button variant="outline" size="sm" className="h-10 font-bold border-border hover:bg-muted" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
+             <Button variant="outline" size="sm" className="h-10 font-bold border-border hover:bg-muted" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
+             <Button 
+               size="sm"
+               className="h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
+               onClick={() => {
+                 const approved = submissions.filter(s => s.status === 'approved' || s.status === 'published');
+                 if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
+                 window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
+               }}
+             >
+               <MessageCircle className="h-4 w-4 mr-2" /> Divulgação WhatsApp
+             </Button>
+           </div>
+         </div>
 
          {/* KPIs */}
          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
