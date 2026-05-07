@@ -280,22 +280,11 @@ function buildUberLink(ev: Event): string {
    , [grouped, sortOrder]);
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-300">
+    <div className="min-h-screen bg-background">
 
       <main className="mx-auto max-w-4xl px-4 py-8">
          {/* Topo da Página */}
          <div className="mb-16 text-center space-y-8 relative">
-             <div className="absolute top-0 right-0">
-               <Button
-                 variant="ghost"
-                 size="icon"
-                 onClick={toggleTheme}
-                 className="rounded-full h-12 w-12 hover:bg-muted/50 transition-colors"
-                 aria-label={theme === "light" ? "Mudar para modo escuro" : "Mudar para modo claro"}
-               >
-                 {theme === "light" ? <Moon className="h-6 w-6 text-primary" /> : <Sun className="h-6 w-6 text-primary" />}
-               </Button>
-             </div>
             <div className="flex flex-col items-center gap-6">
               <div className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-secondary/15 border border-secondary/30 mb-2 shadow-sm">
                 <span className="text-[11px] font-black uppercase tracking-[0.3em] text-secondary-foreground">Coé a Boa? apresenta:</span>
@@ -568,7 +557,7 @@ function buildUberLink(ev: Event): string {
                                 <div className="space-y-4 flex-1 min-w-0">
                                   <div className="flex flex-wrap items-center gap-3">
                                     <span className="text-4xl drop-shadow-sm">{icon}</span>
-                                    <Badge variant="secondary" className="bg-secondary/10 dark:bg-secondary/20 text-secondary-foreground dark:text-secondary text-xs font-black uppercase tracking-widest border-secondary/20 px-4 py-1.5 rounded-full">
+                                    <Badge variant="secondary" className="bg-secondary/10 text-secondary-foreground text-xs font-black uppercase tracking-widest border-secondary/20 px-4 py-1.5 rounded-full">
                                       {categoryLabels[ev.category!] || ev.category}
                                     </Badge>
                                   </div>
@@ -588,12 +577,12 @@ function buildUberLink(ev: Event): string {
                               </div>
 
                                <div className="flex items-start gap-3 sm:gap-4 text-sm sm:text-base lg:text-lg text-muted-foreground bg-muted/30 p-4 sm:p-5 rounded-2xl border border-border/40">
-                                <MapPin className="h-6 w-6 text-primary/70 dark:text-primary/60 shrink-0 mt-0.5" />
+                                <MapPin className="h-6 w-6 text-primary/70 shrink-0 mt-0.5" />
                                 <span className="font-semibold leading-snug">{buildFullAddress(ev)}</span>
                               </div>
 
                               {ev.description && (
-                                <p className="text-muted-foreground dark:text-muted-foreground/70 line-clamp-3 leading-relaxed text-lg font-medium max-w-2xl">
+                                <p className="text-muted-foreground line-clamp-3 leading-relaxed text-lg font-medium max-w-2xl">
                                   {ev.description}
                                 </p>
                               )}
@@ -614,7 +603,7 @@ function buildUberLink(ev: Event): string {
                                 <Button 
                                   size="lg" 
                                   variant="outline" 
-                                  className="rounded-full h-14 sm:h-16 px-8 font-bold text-primary dark:text-primary border-2 border-primary/20 dark:border-primary/30 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-foreground active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none uppercase text-sm tracking-widest" 
+                                  className="rounded-full h-14 sm:h-16 px-8 font-bold text-primary border-2 border-primary/20 hover:bg-primary hover:text-white active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none uppercase text-sm tracking-widest" 
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);
@@ -627,7 +616,7 @@ function buildUberLink(ev: Event): string {
                                 <Button 
                                   size="lg" 
                                   variant="ghost" 
-                                  className="rounded-full h-14 sm:h-16 px-8 font-bold text-muted-foreground/60 dark:text-muted-foreground/40 hover:text-primary transition-all active:scale-95 uppercase text-sm tracking-widest" 
+                                  className="rounded-full h-14 sm:h-16 px-8 font-bold text-muted-foreground/60 hover:text-primary transition-all active:scale-95 uppercase text-sm tracking-widest" 
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     const addr = buildFullAddress(ev);
@@ -650,21 +639,21 @@ function buildUberLink(ev: Event): string {
         )}
       </main>
 
-        <footer className="mt-32 py-24 border-t border-border/40 dark:border-border/10 text-center bg-card/30 dark:bg-card/20 backdrop-blur-sm space-y-8 rounded-t-[3rem]">
+        <footer className="mt-32 py-24 border-t border-border/40 text-center bg-card/30 backdrop-blur-sm space-y-8 rounded-t-[3rem]">
           <div className="flex flex-col items-center gap-8">
-            <div className="inline-flex items-center gap-4 px-8 py-5 rounded-[2.5rem] glass dark:bg-card/60 border border-white/20 dark:border-white/5 shadow-glass group transition-all hover:scale-105">
+            <div className="inline-flex items-center gap-4 px-8 py-5 rounded-[2.5rem] glass border border-white/20 shadow-glass group transition-all hover:scale-105">
               <img src={logoCoeABoa} alt="Coé a Boa?" className="h-12 w-12 sm:h-14 sm:w-14 rounded-full ring-2 ring-primary/20 shadow-sm group-hover:rotate-12 transition-transform" />
               <div className="flex flex-col items-start leading-none gap-1">
                 <div className="flex items-center gap-2.5">
-                  <span className="font-display text-2xl sm:text-3xl font-black text-primary dark:text-foreground tracking-tight">AgendIlha</span>
+                  <span className="font-display text-2xl sm:text-3xl font-black text-primary tracking-tight">AgendIlha</span>
                   <span className="h-2 w-2 rounded-full bg-secondary/40" />
                   <span className="font-display text-lg sm:text-xl font-bold text-secondary tracking-tight">Coé a Boa?</span>
                 </div>
-                <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/60 dark:text-muted-foreground/40">Curadoria & Tecnologia Local</p>
+                <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/60">Curadoria & Tecnologia Local</p>
               </div>
             </div>
             
-            <div className="text-[10px] sm:text-[11px] text-muted-foreground/50 dark:text-muted-foreground/30 font-mono uppercase tracking-[0.5em] py-4 border-y border-border/30 dark:border-border/10 inline-block px-10">
+            <div className="text-[10px] sm:text-[11px] text-muted-foreground/50 font-mono uppercase tracking-[0.5em] py-4 border-y border-border/30 inline-block px-10">
               © {new Date().getFullYear()} — Ilha do Governador, RJ
             </div>
           </div>
@@ -778,7 +767,7 @@ function buildUberLink(ev: Event): string {
 
                         <Button
                           variant="outline"
-                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary dark:text-primary dark:border-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none"
+                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
                           onClick={() => {
                             const data = getShareData(selectedEvent);
                             handleShare(data.title, data.text, data.url, selectedEvent.id);
@@ -799,7 +788,7 @@ function buildUberLink(ev: Event): string {
 
                         <Button 
                           variant="outline" 
-                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/20 dark:border-primary/30 text-primary bg-background hover:bg-primary hover:text-white active:scale-95 transition-all text-xs shadow-sm" 
+                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/20 text-primary bg-background hover:bg-primary hover:text-white active:scale-95 transition-all text-xs shadow-sm" 
                           onClick={() => {
                             const addr = buildFullAddress(selectedEvent);
                             window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
@@ -810,7 +799,7 @@ function buildUberLink(ev: Event): string {
                         
                         <Button 
                           variant="outline" 
-                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-black/20 dark:border-white/20 text-foreground bg-background hover:bg-foreground hover:text-background active:scale-95 transition-all text-xs shadow-sm" 
+                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-black/20 text-foreground bg-background hover:bg-foreground hover:text-background active:scale-95 transition-all text-xs shadow-sm" 
                           onClick={() => {
                             window.open(buildUberLink(selectedEvent), "_blank");
                           }}
