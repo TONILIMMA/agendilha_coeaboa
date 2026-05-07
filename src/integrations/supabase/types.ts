@@ -301,6 +301,7 @@ export type Database = {
           end_time: string | null
           event_title: string
           id: string
+          is_highlight: boolean | null
           legal_acceptance: boolean | null
           legal_acceptance_date: string | null
           location: string | null
@@ -315,6 +316,7 @@ export type Database = {
           responsible_name: string | null
           responsible_person: string | null
           sale_price: string | null
+          shares_count: number | null
           stage: string
           start_time: string | null
           status: string
@@ -322,6 +324,7 @@ export type Database = {
           target_audience: string | null
           user_id: string
           video_link: string | null
+          views_count: number | null
         }
         Insert: {
           additional_details?: string | null
@@ -348,6 +351,7 @@ export type Database = {
           end_time?: string | null
           event_title: string
           id?: string
+          is_highlight?: boolean | null
           legal_acceptance?: boolean | null
           legal_acceptance_date?: string | null
           location?: string | null
@@ -362,6 +366,7 @@ export type Database = {
           responsible_name?: string | null
           responsible_person?: string | null
           sale_price?: string | null
+          shares_count?: number | null
           stage?: string
           start_time?: string | null
           status?: string
@@ -369,6 +374,7 @@ export type Database = {
           target_audience?: string | null
           user_id: string
           video_link?: string | null
+          views_count?: number | null
         }
         Update: {
           additional_details?: string | null
@@ -395,6 +401,7 @@ export type Database = {
           end_time?: string | null
           event_title?: string
           id?: string
+          is_highlight?: boolean | null
           legal_acceptance?: boolean | null
           legal_acceptance_date?: string | null
           location?: string | null
@@ -409,6 +416,7 @@ export type Database = {
           responsible_name?: string | null
           responsible_person?: string | null
           sale_price?: string | null
+          shares_count?: number | null
           stage?: string
           start_time?: string | null
           status?: string
@@ -416,6 +424,7 @@ export type Database = {
           target_audience?: string | null
           user_id?: string
           video_link?: string | null
+          views_count?: number | null
         }
         Relationships: []
       }
