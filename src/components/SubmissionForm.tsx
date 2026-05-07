@@ -38,7 +38,7 @@ import {
    // 1. Dados Básicos do Usuário
    nickName: z.string().trim().min(1, "Nick/Nome é obrigatório").max(50),
    basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
-   userLocation: z.string().trim().min(1, "Selecione seu local"),
+    userLocation: z.string().trim().min(1, "Selecione seu Bairro/Região"),
    otherLocation: z.string().trim().optional(),
  
    // 2. Para Divulgadores
@@ -67,9 +67,9 @@ import {
     atrativoDescription: z.string().trim().max(500).optional(),
    atrativoContact: z.string().trim().optional(),
  
-   // 5. Local do Evento
-   locationName: z.string().trim().min(1, "Local é obrigatório"),
-   eventAddress: z.string().trim().min(1, "Endereço é obrigatório"),
+    // 5. Local de Realização
+    locationName: z.string().trim().min(1, "O nome do local onde será o evento é obrigatório"),
+    eventAddress: z.string().trim().min(1, "O endereço completo do evento é obrigatório"),
    locationType: z.enum(["public", "commercial"], { required_error: "Selecione o tipo do local" }),
    locationContact: z.string().trim().optional(),
  
@@ -276,13 +276,23 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
     const isValid = await form.trigger(fieldsToValidate as any);
     
     if (isValid) {
-      setCurrentStep(prev => Math.min(prev + 1, steps.length));
+      const newStep = Math.min(currentStep + 1, steps.length);
+      setCurrentStep(newStep);
+      localStorage.setItem("agendilha_step", String(newStep));
       window.scrollTo(0, 0);
     }
   };
 
   const prevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    const newStep = Math.max(currentStep - 1, 1);
+    setCurrentStep(newStep);
+    localStorage.setItem("agendilha_step", String(newStep));
+    window.scrollTo(0, 0);
+  };
+
+  const goToStep = (step: number) => {
+    setCurrentStep(step);
+    localStorage.setItem("agendilha_step", String(step));
     window.scrollTo(0, 0);
   };
 
@@ -320,10 +330,20 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
   useEffect(() => {
     const draft = localStorage.getItem("agendilha_draft");
+    const savedStep = localStorage.getItem("agendilha_step");
+    
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
         form.reset(parsed);
+        
+        if (savedStep) {
+          const stepNum = parseInt(savedStep);
+          if (stepNum > 1 && stepNum <= steps.length) {
+            setCurrentStep(stepNum);
+          }
+        }
+        
         toast.info("Rascunho recuperado", { description: "Continuamos de onde você parou." });
       } catch (e) {
         console.error("Error parsing draft", e);
@@ -407,28 +427,25 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
     if (success) {
       localStorage.removeItem("agendilha_draft");
-      // ... profile save already in current code
+      localStorage.removeItem("agendilha_step");
+      
+      saveProfile({
+        nick_name: data.nickName,
+        phone: data.basicPhone,
+        home_location: data.userLocation,
+        company_name: data.companyName,
+        email: data.email || "",
+        pin_code: data.pinCode,
+        address_street: data.addressStreet || "",
+        address_number: data.addressNumber || "",
+        address_zip: data.addressZip || "",
+        contact_social: data.contactSocial || "",
+      } as any);
+      
+      setSubmitted(true);
+      window.scrollTo(0, 0);
     }
- 
-     setSubmitting(false);
-     if (success) {
-       saveProfile({
-         nick_name: data.nickName,
-         phone: data.basicPhone,
-         home_location: data.userLocation,
-         company_name: data.companyName,
-         email: data.email || "",
-         pin_code: data.pinCode,
-         address_street: data.addressStreet || "",
-         address_number: data.addressNumber || "",
-         address_zip: data.addressZip || "",
-         contact_social: data.contactSocial || "",
-       } as any);
-       form.reset();
-       setFlyerFile(null);
-       setBannerFile(null);
-       setSubmitted(true);
-     }
+    setSubmitting(false);
    }
 
   return (
