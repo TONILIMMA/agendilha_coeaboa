@@ -614,7 +614,12 @@ function buildUberLink(ev: Event): string {
                                     className="rounded-full h-11 sm:h-10 px-5 font-bold text-primary border-2 border-primary/20 hover:bg-primary hover:text-white active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleShare(ev.event_title, `Confira este evento: ${ev.event_title}`, window.location.origin + "/agenda", ev.id);
+                           handleShare(
+                             `Evento: ${ev.event_title}`,
+                             `Confira a programação do AgendIlha!`,
+                             window.location.origin + "/agenda",
+                             ev.id
+                           );
                                     }}
                                   >
                                     <Share2 className="h-4 w-4 mr-2" /> Compartilhar
