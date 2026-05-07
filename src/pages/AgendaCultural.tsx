@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-   import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Sun, Moon } from "lucide-react";
+    import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
  import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
@@ -156,7 +156,7 @@ function buildUberLink(ev: Event): string {
     };
 
     const { user } = useAuth();
-    const { theme, toggleTheme } = useTheme();
+    const { toggleTheme } = useTheme();
    const [events, setEvents] = useState<Event[]>([]);
    const [loading, setLoading] = useState(true);
    const [search, setSearch] = useState("");
@@ -368,7 +368,7 @@ function buildUberLink(ev: Event): string {
                 }}
                 aria-label={`Ordenar eventos: atual ${sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}. Clique para inverter.`}
                 aria-pressed={sortOrder === "desc"}
-                className="h-12 px-5 rounded-xl border-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none font-bold flex items-center gap-2 bg-muted/30 border-border/50 text-foreground hover:bg-muted"
+                className="h-12 px-5 rounded-xl border-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none font-bold flex items-center gap-2 bg-white border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40"
               >
                 <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
                 <span className="text-xs uppercase tracking-wider">
