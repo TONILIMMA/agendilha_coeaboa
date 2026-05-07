@@ -222,22 +222,39 @@ function buildWhatsAppShare(ev: Event) {
               </p>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8 px-4">
-              <Button variant="outline" className="rounded-full shadow-md border-2 border-primary text-primary bg-primary/10 hover:bg-primary/20 transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                toast.success("Link da agenda copiado!");
-              }}>
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8 px-4" role="group" aria-label="Ações da agenda">
+              <Button 
+                variant="outline" 
+                className="rounded-full shadow-md border-2 border-primary/60 text-primary bg-background hover:bg-primary hover:text-primary-foreground transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none active:scale-95" 
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("Link da agenda copiado!");
+                }}
+                aria-label="Copiar link da agenda"
+              >
                 <Copy className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Copiar Link</span><span className="sm:hidden">Link</span>
               </Button>
-              <Button variant="outline" className="rounded-full shadow-md border-2 border-green-600 text-green-700 bg-green-50 hover:bg-green-100 transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
-                window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
-              }}>
+              
+              <Button 
+                variant="outline" 
+                className="rounded-full shadow-md border-2 border-green-600/60 text-green-700 bg-background hover:bg-green-600 hover:text-white transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-green-600/40 focus-visible:ring-offset-2 ring-offset-background outline-none active:scale-95" 
+                onClick={() => {
+                  window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
+                }}
+                aria-label="Compartilhar agenda no WhatsApp"
+              >
                 <Share2 className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Compartilhar</span><span className="sm:hidden">Zap</span>
               </Button>
-              <Button variant="default" className="rounded-full shadow-xl bg-primary text-primary-foreground hover:bg-primary/90 font-black px-6 sm:px-10 h-11 sm:h-12 text-xs sm:text-sm border-2 border-primary transform hover:scale-105 transition-all uppercase tracking-widest focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
-                exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
-                toast.success("PDF da agenda gerado!");
-              }}>
+              
+              <Button 
+                variant="default" 
+                className="rounded-full shadow-xl bg-primary text-primary-foreground hover:bg-primary-hover font-black px-6 sm:px-10 h-11 sm:h-12 text-xs sm:text-sm border-2 border-primary transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none hover:scale-105 active:scale-95" 
+                onClick={() => {
+                  exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
+                  toast.success("PDF da agenda gerado!");
+                }}
+                aria-label="Baixar agenda em PDF"
+              >
                 <FileDown className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Baixar PDF</span><span className="sm:hidden">PDF</span>
               </Button>
             </div>
