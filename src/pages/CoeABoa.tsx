@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown } from "lucide-react";
+ import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Filter } from "lucide-react";
 import { formatDateWithWeekday } from "@/lib/dateUtils";
 import { exportBulkEventsPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
@@ -17,6 +17,9 @@ const categoryLabels: Record<string, string> = {
   outros: "📌 Outros",
 };
 
+ import { Input } from "@/components/ui/input";
+ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 interface Event {
   id: string;
   event_title: string;
@@ -29,6 +32,7 @@ interface Event {
   category: string | null;
   company_name: string | null;
   phone: string | null;
+   is_highlight: boolean;
 }
 
 function formatDateLabel(dateStr: string | null): string {
@@ -63,11 +67,23 @@ export default function CoeABoa() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
+   const [search, setSearch] = useState("");
+   const [categoryFilter, setCategoryFilter] = useState("all");
+   const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+
+   async function trackView(id: string) {
+     await supabase.rpc('increment_views', { event_id: id });
+   }
+
+   async function trackShare(id: string) {
+     await supabase.rpc('increment_shares', { event_id: id });
+   }
+
   useEffect(() => {
     async function load() {
       const { data } = await supabase
         .from("submissions")
-        .select("id, event_title, date, start_time, end_time, location, address_neighborhood, description, category, company_name, phone")
+        .select("id, event_title, date, start_time, end_time, location, address_neighborhood, description, category, company_name, phone, is_highlight")
         .eq("status", "approved")
         .order("date", { ascending: true, nullsFirst: false });
       setEvents((data as Event[]) || []);
@@ -76,8 +92,18 @@ export default function CoeABoa() {
     load();
   }, []);
 
+   const neighborhoods = Array.from(new Set(events.map(e => e.address_neighborhood).filter(Boolean))).sort();
+
+   const filteredEvents = events.filter(ev => {
+     const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
+                         (ev.description || "").toLowerCase().includes(search.toLowerCase());
+     const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
+     const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
+     return matchSearch && matchCat && matchNeigh;
+   });
+
   // Group events by date
-  const grouped = events.reduce<Record<string, Event[]>>((acc, ev) => {
+  const grouped = filteredEvents.reduce<Record<string, Event[]>>((acc, ev) => {
     const key = ev.date || "sem-data";
     if (!acc[key]) acc[key] = [];
     acc[key].push(ev);
