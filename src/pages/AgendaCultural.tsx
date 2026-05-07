@@ -533,121 +533,121 @@ function buildUberLink(ev: Event): string {
 
             {/* Lista de Eventos Organizada */}
             {sortedDays.map((dayKey) => (
-              <section key={dayKey} className="space-y-6">
-                <div className="flex items-center gap-3 sticky top-0 bg-background/80 backdrop-blur-md py-3 z-10 border-b border-border/50">
-                  <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                    <CalendarDays className="h-5 w-5 text-primary" />
+              <section key={dayKey} className="space-y-8">
+                <div className="flex items-center gap-4 sticky top-16 bg-background/80 dark:bg-background/90 backdrop-blur-md py-4 z-10 border-b border-border/50 dark:border-border/10">
+                  <div className="h-12 w-12 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center shrink-0 shadow-sm">
+                    <CalendarDays className="h-6 w-6 text-primary dark:text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold text-foreground">
+                  <h2 className="text-2xl font-black text-foreground dark:text-foreground tracking-tight">
                     {grouped[dayKey].label}
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 gap-8">
                   {grouped[dayKey].items.map((ev) => {
                     const icon = categoryIcons[ev.category || ""] || "📌";
                     return (
-                       <Card 
-                         key={ev.id} 
-                         className="overflow-hidden border-border hover:shadow-md transition-all group cursor-pointer"
-                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
-                       >
+                      <Card 
+                        key={ev.id} 
+                        className="overflow-hidden border-border/60 dark:border-border/20 bg-card/50 dark:bg-card/30 hover:shadow-elevated dark:hover:bg-card/40 transition-all group cursor-pointer rounded-[2.5rem]"
+                        onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
+                      >
                         <CardContent className="p-0">
-                         <div className="flex flex-col md:flex-row">
-                           {/* Image or Icon strip */}
-                           {(ev as any).image_url ? (
-                             <div className="w-full md:w-48 h-48 md:h-auto shrink-0 relative overflow-hidden">
-                               <img 
-                                 src={(ev as any).image_url} 
-                                 alt={ev.event_title}
-                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                               />
-                             </div>
-                           ) : (
-                             <div className="w-full md:w-1 bg-primary/20 group-hover:bg-primary transition-colors h-1 md:h-auto" />
-                           )}
+                        <div className="flex flex-col md:flex-row">
+                          {/* Image or Icon strip */}
+                          {(ev as any).image_url ? (
+                            <div className="w-full md:w-64 h-64 md:h-auto shrink-0 relative overflow-hidden">
+                              <img 
+                                src={(ev as any).image_url} 
+                                alt={ev.event_title}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent md:hidden" />
+                            </div>
+                          ) : (
+                            <div className="w-full md:w-3 bg-primary/20 dark:bg-primary/40 group-hover:bg-primary transition-colors h-3 md:h-auto" />
+                          )}
 
-                           <div className="flex-1 p-5 sm:p-7 md:p-8 space-y-5 sm:space-y-6">
-                              <div className="flex flex-wrap items-start justify-between gap-4">
-                                <div className="space-y-2 flex-1 min-w-0">
-                                  <div className="flex flex-wrap items-center gap-2.5">
-                                     <span className="text-2xl drop-shadow-sm">{icon}</span>
-                                     <Badge variant="secondary" className="bg-secondary/10 text-secondary-foreground text-[11px] font-black uppercase tracking-widest border-secondary/20 px-2.5 py-0.5">
+                          <div className="flex-1 p-6 sm:p-10 space-y-8">
+                              <div className="flex flex-wrap items-start justify-between gap-6">
+                                <div className="space-y-4 flex-1 min-w-0">
+                                  <div className="flex flex-wrap items-center gap-3">
+                                    <span className="text-4xl drop-shadow-sm">{icon}</span>
+                                    <Badge variant="secondary" className="bg-secondary/10 dark:bg-secondary/20 text-secondary-foreground dark:text-secondary text-xs font-black uppercase tracking-widest border-secondary/20 px-4 py-1.5 rounded-full">
                                       {categoryLabels[ev.category!] || ev.category}
                                     </Badge>
                                   </div>
-                                   <h3 className="text-2xl sm:text-4xl font-black text-foreground leading-[1.1] tracking-tightest group-hover:text-primary transition-colors">
+                                  <h3 className="text-3xl sm:text-5xl font-black text-foreground dark:text-foreground leading-[1.1] tracking-tightest group-hover:text-primary transition-colors">
                                     {ev.event_title}
                                   </h3>
                                 </div>
-                                <div className="flex flex-col items-start sm:items-end sm:text-right shrink-0">
-                                  <div className="flex items-center gap-2 text-primary font-black bg-primary/5 px-3 py-1.5 rounded-xl border border-primary/10 shadow-sm ring-1 ring-primary/5">
-                                    <Clock className="h-4 w-4" />
-                                    <span className="text-xl sm:text-2xl tracking-tighter">{ev.start_time || "--:--"}</span>
+                                <div className="flex flex-col items-start sm:items-end sm:text-right shrink-0 gap-3">
+                                  <div className="flex items-center gap-3 text-primary dark:text-primary font-black bg-primary/5 dark:bg-primary/15 px-5 py-2.5 rounded-2xl border border-primary/10 shadow-sm">
+                                    <Clock className="h-6 w-6" />
+                                    <span className="text-2xl sm:text-3xl tracking-tighter">{ev.start_time || "--:--"}</span>
                                   </div>
-                                  <div className="text-xs sm:text-sm font-bold text-muted-foreground/80 mt-1.5 uppercase tracking-wider">
+                                  <div className="text-sm sm:text-base font-bold text-muted-foreground/80 dark:text-muted-foreground/60 uppercase tracking-[0.2em]">
                                     {ev.address_neighborhood || "Ilha do Governador"}
                                   </div>
                                 </div>
-                               </div>
- 
-                               <div className="flex items-start gap-2.5 text-sm sm:text-base text-muted-foreground/90 bg-muted/30 p-3 rounded-xl border border-border/40">
-                                 <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary/70 shrink-0 mt-0.5" />
-                                 <span className="font-semibold leading-tight">{buildFullAddress(ev)}</span>
-                               </div>
+                              </div>
+
+                              <div className="flex items-start gap-4 text-base sm:text-lg text-muted-foreground dark:text-muted-foreground/80 bg-muted/30 dark:bg-muted/10 p-5 rounded-2xl border border-border/40 dark:border-border/10">
+                                <MapPin className="h-6 w-6 text-primary/70 dark:text-primary/60 shrink-0 mt-0.5" />
+                                <span className="font-semibold leading-snug">{buildFullAddress(ev)}</span>
+                              </div>
 
                               {ev.description && (
-                                 <p className="text-muted-foreground line-clamp-2 leading-relaxed text-[15px]">
+                                <p className="text-muted-foreground dark:text-muted-foreground/70 line-clamp-3 leading-relaxed text-lg font-medium max-w-2xl">
                                   {ev.description}
                                 </p>
                               )}
 
-                               <div className="pt-2 flex flex-wrap items-center gap-3 sm:gap-4">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="rounded-full h-11 sm:h-10 px-5 border-2 border-green-600/60 text-green-800 font-bold bg-green-50/50 hover:bg-green-600 hover:text-white active:scale-95 transition-all shadow-sm focus-visible:ring-4 focus-visible:ring-green-600/40 outline-none" 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      trackShare(ev.id);
-                                      window.open(buildWhatsAppShare(ev), "_blank");
-                                    }}
-                                  >
-                                    <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
-                                  </Button>
+                              <div className="pt-6 flex flex-wrap items-center gap-4 sm:gap-6">
+                                <Button 
+                                  size="lg" 
+                                  className="rounded-full h-14 sm:h-16 px-10 font-black uppercase tracking-widest gradient-sunset text-white shadow-xl hover:scale-105 active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    trackShare(ev.id);
+                                    window.open(buildWhatsAppShare(ev), "_blank");
+                                  }}
+                                >
+                                  <MessageCircle className="h-5 w-5 mr-3" /> WhatsApp
+                                </Button>
 
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="rounded-full h-11 sm:h-10 px-5 font-bold text-primary border-2 border-primary/20 hover:bg-primary hover:text-white active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                           handleShare(
-                             `Evento: ${ev.event_title}`,
-                             `Confira a programação do AgendIlha!`,
-                             window.location.origin + "/agenda",
-                             ev.id
-                           );
-                                    }}
-                                  >
-                                    <Share2 className="h-4 w-4 mr-2" /> Compartilhar
-                                  </Button>
-                                  
-                                  <Button 
-                                    size="sm" 
-                                    variant="ghost" 
-                                    className="rounded-full h-11 sm:h-10 px-6 font-bold text-primary border-2 border-primary/20 hover:bg-primary hover:text-white active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none" 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const addr = buildFullAddress(ev);
-                                      window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
-                                    }}
-                                  >
-                                    <ExternalLink className="h-4 w-4 mr-2" /> Ver no Mapa
-                                  </Button>
-                              </div>
+                                <Button 
+                                  size="lg" 
+                                  variant="outline" 
+                                  className="rounded-full h-14 sm:h-16 px-8 font-bold text-primary dark:text-primary border-2 border-primary/20 dark:border-primary/30 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-foreground active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none uppercase text-sm tracking-widest" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleShare(
+                                      `Evento: ${ev.event_title}`,
+                                      `Confira a programação do AgendIlha!`,
+                                      `${window.location.origin}/agenda?event=${ev.id}`,
+                                      ev.id
+                                    );
+                                  }}
+                                >
+                                  <Share2 className="h-5 w-5 mr-3" /> Compartilhar
+                                </Button>
+                                
+                                <Button 
+                                  size="lg" 
+                                  variant="ghost" 
+                                  className="rounded-full h-14 sm:h-16 px-8 font-bold text-muted-foreground/60 dark:text-muted-foreground/40 hover:text-primary transition-all active:scale-95 uppercase text-sm tracking-widest" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const addr = buildFullAddress(ev);
+                                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
+                                  }}
+                                >
+                                  <MapPin className="h-5 w-5 mr-3" /> Ver Mapa
+                                </Button>
                             </div>
                           </div>
+                        </div>
                         </CardContent>
                       </Card>
                     );
