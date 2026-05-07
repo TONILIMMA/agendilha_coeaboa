@@ -19,7 +19,7 @@ import {
   DollarSign, Users, Briefcase, History,
 } from "lucide-react";
 import { toast } from "sonner";
-import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
+ import { exportSingleEventPdf, exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
 
 interface Submission {
   id: string;
@@ -56,6 +56,9 @@ interface Submission {
   stage: string;
   concept_description: string | null;
   responsible_person: string | null;
+   is_highlight: boolean;
+   views_count: number;
+   shares_count: number;
   deleted_at: string | null;
 }
 
