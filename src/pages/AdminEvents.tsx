@@ -67,14 +67,14 @@ interface Submission {
    outros: "Outros",
  };
  
- const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string }> = {
-   draft: { label: "Rascunho", color: "text-slate-600", bg: "bg-slate-100", icon: History },
-   pending: { label: "Pendente", color: "text-amber-600", bg: "bg-amber-100", icon: Clock3 },
-   analysis: { label: "Em análise", color: "text-blue-600", bg: "bg-blue-100", icon: Search },
-   approved: { label: "Aprovado", color: "text-emerald-600", bg: "bg-emerald-100", icon: CheckCircle },
-   rejected: { label: "Rejeitado", color: "text-rose-600", bg: "bg-rose-100", icon: XCircle },
-   published: { label: "Publicado", color: "text-indigo-600", bg: "bg-indigo-100", icon: Globe },
- };
+  const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string; border: string }> = {
+    draft: { label: "Rascunho", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-200", icon: History },
+    pending: { label: "Pendente", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200", icon: Clock3 },
+    analysis: { label: "Em análise", color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-200", icon: Search },
+    approved: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200", icon: CheckCircle },
+    rejected: { label: "Rejeitado", color: "text-rose-700", bg: "bg-rose-50", border: "border-rose-200", icon: XCircle },
+    published: { label: "Publicado", color: "text-white", bg: "bg-indigo-600", border: "border-indigo-700", icon: Globe },
+  };
  
  function formatSubmissionDate(iso: string) {
    if (!iso) return "—";
@@ -198,8 +198,8 @@ export default function AdminEvents() {
                <LayoutDashboard className="h-5 w-5" />
                <span className="text-xs font-black uppercase tracking-[0.2em]">Backoffice</span>
              </div>
-             <h1 className="text-4xl font-black tracking-tight text-foreground">Gestão de Eventos</h1>
-             <p className="text-muted-foreground text-base">Moderação, curadoria e distribuição da agenda hiperlocal.</p>
+              <h1 className="text-3xl font-black tracking-tight text-foreground">Gestão de Eventos</h1>
+              <p className="text-muted-foreground text-sm">Controle operacional e curadoria da agenda hiperlocal.</p>
            </div>
            <div className="flex flex-wrap gap-3">
              <Button variant="outline" size="sm" className="h-10 font-bold border-border hover:bg-muted" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
@@ -220,14 +220,14 @@ export default function AdminEvents() {
 
          {/* KPIs */}
          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-           {[
-             { label: 'Total', value: kpis.total, color: 'text-blue-600', bg: 'bg-blue-50' },
-             { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-amber-50' },
-             { label: 'Em Análise', value: kpis.analysis, color: 'text-blue-600', bg: 'bg-blue-50' },
-             { label: 'Aprovados', value: kpis.approved, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-             { label: 'Rejeitados', value: kpis.rejected, color: 'text-rose-600', bg: 'bg-rose-50' },
-             { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-           ].map((kpi) => (
+              {[
+                { label: 'Total', value: kpis.total, color: 'text-slate-600', bg: 'bg-white' },
+                { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-white' },
+                { label: 'Em Análise', value: kpis.analysis, color: 'text-blue-600', bg: 'bg-white' },
+                { label: 'Aprovados', value: kpis.approved, color: 'text-emerald-600', bg: 'bg-white' },
+                { label: 'Rejeitados', value: kpis.rejected, color: 'text-rose-600', bg: 'bg-white' },
+                { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-white' },
+              ].map((kpi) => (
              <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm hover:shadow-md transition-all`}>
                <CardContent className="p-4">
                  <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">{kpi.label}</p>
@@ -290,11 +290,11 @@ export default function AdminEvents() {
         {/* Main List */}
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
            <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 border-b bg-muted/20 text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em]">
-             <div className="col-span-4">Informações do Evento</div>
-             <div className="col-span-2 text-center">Data & Hora</div>
-             <div className="col-span-2 text-center">Responsável & Contato</div>
-             <div className="col-span-2 text-center">Status Operacional</div>
-             <div className="col-span-2 text-right">Ações Rápidas</div>
+              <div className="col-span-3">Informações do Evento</div>
+              <div className="col-span-2">Cronograma</div>
+              <div className="col-span-2">Responsável & Contato</div>
+              <div className="col-span-2">Status</div>
+              <div className="col-span-3 text-right px-2">Ações Operacionais</div>
            </div>
           
           {loading ? (
@@ -307,111 +307,183 @@ export default function AdminEvents() {
           ) : (
             <div className="divide-y divide-border">
               {filtered.map((sub) => (
-                <div key={sub.id} className="p-4 hover:bg-muted/5 transition-colors">
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                    <div className="col-span-4 space-y-1">
-                      <div className="flex items-center gap-2">
-                        {sub.is_highlight && <Star className="h-4 w-4 text-amber-500 fill-amber-500" />}
-                        <h3 className="font-bold text-foreground truncate">{sub.event_title}</h3>
+                <div key={sub.id} className="p-5 hover:bg-muted/5 transition-colors">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    {/* Informações Principais */}
+                    <div className="col-span-3 space-y-2">
+                      <div className="flex items-start gap-2">
+                        {sub.is_highlight && <Star className="h-4 w-4 text-amber-500 fill-amber-500 shrink-0 mt-1" />}
+                        <h3 className="font-black text-lg text-foreground leading-tight tracking-tight">{sub.event_title}</h3>
                       </div>
-                       <div className="flex items-center gap-2">
-                         <Badge variant="outline" className="text-[9px] font-semibold bg-muted/30">{categoryLabels[sub.category || ''] || 'Outros'}</Badge>
-                         <span className="text-[10px] text-muted-foreground/60 font-mono tracking-tight">ID: {sub.id.slice(0,8)}</span>
-                         <span className="text-[10px] text-muted-foreground/60">• Cadastrado em: {formatSubmissionDate(sub.created_at)}</span>
-                       </div>
-                     </div>
-                     <div className="col-span-2 text-center">
-                       <div className="font-bold text-foreground text-sm">{formatEventDate(sub.date)}</div>
-                       <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground mt-0.5">
-                         <Clock className="h-3 w-3" />
-                         {sub.start_time || '--:--'}
-                       </div>
-                     </div>
-                     <div className="col-span-2 text-center px-2">
-                       <div className="font-bold text-foreground text-sm truncate">{sub.company_name || sub.responsible_name || '—'}</div>
-                       <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground mt-0.5">
-                         <Phone className="h-3 w-3" />
-                         {sub.phone || 'Sem tel'}
-                       </div>
-                     </div>
-                     <div className="col-span-2 flex flex-col items-center gap-1.5">
-                       {(() => {
-                         const cfg = statusConfig[sub.status] || statusConfig.pending;
-                         const StatusIcon = cfg.icon;
-                         return (
-                           <Badge className={`${cfg.bg} ${cfg.color} border-none font-black text-[9px] py-1 px-2.5 flex items-center gap-1.5 shadow-sm`}>
-                             <StatusIcon className="h-3 w-3" />
-                             {cfg.label.toUpperCase()}
-                           </Badge>
-                         );
-                       })()}
-                       {sub.status === 'published' && (
-                         <span className="text-[9px] font-bold text-indigo-600/70 flex items-center gap-1">
-                           <Globe className="h-2.5 w-2.5" />
-                           NA AGENDA PÚBLICA
-                         </span>
-                       )}
-                     </div>
-                     <div className="col-span-2 flex justify-end gap-1">
-                       <TooltipProvider>
-                         <Tooltip>
-                           <TooltipTrigger asChild>
-                             <Button size="icon" variant="ghost" className="h-9 w-9 hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)}><Eye className="h-4 w-4" /></Button>
-                           </TooltipTrigger>
-                           <TooltipContent>Ver Detalhes</TooltipContent>
-                         </Tooltip>
-                         <Tooltip>
-                           <TooltipTrigger asChild>
-                             <Button size="icon" variant="ghost" className="h-9 w-9 text-blue-600 hover:bg-blue-50" onClick={() => handleStatusChange(sub.id, 'analysis')}><Clock3 className="h-4 w-4" /></Button>
-                           </TooltipTrigger>
-                           <TooltipContent>Em Análise</TooltipContent>
-                         </Tooltip>
-                         <Tooltip>
-                           <TooltipTrigger asChild>
-                             <Button size="icon" variant="ghost" className="h-9 w-9 text-emerald-600 hover:bg-emerald-50" onClick={() => handleStatusChange(sub.id, 'approved')}><CheckCircle className="h-4 w-4" /></Button>
-                           </TooltipTrigger>
-                           <TooltipContent>Aprovar</TooltipContent>
-                         </Tooltip>
-                         <Tooltip>
-                           <TooltipTrigger asChild>
-                             <Button 
-                               size="icon" 
-                               variant={sub.status === 'published' ? 'default' : 'ghost'} 
-                               className={`h-9 w-9 transition-colors ${sub.status === 'published' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-indigo-600 hover:bg-indigo-50'}`}
-                               onClick={() => handleStatusChange(sub.id, sub.status === 'published' ? 'approved' : 'published')}
-                             >
-                               <Globe className="h-4 w-4" />
-                             </Button>
-                           </TooltipTrigger>
-                           <TooltipContent>{sub.status === 'published' ? 'Remover da Agenda' : 'Publicar na Agenda'}</TooltipContent>
-                         </Tooltip>
-                         <DropdownMenu>
-                           <DropdownMenuTrigger asChild>
-                             <Button size="icon" variant="ghost" className="h-9 w-9"><ChevronDown className="h-4 w-4" /></Button>
-                           </DropdownMenuTrigger>
-                           <DropdownMenuContent align="end" className="w-48">
-                             <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'rejected')} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer">
-                               <XCircle className="h-4 w-4 mr-2" /> Rejeitar
-                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)} className="cursor-pointer">
-                               <Star className={`h-4 w-4 mr-2 ${sub.is_highlight ? 'fill-amber-500 text-amber-500' : ''}`} /> 
-                               {sub.is_highlight ? 'Remover Destaque' : 'Marcar Destaque'}
-                             </DropdownMenuItem>
-                             <DropdownMenuSeparator />
-                             <DropdownMenuItem onClick={() => exportSingleEventPdf(sub)} className="cursor-pointer">
-                               <FileDown className="h-4 w-4 mr-2" /> Exportar PDF
-                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")} className="cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50">
-                               <MessageCircle className="h-4 w-4 mr-2" /> Divulgar WhatsApp
-                             </DropdownMenuItem>
-                             <DropdownMenuSeparator />
-                             <DropdownMenuItem onClick={() => handleDelete(sub.id)} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer">
-                               <Trash2 className="h-4 w-4 mr-2" /> Excluir permanentemente
-                             </DropdownMenuItem>
-                           </DropdownMenuContent>
-                         </DropdownMenu>
-                       </TooltipProvider>
-                     </div>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <Badge variant="secondary" className="text-[10px] font-bold bg-primary/10 text-primary border-none uppercase tracking-wider">
+                          {categoryLabels[sub.category || ''] || 'Outros'}
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">ID: {sub.id.slice(0, 8)}</span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground flex items-center gap-1.5">
+                        <History className="h-3 w-3" />
+                        <span className="font-semibold">Cadastrado em:</span> {formatSubmissionDate(sub.created_at)}
+                      </p>
+                    </div>
+
+                    {/* Cronograma */}
+                    <div className="col-span-2 space-y-2">
+                      <div className="bg-muted/30 p-2.5 rounded-lg border border-border/50">
+                        <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                          <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                          {formatEventDate(sub.date)}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1.5 ml-0.5">
+                          <Clock className="h-3.5 w-3.5" />
+                          {sub.start_time || '--:--'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Responsável */}
+                    <div className="col-span-2 space-y-1.5">
+                      <p className="font-bold text-sm text-foreground truncate">{sub.company_name || sub.responsible_name || '—'}</p>
+                      <div className="space-y-1">
+                        <a href={`tel:${sub.phone}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors">
+                          <Phone className="h-3 w-3" />
+                          {sub.phone || 'Sem tel'}
+                        </a>
+                        {sub.email && (
+                          <a href={`mailto:${sub.email}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors truncate">
+                            <Mail className="h-3 w-3" />
+                            {sub.email}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Status */}
+                    <div className="col-span-2">
+                      {(() => {
+                        const cfg = statusConfig[sub.status] || statusConfig.pending;
+                        const StatusIcon = cfg.icon;
+                        return (
+                          <div className="flex flex-col gap-1.5 items-start">
+                            <Badge className={`${cfg.bg} ${cfg.color} ${cfg.border} border font-black text-[10px] py-1.5 px-3 flex items-center gap-2 shadow-sm rounded-full`}>
+                              <StatusIcon className="h-3.5 w-3.5" />
+                              {cfg.label.toUpperCase()}
+                            </Badge>
+                            {sub.status === 'published' && (
+                              <span className="text-[10px] font-bold text-indigo-600 flex items-center gap-1.5 ml-1">
+                                <Globe className="h-3 w-3" />
+                                NA AGENDA
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+
+                    {/* Ações */}
+                    <div className="col-span-3 flex justify-end flex-wrap gap-1.5">
+                      <TooltipProvider>
+                        {/* Ver Detalhes */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button size="icon" variant="outline" className="h-9 w-9 bg-white border-border hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all shadow-sm" onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Ver Detalhes</TooltipContent>
+                        </Tooltip>
+
+                        {/* Editar (Abre expansão ou poderia ser rota dedicada) */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button size="icon" variant="outline" className="h-9 w-9 bg-white border-border hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm" onClick={() => setExpandedId(sub.id)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Editar / Revisar</TooltipContent>
+                        </Tooltip>
+
+                        {/* Aprovar/Rejeitar/Publicar (Dinâmico) */}
+                        {sub.status === 'pending' || sub.status === 'analysis' ? (
+                          <>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button size="icon" variant="outline" className="h-9 w-9 bg-white border-border hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'approved')}>
+                                  <CheckCircle className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Aprovar</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button size="icon" variant="outline" className="h-9 w-9 bg-white border-border hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'rejected')}>
+                                  <XCircle className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Rejeitar</TooltipContent>
+                            </Tooltip>
+                          </>
+                        ) : sub.status === 'approved' ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button size="icon" variant="outline" className="h-9 w-9 bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'published')}>
+                                <Send className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Publicar na Agenda</TooltipContent>
+                          </Tooltip>
+                        ) : null}
+
+                        {/* Destacar */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              size="icon" 
+                              variant="outline" 
+                              className={`h-9 w-9 transition-all shadow-sm ${sub.is_highlight ? 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100' : 'bg-white border-border hover:bg-amber-50 hover:text-amber-600'}`} 
+                              onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)}
+                            >
+                              <Star className={`h-4 w-4 ${sub.is_highlight ? 'fill-amber-600' : ''}`} />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>{sub.is_highlight ? 'Remover Destaque' : 'Destacar'}</TooltipContent>
+                        </Tooltip>
+
+                        {/* Menu Adicional (PDF, WhatsApp, Excluir) */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-9 w-9"><ChevronDown className="h-4 w-4" /></Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Distribuição</div>
+                            <DropdownMenuItem onClick={() => exportSingleEventPdf(sub)} className="cursor-pointer">
+                              <FileDown className="h-4 w-4 mr-2" /> Exportar PDF
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")} className="cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50 font-bold">
+                              <MessageCircle className="h-4 w-4 mr-2" /> Divulgar WhatsApp
+                            </DropdownMenuItem>
+                            
+                            <DropdownMenuSeparator />
+                            <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Moderação</div>
+                            {sub.status !== 'analysis' && (
+                              <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'analysis')} className="cursor-pointer">
+                                <Search className="h-4 w-4 mr-2" /> Colocar em Análise
+                              </DropdownMenuItem>
+                            )}
+                            {sub.status === 'published' && (
+                              <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'approved')} className="cursor-pointer text-indigo-600 focus:text-indigo-600 focus:bg-indigo-50">
+                                <Globe className="h-4 w-4 mr-2" /> Remover da Agenda
+                              </DropdownMenuItem>
+                            )}
+                            
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleDelete(sub.id)} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer font-bold">
+                              <Trash2 className="h-4 w-4 mr-2" /> Excluir permanentemente
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TooltipProvider>
+                    </div>
                   </div>
 
                   {expandedId === sub.id && (
