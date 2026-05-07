@@ -140,26 +140,25 @@ export default function Header() {
     // Public view for agenda - clean and minimal
     if (isAgenda) {
       return (
-        <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
-          <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 gap-2">
-            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity group shrink-0">
-              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-7 w-7 rounded-full ring-1 ring-primary/20" />
-              <div className="flex flex-col leading-none">
-                <span className="font-display text-base font-black text-primary tracking-tight">AgendIlha</span>
-                <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">Coé a Boa?</span>
+        <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-card/90 backdrop-blur-xl transition-all duration-300">
+          <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 gap-2">
+            <Link to="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity group shrink-0">
+              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-8 w-8 rounded-full ring-2 ring-primary/10 shadow-sm" />
+              <div className="flex flex-col leading-[1.1]">
+                <span className="font-display text-lg font-black text-primary tracking-tight">AgendIlha</span>
+                <span className="text-[10px] text-secondary font-bold uppercase tracking-widest opacity-80">Coé a Boa?</span>
               </div>
             </Link>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <Button size="sm" variant="ghost" className="text-xs font-bold hover:bg-primary/5 text-foreground/80 px-2 h-8 hidden xs:flex" onClick={() => navigate("/")}>
-                Início
-              </Button>
-              <Button size="sm" variant="outline" className="rounded-full text-[10px] sm:text-xs font-black border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all shadow-sm h-8 sm:h-9 px-3 sm:px-4" onClick={() => navigate("/enviar-evento")}>
-                Divulgar
-              </Button>
-              <HeaderUserMenu variant="desktop" hideContext={true} />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link to="/enviar-evento">
+                <Button size="sm" className="rounded-full text-[11px] sm:text-xs font-black bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md px-4 sm:px-6 h-9 sm:h-10 border-2 border-primary uppercase tracking-wider">
+                  Divulgar Evento
+                </Button>
+              </Link>
+              {user && <HeaderUserMenu variant="desktop" hideContext={true} />}
             </div>
           </div>
-          <div className="h-1 w-full gradient-pumpkin-strip" />
+          <div className="h-1 w-full gradient-pumpkin-strip opacity-90" />
         </header>
       );
     }
