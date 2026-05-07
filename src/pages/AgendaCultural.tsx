@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info } from "lucide-react";
+  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Sun, Moon } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
  import { Dialog, DialogContent } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
@@ -96,10 +96,22 @@ function buildWhatsAppShare(ev: Event) {
    const [categoryFilter, setCategoryFilter] = useState("all");
    const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [highContrast, setHighContrast] = useState(() => {
+    return localStorage.getItem("agendilha_high_contrast") === "true";
+  });
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
      const saved = localStorage.getItem("agendilha_sort_order");
      return (saved === "desc" ? "desc" : "asc");
    });
+
+   useEffect(() => {
+     localStorage.setItem("agendilha_high_contrast", String(highContrast));
+     if (highContrast) {
+       document.documentElement.classList.add("high-contrast");
+     } else {
+       document.documentElement.classList.remove("high-contrast");
+     }
+   }, [highContrast]);
 
    useEffect(() => {
      localStorage.setItem("agendilha_sort_order", sortOrder);
@@ -207,7 +219,22 @@ function buildWhatsAppShare(ev: Event) {
    , [grouped, sortOrder]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={cn(
+      "min-h-screen bg-background transition-colors duration-300",
+      highContrast && "dark bg-slate-950"
+    )}>
+      {/* Botão flutuante de Alto Contraste */}
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => setHighContrast(!highContrast)}
+        className="fixed bottom-6 right-6 z-50 rounded-full h-12 w-12 shadow-2xl border-2 border-primary bg-background hover:scale-110 active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40"
+        aria-label={highContrast ? "Desativar Alto Contraste" : "Ativar Alto Contraste"}
+        title={highContrast ? "Desativar Alto Contraste" : "Ativar Alto Contraste"}
+      >
+        {highContrast ? <Sun className="h-6 w-6 text-yellow-400" /> : <Moon className="h-6 w-6 text-primary" />}
+      </Button>
+
       <main className="mx-auto max-w-4xl px-4 py-8">
         {/* Topo da Página */}
         <div className="mb-12 text-center space-y-6">
@@ -222,41 +249,43 @@ function buildWhatsAppShare(ev: Event) {
               </p>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8 px-4" role="group" aria-label="Ações da agenda">
-              <Button 
-                variant="outline" 
-                className="rounded-full shadow-md border-2 border-primary/60 text-primary bg-background hover:bg-primary hover:text-primary-foreground transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none active:scale-95" 
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  toast.success("Link da agenda copiado!");
-                }}
-                aria-label="Copiar link da agenda"
-              >
-                <Copy className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Copiar Link</span><span className="sm:hidden">Link</span>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="rounded-full shadow-md border-2 border-green-600/60 text-green-700 bg-background hover:bg-green-600 hover:text-white transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-green-600/40 focus-visible:ring-offset-2 ring-offset-background outline-none active:scale-95" 
-                onClick={() => {
-                  window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
-                }}
-                aria-label="Compartilhar agenda no WhatsApp"
-              >
-                <Share2 className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Compartilhar</span><span className="sm:hidden">Zap</span>
-              </Button>
-              
+            <div className="flex flex-wrap justify-center gap-4 mt-8 px-4" role="group" aria-label="Ações da agenda">
               <Button 
                 variant="default" 
-                className="rounded-full shadow-xl bg-primary text-primary-foreground hover:bg-primary-hover font-black px-6 sm:px-10 h-11 sm:h-12 text-xs sm:text-sm border-2 border-primary transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none hover:scale-105 active:scale-95" 
+                className="rounded-full shadow-xl bg-primary text-primary-foreground hover:bg-primary/90 font-black px-8 sm:px-10 h-12 sm:h-14 text-sm sm:text-base border-2 border-primary transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none hover:scale-105 active:scale-95" 
                 onClick={() => {
                   exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
                   toast.success("PDF da agenda gerado!");
                 }}
-                aria-label="Baixar agenda em PDF"
+                aria-label="Baixar agenda completa em PDF"
               >
-                <FileDown className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Baixar PDF</span><span className="sm:hidden">PDF</span>
+                <FileDown className="h-5 w-5 mr-2" /> Baixar PDF
               </Button>
+
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  className="rounded-full shadow-md border-2 border-primary/40 text-primary bg-background hover:bg-primary/10 hover:border-primary transition-all px-5 sm:px-6 h-12 text-xs sm:text-sm font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95" 
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast.success("Link da agenda copiado!");
+                  }}
+                  aria-label="Copiar link da agenda"
+                >
+                  <Copy className="h-4 w-4 mr-2" /> Link
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="rounded-full shadow-md border-2 border-green-600/40 text-green-700 bg-background hover:bg-green-50 hover:border-green-600 transition-all px-5 sm:px-6 h-12 text-xs sm:text-sm font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-green-600/30 outline-none active:scale-95" 
+                  onClick={() => {
+                    window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
+                  }}
+                  aria-label="Compartilhar agenda no WhatsApp"
+                >
+                  <Share2 className="h-4 w-4 mr-2" /> Zap
+                </Button>
+              </div>
             </div>
         </div>
 
