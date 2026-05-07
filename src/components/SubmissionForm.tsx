@@ -199,58 +199,65 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
   );
 }
 
-export default function SubmissionForm() {
-  const [flyerFile, setFlyerFile] = useState<File | null>(null);
-  const [bannerFile, setBannerFile] = useState<File | null>(null);
+ export default function SubmissionForm() {
+   const [flyerFile, setFlyerFile] = useState<File | null>(null);
+   const [bannerFile, setBannerFile] = useState<File | null>(null);
    const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const navigate = useNavigate();
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    anunciante: true,
-    evento: true,
-    promocao: false,
-    upload: false,
-    contato: false,
-    categoria: true,
-  });
-  const { addSubmission } = useSubmissions();
-  const { profile, loaded, saveProfile } = useProfile();
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      companyName: "", responsibleName: "", email: "", phone: "",
-      eventTitle: "", date: "", startTime: "", endTime: "", location: "",
-      addressStreet: "", addressNumber: "", addressNeighborhood: "",
-      addressCity: "", addressState: "", addressZip: "",
-      description: "", videoLink: "", category: "",
-      promotionType: "", targetAudience: "", promotionRules: "",
-      contactSocial: "", additionalDetails: "",
-      salePrice: "", maintenanceCost: "", subscriptionInfo: "",
-      commission: "", stage: "", conceptDescription: "", responsiblePerson: "",
-      authorization: undefined,
-    },
-  });
-
-  useEffect(() => {
-    if (!loaded) return;
-    const fields = {
-      companyName: profile.company_name,
-      responsibleName: profile.responsible_name,
-      email: "",
-      phone: profile.phone,
-      addressStreet: profile.address_street,
-      addressNumber: profile.address_number,
-      addressNeighborhood: profile.address_neighborhood,
-      addressCity: profile.address_city,
-      addressState: profile.address_state,
-      addressZip: profile.address_zip,
-      contactSocial: profile.contact_social,
-    };
-    Object.entries(fields).forEach(([key, value]) => {
-      if (value) form.setValue(key as any, value);
-    });
-  }, [loaded, profile]);
+   const [submitted, setSubmitted] = useState(false);
+   const navigate = useNavigate();
+   
+   const [portalLocations, setPortalLocations] = useState<{ id: string; name: string }[]>([]);
+   const [searchingAtrativo, setSearchingAtrativo] = useState(false);
+   const [searchingLocation, setSearchingLocation] = useState(false);
+   const [locationSuggestions, setLocationSuggestions] = useState<{ name: string; address?: string; type?: string; contact_responsible?: string }[]>([]);
+   const [atrativoSuggestions, setAtrativoSuggestions] = useState<{ name: string; type?: string; style?: string; contact_whatsapp?: string; description?: string }[]>([]);
+ 
+   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+     basicos: true,
+     divulgador: false,
+     legal: true,
+     evento: true,
+     local: true,
+     complementares: false,
+   });
+ 
+   const { addSubmission } = useSubmissions();
+   const { profile, loaded, saveProfile } = useProfile();
+ 
+   const form = useForm<FormData>({
+     resolver: zodResolver(formSchema),
+     defaultValues: {
+       nickName: "", basicPhone: "", userLocation: "",
+       companyName: "", pinCode: "", email: "",
+       category: "", eventTitle: "", date: "", startTime: "",
+       atrativoName: "", atrativoType: "",
+       locationName: "", eventAddress: "", locationType: "commercial",
+       legalAcceptance: undefined,
+     },
+   });
+ 
+   useEffect(() => {
+     const fetchPortalLocations = async () => {
+       const { data } = await supabaseClient.from("portal_locations").select("id, name").order("name");
+       if (data) setPortalLocations(data);
+     };
+     fetchPortalLocations();
+   }, []);
+ 
+   useEffect(() => {
+     if (!loaded) return;
+     form.reset({
+       nickName: profile.nick_name || "",
+       basicPhone: profile.phone || "",
+       userLocation: profile.home_location || "",
+       companyName: profile.company_name || "",
+       email: profile.email || "",
+       addressStreet: profile.address_street || "",
+       addressNumber: profile.address_number || "",
+       addressZip: profile.address_zip || "",
+       contactSocial: profile.contact_social || "",
+     });
+   }, [loaded, profile, form]);
 
   const toggleSection = (key: string) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
