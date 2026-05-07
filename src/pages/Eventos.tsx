@@ -815,7 +815,93 @@ export default function Eventos() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="w-full grid grid-cols-3">
+         <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4">
+           <TabsTrigger value="marketing" className="text-xs sm:text-sm">
+             📣 Divulgação
+           </TabsTrigger>
+         <TabsContent value="marketing" className="space-y-6">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             {/* PDF Export Section */}
+             <Card>
+               <CardContent className="p-5 space-y-4">
+                 <div className="flex items-center gap-2 mb-2">
+                   <FileText className="h-5 w-5 text-primary" />
+                   <h3 className="font-bold">Gerar Agenda (PDF)</h3>
+                 </div>
+                 <p className="text-sm text-muted-foreground">Crie um PDF editorial pronto para compartilhamento com capa e destaques.</p>
+                 <div className="flex flex-wrap gap-2">
+                   <Button 
+                     variant="outline" 
+                     size="sm"
+                     onClick={() => {
+                       const today = new Date().toISOString().split('T')[0];
+                       const dayEvents = confirmedEvents.filter(e => e.date === today || e.date === new Date().toLocaleDateString('pt-BR'));
+                       exportEditorialAgendaPdf(dayEvents, "Agenda do Dia");
+                       toast.success("PDF da agenda do dia gerado!");
+                     }}
+                   >
+                     <CalendarDays className="mr-2 h-4 w-4" />
+                     Agenda do Dia
+                   </Button>
+                   <Button 
+                     variant="default" 
+                     size="sm"
+                     onClick={() => {
+                       exportEditorialAgendaPdf(confirmedEvents, "Agenda da Semana");
+                       toast.success("PDF da agenda completa gerado!");
+                     }}
+                   >
+                     <FileDown className="mr-2 h-4 w-4" />
+                     Agenda Completa
+                   </Button>
+                 </div>
+               </CardContent>
+             </Card>
+
+             {/* WhatsApp Share Section */}
+             <Card>
+               <CardContent className="p-5 space-y-4">
+                 <div className="flex items-center gap-2 mb-2">
+                   <MessageCircle className="h-5 w-5 text-[#25D366]" />
+                   <h3 className="font-bold">WhatsApp Marketing</h3>
+                 </div>
+                 <p className="text-sm text-muted-foreground">Copie o texto pronto com os destaques para enviar em grupos.</p>
+                 <Button 
+                   variant="outline" 
+                   size="sm"
+                   onClick={() => {
+                     const text = decodeURIComponent(buildBulkWhatsAppMessage(confirmedEvents));
+                     navigator.clipboard.writeText(text);
+                     toast.success("Texto copiado para a área de transferência!");
+                   }}
+                 >
+                   <Copy className="mr-2 h-4 w-4" />
+                   Copiar Texto p/ WhatsApp
+                 </Button>
+               </CardContent>
+             </Card>
+           </div>
+
+           {/* Highlights Management */}
+           <div className="space-y-4">
+             <div className="flex items-center justify-between">
+               <h3 className="font-bold flex items-center gap-2">
+                 <Megaphone className="h-5 w-5 text-amber-500" />
+                 Eventos em Destaque
+               </h3>
+               <Badge variant="secondary">{confirmedEvents.filter(e => e.is_highlight).length} Ativos</Badge>
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+               {confirmedEvents.filter(e => e.is_highlight).map(ev => renderEventCard(ev))}
+               {confirmedEvents.filter(e => e.is_highlight).length === 0 && (
+                 <div className="col-span-full py-10 text-center border-2 border-dashed rounded-xl text-muted-foreground">
+                   Nenhum evento marcado como destaque no momento.
+                 </div>
+               )}
+             </div>
+           </div>
+         </TabsContent>
+
           <TabsTrigger value="pending" className="text-xs sm:text-sm">
             A serem liberados
             <Badge variant="secondary" className="ml-1.5 text-xs">{pendingEvents.length}</Badge>
