@@ -210,19 +210,20 @@ export default function Header() {
       );
     }
  
-    // Public view for agenda - clean and minimal
+    // Public view for agenda - responsive & polished
     if (isAgenda) {
       return (
-        <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-white/95 backdrop-blur-xl transition-all duration-300 shadow-sm">
-          <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6 gap-2">
-            <Link to="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity group shrink-0">
-              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-8 w-8 rounded-full ring-2 ring-primary/10 shadow-sm" />
-              <div className="flex flex-col leading-[1.1]">
-                <span className="font-display text-lg font-black text-primary tracking-tight">AgendIlha</span>
-                <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Coé a Boa?</span>
+        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-white/95 backdrop-blur-xl transition-all duration-300 shadow-sm">
+          <div className="mx-auto flex h-16 sm:h-18 max-w-5xl items-center justify-between px-4 sm:px-6 gap-2">
+            <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity group shrink-0">
+              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-8 w-8 sm:h-9 sm:w-9 rounded-full ring-2 ring-primary/5 shadow-sm" />
+              <div className="flex flex-col leading-[1]">
+                <span className="font-display text-lg sm:text-xl font-black text-primary tracking-tight">AgendIlha</span>
+                <span className="text-[9px] sm:text-[10px] text-secondary font-black uppercase tracking-[0.2em]">Coé a Boa?</span>
               </div>
             </Link>
-             <div className="flex items-center gap-2 sm:gap-3">
+
+            <div className="flex items-center gap-2 sm:gap-3">
               <Button 
                 size="sm" 
                 variant="outline"
@@ -233,14 +234,21 @@ export default function Header() {
                     navigate("/auth?redirect=/enviar-evento");
                   }
                 }}
-                className="rounded-full text-[11px] sm:text-xs font-bold border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all shadow-sm px-4 sm:px-6 h-9 sm:h-10 uppercase tracking-wider"
+                className="rounded-full text-[10px] sm:text-xs font-black border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all shadow-sm px-4 sm:px-6 h-9 sm:h-10 uppercase tracking-widest active:scale-95"
               >
                 Divulgar
               </Button>
-              {user && <HeaderUserMenu variant="desktop" hideContext={true} />}
+              
+              {user ? (
+                <HeaderUserMenu variant="desktop" hideContext={true} />
+              ) : (
+                <Link to="/auth?redirect=/agenda" className="hidden xs:block">
+                  <Button variant="ghost" size="sm" className="rounded-full text-foreground/70 hover:text-primary font-bold h-9 px-4">Entrar</Button>
+                </Link>
+              )}
             </div>
           </div>
-          <div className="h-1 w-full gradient-pumpkin-strip" />
+          <div className="h-1 w-full gradient-pumpkin-strip opacity-90" />
         </header>
       );
     }
