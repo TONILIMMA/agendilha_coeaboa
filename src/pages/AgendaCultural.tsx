@@ -296,41 +296,52 @@ function buildUberLink(ev: Event): string {
               </p>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-4 mt-8 px-4" role="group" aria-label="Ações da agenda">
-              <Button 
-                variant="default" 
-                className="rounded-full shadow-xl bg-primary text-primary-foreground hover:bg-primary/90 font-black px-8 sm:px-10 h-12 sm:h-14 text-sm sm:text-base border-2 border-primary transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none hover:scale-105 active:scale-95" 
-                onClick={() => {
-                  exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
-                  toast.success("PDF da agenda gerado!");
-                }}
-                aria-label="Baixar agenda completa em PDF"
-              >
-                <FileDown className="h-5 w-5 mr-2" /> Baixar PDF
-              </Button>
-
-              <div className="flex gap-3">
+            <div className="flex flex-col items-center gap-6 mt-8 px-4" role="group" aria-label="Ações da agenda">
+              <div className="flex flex-wrap justify-center gap-4 w-full">
                 <Button 
-                  variant="outline" 
-                  className="rounded-full shadow-md border-2 border-primary/40 text-primary bg-background hover:bg-primary/10 hover:border-primary transition-all px-5 sm:px-6 h-12 text-xs sm:text-sm font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95" 
+                  className="rounded-full shadow-xl gradient-sunset text-primary-foreground font-black px-8 sm:px-12 h-14 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-105 active:scale-95 flex-1 max-w-[300px]" 
                   onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                    toast.success("Link da agenda copiado!");
-                  }}
-                  aria-label="Copiar link da agenda"
-                >
-                  <Copy className="h-4 w-4 mr-2" /> Link
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="rounded-full shadow-md border-2 border-green-600/40 text-green-700 bg-background hover:bg-green-50 hover:border-green-600 transition-all px-5 sm:px-6 h-12 text-xs sm:text-sm font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-green-600/30 outline-none active:scale-95" 
-                  onClick={() => {
-                    window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
+                    window.open(buildWhatsAppShare({} as any, true), "_blank");
                   }}
                   aria-label="Compartilhar agenda no WhatsApp"
                 >
-                  <Share2 className="h-4 w-4 mr-2" /> Zap
+                  <MessageCircle className="h-5 w-5 mr-2.5" /> WhatsApp
+                </Button>
+
+                <Button 
+                  variant="outline" 
+                  className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-6 sm:px-8 h-14 text-sm font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1 max-w-[250px]" 
+                  onClick={() => handleShare(
+                    "Agenda Cultural da Ilha",
+                    "Confira a programação completa da Ilha do Governador!",
+                    window.location.href
+                  )}
+                  aria-label="Abrir compartilhamento do sistema"
+                >
+                  <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-3 w-full">
+                <Button 
+                  variant="ghost" 
+                  className="rounded-full h-11 px-6 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-all active:scale-95" 
+                  onClick={() => handleCopyLink(window.location.href)}
+                  aria-label="Copiar link da agenda"
+                >
+                  <Copy className="h-4 w-4 mr-2" /> Copiar link
+                </Button>
+
+                <Button 
+                  variant="ghost" 
+                  className="rounded-full h-11 px-6 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-all active:scale-95" 
+                  onClick={() => {
+                    exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
+                    toast.success("PDF da agenda gerado!");
+                  }}
+                  aria-label="Baixar agenda completa em PDF"
+                >
+                  <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
                 </Button>
               </div>
             </div>
