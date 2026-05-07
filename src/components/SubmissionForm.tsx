@@ -769,90 +769,92 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                  </div>
                )}
 
-              <div className="pt-4 sm:pt-8 border-t border-border space-y-4">
-                {currentStep < steps.length ? (
-                  <div className="flex gap-3">
-                    {currentStep > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        onClick={prevStep}
-                        className="flex-1 font-bold h-12"
-                      >
-                        <ArrowLeft className="mr-2 h-5 w-5" />
-                        Voltar
-                      </Button>
+                  <div className="pt-4 sm:pt-8 border-t border-border space-y-4">
+                    {currentStep < steps.length ? (
+                      <div className="flex gap-3">
+                        {currentStep > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="lg"
+                            onClick={prevStep}
+                            className="flex-1 font-bold h-12"
+                          >
+                            <ArrowLeft className="mr-2 h-5 w-5" />
+                            Voltar
+                          </Button>
+                        )}
+                        <Button
+                          type="button"
+                          size="lg"
+                          onClick={nextStep}
+                          className={cn(
+                            "flex-1 font-bold h-12 gradient-sunset text-primary-foreground",
+                            currentStep === 1 && "w-full"
+                          )}
+                        >
+                          Continuar
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3">
+                        <div className="flex gap-3">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="lg"
+                            onClick={prevStep}
+                            className="flex-1 font-bold h-12"
+                            disabled={submitting}
+                          >
+                            <ArrowLeft className="mr-2 h-5 w-5" />
+                            Editar
+                          </Button>
+                          <Button
+                            type="submit"
+                            size="lg"
+                            disabled={submitting}
+                            className="flex-1 font-bold h-12 bg-green-600 hover:bg-green-700 text-white shadow-lg"
+                          >
+                            {submitting ? (
+                              "Enviando..."
+                            ) : (
+                              <>
+                                <Send className="mr-2 h-5 w-5" />
+                                Enviar Solicitação
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
                     )}
+
                     <Button
                       type="button"
-                      size="lg"
-                      onClick={nextStep}
-                      className={cn(
-                        "flex-1 font-bold h-12 gradient-sunset text-primary-foreground",
-                        currentStep === 1 && "w-full"
-                      )}
+                      variant="ghost"
+                      size="sm"
+                      onClick={saveDraft}
+                      disabled={isSavingDraft || submitting}
+                      className="w-full text-muted-foreground hover:text-primary h-10 gap-2"
                     >
-                      Continuar
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      {isSavingDraft ? (
+                        <span className="flex items-center gap-2">
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                          Salvando...
+                        </span>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4" />
+                          Salvar Rascunho para Continuar Depois
+                        </>
+                      )}
                     </Button>
                   </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    <div className="flex gap-3">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        onClick={prevStep}
-                        className="flex-1 font-bold h-12"
-                        disabled={submitting}
-                      >
-                        <ArrowLeft className="mr-2 h-5 w-5" />
-                        Editar
-                      </Button>
-                      <Button
-                        type="submit"
-                        size="lg"
-                        disabled={submitting}
-                        className="flex-1 font-bold h-12 bg-green-600 hover:bg-green-700 text-white shadow-lg"
-                      >
-                        {submitting ? (
-                          "Enviando..."
-                        ) : (
-                          <>
-                            <Send className="mr-2 h-5 w-5" />
-                            Enviar Solicitação
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={saveDraft}
-                  disabled={isSavingDraft || submitting}
-                  className="w-full text-muted-foreground hover:text-primary h-10 gap-2"
-                >
-                  {isSavingDraft ? (
-                    <span className="flex items-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      Salvando...
-                    </span>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4" />
-                      Salvar Rascunho para Continuar Depois
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </Form>
+                </form>
+              </Form>
+            </>
+          )}
         </div>
       </div>
     </div>
