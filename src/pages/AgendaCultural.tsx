@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Clock, Share2, CalendarDays, ExternalLink, ArrowLeft, FileDown } from "lucide-react";
+ import { Loader2, MapPin, Clock, Share2, CalendarDays, ExternalLink, ArrowLeft, FileDown, Search, Filter } from "lucide-react";
 import { exportBulkEventsPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 
@@ -46,6 +46,9 @@ const weekdayLabels: Record<string, string> = {
   "domingo": "Domingo",
 };
 
+ import { Input } from "@/components/ui/input";
+ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 interface Event {
   id: string;
   event_title: string;
@@ -61,6 +64,7 @@ interface Event {
   category: string | null;
   company_name: string | null;
   phone: string | null;
+   is_highlight: boolean;
 }
 
 function parseDateToObj(dateStr: string | null): Date | null {
@@ -155,9 +159,37 @@ export default function AgendaCultural() {
     [events]
   );
 
+   async function trackView(id: string) {
+     await supabase.rpc('increment_views', { event_id: id });
+   }
+
+   async function trackShare(id: string) {
+     await supabase.rpc('increment_shares', { event_id: id });
+   }
+
+   const [search, setSearch] = useState("");
+   const [categoryFilter, setCategoryFilter] = useState("all");
+   const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+
+   const neighborhoods = useMemo(() => {
+     const set = new Set<string>();
+     events.forEach(e => { if (e.address_neighborhood) set.add(e.address_neighborhood); });
+     return Array.from(set).sort();
+   }, [events]);
+
+   const filteredEvents = useMemo(() => {
+     return upcomingEvents.filter(ev => {
+       const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
+                           (ev.description || "").toLowerCase().includes(search.toLowerCase());
+       const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
+       const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
+       return matchSearch && matchCat && matchNeigh;
+     });
+   }, [upcomingEvents, search, categoryFilter, neighborhoodFilter]);
+
   const grouped = useMemo(() => {
     const map: Record<string, { label: string; sortKey: string; items: Event[] }> = {};
-    for (const ev of upcomingEvents) {
+    for (const ev of filteredEvents) {
       const d = parseDateToObj(ev.date);
       const key = d
         ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
