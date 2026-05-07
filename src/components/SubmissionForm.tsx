@@ -223,6 +223,13 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
     const [eventImage, setEventImage] = useState<File | string | null>(null);
     const [imageSource, setImageSource] = useState<"upload" | "ai" | null>(null);
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+    const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+    const [aiStyles, setAiStyles] = useState({
+      title: "",
+      subtitle: "",
+      color: "primary",
+      variant: "modern" as "modern" | "vibrant" | "elegant"
+    });
    const [submitting, setSubmitting] = useState(false);
    const [submitted, setSubmitted] = useState(false);
    const navigate = useNavigate();
@@ -398,6 +405,19 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
   const descriptionLength = form.watch("description")?.length || 0;
 
+   const aiTemplates = [
+     { id: "musica", label: "Música / Show", icon: "🎸", colors: ["#ea384c", "#000000", "#ffffff"] },
+     { id: "cultural", label: "Evento Cultural", icon: "🎭", colors: ["#8B5CF6", "#1e1b4b", "#f5f3ff"] },
+     { id: "familia", label: "Infantil / Família", icon: "🎈", colors: ["#F97316", "#ffffff", "#fff7ed"] },
+     { id: "religioso", label: "Religioso", icon: "🙏", colors: ["#3b82f6", "#ffffff", "#f0f9ff"] },
+     { id: "comercio", label: "Promoção / Comércio", icon: "🏷️", colors: ["#22c55e", "#000000", "#f0fdf4"] },
+     { id: "noite", label: "Festa / Noite", icon: "✨", colors: ["#D946EF", "#000000", "#2e1065"] },
+     { id: "praia", label: "Praia / Ilha", icon: "🌴", colors: ["#0EA5E9", "#ffffff", "#f0f9ff"] },
+     { id: "esportivo", label: "Esportivo", icon: "⚽", colors: ["#10B981", "#ffffff", "#ecfdf5"] },
+     { id: "gastronomico", label: "Gastronômico", icon: "🍻", colors: ["#F59E0B", "#1c1917", "#fffbeb"] },
+     { id: "institucional", label: "Institucional", icon: "🏛️", colors: ["#64748b", "#ffffff", "#f8fafc"] },
+   ];
+
    const handleGenerateAIImage = async () => {
      const eventData = form.getValues();
      if (!eventData.eventTitle && !eventData.atrativoName) {
@@ -408,27 +428,39 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
      setIsGeneratingImage(true);
      toast.info("A IA está criando sua arte...", { description: "Isso pode levar alguns segundos." });
      
-     // Simulate AI Generation
+     // Set initial editable fields from form
+     setAiStyles({
+       title: eventData.eventTitle || eventData.atrativoName || "",
+       subtitle: eventData.atrativoDescription || "",
+       color: selectedTemplate ? (aiTemplates.find(t => t.id === selectedTemplate)?.colors[0] || "primary") : "primary",
+       variant: "modern"
+     });
+
+     // Simulate AI Generation with template context
      setTimeout(() => {
-       const category = eventData.category || "party";
+       const category = selectedTemplate || eventData.category || "party";
        const randomId = Math.floor(Math.random() * 1000);
-       const mockImageUrl = `https://images.unsplash.com/photo-${randomId}?auto=format&fit=crop&q=80&w=800&h=600&q=80`;
-       // Actually unsplash ids are specific, so I'll use category based keywords
+       
        const keywords: Record<string, string> = {
-         musica: "concert,music,band",
-         gastronomia: "food,restaurant,dining",
-         cultura: "culture,art,museum",
-         esporte: "sport,stadium,game",
-         outros: "event,gathering"
+         musica: "concert,stage,live-music",
+         cultural: "theatre,art-gallery,exhibition",
+         familia: "kids-party,family-fun,balloons",
+         religioso: "church,spiritual,peaceful",
+         comercio: "shopping,sale,store-front",
+         noite: "night-club,neon-lights,party",
+         praia: "tropical-beach,ocean,island",
+         esportivo: "stadium,football-pitch,running",
+         gastronomico: "fine-dining,cocktails,beer",
+         institucional: "office,meeting,professional"
        };
        const kw = keywords[category] || "event";
-       const finalUrl = `https://source.unsplash.com/featured/800x600?${kw}&sig=${randomId}`;
+       const finalUrl = `https://source.unsplash.com/featured/800x1000?${kw}&sig=${randomId}`;
        
        setEventImage(finalUrl);
        setImageSource("ai");
        setIsGeneratingImage(false);
-       toast.success("Arte gerada com sucesso!");
-     }, 2000);
+       toast.success("Flyer gerado com sucesso!", { description: "Você pode personalizar os detalhes abaixo." });
+     }, 2500);
    };
 
    async function onSubmit(data: FormData) {
