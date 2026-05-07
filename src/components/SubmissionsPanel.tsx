@@ -207,14 +207,21 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
-        <SheetHeader className="pb-4">
-          <SheetTitle className="font-display flex items-center gap-2 text-lg">
-            <ClipboardList className="h-5 w-5 text-primary" />
-            {isAdmin ? "Todos os Envios" : "Meus Envios"}
+        <SheetHeader className="pb-6 border-b border-border/50 mb-6">
+          <SheetTitle className="font-display flex items-center gap-2.5 text-2xl font-black text-primary tracking-tight">
+            <ClipboardList className="h-7 w-7" />
+            {isAdmin ? "Operações / Envios" : "Meus Envios"}
             {savedCount > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">{savedCount}</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-sm font-black rounded-full px-2.5">
+                {savedCount}
+              </Badge>
             )}
           </SheetTitle>
+          {!isAdmin && (
+            <p className="text-sm text-muted-foreground font-medium leading-snug">
+              Acompanhe aqui o status de curadoria e publicação de cada evento que você divulgou.
+            </p>
+          )}
         </SheetHeader>
 
         {loading ? (
@@ -291,20 +298,24 @@ export default function SubmissionsPanel({ children }: { children: React.ReactNo
                           <p className="font-display font-semibold text-foreground truncate">{sub.event_title}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{formatDate(sub.created_at)}</p>
                         </div>
-                        <div className="flex flex-col items-end gap-1 shrink-0">
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
                           <Badge
-                            variant={
-                              sub.status === "approved" ? "default"
-                              : sub.status === "rejected" ? "destructive"
-                              : "secondary"
-                            }
-                            className="text-xs"
+                            className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 border-none shadow-sm ${
+                              sub.status === "approved" || sub.status === "published" ? "bg-green-100 text-green-800"
+                              : sub.status === "rejected" ? "bg-red-100 text-red-800"
+                              : "bg-amber-100 text-amber-800"
+                            }`}
                           >
-                            {sub.status === "approved" ? "✅ Aprovado"
-                              : sub.status === "rejected" ? "❌ Reprovado"
-                              : "⏳ Em análise"}
+                             {sub.status === "approved" || sub.status === "published" ? "Aprovado"
+                               : sub.status === "rejected" ? "Rejeitado"
+                               : "Em análise"}
                           </Badge>
-                          <Badge variant="outline" className="text-xs">
+                          {sub.status === "published" && (
+                            <Badge className="bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest border-primary/20">
+                              Publicado na Agenda
+                            </Badge>
+                          )}
+                          <Badge variant="outline" className="text-[10px] font-bold text-muted-foreground/70 uppercase">
                             {categoryLabels[sub.category || ""] || "—"}
                           </Badge>
                         </div>
