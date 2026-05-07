@@ -273,7 +273,10 @@ export default function CoeABoa() {
                           size="sm"
                           variant="outline"
                           className="text-xs"
-                          onClick={() => window.open(buildWhatsAppShare(ev), "_blank")}
+                           onClick={() => {
+                             trackShare(ev.id);
+                             window.open(buildWhatsAppShare(ev), "_blank");
+                           }}
                         >
                           <Share2 className="h-3.5 w-3.5 mr-1" />
                           Compartilhar
