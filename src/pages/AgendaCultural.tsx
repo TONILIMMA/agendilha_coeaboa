@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Sun, Moon, Download } from "lucide-react";
+import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Sun, Moon, Download, Car } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
  import { Dialog, DialogContent } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
@@ -30,6 +30,8 @@ import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, E
    is_highlight: boolean;
    status?: string;
    image_url?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 const categoryLabels: Record<string, string> = {
@@ -85,6 +87,22 @@ function buildWhatsAppShare(ev: Event) {
   const addr = buildFullAddress(ev);
   const msg = `🗓️ *${ev.event_title}*\n${time ? `⏰ ${time}\n` : ""}${addr ? `📍 ${addr}\n` : ""}\n🌴 Veja a agenda completa: https://agendilha-divulgacao.lovable.app/agenda`;
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+}
+
+function buildUberLink(ev: Event): string {
+  const destinationName = encodeURIComponent(ev.location || "Evento");
+  const address = buildFullAddress(ev);
+  const destinationAddress = encodeURIComponent(address);
+  
+  let url = `https://m.uber.com/ul/?action=setPickup&pickup=my_location`;
+  
+  if (ev.latitude && ev.longitude) {
+    url += `&dropoff[latitude]=${ev.latitude}&dropoff[longitude]=${ev.longitude}&dropoff[nickname]=${destinationName}&dropoff[formatted_address]=${destinationAddress}`;
+  } else {
+    url += `&dropoff[nickname]=${destinationName}&dropoff[formatted_address]=${destinationAddress}`;
+  }
+  
+  return url;
 }
 
  export default function AgendaCultural() {
@@ -699,16 +717,30 @@ function buildWhatsAppShare(ev: Event) {
                         <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
                       </Button>
                       
-                      <Button 
-                        variant="outline" 
-                        className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary bg-background hover:bg-primary hover:text-primary-foreground active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none shadow-md" 
-                        onClick={() => {
-                          const addr = buildFullAddress(selectedEvent);
-                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
-                        }}
-                      >
-                        <MapPin className="h-5 w-5 mr-2.5" /> Ver no Mapa
-                      </Button>
+                      <div className="flex gap-2 flex-1">
+                        <Button 
+                          variant="outline" 
+                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary bg-background hover:bg-primary hover:text-primary-foreground active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none shadow-md" 
+                          onClick={() => {
+                            const addr = buildFullAddress(selectedEvent);
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
+                          }}
+                          title="Ver localização no Google Maps"
+                        >
+                          <MapPin className="h-5 w-5 mr-2.5" /> Mapa
+                        </Button>
+                        
+                        <Button 
+                          variant="outline" 
+                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-black text-black bg-white hover:bg-black hover:text-white active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-black/20 focus-visible:ring-offset-2 ring-offset-background outline-none shadow-md" 
+                          onClick={() => {
+                            window.open(buildUberLink(selectedEvent), "_blank");
+                          }}
+                          title="Solicitar um Uber para o local"
+                        >
+                          <Car className="h-5 w-5 mr-2.5" /> Uber
+                        </Button>
+                      </div>
                     </div>
                     
                     {selectedEvent.image_url && (

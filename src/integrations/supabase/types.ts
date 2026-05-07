@@ -303,11 +303,13 @@ export type Database = {
           id: string
           image_url: string | null
           is_highlight: boolean | null
+          latitude: number | null
           legal_acceptance: boolean | null
           legal_acceptance_date: string | null
           location: string | null
           location_contact: string | null
           location_type: string | null
+          longitude: number | null
           maintenance_cost: string | null
           phone: string | null
           predicted_duration: string | null
@@ -354,11 +356,13 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_highlight?: boolean | null
+          latitude?: number | null
           legal_acceptance?: boolean | null
           legal_acceptance_date?: string | null
           location?: string | null
           location_contact?: string | null
           location_type?: string | null
+          longitude?: number | null
           maintenance_cost?: string | null
           phone?: string | null
           predicted_duration?: string | null
@@ -405,11 +409,13 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_highlight?: boolean | null
+          latitude?: number | null
           legal_acceptance?: boolean | null
           legal_acceptance_date?: string | null
           location?: string | null
           location_contact?: string | null
           location_type?: string | null
+          longitude?: number | null
           maintenance_cost?: string | null
           phone?: string | null
           predicted_duration?: string | null
