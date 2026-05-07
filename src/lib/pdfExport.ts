@@ -11,6 +11,7 @@ const categoryLabels: Record<string, string> = {
 };
 
 interface EventData {
+  id?: string;
   event_title: string;
   date?: string | null;
   start_time?: string | null;
@@ -35,6 +36,9 @@ interface EventData {
   video_link?: string | null;
   additional_details?: string | null;
   created_at?: string;
+  is_highlight?: boolean;
+  views_count?: number;
+  shares_count?: number;
 }
 
 const BRAND_ORANGE: [number, number, number] = [232, 89, 12];
@@ -53,6 +57,7 @@ function formatWhatsApp(raw?: string | null): string {
 }
 
 const PAGE_W = 210;
+const PAGE_H = 297;
 const MARGIN = 18;
 const CONTENT_W = PAGE_W - MARGIN * 2;
 const HEADER_H = 16;
