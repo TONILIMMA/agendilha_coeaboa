@@ -332,66 +332,134 @@ export default function AdminEvents() {
 
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
-   return (
-     <div className="min-h-screen bg-background">
-       <Header />
-       <div className="mx-auto max-w-5xl px-4 py-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-display font-bold text-foreground">Todos os Eventos</h1>
-          <Badge variant="secondary" className="text-xs">{filtered.length}</Badge>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-           <div className="flex gap-2">
-             <Button
-               size="sm"
-               variant={showStats ? "default" : "outline"}
-               onClick={() => setShowStats(!showStats)}
-               className="text-xs"
-             >
-               <BarChart3 className="mr-1.5 h-3.5 w-3.5" />
-               {showStats ? "Ocultar Métricas" : "Ver Métricas"}
-             </Button>
-             <Button
-               size="sm"
-               variant="outline"
-               onClick={() => {
-                 exportBulkEventsPdf(filtered);
-                 toast.success("PDF com todos os eventos gerado!");
-               }}
-               disabled={filtered.length === 0}
-               className="text-xs"
-             >
-               <FileDown className="mr-1.5 h-3.5 w-3.5" />
-               Exportar Agenda (PDF)
-             </Button>
-           </div>
-          <Button
-            size="sm"
-            onClick={() => {
-              const { start, end } = getWeekRange();
-              const weekApproved = submissions.filter((s) => {
-                if (s.status !== "approved") return false;
-                if (!s.date) return false;
-                const d = parseEventDate(s.date);
-                return d && d >= start && d <= end;
-              });
-              if (weekApproved.length === 0) {
-                toast.warning("Nenhum evento aprovado encontrado para esta semana.");
-                return;
-              }
-              const msg = buildBulkWhatsAppMessage(weekApproved);
-              window.open(`https://wa.me/?text=${msg}`, "_blank");
-              toast.success(`Mensagem gerada com ${weekApproved.length} evento(s) da semana!`);
-            }}
-            className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
-          >
-            <Send className="mr-1.5 h-3.5 w-3.5" />
-            Enviar para Divulgação
-          </Button>
-        </div>
-      </div>
+    const kpis = useMemo(() => {
+      return {
+        total: submissions.length,
+        pending: submissions.filter(s => s.status === 'pending').length,
+        analysis: submissions.filter(s => s.status === 'analysis').length,
+        approved: submissions.filter(s => s.status === 'approved').length,
+        rejected: submissions.filter(s => s.status === 'rejected').length,
+        published: submissions.filter(s => s.status === 'published').length,
+      };
+    }, [submissions]);
+
+    const [statusFilter, setStatusFilter] = useState("all");
+
+    const filtered = useMemo(() => {
+      let list = [...submissions];
+      if (statusFilter !== "all") list = list.filter(s => s.status === statusFilter);
+      if (categoryFilter !== "all") list = list.filter(s => s.category === categoryFilter);
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        list = list.filter(s => 
+          s.event_title.toLowerCase().includes(q) ||
+          (s.company_name || "").toLowerCase().includes(q) ||
+          (s.location || "").toLowerCase().includes(q)
+        );
+      }
+      return list;
+    }, [submissions, statusFilter, categoryFilter, search]);
+
+    return (
+      <div className="min-h-screen bg-muted/30">
+        <div className="mx-auto max-w-7xl px-4 py-8">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">Gestão de Eventos</h1>
+              <p className="text-muted-foreground mt-1">Moderação, revisão e distribuição de eventos da Ilha.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={() => fetchAll()}>
+                <RotateCcw className="h-4 w-4 mr-2" /> Atualizar
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportBulkEventsPdf(filtered)}>
+                <FileDown className="h-4 w-4 mr-2" /> Exportar PDF
+              </Button>
+              <Button 
+                size="sm" 
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => {
+                  const approved = submissions.filter(s => s.status === 'approved');
+                  if (approved.length === 0) {
+                    toast.warning("Nenhum evento aprovado para divulgar.");
+                    return;
+                  }
+                  const msg = buildBulkWhatsAppMessage(approved);
+                  window.open(`https://wa.me/?text=${msg}`, "_blank");
+                }}
+              >
+                <MessageCircle className="h-4 w-4 mr-2" /> Divulgar WhatsApp
+              </Button>
+            </div>
+          </div>
+
+          {/* KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+            {[
+              { label: 'Total', value: kpis.total, color: 'text-blue-600', bg: 'bg-blue-50' },
+              { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-amber-50' },
+              { label: 'Em Análise', value: kpis.analysis, color: 'text-purple-600', bg: 'bg-purple-50' },
+              { label: 'Aprovados', value: kpis.approved, color: 'text-green-600', bg: 'bg-green-50' },
+              { label: 'Rejeitados', value: kpis.rejected, color: 'text-red-600', bg: 'bg-red-50' },
+              { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+            ].map((kpi) => (
+              <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm`}>
+                <CardContent className="p-4 pt-4">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">{kpi.label}</p>
+                  <p className={`text-2xl font-bold ${kpi.color}`}>{kpi.value}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Filters Area */}
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Buscar evento..." 
+                    className="pl-9" 
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os Status</SelectItem>
+                    <SelectItem value="pending">Pendentes</SelectItem>
+                    <SelectItem value="analysis">Em Análise</SelectItem>
+                    <SelectItem value="approved">Aprovados</SelectItem>
+                    <SelectItem value="rejected">Rejeitados</SelectItem>
+                    <SelectItem value="published">Publicados</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as Categorias</SelectItem>
+                    {Object.entries(categoryLabels).map(([k, v]) => (
+                      <SelectItem key={k} value={k}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1" onClick={() => {
+                    setSearch("");
+                    setStatusFilter("all");
+                    setCategoryFilter("all");
+                  }}>Limpar</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
       {/* Filters */}
       <Card className="mb-5 border-border">
