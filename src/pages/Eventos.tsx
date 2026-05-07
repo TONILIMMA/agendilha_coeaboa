@@ -524,45 +524,74 @@ export default function Eventos() {
                          Card p/ Redes Sociais
                        </Button>
                      </DialogTrigger>
-                     <DialogContent className="max-w-[400px] p-0 overflow-hidden border-0">
-                       <div className="bg-primary p-8 text-white aspect-square flex flex-col justify-between relative overflow-hidden">
+                   <DialogContent className="max-w-[450px] p-0 overflow-hidden border-0">
+                       <div id={`event-card-${sub.id}`} className="bg-gradient-to-br from-primary via-primary to-primary/90 p-8 text-white aspect-square flex flex-col justify-between relative overflow-hidden">
                          {/* Abstract background shapes */}
-                         <div className="absolute top-[-20%] right-[-20%] w-[60%] h-[60%] bg-white/10 rounded-full blur-3xl" />
-                         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/20 rounded-full blur-2xl" />
+                         <div className="absolute top-[-20%] right-[-20%] w-[70%] h-[70%] bg-white/10 rounded-full blur-3xl animate-pulse" />
+                         <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-amber-500/20 rounded-full blur-2xl" />
+                         <div className="absolute top-[40%] left-[20%] w-[30%] h-[30%] bg-white/5 rounded-full blur-xl" />
                          
                          <div className="relative z-10">
-                           <div className="flex items-center gap-2 mb-4">
-                             <div className="h-10 w-10 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center font-bold text-xl">🌴</div>
-                             <div className="font-display font-bold text-xl tracking-tight">AgendIlha</div>
+                           <div className="flex items-center justify-between mb-6">
+                             <div className="flex items-center gap-2">
+                               <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center font-bold text-2xl shadow-lg border border-white/30">🌴</div>
+                               <div className="flex flex-col">
+                                 <span className="font-display font-black text-2xl tracking-tighter leading-none">AgendIlha</span>
+                                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-70">Agenda Cultural</span>
+                               </div>
+                             </div>
+                             {sub.is_highlight && (
+                               <Badge className="bg-amber-500 text-white border-0 animate-bounce shadow-lg px-3 py-1 font-bold">DESTAQUE 🔥</Badge>
+                             )}
                            </div>
-                           <Badge className="bg-amber-500 text-white border-0 mb-4">{categoryLabels[sub.category || ''] || 'Evento'}</Badge>
-                           <h2 className="text-3xl font-display font-black leading-tight mb-4 uppercase tracking-tighter">{sub.event_title}</h2>
+                           
+                           <div className="space-y-4">
+                             <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/20 backdrop-blur-sm px-3 py-1">{categoryLabels[sub.category || ''] || 'Evento'}</Badge>
+                             <h2 className="text-4xl font-display font-black leading-[1.1] uppercase tracking-tighter drop-shadow-md">{sub.event_title}</h2>
+                           </div>
                          </div>
 
-                         <div className="relative z-10 space-y-3">
-                           <div className="flex items-center gap-3">
-                             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center"><CalendarDays className="h-4 w-4" /></div>
-                             <div>
+                         <div className="relative z-10 grid grid-cols-2 gap-4">
+                           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-lg group hover:bg-white/20 transition-all">
+                             <div className="flex items-center gap-3 mb-2">
+                               <div className="h-8 w-8 rounded-full bg-amber-500/30 flex items-center justify-center"><CalendarDays className="h-4 w-4 text-amber-500" /></div>
                                <p className="text-[10px] uppercase opacity-70 font-bold tracking-widest">Quando</p>
-                               <p className="font-bold text-lg leading-none">{sub.date} • {sub.start_time}</p>
                              </div>
+                             <p className="font-bold text-lg leading-tight">{sub.date}<br/><span className="text-amber-500">{sub.start_time}</span></p>
                            </div>
-                           <div className="flex items-center gap-3">
-                             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center"><MapPin className="h-4 w-4" /></div>
-                             <div>
+                           
+                           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-lg group hover:bg-white/20 transition-all">
+                             <div className="flex items-center gap-3 mb-2">
+                               <div className="h-8 w-8 rounded-full bg-blue-500/30 flex items-center justify-center"><MapPin className="h-4 w-4 text-blue-400" /></div>
                                <p className="text-[10px] uppercase opacity-70 font-bold tracking-widest">Onde</p>
-                               <p className="font-bold text-lg leading-none line-clamp-1">{sub.location}</p>
                              </div>
+                             <p className="font-bold text-lg leading-tight line-clamp-2">{sub.location}</p>
                            </div>
                          </div>
 
                          <div className="mt-8 pt-6 border-t border-white/20 relative z-10 flex items-center justify-between">
-                           <p className="text-sm font-bold opacity-80 italic">#CoéABoaIlha</p>
-                           <p className="text-[10px] font-mono opacity-60">agendilha.com.br</p>
+                           <div className="flex items-center gap-2">
+                             <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center p-1">
+                               <img src="/lovable-uploads/61793740-3f9b-4638-ba33-df5e67272522.png" alt="QR" className="w-full h-full object-contain" />
+                             </div>
+                             <p className="text-[10px] font-bold opacity-80 leading-tight">Escaneie para<br/>ver detalhes</p>
+                           </div>
+                           <div className="text-right">
+                             <p className="text-sm font-black italic tracking-tighter text-amber-500">#CoéABoaIlha</p>
+                             <p className="text-[10px] font-mono opacity-50">agendilha.com.br</p>
+                           </div>
                          </div>
                        </div>
-                       <div className="p-4 bg-muted/30 border-t flex justify-center">
-                         <p className="text-xs text-muted-foreground">Tire um print para compartilhar no Instagram ou WhatsApp</p>
+                       <div className="p-4 bg-muted/50 border-t flex flex-col items-center gap-2">
+                         <p className="text-xs font-medium text-muted-foreground">Tire um print para compartilhar no Story ou WhatsApp</p>
+                         <Button size="sm" variant="ghost" className="text-[10px] h-6 opacity-50 hover:opacity-100" onClick={() => {
+                            const el = document.getElementById(`event-card-${sub.id}`);
+                            if (el) {
+                              toast.info("Dica: Use a ferramenta de captura do sistema para salvar o card em alta qualidade!");
+                            }
+                         }}>
+                           Ajustar Visualização
+                         </Button>
                        </div>
                      </DialogContent>
                    </Dialog>
