@@ -255,25 +255,36 @@ function buildWhatsAppShare(ev: Event) {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                const newOrder = sortOrder === "asc" ? "desc" : "asc";
-                setSortOrder(newOrder);
-                toast.info(`Ordenado por: ${newOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}`, {
-                  duration: 2000,
-                  position: "bottom-center"
-                });
-              }}
-              aria-label={`Ordenar eventos: atual ${sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}. Clique para inverter.`}
-              aria-pressed={sortOrder === "desc"}
-              className="h-12 px-5 rounded-xl border-none bg-muted/50 hover:bg-muted font-bold text-muted-foreground flex items-center gap-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none"
-            >
-              <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
-              <span className="text-xs uppercase tracking-wider">
-                {sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}
-              </span>
-            </Button>
+            <div className="relative group">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const newOrder = sortOrder === "asc" ? "desc" : "asc";
+                  setSortOrder(newOrder);
+                  toast.info(`Ordenado por: ${newOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}`, {
+                    duration: 2000,
+                    position: "bottom-center"
+                  });
+                }}
+                aria-label={`Ordenar eventos: atual ${sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}. Clique para inverter.`}
+                aria-pressed={sortOrder === "desc"}
+                className={cn(
+                  "h-12 px-5 rounded-xl border-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none font-bold flex items-center gap-2",
+                  sortOrder === "asc" 
+                    ? "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20" 
+                    : "bg-secondary/10 border-secondary/20 text-secondary hover:bg-secondary/20"
+                )}
+              >
+                <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
+                <span className="text-xs uppercase tracking-wider">
+                  {sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}
+                </span>
+              </Button>
+              <div className={cn(
+                "absolute -top-2 -right-1 h-3 w-3 rounded-full border-2 border-background animate-pulse",
+                sortOrder === "asc" ? "bg-primary" : "bg-secondary"
+              )} />
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
