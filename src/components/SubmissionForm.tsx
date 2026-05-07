@@ -441,14 +441,50 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 sm:space-y-8">
-              <CollapsibleSection title="👤 Dados do Anunciante" sectionKey="anunciante" expanded={expandedSections.anunciante} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <TextField control={form.control} name="companyName" label="Nome da empresa/organização" />
-                  <TextField control={form.control} name="responsibleName" label="Nome do responsável" />
-                  <TextField control={form.control} name="email" label="E-mail de contato (opcional)" type="email" inputMode="email" required={false} />
-                  <TextField control={form.control} name="phone" label="Telefone/WhatsApp" type="tel" inputMode="tel" />
-                </div>
-              </CollapsibleSection>
+               <StepIndicator steps={steps} currentStep={currentStep} />
+               
+               {currentStep === 1 && (
+                 <div className="space-y-6">
+                   <h2 className="text-xl font-bold">1. Dados Básicos</h2>
+                   <TextField control={form.control} name="nickName" label="Nick / Nome" />
+                   <TextField control={form.control} name="basicPhone" label="WhatsApp" />
+                   <TextField control={form.control} name="userLocation" label="Seu Local" />
+                 </div>
+               )}
+               
+               {currentStep === 2 && (
+                 <div className="space-y-6">
+                   <h2 className="text-xl font-bold">2. Dados do Divulgador</h2>
+                   <TextField control={form.control} name="companyName" label="Nome completo / Empresa" />
+                   <TextField control={form.control} name="pinCode" label="PIN (4-8 dígitos)" type="password" />
+                   <TextField control={form.control} name="email" label="E-mail" required={false} />
+                   <CepField control={form.control} onCepFound={(data) => {
+                     form.setValue("addressStreet", data.logradouro || "");
+                     form.setValue("addressNeighborhood", data.bairro || "");
+                     form.setValue("addressCity", data.localidade || "");
+                     form.setValue("addressState", data.uf || "");
+                   }} />
+                   <TextField control={form.control} name="addressStreet" label="Endereço" required={false} />
+                   <TextField control={form.control} name="addressNumber" label="Número / Complemento" required={false} />
+                 </div>
+               )}
+
+               {currentStep === 3 && (
+                 <div className="space-y-6">
+                   <h2 className="text-xl font-bold">3. Informações do Evento</h2>
+                   {/* Add categories/event fields here */}
+                 </div>
+               )}
+
+               {currentStep === 7 && (
+                 <div className="space-y-6">
+                   <h2 className="text-xl font-bold">7. Prévia Final</h2>
+                   <SummarySection title="Dados do Usuário" items={[
+                     { label: "Nick", value: form.watch("nickName") },
+                     { label: "WhatsApp", value: form.watch("basicPhone") }
+                   ]} onEdit={() => setCurrentStep(1)} />
+                 </div>
+               )}
 
               <CollapsibleSection title="🎉 Informações do Evento" sectionKey="evento" expanded={expandedSections.evento} onToggle={toggleSection}>
                 <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
