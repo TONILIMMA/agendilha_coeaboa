@@ -373,7 +373,7 @@ function buildWhatsAppShare(ev: Event) {
                      <Card 
                        key={ev.id} 
                        className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group" 
-                       onClick={() => trackView(ev.id)}
+                       onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
                      >
                        <CardContent className="p-6 space-y-4">
                          <div className="flex items-center justify-between">
@@ -414,10 +414,11 @@ function buildWhatsAppShare(ev: Event) {
                   {grouped[dayKey].items.map((ev) => {
                     const icon = categoryIcons[ev.category || ""] || "📌";
                     return (
-                      <Card
-                        key={ev.id}
-                        className="overflow-hidden border-border hover:shadow-md transition-all group"
-                      >
+                       <Card 
+                         key={ev.id} 
+                         className="overflow-hidden border-border hover:shadow-md transition-all group cursor-pointer"
+                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
+                       >
                         <CardContent className="p-0">
                          <div className="flex flex-col md:flex-row">
                            {/* Image or Icon strip */}
