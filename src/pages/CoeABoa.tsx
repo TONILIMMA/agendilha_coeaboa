@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Filter } from "lucide-react";
 import { formatDateWithWeekday } from "@/lib/dateUtils";
-import { exportBulkEventsPdf } from "@/lib/pdfExport";
+ import { exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 
 const categoryLabels: Record<string, string> = {
@@ -130,10 +130,10 @@ export default function CoeABoa() {
             variant="secondary"
             className="mt-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             onClick={() => {
-              try {
-                exportBulkEventsPdf(events);
-                toast.success("📄 Agenda exportada em PDF!");
-              } catch (err: any) {
+               try {
+                 exportEditorialAgendaPdf(events, "Coé a Boa? - Agenda Cultural");
+                 toast.success("📄 Agenda editorial gerada em PDF!");
+               } catch (err: any) {
                 toast.error("Falha ao gerar PDF", { description: err?.message });
               }
             }}
