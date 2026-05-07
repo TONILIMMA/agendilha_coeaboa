@@ -276,7 +276,7 @@ function buildUberLink(ev: Event): string {
   return (
     <div className={cn(
       "min-h-screen bg-background transition-colors duration-300",
-      highContrast && "dark bg-slate-950"
+      highContrast && "dark"
     )}>
       {/* Botão flutuante de Alto Contraste */}
       <Button
