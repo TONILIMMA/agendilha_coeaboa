@@ -18,6 +18,7 @@ export default function ForgotPassword() {
   const [code, setCode] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
   const [token, setToken] = useState("");
+  const [showDirectInstructions, setShowDirectInstructions] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -49,22 +50,22 @@ export default function ForgotPassword() {
       body: { phone },
     });
     setSubmitting(false);
-    if (error) {
-      toast.error("Erro", { description: error.message });
+    
+    if (error || data?.error) {
+      // If automated reset fails, we can offer direct contact or just show the same message
+      toast.error("Erro", { description: data?.error || error?.message });
+      setShowDirectInstructions(true);
       return;
     }
-    if (data?.error) {
-      toast.error("Erro", { description: data.error });
-      return;
-    }
+    
     if (data?.code) {
       setGeneratedCode(data.code);
       setStep("code");
-      toast.success("Código gerado!", {
-        description: "Use o código exibido na tela para continuar.",
+      toast.success("Solicitação recebida!", {
+        description: "Enviaremos seu código pelo WhatsApp em instantes.",
       });
     } else {
-      toast.success("Se o número estiver cadastrado, um código foi gerado.");
+      toast.success("Código enviado!", { description: "Verifique seu WhatsApp." });
       setStep("code");
     }
   }
@@ -124,38 +125,47 @@ export default function ForgotPassword() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background px-4">
       <div className="w-full max-w-sm rounded-2xl bg-card shadow-elevated p-8 space-y-6">
-        <div className="text-center">
-          <h1 className="font-display text-2xl font-bold text-foreground">📌 AgendIlha</h1>
-          <p className="text-sm text-muted-foreground mt-1">Recuperar senha</p>
+        <div className="text-center space-y-1">
+          <h1 className="font-display text-2xl font-black text-primary tracking-tight">📌 AgendIlha</h1>
+          <h2 className="text-sm font-bold text-foreground">Recuperar acesso</h2>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">via WhatsApp</p>
         </div>
 
         {step === "phone" && (
-          <form onSubmit={handleRequestCode} className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Informe o WhatsApp cadastrado para receber um código de verificação.
-            </p>
-            <div className="space-y-2">
-              <Label htmlFor="phone">WhatsApp (com DDD)</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={handlePhoneChange}
-                  required
-                  placeholder="(21) 98765-4321"
-                  className="pl-10"
-                />
-              </div>
+          <form onSubmit={handleRequestCode} className="space-y-5">
+            <div className="bg-primary/5 p-4 rounded-xl border border-primary/10">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                O WhatsApp é o seu canal de autenticação. Informe o número cadastrado para receber um código de acesso.
+              </p>
             </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="phone">Seu WhatsApp</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={handlePhoneChange}
+                required
+                placeholder="(21) 98765-4321"
+                className="h-12 bg-muted/30 focus-visible:ring-primary/20"
+              />
+            </div>
+            
+            {showDirectInstructions && (
+              <div className="bg-amber-50 p-3 rounded-lg border border-amber-200 text-xs text-amber-900 leading-snug">
+                Não recebeu o código? Entre em contato diretamente com o suporte pelo link:
+                <a href="https://wa.me/5521999999999" target="_blank" rel="noreferrer" className="block mt-1 font-bold underline">Falar com suporte</a>
+              </div>
+            )}
+
             <Button
               type="submit"
               disabled={submitting}
-              className="w-full gradient-sunset text-primary-foreground font-display font-semibold"
+              className="w-full h-12 gradient-sunset text-primary-foreground font-display font-black uppercase tracking-wider"
             >
               {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}
-              Gerar código
+              Receber código no WhatsApp
             </Button>
           </form>
         )}
