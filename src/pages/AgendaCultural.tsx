@@ -82,14 +82,17 @@ function buildFullAddress(ev: Event): string {
   return parts.join(" – ");
 }
 
- function buildWhatsAppShare(ev: Event, isAgenda = false) {
-   if (isAgenda) {
-     const msg = `🌴 *Confira a Agenda Cultural da Ilha do Governador!* 🌴\n\nVeja a programação completa e atualizada em:\nhttps://agendilha-divulgacao.lovable.app/agenda`;
-     return `https://wa.me/?text=${encodeURIComponent(msg)}`;
-   }
+function buildWhatsAppShare(ev: Event, isAgenda = false) {
+  const agendaUrl = `${window.location.origin}/agenda`;
+  
+  if (isAgenda) {
+    const msg = `🌴 *Confira a Agenda Cultural da Ilha do Governador!* 🌴\n\nVeja a programação completa e atualizada em:\n${agendaUrl}`;
+    return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  }
+  
   const time = ev.start_time ? `${ev.start_time}` : "";
   const addr = buildFullAddress(ev);
-   const msg = `🗓️ *${ev.event_title}*\n${time ? `⏰ ${time}\n` : ""}${addr ? `📍 ${addr}\n` : ""}\n🌴 Veja os detalhes e a agenda completa: https://agendilha-divulgacao.lovable.app/agenda`;
+  const msg = `🗓️ *${ev.event_title}*\n${time ? `⏰ ${time}\n` : ""}${addr ? `📍 ${addr}\n` : ""}\n🌴 Veja os detalhes no AgendIlha:\n${agendaUrl}?event=${ev.id}`;
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
@@ -164,34 +167,39 @@ function buildUberLink(ev: Event): string {
      localStorage.setItem("agendilha_sort_order", sortOrder);
    }, [sortOrder]);
 
-   useEffect(() => {
-     async function load() {
-       setLoading(true);
-       try {
-         const { data, error } = await supabase
-           .from("submissions")
-           .select("*")
-           .in('status', ['published', 'approved']);
-         
-         if (error) throw error;
-         
-         // Filter only published ones to strictly follow the "public" rule if required, 
-         // but based on user prompt "aprovados/publicados" I'll show both for now if they are "aptos".
-         // Actually, let's stick to 'published' to maintain the flow, but explain to user.
-         // RE-READ: "mostrar somente eventos aptos para publicação pública; - não mostrar rascunhos, pendentes, rejeitados ou itens internos;"
-         // If 'approved' is considered internal, then only 'published' should show.
-         // But if no events are published, it will be empty.
-         // I'll show 'published' events by default, but I'll update the filter to be more resilient.
-         setEvents((data as any[])?.filter(e => e.status === 'published') || []);
-       } catch (error) {
-         console.error("Error loading events:", error);
-         toast.error("Erro ao carregar a agenda. Tente novamente mais tarde.");
-       } finally {
-         setLoading(false);
-       }
-     }
-     load();
-   }, []);
+    useEffect(() => {
+      async function load() {
+        setLoading(true);
+        try {
+          const { data, error } = await supabase
+            .from("submissions")
+            .select("*")
+            .in('status', ['published', 'approved']);
+          
+          if (error) throw error;
+          
+          const publishedEvents = (data as any[])?.filter(e => e.status === 'published') || [];
+          setEvents(publishedEvents);
+
+          // Verificar se há um evento específico na URL para abrir o modal
+          const params = new URLSearchParams(window.location.search);
+          const eventId = params.get('event');
+          if (eventId) {
+            const ev = publishedEvents.find(e => e.id === eventId);
+            if (ev) {
+              setSelectedEvent(ev);
+              trackView(ev.id);
+            }
+          }
+        } catch (error) {
+          console.error("Error loading events:", error);
+          toast.error("Erro ao carregar a agenda. Tente novamente mais tarde.");
+        } finally {
+          setLoading(false);
+        }
+      }
+      load();
+    }, []);
 
   async function trackView(id: string) {
     try {
