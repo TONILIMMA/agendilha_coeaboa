@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
+ import { useState, useMemo, useEffect } from "react";
+ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -82,8 +83,9 @@ function buildWhatsAppShare(ev: Event) {
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
-export default function AgendaCultural() {
-  const [events, setEvents] = useState<Event[]>([]);
+ export default function AgendaCultural() {
+   const navigate = useNavigate();
+   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
