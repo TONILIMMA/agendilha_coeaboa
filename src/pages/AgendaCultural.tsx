@@ -558,10 +558,11 @@ function buildWhatsAppShare(ev: Event) {
         </footer>
 
         <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEvent(null)}>
-          <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-[2rem] border-none bg-background sm:max-h-[90vh]">
+          <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-[2rem] border-none bg-background sm:h-[90vh] flex flex-col">
             {selectedEvent && (
-              <div className="flex flex-col h-full overflow-y-auto">
-                <div className="relative aspect-video w-full bg-muted overflow-hidden shrink-0">
+              <>
+                {/* Header/Banner - Fixed at top */}
+                <div className="relative aspect-[16/10] sm:aspect-video w-full bg-muted overflow-hidden shrink-0">
                   {selectedEvent.image_url ? (
                     <img src={selectedEvent.image_url} alt={selectedEvent.event_title} className="w-full h-full object-cover" />
                   ) : (
@@ -569,82 +570,115 @@ function buildWhatsAppShare(ev: Event) {
                       <CalendarDays className="h-20 w-20 text-primary/20" />
                     </div>
                   )}
-                  <div className="absolute top-4 right-4 z-10">
-                    <Button variant="secondary" size="icon" className="rounded-full bg-black/20 backdrop-blur-md text-white border-white/20 hover:bg-black/40" onClick={() => setSelectedEvent(null)}>
+                  <div className="absolute top-4 right-4 z-20">
+                    <Button 
+                      variant="secondary" 
+                      size="icon" 
+                      className="rounded-full bg-black/40 backdrop-blur-md text-white border-white/20 hover:bg-black/60 transition-colors shadow-lg" 
+                      onClick={() => setSelectedEvent(null)}
+                    >
                       <X className="h-5 w-5" />
                     </Button>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                    <Badge className="mb-2 bg-primary text-primary-foreground border-none px-3 py-1 font-bold">
+                  <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                    <Badge className="mb-2 bg-primary text-primary-foreground border-none px-3 py-1 font-black text-[10px] tracking-widest uppercase">
                       {categoryLabels[selectedEvent.category || ""] || "Evento"}
                     </Badge>
-                    <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                    <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-[1.1]">
                       {selectedEvent.event_title}
                     </h2>
                   </div>
                 </div>
 
-                <div className="p-6 sm:p-8 space-y-8">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                          <CalendarDays className="h-5 w-5 text-primary" />
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-6 sm:p-10 space-y-10">
+                    {/* Info Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                      <div className="space-y-6">
+                        <div className="flex items-start gap-4">
+                          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/5">
+                            <CalendarDays className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Data</p>
+                            <p className="font-bold text-lg text-foreground">{formatDayLabel(selectedEvent.date)}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Data</p>
-                          <p className="font-bold text-lg">{formatDayLabel(selectedEvent.date)}</p>
+                        <div className="flex items-start gap-4">
+                          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/5">
+                            <Clock className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Horário</p>
+                            <p className="font-bold text-lg text-foreground">{selectedEvent.start_time}{selectedEvent.end_time ? ` — ${selectedEvent.end_time}` : ""}</p>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                          <Clock className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Horário</p>
-                          <p className="font-bold text-lg">{selectedEvent.start_time}{selectedEvent.end_time ? ` - ${selectedEvent.end_time}` : ""}</p>
+                      
+                      <div className="space-y-6">
+                        <div className="flex items-start gap-4">
+                          <div className="h-12 w-12 rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0 shadow-sm border border-secondary/5">
+                            <MapPin className="h-6 w-6 text-secondary" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Local</p>
+                            <p className="font-bold text-lg leading-tight text-foreground">{selectedEvent.location}</p>
+                            <p className="text-sm text-muted-foreground font-medium mt-1.5 leading-relaxed">
+                              {selectedEvent.address_street}{selectedEvent.address_neighborhood ? `, ${selectedEvent.address_neighborhood}` : ""}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
-                          <MapPin className="h-5 w-5 text-secondary" />
+
+                    {/* Description Section */}
+                    {selectedEvent.description && (
+                      <div className="space-y-4 pt-8 border-t border-border/50">
+                        <div className="flex items-center gap-2">
+                          <Info className="h-4 w-4 text-primary/60" />
+                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Sobre o Evento</p>
                         </div>
-                        <div>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Local</p>
-                          <p className="font-bold text-lg leading-tight">{selectedEvent.location}</p>
-                          <p className="text-sm text-muted-foreground font-medium mt-0.5">{selectedEvent.address_street}{selectedEvent.address_neighborhood ? `, ${selectedEvent.address_neighborhood}` : ""}</p>
-                        </div>
+                        <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap font-medium text-base sm:text-lg">
+                          {selectedEvent.description}
+                        </p>
                       </div>
-                    </div>
+                    )}
                   </div>
+                </div>
 
-                  {selectedEvent.description && (
-                    <div className="space-y-3">
-                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Sobre o Evento</p>
-                      <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap font-medium">
-                        {selectedEvent.description}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border/50">
-                    <Button className="flex-1 h-12 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-lg" onClick={() => {
-                      window.open(`https://wa.me/?text=${encodeURIComponent("Confira este evento no AgendIlha: " + selectedEvent.event_title + " - " + window.location.origin + "/agenda")}`, "_blank");
-                      trackShare(selectedEvent.id);
-                    }}>
-                      <Share2 className="h-4 w-4 mr-2" /> Compartilhar
+                {/* Footer - Fixed at bottom */}
+                <div className="p-6 sm:p-8 bg-card/50 backdrop-blur-md border-t border-border/50 shrink-0">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button 
+                      className="flex-1 h-14 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all text-sm" 
+                      onClick={() => {
+                        window.open(`https://wa.me/?text=${encodeURIComponent("Confira este evento no AgendIlha: " + selectedEvent.event_title + " — " + window.location.origin + "/agenda")}`, "_blank");
+                        trackShare(selectedEvent.id);
+                      }}
+                    >
+                      <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
                     </Button>
-                    <Button variant="outline" className="flex-1 h-12 rounded-full font-black uppercase tracking-wider border-2 border-primary/20 text-primary hover:bg-primary/5" onClick={() => {
-                      const addr = buildFullAddress(selectedEvent);
-                      window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
-                    }}>
-                      <MapPin className="h-4 w-4 mr-2" /> Ver no Mapa
+                    <Button 
+                      variant="outline" 
+                      className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40 active:scale-[0.98] transition-all text-sm" 
+                      onClick={() => {
+                        const addr = buildFullAddress(selectedEvent);
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
+                      }}
+                    >
+                      <MapPin className="h-5 w-5 mr-2.5" /> Ver no Mapa
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="h-14 rounded-full font-bold text-muted-foreground hover:text-foreground sm:hidden"
+                      onClick={() => setSelectedEvent(null)}
+                    >
+                      Fechar
                     </Button>
                   </div>
                 </div>
-              </div>
+              </>
             )}
           </DialogContent>
         </Dialog>
