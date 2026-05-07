@@ -152,7 +152,7 @@ function drawHeader(doc: jsPDF) {
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.text("Coé a Boa?  |  Agenda Cultural", MARGIN + 16, 10);
+  doc.text("AgendIlha | Coé a Boa?", MARGIN + 16, 10);
 
   // Right-aligned date
   doc.setFont("helvetica", "normal");
@@ -171,7 +171,7 @@ function drawFooter(doc: jsPDF, isLastPage: boolean) {
   doc.setFontSize(7);
   doc.setTextColor(...MEDIUM_TEXT);
   doc.text(
-    `Gerado em ${new Date().toLocaleDateString("pt-BR")} — AgendIlha`,
+    `Gerado em ${new Date().toLocaleDateString("pt-BR")} — AgendIlha do Governador`,
     MARGIN,
     FOOTER_Y
   );
