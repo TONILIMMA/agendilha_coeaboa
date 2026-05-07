@@ -525,7 +525,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                       form.setValue("addressCity", data.localidade || "");
                       form.setValue("addressState", data.uf || "");
                     }} />
-                    <TextField control={form.control} name="addressNumber" label="Número" required={false} inputMode="numeric" />
+                    <TextField control={form.control} name="addressNumber" label="Número" required={false} />
                     <TextField control={form.control} name="addressStreet" label="Rua" required={false} />
                     <TextField control={form.control} name="addressNeighborhood" label="Bairro" required={false} />
                     <TextField control={form.control} name="addressCity" label="Cidade" required={false} />
@@ -553,43 +553,10 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
               <CollapsibleSection title="🎯 Detalhes da Promoção" sectionKey="promocao" expanded={expandedSections.promocao} onToggle={toggleSection}>
                 <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="promotionType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipo de promoção</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-12 text-base">
-                              <SelectValue placeholder="Selecione o tipo" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {promotionTypes.map((type) => (
-                              <SelectItem key={type} value={type} className="py-3 text-base">{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <TextField control={form.control} name="promotionType" label="Tipo de promoção" required={false} />
                   <TextField control={form.control} name="targetAudience" label="Público-alvo" required={false} />
                 </div>
-                <FormField
-                  control={form.control}
-                  name="promotionRules"
-                  render={({ field }) => (
-                    <FormItem className="mt-3 sm:mt-4">
-                      <FormLabel>Regras ou condições</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} maxLength={500} rows={2} placeholder='Ex.: "Válido para compras acima de R$ 100"...' className="resize-none text-base min-h-[80px]" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <TextField control={form.control} name="promotionRules" label="Regras ou condições" required={false} />
               </CollapsibleSection>
 
               <CollapsibleSection title="📎 Upload de Materiais" sectionKey="upload" expanded={expandedSections.upload} onToggle={toggleSection}>
@@ -651,19 +618,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                     )}
                   />
                 </div>
-                <FormField
-                  control={form.control}
-                  name="conceptDescription"
-                  render={({ field }) => (
-                    <FormItem className="mt-3 sm:mt-4">
-                      <FormLabel>Conceito / Ideias do evento</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} maxLength={1000} rows={3} placeholder="Descreva conceitos, ideias e contexto do evento..." className="resize-none text-base min-h-[80px]" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <TextField control={form.control} name="conceptDescription" label="Conceito / Ideias do evento" required={false} />
               </CollapsibleSection>
 
               <CollapsibleSection title="📂 Categoria do Evento" sectionKey="categoria" expanded={expandedSections.categoria} onToggle={toggleSection}>
@@ -702,9 +657,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                 render={({ field }) => (
                   <FormItem className="rounded-lg border border-border bg-muted/50 p-4">
                     <div className="flex items-start gap-3">
-                      <FormControl>
-                        <Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-0.5 h-5 w-5" />
-                      </FormControl>
+                  <FormControl>
+                    <Checkbox checked={field.value === true} onCheckedChange={field.onChange} className="mt-0.5 h-5 w-5" />
+                  </FormControl>
                       <div className="space-y-1">
                         <FormLabel className="text-sm font-medium leading-snug cursor-pointer">
                           Autorizo a publicação dos materiais enviados no portal AgendIlha/Coé a Boa?
