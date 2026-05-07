@@ -795,25 +795,23 @@ function buildUberLink(ev: Event): string {
                           <MessageCircle className="h-6 w-6 mr-3" /> WhatsApp
                         </Button>
 
-                        <Button 
+                        <Button
                           variant="outline"
-                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary dark:text-primary dark:border-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
-                          onClick={() => handleShare(
-                            `Evento: ${selectedEvent.event_title}`,
-                            `Confira este evento e a agenda completa no AgendIlha!`,
-                            `${window.location.origin}/agenda?event=${selectedEvent.id}`,
-                            selectedEvent.id
-                          )}
+                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary dark:text-primary dark:border-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none"
+                          onClick={() => {
+                            const data = getShareData(selectedEvent);
+                            handleShare(data.title, data.text, data.url, selectedEvent.id);
+                          }}
                         >
                           <Share2 className="h-6 w-6 mr-3" /> Compartilhar
                         </Button>
                       </div>
 
                       <div className="flex flex-wrap gap-3">
-                        <Button 
+                        <Button
                           variant="ghost"
-                          className="flex-1 h-14 rounded-full font-bold text-sm uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 active:scale-95 transition-all" 
-                          onClick={() => handleCopyLink(`${window.location.origin}/agenda?event=${selectedEvent.id}`)}
+                          className="flex-1 h-14 rounded-full font-bold text-sm uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 active:scale-95 transition-all"
+                          onClick={() => handleCopyLink(getShareUrl(selectedEvent.id))}
                         >
                           <Copy className="h-5 w-5 mr-2.5" /> Copiar link
                         </Button>
