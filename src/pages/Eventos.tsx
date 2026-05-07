@@ -16,7 +16,15 @@ import {
    FileDown, MapPin, Clock, Building2, LayoutDashboard,
    CheckCircle, XCircle, ChevronDown, ChevronUp, FileText,
    Phone, Mail, Globe, Info, Send, RotateCcw, Copy,
-   DollarSign, Users, Briefcase, History, Megaphone,
+   DollarSign, Users, Briefcase, History, Megaphone, Image as ImageIcon,
+ import {
+   Dialog,
+   DialogContent,
+   DialogHeader,
+   DialogTitle,
+   DialogTrigger,
+ } from "@/components/ui/dialog";
+
 } from "lucide-react";
 import { toast } from "sonner";
  import { exportSingleEventPdf, exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
