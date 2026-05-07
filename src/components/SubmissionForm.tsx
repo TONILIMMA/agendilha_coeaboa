@@ -242,7 +242,8 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
    });
  
    const { addSubmission } = useSubmissions();
-   const { profile, loaded, saveProfile } = useProfile();
+    const { user } = useAuth();
+    const { profile, loaded, saveProfile } = useProfile();
  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
