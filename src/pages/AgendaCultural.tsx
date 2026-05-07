@@ -528,11 +528,11 @@ function buildUberLink(ev: Event): string {
             {/* Lista de Eventos Organizada */}
             {sortedDays.map((dayKey) => (
               <section key={dayKey} className="space-y-8">
-                <div className="flex items-center gap-4 sticky top-16 bg-background/80 dark:bg-background/90 backdrop-blur-md py-4 z-10 border-b border-border/50 dark:border-border/10">
-                  <div className="h-12 w-12 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center shrink-0 shadow-sm">
+                   <div className="flex items-center gap-4 sticky top-16 bg-background/80 backdrop-blur-md py-4 z-10 border-b border-border/50">
+                   <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm">
                     <CalendarDays className="h-6 w-6 text-primary dark:text-primary" />
                   </div>
-                  <h2 className="text-2xl font-black text-foreground dark:text-foreground tracking-tight">
+                   <h2 className="text-2xl font-black text-foreground tracking-tight">
                     {grouped[dayKey].label}
                   </h2>
                 </div>
@@ -547,22 +547,23 @@ function buildUberLink(ev: Event): string {
                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
                       >
                         <CardContent className="p-0">
-                        <div className="flex flex-col md:flex-row">
+                         <div className="flex flex-col lg:flex-row">
                           {/* Image or Icon strip */}
-                          {(ev as any).image_url ? (
-                            <div className="w-full md:w-64 h-64 md:h-auto shrink-0 relative overflow-hidden">
+                           {(ev as any).image_url && (
+                             <div className="w-full lg:w-72 xl:w-80 h-64 lg:h-auto shrink-0 relative overflow-hidden">
                               <img 
                                 src={(ev as any).image_url} 
                                 alt={ev.event_title}
                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent md:hidden" />
+                               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent lg:hidden" />
                             </div>
-                          ) : (
-                            <div className="w-full md:w-3 bg-primary/20 dark:bg-primary/40 group-hover:bg-primary transition-colors h-3 md:h-auto" />
-                          )}
+                           )}
 
-                          <div className="flex-1 p-6 sm:p-10 space-y-8">
+                           <div className={cn(
+                             "flex-1 p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8",
+                             !(ev as any).image_url && "border-l-4 border-primary/20"
+                           )}>
                               <div className="flex flex-wrap items-start justify-between gap-6">
                                 <div className="space-y-4 flex-1 min-w-0">
                                   <div className="flex flex-wrap items-center gap-3">
@@ -571,22 +572,22 @@ function buildUberLink(ev: Event): string {
                                       {categoryLabels[ev.category!] || ev.category}
                                     </Badge>
                                   </div>
-                                  <h3 className="text-3xl sm:text-5xl font-black text-foreground dark:text-foreground leading-[1.1] tracking-tightest group-hover:text-primary transition-colors">
+                                   <h3 className="text-2xl sm:text-4xl lg:text-5xl font-black text-foreground leading-[1.1] tracking-tightest group-hover:text-primary transition-colors">
                                     {ev.event_title}
                                   </h3>
                                 </div>
                                 <div className="flex flex-col items-start sm:items-end sm:text-right shrink-0 gap-3">
-                                  <div className="flex items-center gap-3 text-primary dark:text-primary font-black bg-primary/5 dark:bg-primary/15 px-5 py-2.5 rounded-2xl border border-primary/10 shadow-sm">
+                                   <div className="flex items-center gap-3 text-primary font-black bg-primary/5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl border border-primary/10 shadow-sm">
                                     <Clock className="h-6 w-6" />
                                     <span className="text-2xl sm:text-3xl tracking-tighter">{ev.start_time || "--:--"}</span>
                                   </div>
-                                  <div className="text-sm sm:text-base font-bold text-muted-foreground/80 dark:text-muted-foreground/60 uppercase tracking-[0.2em]">
+                                   <div className="text-xs sm:text-sm font-bold text-muted-foreground/80 uppercase tracking-[0.2em]">
                                     {ev.address_neighborhood || "Ilha do Governador"}
                                   </div>
                                 </div>
                               </div>
 
-                              <div className="flex items-start gap-4 text-base sm:text-lg text-muted-foreground dark:text-muted-foreground/80 bg-muted/30 dark:bg-muted/10 p-5 rounded-2xl border border-border/40 dark:border-border/10">
+                               <div className="flex items-start gap-3 sm:gap-4 text-sm sm:text-base lg:text-lg text-muted-foreground bg-muted/30 p-4 sm:p-5 rounded-2xl border border-border/40">
                                 <MapPin className="h-6 w-6 text-primary/70 dark:text-primary/60 shrink-0 mt-0.5" />
                                 <span className="font-semibold leading-snug">{buildFullAddress(ev)}</span>
                               </div>
@@ -597,7 +598,7 @@ function buildUberLink(ev: Event): string {
                                 </p>
                               )}
 
-                              <div className="pt-6 flex flex-wrap items-center gap-4 sm:gap-6">
+                               <div className="pt-4 sm:pt-6 flex flex-wrap items-center gap-3 sm:gap-4 lg:gap-6">
                                 <Button 
                                   size="lg" 
                                   className="rounded-full h-14 sm:h-16 px-10 font-black uppercase tracking-widest gradient-sunset text-white shadow-xl hover:scale-105 active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
