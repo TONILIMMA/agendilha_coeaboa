@@ -659,20 +659,21 @@ function buildUberLink(ev: Event): string {
         )}
       </main>
 
-        <footer className="mt-20 py-16 border-t border-border/50 text-center space-y-6">
-          <div className="flex flex-col items-center gap-6">
-            <div className="inline-flex items-center gap-3 px-6 py-4 rounded-[2rem] bg-card/50 border border-border/60 shadow-sm hover:shadow-md transition-all group backdrop-blur-sm">
-              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-10 w-10 sm:h-12 sm:w-12 rounded-full ring-2 ring-primary/10 shadow-sm group-hover:scale-110 transition-transform" />
-              <div className="flex flex-col items-start leading-none gap-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-display text-xl sm:text-2xl font-black text-primary tracking-tight">AgendIlha</span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-secondary/30" />
-                  <span className="font-display text-base sm:text-lg font-bold text-secondary tracking-tight">Coé a Boa?</span>
+        <footer className="mt-32 py-24 border-t border-border/40 dark:border-border/10 text-center bg-card/30 dark:bg-card/20 backdrop-blur-sm space-y-8 rounded-t-[3rem]">
+          <div className="flex flex-col items-center gap-8">
+            <div className="inline-flex items-center gap-4 px-8 py-5 rounded-[2.5rem] glass dark:bg-card/60 border border-white/20 dark:border-white/5 shadow-glass group transition-all hover:scale-105">
+              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-12 w-12 sm:h-14 sm:w-14 rounded-full ring-2 ring-primary/20 shadow-sm group-hover:rotate-12 transition-transform" />
+              <div className="flex flex-col items-start leading-none gap-1">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-display text-2xl sm:text-3xl font-black text-primary dark:text-foreground tracking-tight">AgendIlha</span>
+                  <span className="h-2 w-2 rounded-full bg-secondary/40" />
+                  <span className="font-display text-lg sm:text-xl font-bold text-secondary tracking-tight">Coé a Boa?</span>
                 </div>
+                <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/60 dark:text-muted-foreground/40">Curadoria & Tecnologia Local</p>
               </div>
             </div>
             
-            <div className="text-[10px] text-muted-foreground/40 font-mono uppercase tracking-[0.4em]">
+            <div className="text-[10px] sm:text-[11px] text-muted-foreground/50 dark:text-muted-foreground/30 font-mono uppercase tracking-[0.5em] py-4 border-y border-border/30 dark:border-border/10 inline-block px-10">
               © {new Date().getFullYear()} — Ilha do Governador, RJ
             </div>
           </div>
