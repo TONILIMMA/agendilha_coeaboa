@@ -9,7 +9,7 @@ import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, E
 import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 
-interface Event {
+ interface Event {
   id: string;
   event_title: string;
   date: string | null;
@@ -21,7 +21,8 @@ interface Event {
   description: string | null;
   category: string | null;
   company_name: string | null;
-  is_highlight: boolean;
+   is_highlight: boolean;
+   status?: string;
 }
 
 const categoryLabels: Record<string, string> = {
@@ -86,18 +87,18 @@ export default function AgendaCultural() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
 
-  useEffect(() => {
-    async function load() {
-      const { data } = await supabase
-        .from("submissions")
-        .select("*")
-        .eq("status", "approved")
-        .order("date", { ascending: true, nullsFirst: false });
-      setEvents((data as any[]) || []);
-      setLoading(false);
-    }
-    load();
-  }, []);
+   useEffect(() => {
+     async function load() {
+       const { data } = await supabase
+         .from("submissions")
+         .select("*")
+         .or('status.eq.approved,status.eq.published')
+         .order("date", { ascending: true, nullsFirst: false });
+       setEvents((data as any[]) || []);
+       setLoading(false);
+     }
+     load();
+   }, []);
 
   async function trackView(id: string) {
     try {

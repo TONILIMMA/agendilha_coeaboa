@@ -95,9 +95,32 @@ export default function Header() {
   const currentDate = useCurrentDate();
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
-  const isHome = pathname === "/";
-  const isAgenda = pathname === "/agenda";
-  const isAdminArea = pathname.startsWith("/admin");
+   const isHome = pathname === "/";
+   const isAgenda = pathname === "/agenda";
+   const isSubmit = pathname === "/enviar-evento";
+   const isAdminArea = pathname.startsWith("/admin");
+ 
+   // Public view for agenda - minimal and without admin context
+   if (isAgenda) {
+     return (
+       <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
+         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+           <Link to="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+             <span className="font-display text-lg font-black text-primary tracking-tight">AgendIlha</span>
+           </Link>
+           <div className="flex items-center gap-2">
+             <Button size="sm" variant="ghost" className="text-xs font-bold" onClick={() => navigate("/")}>
+               Início
+             </Button>
+             <Button size="sm" variant="outline" className="rounded-full text-xs font-bold border-primary text-primary" onClick={() => navigate("/enviar-evento")}>
+               Divulgar Evento
+             </Button>
+           </div>
+         </div>
+         <div className="h-1 w-full gradient-pumpkin-strip" />
+       </header>
+     );
+   }
   const showEventos = isAdmin || (perms.loaded && perms.isCollaborator);
   const showCollaborators = isAdmin || (perms.loaded && perms.canApprove);
   const hasAdminLinks = showEventos || isAdmin || showCollaborators;
