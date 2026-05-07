@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
-import { useProfile } from "@/hooks/useProfile";
+ import { useProfile } from "@/hooks/useProfile";
+ import { useAuth } from "@/contexts/AuthContext";
 import { z } from "zod";
 import { 
   Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon, Search, 
   PlusCircle, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Save,
-  Check, User, Info, MapPin, Scale, Eye, PartyPopper, Phone
+   Check, User, Info, MapPin, Scale, Eye, PartyPopper, Phone, Sparkles, Image as ImageIcon, Wand2, Loader2
 } from "lucide-react";
  import { IMaskInput } from "react-imask";
  import { supabase as supabaseClient } from "@/integrations/supabase/client";
@@ -219,8 +220,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 }
 
  export default function SubmissionForm() {
-   const [flyerFile, setFlyerFile] = useState<File | null>(null);
-   const [bannerFile, setBannerFile] = useState<File | null>(null);
+    const [eventImage, setEventImage] = useState<File | string | null>(null);
+    const [imageSource, setImageSource] = useState<"upload" | "ai" | null>(null);
+    const [isGeneratingImage, setIsGeneratingImage] = useState(false);
    const [submitting, setSubmitting] = useState(false);
    const [submitted, setSubmitted] = useState(false);
    const navigate = useNavigate();
@@ -241,7 +243,8 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
    });
  
    const { addSubmission } = useSubmissions();
-   const { profile, loaded, saveProfile } = useProfile();
+    const { user } = useAuth();
+    const { profile, loaded, saveProfile } = useProfile();
  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -268,14 +271,15 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
   const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   const steps = [
-    { id: 1, title: "Identificação", description: "Seus dados" },
-    { id: 2, title: "Profissional", description: "Informações da conta" },
-    { id: 3, title: "Evento", description: "O que vai rolar?" },
-    { id: 4, title: "Atrativo", description: "Quem se apresenta?" },
-    { id: 5, title: "Local", description: "Onde vai ser?" },
-    { id: 6, title: "Legal", description: "Termos" },
-    { id: 7, title: "Revisão", description: "Confira tudo" },
-  ];
+     { id: 1, title: "Identificação", description: "Seus dados" },
+     { id: 2, title: "Profissional", description: "Informações da conta" },
+     { id: 3, title: "Evento", description: "O que vai rolar?" },
+     { id: 4, title: "Atrativo", description: "Quem se apresenta?" },
+     { id: 5, title: "Local", description: "Onde vai ser?" },
+     { id: 6, title: "Arte", description: "Flyer/Banner" },
+     { id: 7, title: "Legal", description: "Termos" },
+     { id: 8, title: "Revisão", description: "Confira tudo" },
+   ];
 
   const nextStep = async () => {
     const fieldsToValidate = getFieldsForStep(currentStep);
@@ -308,9 +312,10 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
       case 3: return ["category", "eventTitle", "date", "startTime", "predictedDuration", "endTime"];
       case 4: return ["atrativoName", "atrativoType", "atrativoStyle", "atrativoDescription", "atrativoContact"];
-      case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
-      case 6: return ["legalAcceptance"];
-      default: return [];
+       case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
+       case 6: return []; // Step 6 is image, handled via state
+       case 7: return ["legalAcceptance"];
+       default: return [];
     }
   };
 
@@ -393,8 +398,64 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
   const descriptionLength = form.watch("description")?.length || 0;
 
+   const handleGenerateAIImage = async () => {
+     const eventData = form.getValues();
+     if (!eventData.eventTitle && !eventData.atrativoName) {
+       toast.error("Por favor, preencha o nome do evento antes.");
+       return;
+     }
+     
+     setIsGeneratingImage(true);
+     toast.info("A IA está criando sua arte...", { description: "Isso pode levar alguns segundos." });
+     
+     // Simulate AI Generation
+     setTimeout(() => {
+       const category = eventData.category || "party";
+       const randomId = Math.floor(Math.random() * 1000);
+       const mockImageUrl = `https://images.unsplash.com/photo-${randomId}?auto=format&fit=crop&q=80&w=800&h=600&q=80`;
+       // Actually unsplash ids are specific, so I'll use category based keywords
+       const keywords: Record<string, string> = {
+         musica: "concert,music,band",
+         gastronomia: "food,restaurant,dining",
+         cultura: "culture,art,museum",
+         esporte: "sport,stadium,game",
+         outros: "event,gathering"
+       };
+       const kw = keywords[category] || "event";
+       const finalUrl = `https://source.unsplash.com/featured/800x600?${kw}&sig=${randomId}`;
+       
+       setEventImage(finalUrl);
+       setImageSource("ai");
+       setIsGeneratingImage(false);
+       toast.success("Arte gerada com sucesso!");
+     }, 2000);
+   };
+
    async function onSubmit(data: FormData) {
      setSubmitting(true);
+     
+     let imageUrl = null;
+     if (eventImage) {
+       if (typeof eventImage === 'string') {
+         imageUrl = eventImage;
+       } else {
+         const fileExt = eventImage.name.split('.').pop();
+         const fileName = `${user?.id || 'anon'}/${crypto.randomUUID()}.${fileExt}`;
+         const { data: uploadData, error: uploadError } = await supabaseClient.storage
+           .from('event-flyers')
+           .upload(fileName, eventImage);
+         
+         if (uploadError) {
+           console.error("Error uploading image:", uploadError);
+         } else {
+           const { data: { publicUrl } } = supabaseClient.storage
+             .from('event-flyers')
+             .getPublicUrl(fileName);
+           imageUrl = publicUrl;
+         }
+       }
+     }
+
     const submissionData = {
       company_name: data.companyName,
       responsible_name: data.nickName,
@@ -423,8 +484,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       legal_acceptance: data.legalAcceptance,
       legal_acceptance_date: new Date().toISOString(),
       stage: data.stage || "development",
-      responsible_person: data.responsiblePerson || "Toni",
-      status: "pending"
+       responsible_person: data.responsiblePerson || "Toni",
+       status: "pending",
+       image_url: imageUrl
     };
 
     const success = await addSubmission(submissionData as any);
@@ -716,75 +778,171 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                  </div>
                )}
 
-               {currentStep === 6 && (
-                 <div className="space-y-6 animate-in fade-in duration-500">
-                   <h2 className="text-xl font-bold flex items-center gap-2">
-                     <Scale className="h-5 w-5 text-primary" />
-                     6. Questões Legais
-                   </h2>
-                   
-                   <div className="p-4 bg-muted rounded-xl space-y-4">
-                     <p className="text-sm leading-relaxed">
-                       Ao prosseguir, você concorda com nossos <a href="#" className="text-primary underline font-bold">Termos de Uso</a> e autoriza a publicação das informações fornecidas no portal AgendIlha.
-                     </p>
-                     
-                     <FormField
-                       control={form.control}
-                       name="legalAcceptance"
-                       render={({ field }) => (
-                         <FormItem className="flex items-start gap-3 space-y-0">
-                           <FormControl>
-                             <Checkbox checked={field.value} onCheckedChange={field.onChange} className="h-5 w-5" />
-                           </FormControl>
-                           <FormLabel className="font-bold cursor-pointer text-base">Eu aceito e autorizo a publicação</FormLabel>
-                         </FormItem>
-                       )}
-                     />
-                     <FormMessage />
-                   </div>
-                 </div>
-               )}
+                {currentStep === 6 && (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                      <ImageIcon className="h-5 w-5 text-primary" />
+                      6. Arte do Evento
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <button 
+                        type="button"
+                        onClick={() => setImageSource("upload")}
+                        className={cn(
+                          "flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-3",
+                          imageSource === "upload" ? "border-primary bg-primary/5 shadow-md" : "border-muted hover:border-primary/30"
+                        )}
+                      >
+                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Upload className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="text-center">
+                          <p className="font-bold">Enviar meu flyer</p>
+                          <p className="text-xs text-muted-foreground mt-1">PNG ou JPG até 5MB</p>
+                        </div>
+                      </button>
+                      
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setImageSource("ai");
+                          handleGenerateAIImage();
+                        }}
+                        disabled={isGeneratingImage}
+                        className={cn(
+                          "flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-3 relative overflow-hidden group",
+                          imageSource === "ai" ? "border-secondary bg-secondary/5 shadow-md" : "border-muted hover:border-secondary/30"
+                        )}
+                      >
+                        {isGeneratingImage && (
+                          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-10">
+                            <div className="flex flex-col items-center gap-2">
+                              <Loader2 className="h-6 w-6 animate-spin text-secondary" />
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-secondary">Criando...</span>
+                            </div>
+                          </div>
+                        )}
+                        <div className="h-12 w-12 rounded-full bg-secondary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Wand2 className="h-6 w-6 text-secondary" />
+                        </div>
+                        <div className="text-center">
+                          <p className="font-bold">Criar arte com IA</p>
+                          <p className="text-xs text-muted-foreground mt-1">Gere um flyer automaticamente</p>
+                        </div>
+                        <Sparkles className="absolute top-2 right-2 h-4 w-4 text-secondary opacity-40" />
+                      </button>
+                    </div>
 
-               {currentStep === 7 && (
-                 <div className="space-y-6 animate-in fade-in duration-500">
-                   <h2 className="text-xl font-bold flex items-center gap-2">
-                     <Eye className="h-5 w-5 text-primary" />
-                     7. Prévia Final
-                   </h2>
-                   
-                     <SummarySection title="👤 Identificação" items={[
-                       { label: "Nome", value: form.watch("nickName") || "" },
-                       { label: "WhatsApp", value: form.watch("basicPhone") || "" }
-                     ]} onEdit={() => goToStep(1)} />
+                    {imageSource === "upload" && (
+                      <div className="animate-in slide-in-from-top-4 duration-300">
+                        <FileUpload 
+                          label="Seu flyer ou banner" 
+                          accept="image/*" 
+                          file={eventImage instanceof File ? eventImage : null} 
+                          onFileChange={(f) => setEventImage(f)} 
+                        />
+                      </div>
+                    )}
 
-                    <SummarySection title="💼 Divulgador" items={[
-                      { label: "Empresa", value: form.watch("companyName") },
-                      { label: "E-mail", value: form.watch("email") },
-                      { label: "Endereço", value: `${form.watch("addressStreet") || ""}, ${form.watch("addressNumber") || ""}` }
-                    ]} onEdit={() => goToStep(2)} />
+                    {eventImage && (
+                      <div className="relative mt-4 group rounded-2xl overflow-hidden border-2 border-border shadow-inner bg-muted">
+                        <p className="absolute top-2 left-2 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md">
+                          Pré-visualização
+                        </p>
+                        <img 
+                          src={typeof eventImage === 'string' ? eventImage : URL.createObjectURL(eventImage)} 
+                          alt="Pré-visualização" 
+                          className="w-full h-auto max-h-64 object-contain mx-auto"
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => { setEventImage(null); setImageSource(null); }}
+                          className="absolute top-2 right-2 z-10 h-8 w-8 bg-black/60 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-                    <SummarySection title="🎉 Evento" items={[
-                      { label: "Título", value: form.watch("eventTitle") },
-                      { label: "Data", value: form.watch("date") },
-                      { label: "Horário", value: `${form.watch("startTime") || ""} às ${form.watch("endTime") || ""}` }
-                    ]} onEdit={() => goToStep(3)} />
+                {currentStep === 7 && (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                      <Scale className="h-5 w-5 text-primary" />
+                      7. Questões Legais
+                    </h2>
+                    
+                    <div className="p-4 bg-muted rounded-xl space-y-4">
+                      <p className="text-sm leading-relaxed">
+                        Ao prosseguir, você concorda com nossos <a href="#" className="text-primary underline font-bold">Termos de Uso</a> e autoriza a publicação das informações fornecidas no portal AgendIlha.
+                      </p>
+                      
+                      <FormField
+                        control={form.control}
+                        name="legalAcceptance"
+                        render={({ field }) => (
+                          <FormItem className="flex items-start gap-3 space-y-0">
+                            <FormControl>
+                              <Checkbox checked={field.value} onCheckedChange={field.onChange} className="h-5 w-5" />
+                            </FormControl>
+                            <FormLabel className="font-bold cursor-pointer text-base">Eu aceito e autorizo a publicação</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      <FormMessage />
+                    </div>
+                  </div>
+                )}
 
-                    <SummarySection title="🎤 Atrativo" items={[
-                      { label: "Nome", value: form.watch("atrativoName") },
-                      { label: "Tipo", value: form.watch("atrativoType") }
-                    ]} onEdit={() => goToStep(4)} />
+                {currentStep === 8 && (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                      <Eye className="h-5 w-5 text-primary" />
+                      8. Prévia Final
+                    </h2>
+                    
+                      <SummarySection title="👤 Identificação" items={[
+                        { label: "Nome", value: form.watch("nickName") || "" },
+                        { label: "WhatsApp", value: form.watch("basicPhone") || "" }
+                      ]} onEdit={() => goToStep(1)} />
+ 
+                     <SummarySection title="💼 Divulgador" items={[
+                       { label: "Empresa", value: form.watch("companyName") },
+                       { label: "E-mail", value: form.watch("email") },
+                       { label: "Endereço", value: `${form.watch("addressStreet") || ""}, ${form.watch("addressNumber") || ""}` }
+                     ]} onEdit={() => goToStep(2)} />
+ 
+                     <SummarySection title="🎉 Evento" items={[
+                       { label: "Título", value: form.watch("eventTitle") },
+                       { label: "Data", value: form.watch("date") },
+                       { label: "Horário", value: `${form.watch("startTime") || ""} às ${form.watch("endTime") || ""}` }
+                     ]} onEdit={() => goToStep(3)} />
+ 
+                     <SummarySection title="🎤 Atrativo" items={[
+                       { label: "Nome", value: form.watch("atrativoName") },
+                       { label: "Tipo", value: form.watch("atrativoType") }
+                     ]} onEdit={() => goToStep(4)} />
+ 
+                     <SummarySection title="📍 Local" items={[
+                       { label: "Nome do Local", value: form.watch("locationName") },
+                       { label: "Endereço", value: form.watch("eventAddress") }
+                     ]} onEdit={() => goToStep(5)} />
 
-                    <SummarySection title="📍 Local" items={[
-                      { label: "Nome do Local", value: form.watch("locationName") },
-                      { label: "Endereço", value: form.watch("eventAddress") }
-                    ]} onEdit={() => goToStep(5)} />
-                   
-                   <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
-                     <CheckCircle2 className="h-6 w-6 text-green-600" />
-                     <p className="text-sm font-medium text-green-800">Tudo pronto! Revise as informações acima e envie sua solicitação.</p>
-                   </div>
-                 </div>
-               )}
+                     {eventImage && (
+                        <SummarySection title="🖼️ Arte" items={[
+                          { label: "Status", value: "Arte vinculada" }
+                        ]} onEdit={() => goToStep(6)} />
+                     )}
+                    
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+                      <CheckCircle2 className="h-6 w-6 text-green-600" />
+                      <p className="text-sm font-medium text-green-800">Tudo pronto! Revise as informações acima e envie sua solicitação.</p>
+                    </div>
+                  </div>
+                )}
+
 
                   <div className="pt-4 sm:pt-8 border-t border-border space-y-4">
                     {currentStep < steps.length ? (

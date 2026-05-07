@@ -301,6 +301,7 @@ export type Database = {
           end_time: string | null
           event_title: string
           id: string
+          image_url: string | null
           is_highlight: boolean | null
           legal_acceptance: boolean | null
           legal_acceptance_date: string | null
@@ -351,6 +352,7 @@ export type Database = {
           end_time?: string | null
           event_title: string
           id?: string
+          image_url?: string | null
           is_highlight?: boolean | null
           legal_acceptance?: boolean | null
           legal_acceptance_date?: string | null
@@ -401,6 +403,7 @@ export type Database = {
           end_time?: string | null
           event_title?: string
           id?: string
+          image_url?: string | null
           is_highlight?: boolean | null
           legal_acceptance?: boolean | null
           legal_acceptance_date?: string | null
