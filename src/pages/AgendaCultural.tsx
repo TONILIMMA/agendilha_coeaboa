@@ -383,7 +383,7 @@ function buildUberLink(ev: Event): string {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="h-11 border-none bg-muted/50">
+              <SelectTrigger className="h-11 border-2 border-primary/20 bg-white hover:bg-primary/5 transition-colors focus:ring-primary/20">
                 <SelectValue placeholder="Todas as categorias" />
               </SelectTrigger>
               <SelectContent>
@@ -394,7 +394,7 @@ function buildUberLink(ev: Event): string {
               </SelectContent>
             </Select>
             <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
-              <SelectTrigger className="h-11 border-none bg-muted/50">
+              <SelectTrigger className="h-11 border-2 border-primary/20 bg-white hover:bg-primary/5 transition-colors focus:ring-primary/20">
                 <SelectValue placeholder="Todos os bairros" />
               </SelectTrigger>
               <SelectContent>
