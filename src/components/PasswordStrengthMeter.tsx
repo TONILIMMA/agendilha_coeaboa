@@ -41,8 +41,8 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
 
   const getStrength = () => {
     if (score <= 2) return { label: "Fraca", color: "bg-destructive", text: "text-destructive" };
-    if (score <= 4) return { label: "Média", color: "bg-yellow-500", text: "text-yellow-600 dark:text-yellow-500" };
-    return { label: "Forte", color: "bg-green-500", text: "text-green-600 dark:text-green-500" };
+    if (score <= 4) return { label: "Média", color: "bg-yellow-500", text: "text-yellow-600" };
+    return { label: "Forte", color: "bg-green-500", text: "text-green-600" };
   };
 
   const strength = getStrength();
@@ -84,7 +84,7 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
               key={rule.label}
               className={cn(
                 "flex items-center gap-2 text-xs transition-colors",
-                passed ? "text-green-600 dark:text-green-500" : "text-muted-foreground"
+                passed ? "text-green-600" : "text-muted-foreground"
               )}
             >
               {passed ? (

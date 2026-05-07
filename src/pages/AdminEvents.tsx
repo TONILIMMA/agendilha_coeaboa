@@ -203,11 +203,11 @@ export default function AdminEvents() {
               <p className="text-muted-foreground text-sm">Controle operacional e curadoria da agenda hiperlocal.</p>
            </div>
             <div className="flex flex-wrap gap-3">
-              <Button variant="outline" size="sm" className="h-10 font-bold border-border dark:border-slate-700 bg-background dark:bg-slate-900 hover:bg-muted dark:hover:bg-slate-800" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
-              <Button variant="outline" size="sm" className="h-10 font-bold border-border dark:border-slate-700 bg-background dark:bg-slate-900 hover:bg-muted dark:hover:bg-slate-800" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
-              <Button 
-                size="sm"
-                className="h-10 font-bold bg-emerald-600 dark:bg-emerald-600 hover:bg-emerald-700 dark:hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20"
+               <Button variant="outline" size="sm" className="h-10 font-bold border-border bg-background hover:bg-muted" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
+               <Button variant="outline" size="sm" className="h-10 font-bold border-border bg-background hover:bg-muted" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
+               <Button 
+                 size="sm"
+                 className="h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
                 onClick={() => {
                   const approved = submissions.filter(s => s.status === 'approved' || s.status === 'published');
                   if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
@@ -322,9 +322,9 @@ export default function AdminEvents() {
                          </Badge>
                          <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">ID: {sub.id.slice(0, 8)}</span>
                        </div>
-                        <div className="flex flex-col gap-1 mt-3 p-2 bg-muted/20 dark:bg-muted/10 rounded-lg border border-border/30 dark:border-border/10">
+                         <div className="flex flex-col gap-1 mt-3 p-2 bg-muted/20 rounded-lg border border-border/30">
                           <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-0.5">Data de Cadastro</span>
-                          <p className="text-[11px] text-foreground dark:text-slate-200 font-bold flex items-center gap-1.5">
+                           <p className="text-[11px] text-foreground font-bold flex items-center gap-1.5">
                             <History className="h-3 w-3 text-primary/70" />
                             {formatSubmissionDate(sub.created_at)}
                           </p>
@@ -517,8 +517,8 @@ export default function AdminEvents() {
                       <div className="md:col-span-2 space-y-6">
                         <div>
                           <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-3">Conteúdo do Evento</h4>
-                          <div className="bg-background dark:bg-slate-900 border border-border/60 dark:border-border/30 p-5 rounded-xl shadow-inner">
-                            <p className="text-sm leading-relaxed whitespace-pre-wrap dark:text-slate-300">{sub.description || "Sem descrição disponível."}</p>
+                          <div className="bg-background border border-border/60 p-5 rounded-xl shadow-inner">
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">{sub.description || "Sem descrição disponível."}</p>
                           </div>
                         </div>
                           {sub.additional_details && (
