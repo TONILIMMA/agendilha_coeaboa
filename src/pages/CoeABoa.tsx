@@ -144,7 +144,66 @@ export default function CoeABoa() {
         )}
       </div>
 
-      <div className="mx-auto max-w-3xl px-4 py-6">
+       <div className="bg-muted/30 border-b border-border py-4 px-4">
+         <div className="mx-auto max-w-3xl flex flex-col md:flex-row gap-3">
+           <div className="relative flex-1">
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+             <Input
+               placeholder="O que você procura?"
+               className="pl-9 bg-background"
+               value={search}
+               onChange={(e) => setSearch(e.target.value)}
+             />
+           </div>
+           <div className="flex gap-2">
+             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+               <SelectTrigger className="w-full md:w-[140px] bg-background">
+                 <SelectValue placeholder="Categoria" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Categorias</SelectItem>
+                 {Object.entries(categoryLabels).map(([k, v]) => (
+                   <SelectItem key={k} value={k}>{v}</SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+             <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
+               <SelectTrigger className="w-full md:w-[140px] bg-background">
+                 <SelectValue placeholder="Bairro" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Bairros</SelectItem>
+                 {neighborhoods.map((n) => (
+                   <SelectItem key={n!} value={n!}>{n}</SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+           </div>
+         </div>
+       </div>
+
+       <div className="mx-auto max-w-3xl px-4 py-6">
+         {/* Destaques */}
+         {filteredEvents.some(e => e.is_highlight) && (
+           <div className="mb-10">
+             <div className="flex items-center gap-2 mb-4">
+               <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+               <h2 className="text-lg font-bold">Destaques da Ilha</h2>
+             </div>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               {filteredEvents.filter(e => e.is_highlight).map(ev => (
+                 <Card key={ev.id} className="border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 transition-all cursor-pointer" onClick={() => { trackView(ev.id); }}>
+                   <CardContent className="p-4">
+                     <Badge className="mb-2 bg-amber-500 text-white border-0">DESTAQUE 🔥</Badge>
+                     <h3 className="font-bold text-base leading-tight">{ev.event_title}</h3>
+                     <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{ev.location} • {ev.date}</p>
+                   </CardContent>
+                 </Card>
+               ))}
+             </div>
+           </div>
+         )}
+
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
