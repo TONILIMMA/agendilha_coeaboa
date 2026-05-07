@@ -15,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HeaderUserMenu } from "@/components/HeaderUserMenu";
+ import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.jpg";
 
 const sitelinks = [
@@ -83,64 +83,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground antialiased font-body selection:bg-primary/15 selection:text-primary">
       {/* ── Header ── */}
-      <header
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
-          scrolled ? "glass border-b border-white/40" : "bg-transparent border-b border-transparent"
-        }`}
-      >
-        <nav className="mx-auto max-w-6xl px-5 sm:px-8 h-16 flex items-center justify-between">
-          <a href="#top" className="flex items-center gap-2.5 group">
-            <img src={logo} alt="AgendIlha" className="h-9 w-9 rounded-full ring-1 ring-foreground/10 transition-transform group-hover:scale-105" />
-            <span className="font-display text-[15px] sm:text-base font-bold tracking-tight text-foreground">
-              AgendIlha <span className="text-secondary/60 font-medium">| Coé a Boa?</span>
-            </span>
-          </a>
-
-          <ul className="hidden md:flex items-center gap-8 text-[13px] text-foreground/65">
-            {sitelinks.map((l) => (
-              <li key={l.href}>
-                <a href={l.href} className="story-link hover:text-foreground transition-colors">
-                  {l.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-
-           <div className="hidden md:block">
-             <HeaderUserMenu variant="desktop" hideContext={true} />
-           </div>
-
-          <button
-            className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full hover:bg-white/50 transition"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Abrir menu"
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </nav>
-
-        {mobileOpen && (
-          <div className="md:hidden fixed inset-x-0 top-16 bottom-0 glass-strong border-t border-white/50 animate-fade-in overflow-y-auto">
-            <ul className="px-6 py-8 space-y-1 text-base">
-              {sitelinks.map((l) => (
-                <li key={l.href}>
-                  <a
-                    href={l.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-between py-4 px-2 text-foreground/85 hover:text-foreground transition font-display text-2xl"
-                  >
-                    {l.label}
-                    <ArrowUpRight className="h-4 w-4 text-foreground/40" />
-                  </a>
-                </li>
-              ))}
-               <li className="pt-6">
-                 <HeaderUserMenu variant="mobile" onNavigate={() => setMobileOpen(false)} hideContext={true} />
-               </li>
-            </ul>
-          </div>
-        )}
-      </header>
+       <Header />
 
       {/* ── Hero ── */}
       <section
