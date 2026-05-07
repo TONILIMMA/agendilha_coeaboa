@@ -3,9 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown } from "lucide-react";
+ import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Filter } from "lucide-react";
 import { formatDateWithWeekday } from "@/lib/dateUtils";
-import { exportBulkEventsPdf } from "@/lib/pdfExport";
+ import { exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 
 const categoryLabels: Record<string, string> = {
@@ -16,6 +16,9 @@ const categoryLabels: Record<string, string> = {
   promocoes: "🏷️ Promoções",
   outros: "📌 Outros",
 };
+
+ import { Input } from "@/components/ui/input";
+ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Event {
   id: string;
@@ -29,6 +32,7 @@ interface Event {
   category: string | null;
   company_name: string | null;
   phone: string | null;
+   is_highlight: boolean;
 }
 
 function formatDateLabel(dateStr: string | null): string {
@@ -63,11 +67,23 @@ export default function CoeABoa() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
+   const [search, setSearch] = useState("");
+   const [categoryFilter, setCategoryFilter] = useState("all");
+   const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+
+   async function trackView(id: string) {
+     await supabase.rpc('increment_views', { event_id: id });
+   }
+
+   async function trackShare(id: string) {
+     await supabase.rpc('increment_shares', { event_id: id });
+   }
+
   useEffect(() => {
     async function load() {
       const { data } = await supabase
         .from("submissions")
-        .select("id, event_title, date, start_time, end_time, location, address_neighborhood, description, category, company_name, phone")
+        .select("id, event_title, date, start_time, end_time, location, address_neighborhood, description, category, company_name, phone, is_highlight")
         .eq("status", "approved")
         .order("date", { ascending: true, nullsFirst: false });
       setEvents((data as Event[]) || []);
@@ -76,8 +92,18 @@ export default function CoeABoa() {
     load();
   }, []);
 
+   const neighborhoods = Array.from(new Set(events.map(e => e.address_neighborhood).filter(Boolean))).sort();
+
+   const filteredEvents = events.filter(ev => {
+     const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
+                         (ev.description || "").toLowerCase().includes(search.toLowerCase());
+     const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
+     const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
+     return matchSearch && matchCat && matchNeigh;
+   });
+
   // Group events by date
-  const grouped = events.reduce<Record<string, Event[]>>((acc, ev) => {
+  const grouped = filteredEvents.reduce<Record<string, Event[]>>((acc, ev) => {
     const key = ev.date || "sem-data";
     if (!acc[key]) acc[key] = [];
     acc[key].push(ev);
@@ -104,10 +130,10 @@ export default function CoeABoa() {
             variant="secondary"
             className="mt-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             onClick={() => {
-              try {
-                exportBulkEventsPdf(events);
-                toast.success("📄 Agenda exportada em PDF!");
-              } catch (err: any) {
+               try {
+                 exportEditorialAgendaPdf(events, "Coé a Boa? - Agenda Cultural");
+                 toast.success("📄 Agenda editorial gerada em PDF!");
+               } catch (err: any) {
                 toast.error("Falha ao gerar PDF", { description: err?.message });
               }
             }}
@@ -118,7 +144,66 @@ export default function CoeABoa() {
         )}
       </div>
 
-      <div className="mx-auto max-w-3xl px-4 py-6">
+       <div className="bg-muted/30 border-b border-border py-4 px-4">
+         <div className="mx-auto max-w-3xl flex flex-col md:flex-row gap-3">
+           <div className="relative flex-1">
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+             <Input
+               placeholder="O que você procura?"
+               className="pl-9 bg-background"
+               value={search}
+               onChange={(e) => setSearch(e.target.value)}
+             />
+           </div>
+           <div className="flex gap-2">
+             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+               <SelectTrigger className="w-full md:w-[140px] bg-background">
+                 <SelectValue placeholder="Categoria" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Categorias</SelectItem>
+                 {Object.entries(categoryLabels).map(([k, v]) => (
+                   <SelectItem key={k} value={k}>{v}</SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+             <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
+               <SelectTrigger className="w-full md:w-[140px] bg-background">
+                 <SelectValue placeholder="Bairro" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Bairros</SelectItem>
+                 {neighborhoods.map((n) => (
+                   <SelectItem key={n!} value={n!}>{n}</SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+           </div>
+         </div>
+       </div>
+
+       <div className="mx-auto max-w-3xl px-4 py-6">
+         {/* Destaques */}
+         {filteredEvents.some(e => e.is_highlight) && (
+           <div className="mb-10">
+             <div className="flex items-center gap-2 mb-4">
+               <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+               <h2 className="text-lg font-bold">Destaques da Ilha</h2>
+             </div>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               {filteredEvents.filter(e => e.is_highlight).map(ev => (
+                 <Card key={ev.id} className="border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 transition-all cursor-pointer" onClick={() => { trackView(ev.id); }}>
+                   <CardContent className="p-4">
+                     <Badge className="mb-2 bg-amber-500 text-white border-0">DESTAQUE 🔥</Badge>
+                     <h3 className="font-bold text-base leading-tight">{ev.event_title}</h3>
+                     <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{ev.location} • {ev.date}</p>
+                   </CardContent>
+                 </Card>
+               ))}
+             </div>
+           </div>
+         )}
+
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -188,7 +273,10 @@ export default function CoeABoa() {
                           size="sm"
                           variant="outline"
                           className="text-xs"
-                          onClick={() => window.open(buildWhatsAppShare(ev), "_blank")}
+                           onClick={() => {
+                             trackShare(ev.id);
+                             window.open(buildWhatsAppShare(ev), "_blank");
+                           }}
                         >
                           <Share2 className="h-3.5 w-3.5 mr-1" />
                           Compartilhar

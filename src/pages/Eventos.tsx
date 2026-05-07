@@ -12,14 +12,21 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  CalendarDays, Loader2, MessageCircle, Trash2, Search,
-  FileDown, MapPin, Clock, Building2,
-  CheckCircle, XCircle, ChevronDown, ChevronUp,
-  Phone, Mail, Globe, Info, Send, RotateCcw,
-  DollarSign, Users, Briefcase, History,
-} from "lucide-react";
+   CalendarDays, Loader2, MessageCircle, Trash2, Search, Share2,
+   FileDown, MapPin, Clock, Building2, LayoutDashboard,
+   CheckCircle, XCircle, ChevronDown, ChevronUp, FileText,
+   Phone, Mail, Globe, Info, Send, RotateCcw, Copy,
+    DollarSign, Users, Briefcase, History, Megaphone, Image as ImageIcon,
+ } from "lucide-react";
+ import {
+   Dialog,
+   DialogContent,
+   DialogHeader,
+   DialogTitle,
+   DialogTrigger,
+ } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
+ import { exportSingleEventPdf, exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
 
 interface Submission {
   id: string;
@@ -56,6 +63,9 @@ interface Submission {
   stage: string;
   concept_description: string | null;
   responsible_person: string | null;
+   is_highlight: boolean;
+   views_count: number;
+   shares_count: number;
   deleted_at: string | null;
 }
 
@@ -143,14 +153,22 @@ function buildBulkWhatsAppMessage(events: Submission[]): string {
   const endOfWeek = new Date(start);
   endOfWeek.setDate(start.getDate() + 6);
   const formatBR = (d: Date) => d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-  const lines: string[] = [
-    `📌 *AGENDILHA* - Eventos Confirmados da Semana`,
-    `📅 ${formatBR(start)} a ${formatBR(endOfWeek)}`,
-    ``,
-    `*Para mais informações:*`,
-    `https://coeaboa.lovable.app/`,
-    ``,
-  ];
+   const highlights = events.filter(e => e.is_highlight);
+   const lines: string[] = [
+     `🌴 *AGENDILHA* - O que tem de bom na Ilha?`,
+     `📅 Semana de ${formatBR(start)} a ${formatBR(endOfWeek)}`,
+     ``,
+   ];
+
+   if (highlights.length > 0) {
+     lines.push(`🔥 *DESTAQUES DA SEMANA*`);
+     highlights.forEach(h => {
+       lines.push(`• ${h.event_title} (${h.date} às ${h.start_time})`);
+     });
+     lines.push(``);
+   }
+
+   lines.push(`👇 *AGENDA COMPLETA*`);
   const byDate = new Map<string, Submission[]>();
   events.forEach((ev) => {
     const key = ev.date || "Sem data";
@@ -294,6 +312,20 @@ export default function Eventos() {
     } as any);
   }
 
+   async function handleHighlightToggle(id: string, current: boolean) {
+     const { error } = await supabase
+       .from("submissions")
+       .update({ is_highlight: !current } as any)
+       .eq("id", id);
+     if (error) {
+       toast.error("Erro ao atualizar destaque");
+     } else {
+       toast.success(!current ? "Evento marcado como destaque!" : "Destaque removido");
+       setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, is_highlight: !current } : s));
+       await logAudit(id, !current ? "highlighted" : "unhighlighted");
+     }
+   }
+
   async function handleStatusChange(id: string, newStatus: string) {
     const { error } = await supabase.from("submissions").update({ status: newStatus } as any).eq("id", id);
     if (error) {
@@ -372,7 +404,10 @@ export default function Eventos() {
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0 space-y-1.5">
               <div className="flex items-start gap-2 flex-wrap">
-                <h3 className="font-display font-semibold text-foreground text-base">{sub.event_title}</h3>
+                 <div className="flex items-center gap-2">
+                   {sub.is_highlight && <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-0 text-[10px]">DESTAQUE</Badge>}
+                   <h3 className="font-display font-semibold text-foreground text-base">{sub.event_title}</h3>
+                 </div>
                 <Badge variant="outline" className="text-xs shrink-0">
                   {categoryLabels[sub.category || ""] || "—"}
                 </Badge>
@@ -417,6 +452,28 @@ export default function Eventos() {
           {/* Expanded */}
           {isExpanded && (
             <div className="mt-4 pt-4 border-t border-border space-y-4 animate-in slide-in-from-top-2 duration-200" onClick={(e) => e.stopPropagation()}>
+               <div className="flex flex-wrap gap-4 p-3 bg-muted/40 rounded-lg">
+                 <div className="flex items-center gap-2">
+                   <Users className="h-4 w-4 text-primary" />
+                   <span className="text-sm"><strong>Visualizações:</strong> {sub.views_count || 0}</span>
+                 </div>
+                 <div className="flex items-center gap-2">
+                   <Share2 className="h-4 w-4 text-primary" />
+                   <span className="text-sm"><strong>Compartilhamentos:</strong> {sub.shares_count || 0}</span>
+                 </div>
+                 <Button
+                   size="sm"
+                   variant={sub.is_highlight ? "default" : "outline"}
+                   className={`ml-auto h-8 text-xs ${sub.is_highlight ? 'bg-amber-500 hover:bg-amber-600 border-0' : ''}`}
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     handleHighlightToggle(sub.id, sub.is_highlight);
+                   }}
+                 >
+                   {sub.is_highlight ? '★ Em Destaque' : '☆ Marcar Destaque'}
+                 </Button>
+               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 {sub.company_name && (
                   <div className="flex items-center gap-2 text-muted-foreground">
@@ -442,12 +499,74 @@ export default function Eventos() {
                     <span><strong>Email:</strong> {sub.email}</span>
                   </div>
                 )}
-                {sub.address_street && (
-                  <div className="flex items-center gap-2 text-muted-foreground sm:col-span-2">
-                    <MapPin className="h-4 w-4 text-primary shrink-0" />
-                    <span><strong>Endereço:</strong> {[sub.address_street, sub.address_number, sub.address_neighborhood, sub.address_city, sub.address_state].filter(Boolean).join(", ")}{sub.address_zip ? ` – CEP: ${sub.address_zip}` : ""}</span>
-                  </div>
-                )}
+                 {sub.address_street && (
+                   <div className="flex items-center gap-2 text-muted-foreground sm:col-span-2">
+                     <MapPin className="h-4 w-4 text-primary shrink-0" />
+                     <span><strong>Endereço:</strong> {[sub.address_street, sub.address_number, sub.address_neighborhood, sub.address_city, sub.address_state].filter(Boolean).join(", ")}{sub.address_zip ? ` – CEP: ${sub.address_zip}` : ""}</span>
+                   </div>
+                 )}
+
+                 <div className="sm:col-span-2 mt-2 pt-2 border-t border-border flex flex-wrap gap-2">
+                   <Button
+                     size="sm"
+                     variant="outline"
+                     className="text-xs"
+                     onClick={() => exportSingleEventPdf(sub as any)}
+                   >
+                     <FileDown className="h-3.5 w-3.5 mr-1" />
+                     Baixar PDF Individual
+                   </Button>
+
+                   <Dialog>
+                     <DialogTrigger asChild>
+                       <Button size="sm" variant="outline" className="text-xs">
+                         <ImageIcon className="h-3.5 w-3.5 mr-1" />
+                         Card p/ Redes Sociais
+                       </Button>
+                     </DialogTrigger>
+                     <DialogContent className="max-w-[400px] p-0 overflow-hidden border-0">
+                       <div className="bg-primary p-8 text-white aspect-square flex flex-col justify-between relative overflow-hidden">
+                         {/* Abstract background shapes */}
+                         <div className="absolute top-[-20%] right-[-20%] w-[60%] h-[60%] bg-white/10 rounded-full blur-3xl" />
+                         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/20 rounded-full blur-2xl" />
+                         
+                         <div className="relative z-10">
+                           <div className="flex items-center gap-2 mb-4">
+                             <div className="h-10 w-10 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center font-bold text-xl">🌴</div>
+                             <div className="font-display font-bold text-xl tracking-tight">AgendIlha</div>
+                           </div>
+                           <Badge className="bg-amber-500 text-white border-0 mb-4">{categoryLabels[sub.category || ''] || 'Evento'}</Badge>
+                           <h2 className="text-3xl font-display font-black leading-tight mb-4 uppercase tracking-tighter">{sub.event_title}</h2>
+                         </div>
+
+                         <div className="relative z-10 space-y-3">
+                           <div className="flex items-center gap-3">
+                             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center"><CalendarDays className="h-4 w-4" /></div>
+                             <div>
+                               <p className="text-[10px] uppercase opacity-70 font-bold tracking-widest">Quando</p>
+                               <p className="font-bold text-lg leading-none">{sub.date} • {sub.start_time}</p>
+                             </div>
+                           </div>
+                           <div className="flex items-center gap-3">
+                             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center"><MapPin className="h-4 w-4" /></div>
+                             <div>
+                               <p className="text-[10px] uppercase opacity-70 font-bold tracking-widest">Onde</p>
+                               <p className="font-bold text-lg leading-none line-clamp-1">{sub.location}</p>
+                             </div>
+                           </div>
+                         </div>
+
+                         <div className="mt-8 pt-6 border-t border-white/20 relative z-10 flex items-center justify-between">
+                           <p className="text-sm font-bold opacity-80 italic">#CoéABoaIlha</p>
+                           <p className="text-[10px] font-mono opacity-60">agendilha.com.br</p>
+                         </div>
+                       </div>
+                       <div className="p-4 bg-muted/30 border-t flex justify-center">
+                         <p className="text-xs text-muted-foreground">Tire um print para compartilhar no Instagram ou WhatsApp</p>
+                       </div>
+                     </DialogContent>
+                   </Dialog>
+                 </div>
                 {sub.contact_social && (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Globe className="h-4 w-4 text-primary shrink-0" />
@@ -773,7 +892,93 @@ export default function Eventos() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="w-full grid grid-cols-3">
+         <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4">
+           <TabsTrigger value="marketing" className="text-xs sm:text-sm">
+             📣 Divulgação
+           </TabsTrigger>
+         <TabsContent value="marketing" className="space-y-6">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             {/* PDF Export Section */}
+             <Card>
+               <CardContent className="p-5 space-y-4">
+                 <div className="flex items-center gap-2 mb-2">
+                   <FileText className="h-5 w-5 text-primary" />
+                   <h3 className="font-bold">Gerar Agenda (PDF)</h3>
+                 </div>
+                 <p className="text-sm text-muted-foreground">Crie um PDF editorial pronto para compartilhamento com capa e destaques.</p>
+                 <div className="flex flex-wrap gap-2">
+                   <Button 
+                     variant="outline" 
+                     size="sm"
+                     onClick={() => {
+                       const today = new Date().toISOString().split('T')[0];
+                       const dayEvents = confirmedEvents.filter(e => e.date === today || e.date === new Date().toLocaleDateString('pt-BR'));
+                       exportEditorialAgendaPdf(dayEvents, "Agenda do Dia");
+                       toast.success("PDF da agenda do dia gerado!");
+                     }}
+                   >
+                     <CalendarDays className="mr-2 h-4 w-4" />
+                     Agenda do Dia
+                   </Button>
+                   <Button 
+                     variant="default" 
+                     size="sm"
+                     onClick={() => {
+                       exportEditorialAgendaPdf(confirmedEvents, "Agenda da Semana");
+                       toast.success("PDF da agenda completa gerado!");
+                     }}
+                   >
+                     <FileDown className="mr-2 h-4 w-4" />
+                     Agenda Completa
+                   </Button>
+                 </div>
+               </CardContent>
+             </Card>
+
+             {/* WhatsApp Share Section */}
+             <Card>
+               <CardContent className="p-5 space-y-4">
+                 <div className="flex items-center gap-2 mb-2">
+                   <MessageCircle className="h-5 w-5 text-[#25D366]" />
+                   <h3 className="font-bold">WhatsApp Marketing</h3>
+                 </div>
+                 <p className="text-sm text-muted-foreground">Copie o texto pronto com os destaques para enviar em grupos.</p>
+                 <Button 
+                   variant="outline" 
+                   size="sm"
+                   onClick={() => {
+                     const text = decodeURIComponent(buildBulkWhatsAppMessage(confirmedEvents));
+                     navigator.clipboard.writeText(text);
+                     toast.success("Texto copiado para a área de transferência!");
+                   }}
+                 >
+                   <Copy className="mr-2 h-4 w-4" />
+                   Copiar Texto p/ WhatsApp
+                 </Button>
+               </CardContent>
+             </Card>
+           </div>
+
+           {/* Highlights Management */}
+           <div className="space-y-4">
+             <div className="flex items-center justify-between">
+               <h3 className="font-bold flex items-center gap-2">
+                 <Megaphone className="h-5 w-5 text-amber-500" />
+                 Eventos em Destaque
+               </h3>
+               <Badge variant="secondary">{confirmedEvents.filter(e => e.is_highlight).length} Ativos</Badge>
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+               {confirmedEvents.filter(e => e.is_highlight).map(ev => renderEventCard(ev))}
+               {confirmedEvents.filter(e => e.is_highlight).length === 0 && (
+                 <div className="col-span-full py-10 text-center border-2 border-dashed rounded-xl text-muted-foreground">
+                   Nenhum evento marcado como destaque no momento.
+                 </div>
+               )}
+             </div>
+           </div>
+         </TabsContent>
+
           <TabsTrigger value="pending" className="text-xs sm:text-sm">
             A serem liberados
             <Badge variant="secondary" className="ml-1.5 text-xs">{pendingEvents.length}</Badge>

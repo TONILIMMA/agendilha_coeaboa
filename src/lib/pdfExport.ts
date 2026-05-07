@@ -11,6 +11,7 @@ const categoryLabels: Record<string, string> = {
 };
 
 interface EventData {
+  id?: string;
   event_title: string;
   date?: string | null;
   start_time?: string | null;
@@ -35,6 +36,9 @@ interface EventData {
   video_link?: string | null;
   additional_details?: string | null;
   created_at?: string;
+  is_highlight?: boolean;
+  views_count?: number;
+  shares_count?: number;
 }
 
 const BRAND_ORANGE: [number, number, number] = [232, 89, 12];
@@ -53,6 +57,7 @@ function formatWhatsApp(raw?: string | null): string {
 }
 
 const PAGE_W = 210;
+const PAGE_H = 297;
 const MARGIN = 18;
 const CONTENT_W = PAGE_W - MARGIN * 2;
 const HEADER_H = 16;
@@ -372,6 +377,104 @@ export function exportBulkEventsPdf(events: EventData[]) {
 
 export function getEventPdfBlob(event: EventData): Blob {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  drawEventPage(doc, event);
-  return doc.output("blob");
-}
+   drawEventPage(doc, event);
+   return doc.output("blob");
+ }
+
+ export function exportEditorialAgendaPdf(events: EventData[], title: string = "Agenda Cultural") {
+   if (events.length === 0) return;
+   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+   
+   // --- Capa ---
+   doc.setFillColor(...BRAND_ORANGE);
+   doc.rect(0, 0, PAGE_W, 100, "F");
+   
+   try {
+     const mime = LOGO_MIME === "JPEG" ? "jpeg" : "png";
+     doc.addImage(`data:image/${mime};base64,${AGENDILHA_LOGO_BASE64}`, LOGO_MIME, PAGE_W/2 - 20, 15, 40, 40);
+   } catch (e) {}
+
+   doc.setTextColor(255, 255, 255);
+   doc.setFont("helvetica", "bold");
+   doc.setFontSize(32);
+   doc.text("AgendIlha", PAGE_W/2, 70, { align: "center" });
+   
+   doc.setFontSize(16);
+   doc.text(title, PAGE_W/2, 82, { align: "center" });
+   
+   doc.setTextColor(...DARK_TEXT);
+   doc.setFontSize(14);
+   const dateStr = new Date().toLocaleDateString("pt-BR", { day: '2-digit', month: 'long', year: 'numeric' });
+   doc.text(dateStr, PAGE_W/2, 115, { align: "center" });
+
+   // Destaques
+   const highlights = events.filter(e => e.is_highlight);
+   if (highlights.length > 0) {
+     doc.setFont("helvetica", "bold");
+     doc.setFontSize(14);
+     doc.setTextColor(...BRAND_ORANGE);
+     doc.text("EVENTOS EM DESTAQUE", MARGIN, 140);
+     
+     let hy = 150;
+     highlights.slice(0, 6).forEach(h => {
+       doc.setTextColor(...DARK_TEXT);
+       doc.setFontSize(11);
+       doc.text(`• ${h.event_title}`, MARGIN + 5, hy);
+       doc.setFontSize(9);
+       doc.setTextColor(...MEDIUM_TEXT);
+       doc.text(`  ${h.start_time || ''} no ${h.location || ''}`, MARGIN + 5, hy + 5);
+       hy += 12;
+     });
+   }
+
+   // Rodapé da capa com QR Code (Simulado)
+   doc.setFontSize(9);
+   doc.setTextColor(...MEDIUM_TEXT);
+   doc.text("Confira a agenda completa online:", PAGE_W/2, FOOTER_Y - 20, { align: "center" });
+   doc.setTextColor(...BRAND_ORANGE);
+   doc.text("agendilha-divulgacao.lovable.app", PAGE_W/2, FOOTER_Y - 15, { align: "center" });
+
+   // --- Lista de Eventos ---
+   const grouped: Record<string, EventData[]> = {};
+   events.forEach(e => {
+     const key = e.date || "Sem data";
+     if (!grouped[key]) grouped[key] = [];
+     grouped[key].push(e);
+   });
+
+   Object.entries(grouped).sort().forEach(([date, dayEvents]) => {
+     doc.addPage();
+     drawHeader(doc);
+     let y = HEADER_H + 15;
+     
+     doc.setFont("helvetica", "bold");
+     doc.setFontSize(18);
+     doc.setTextColor(...BRAND_ORANGE);
+     doc.text(date, MARGIN, y);
+     y += 12;
+     
+     dayEvents.sort((a,b) => (a.start_time || '').localeCompare(b.start_time || '')).forEach(ev => {
+       if (y > MAX_Y - 20) {
+         drawFooter(doc, false);
+         doc.addPage();
+         drawHeader(doc);
+         y = HEADER_H + 15;
+       }
+       
+       doc.setFont("helvetica", "bold");
+       doc.setFontSize(12);
+       doc.setTextColor(...DARK_TEXT);
+       doc.text(`${ev.start_time || '--:--'} - ${ev.event_title}`, MARGIN, y);
+       y += 6;
+       
+       doc.setFont("helvetica", "normal");
+       doc.setFontSize(10);
+       doc.setTextColor(...MEDIUM_TEXT);
+       doc.text(`Local: ${ev.location || 'N/I'} • ${ev.address_neighborhood || ''}`, MARGIN + 5, y);
+       y += 10;
+     });
+     drawFooter(doc, true);
+   });
+
+   doc.save(`agenda_agendilha_${new Date().toISOString().slice(0, 10)}.pdf`);
+ }
