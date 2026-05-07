@@ -320,13 +320,35 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer className="py-10 px-6 border-t border-border/60">
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-wider text-foreground/55">
-          <div className="flex items-center gap-2 font-bold text-foreground/75">
-            <img src={logo} alt="AgendIlha" className="h-6 w-6 rounded-full ring-1 ring-foreground/10" />
-            <span>AgendIlha | Coé a Boa?</span>
+      <footer className="py-16 px-6 border-t border-border/40 bg-card/30">
+        <div className="mx-auto max-w-6xl flex flex-col items-center gap-8">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className="flex items-center gap-3 px-6 py-3 rounded-full glass border border-white/20 shadow-sm">
+              <img src={logo} alt="Coé a Boa?" className="h-8 w-8 rounded-full ring-2 ring-primary/10" />
+              <div className="flex flex-col items-start leading-none gap-0.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display text-base font-black text-primary tracking-tight">AgendIlha</span>
+                  <span className="h-1 w-1 rounded-full bg-secondary/40" />
+                  <span className="font-display text-sm font-bold text-secondary tracking-tight">Coé a Boa?</span>
+                </div>
+              </div>
+            </div>
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-foreground/40 font-semibold">
+              Conectando a Ilha do Governador · RJ
+            </p>
           </div>
-          <span>© {new Date().getFullYear()} — Ilha do Governador</span>
+          
+          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border/40 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40">
+            <div className="flex items-center gap-6">
+              <span>© {new Date().getFullYear()}</span>
+              <span className="hidden sm:inline text-border">|</span>
+              <span>Design Hiperlocal</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-1 w-1 rounded-full bg-primary/40" />
+              <span>Feito com alma insulana</span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
