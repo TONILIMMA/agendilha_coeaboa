@@ -94,8 +94,10 @@ export default function Header() {
   const navigate = useNavigate();
   const currentDate = useCurrentDate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const location = useLocation();
-  const isHome = location.pathname === "/";
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
+  const isAgenda = pathname === "/agenda";
+  const isAdminArea = pathname.startsWith("/admin");
   const showEventos = isAdmin || (perms.loaded && perms.isCollaborator);
   const showCollaborators = isAdmin || (perms.loaded && perms.canApprove);
   const hasAdminLinks = showEventos || isAdmin || showCollaborators;
@@ -107,7 +109,7 @@ export default function Header() {
           {/* Left: Brand + date */}
           <div className="flex flex-col min-w-0 shrink">
             <div className="flex items-center gap-1.5 flex-wrap">
-              {!isHome && (
+               {!isHome && !isAgenda && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button size="icon" variant="ghost" onClick={() => navigate("/")} className="h-7 w-7 text-primary shrink-0" aria-label="Voltar">
@@ -117,17 +119,17 @@ export default function Header() {
                   <TooltipContent>Voltar à página inicial</TooltipContent>
                 </Tooltip>
               )}
-               <Link to="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-                 <span className="font-display text-base sm:text-lg font-bold text-primary whitespace-nowrap">📌 AgendIlha</span>
-                 <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
+               <Link to="/" className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-1.5 hover:opacity-80 transition-opacity">
+                 <span className="font-display text-base sm:text-xl font-black text-primary whitespace-nowrap tracking-tight">AgendIlha</span>
+                 <span className="text-[10px] sm:text-sm text-muted-foreground font-medium opacity-70">Coé a Boa?</span>
                </Link>
-               {isAdmin && <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />}
+                {isAdmin && isAdminArea && <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />}
             </div>
             <span className="text-[10px] sm:text-[11px] text-muted-foreground capitalize block">{currentDate}</span>
           </div>
 
-          {/* Right actions */}
-          {user && (() => {
+          {/* Right actions - hide specific ones on public agenda */}
+          {user && !isAgenda && (() => {
             // Use centralized name resolution from useUserBadge (profile → company → collaborator → metadata → email/phone)
             const fullName = badgeName && badgeName !== "Usuário" ? badgeName : "Divulgador";
             const firstName = fullName.split(" ")[0];

@@ -40,80 +40,87 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 const AppRoutes = () => (
-   <SubmissionProvider>
-     <Routes>
-       <Route path="/auth" element={<><Header /><Auth /></>} />
+  <SubmissionProvider>
+    <Routes>
+      {/* Públicas */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/agenda" element={<><Header /><AgendaCultural /></>} />
+      <Route path="/auth" element={<><Header /><Auth /></>} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/lp" element={<Landing />} />
-       <Route path="/" element={<Landing />} />
-       <Route
-         path="/enviar-evento"
-         element={
-           <ProtectedRoute>
-             <SubmitEvent />
-           </ProtectedRoute>
-         }
-       />
-       <Route
-         path="/admin/users"
-         element={
-           <ProtectedRoute>
-             <AdminPinGate>
-               <Header />
-               <AdminUsers />
-             </AdminPinGate>
-           </ProtectedRoute>
-         }
-       />
-       <Route
-         path="/admin/events"
-         element={
-           <ProtectedRoute>
-             <Header />
-             <AdminEvents />
-           </ProtectedRoute>
-         }
-       />
-       <Route path="/coeaboa" element={<AgendaCultural />} />
-       <Route path="/agenda" element={<AgendaCultural />} />
-       <Route
-         path="/eventos"
-         element={
-           <ProtectedRoute>
-             <Header />
-             <Eventos />
-           </ProtectedRoute>
-         }
-       />
-       <Route
-         path="/admin/collaborators"
-         element={
-           <ProtectedRoute>
-             <Header />
-             <AdminCollaborators />
-           </ProtectedRoute>
-         }
-       />
-       <Route
-         path="/admin/master"
-         element={
-           <ProtectedRoute>
-             <AdminPinGate>
-               <Header />
-               <AdminMaster />
-             </AdminPinGate>
-           </ProtectedRoute>
-         }
-       />
-       <Route
-         path="/ranking"
-         element={
-           <ProtectedRoute>
-             <Header />
-             <Ranking />
-           </ProtectedRoute>
-         }
-       />
+
+      {/* Envio de Evento */}
+      <Route
+        path="/enviar-evento"
+        element={
+          <ProtectedRoute>
+            <SubmitEvent />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Administrativas */}
+      <Route
+        path="/admin/events"
+        element={
+          <ProtectedRoute>
+            <Header />
+            <AdminEvents />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute>
+            <AdminPinGate>
+              <Header />
+              <AdminUsers />
+            </AdminPinGate>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/collaborators"
+        element={
+          <ProtectedRoute>
+            <Header />
+            <AdminCollaborators />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/master"
+        element={
+          <ProtectedRoute>
+            <AdminPinGate>
+              <Header />
+              <AdminMaster />
+            </AdminPinGate>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ranking"
+        element={
+          <ProtectedRoute>
+            <Header />
+            <Ranking />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Auxiliares / Legado */}
+      <Route path="/coeaboa" element={<Navigate to="/agenda" replace />} />
+      <Route path="/lp" element={<Navigate to="/" replace />} />
+      <Route
+        path="/eventos"
+        element={
+          <ProtectedRoute>
+            <Header />
+            <Eventos />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </SubmissionProvider>
