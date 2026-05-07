@@ -328,8 +328,11 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
  
   useEffect(() => {
     if (!loaded) return;
+    
+    // Check if we already have data in form or localStorage draft
     const currentValues = form.getValues();
-    const isDefault = !currentValues.nickName && !currentValues.companyName;
+    const hasDraft = !!localStorage.getItem("agendilha_draft");
+    const isDefault = !currentValues.nickName && !currentValues.companyName && !hasDraft;
     
     if (isDefault) {
       form.reset({
@@ -342,7 +345,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
         addressStreet: profile.address_street || "",
         addressNumber: profile.address_number || "",
         addressZip: profile.address_zip || "",
-        contactSocial: profile.contact_social || "",
+        contact_social: profile.contact_social || "",
       });
     }
   }, [loaded, profile, form]);
