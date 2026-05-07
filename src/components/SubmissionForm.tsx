@@ -36,17 +36,14 @@ import {
 } from "@/components/ui/select";
 
  const formSchema = z.object({
-   // 1. Dados Básicos do Usuário
-   nickName: z.string().trim().min(1, "Nick/Nome é obrigatório").max(50),
-   basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
-    userLocation: z.string().trim().min(1, "Selecione seu Bairro/Região"),
-   otherLocation: z.string().trim().optional(),
- 
-   // 2. Para Divulgadores
-   companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
-   pinCode: z.string().trim().min(4, "Senha deve ter 4-8 dígitos").max(8),
-   email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
-   addressZip: z.string().trim().optional(),
+    // 1. Identificação do Divulgador
+    nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
+    basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
+
+    // 2. Dados Profissionais
+    companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
+    email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
+    addressZip: z.string().trim().optional(),
    addressStreet: z.string().trim().optional(),
    addressNumber: z.string().trim().optional(),
  
@@ -249,11 +246,19 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nickName: "", basicPhone: "", userLocation: "",
-      companyName: "", pinCode: "", email: "",
-      category: "", eventTitle: "", date: "", startTime: "",
-      atrativoName: "", atrativoType: "",
-      locationName: "", eventAddress: "", locationType: "commercial",
+      nickName: "", 
+      basicPhone: "",
+      companyName: "", 
+      email: "",
+      category: "", 
+      eventTitle: "", 
+      date: "", 
+      startTime: "",
+      atrativoName: "", 
+      atrativoType: "",
+      locationName: "", 
+      eventAddress: "", 
+      locationType: "commercial",
       legalAcceptance: undefined,
     },
     mode: "onChange",
@@ -263,12 +268,12 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
   const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   const steps = [
-    { id: 1, title: "Básico", description: "Dados do usuário" },
-    { id: 2, title: "Divulgador", description: "Informações profissionais" },
+    { id: 1, title: "Identificação", description: "Seus dados" },
+    { id: 2, title: "Profissional", description: "Informações da conta" },
     { id: 3, title: "Evento", description: "O que vai rolar?" },
-    { id: 4, title: "Atrativo", description: "Quem vai se apresentar?" },
+    { id: 4, title: "Atrativo", description: "Quem se apresenta?" },
     { id: 5, title: "Local", description: "Onde vai ser?" },
-    { id: 6, title: "Legal", description: "Termos e condições" },
+    { id: 6, title: "Legal", description: "Termos" },
     { id: 7, title: "Revisão", description: "Confira tudo" },
   ];
 
@@ -299,8 +304,8 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
   const getFieldsForStep = (step: number) => {
     switch (step) {
-      case 1: return ["nickName", "basicPhone", "userLocation", "otherLocation"];
-      case 2: return ["companyName", "pinCode", "email", "addressZip", "addressStreet", "addressNumber"];
+      case 1: return ["nickName", "basicPhone"];
+      case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
       case 3: return ["category", "eventTitle", "date", "startTime", "predictedDuration", "endTime"];
       case 4: return ["atrativoName", "atrativoType", "atrativoStyle", "atrativoDescription", "atrativoContact"];
       case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
@@ -319,7 +324,6 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       await saveProfile({
         nick_name: currentValues.nickName,
         phone: currentValues.basicPhone,
-        home_location: currentValues.userLocation,
         company_name: currentValues.companyName,
         email: currentValues.email || "",
       } as any);
@@ -373,14 +377,13 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
         ...currentValues,
         nickName: profile.nick_name || "",
         basicPhone: profile.phone || "",
-        userLocation: profile.home_location || "",
         companyName: profile.company_name || "",
         email: profile.email || "",
         addressStreet: profile.address_street || "",
         addressNumber: profile.address_number || "",
         addressZip: profile.address_zip || "",
         contactSocial: profile.contact_social || "",
-      });
+      } as any);
     }
   }, [loaded, profile, form]);
 
@@ -433,10 +436,8 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       saveProfile({
         nick_name: data.nickName,
         phone: data.basicPhone,
-        home_location: data.userLocation,
         company_name: data.companyName,
         email: data.email || "",
-        pin_code: data.pinCode,
         address_street: data.addressStreet || "",
         address_number: data.addressNumber || "",
         address_zip: data.addressZip || "",
@@ -484,13 +485,24 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                 </div>
               </div>
               <h2 className="text-3xl font-black mb-4">Solicitação Enviada!</h2>
-              <p className="text-muted-foreground mb-8 leading-relaxed">
-                Obrigado por enviar seu evento. Nossa equipe fará a curadoria e você será notificado em breve.
-              </p>
+              <div className="space-y-4 mb-8">
+                <p className="text-muted-foreground leading-relaxed">
+                  Obrigado por enviar seu evento. Nossa equipe fará a curadoria e você será notificado em breve.
+                </p>
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-left">
+                  <p className="text-sm text-blue-800 font-medium flex items-center gap-2">
+                    <Info className="h-4 w-4" />
+                    Acompanhe o status na sua conta:
+                  </p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Vá em <strong>Menu &gt; Envios</strong> para ver o andamento deste e de outros eventos.
+                  </p>
+                </div>
+              </div>
               
               <div className="bg-muted/30 rounded-2xl p-6 mb-8 text-left space-y-4 border border-border/50 shadow-inner">
                 <div className="flex justify-between items-center border-b border-border/50 pb-2">
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status Atual</span>
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status Inicial</span>
                   <Badge className="bg-amber-100 text-amber-700 border-none font-black text-[10px] px-3 py-1">PENDENTE</Badge>
                 </div>
                 <div>
@@ -500,6 +512,10 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                     <CalendarIcon className="h-3.5 w-3.5" />
                     {form.getValues("date")} às {form.getValues("startTime")}
                   </p>
+                </div>
+                <div className="pt-2 border-t border-border/50">
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Vinculado à conta</p>
+                  <p className="text-sm font-bold text-foreground">{profile.nick_name || profile.responsible_name || "Sua Conta"}</p>
                 </div>
               </div>
 
@@ -524,30 +540,31 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                   <StepIndicator steps={steps} currentStep={currentStep} />
                   
                   {currentStep === 1 && (
-                 <div className="space-y-6">
-                   <h2 className="text-xl font-bold">1. Dados Básicos</h2>
-                    <TextField control={form.control} name="nickName" label="Seu Apelido ou Nome Social" />
-                   <TextField control={form.control} name="basicPhone" label="WhatsApp" />
-                    <TextField control={form.control} name="userLocation" label="Seu Bairro ou Região de Moradia" />
-                 </div>
-               )}
-               
-               {currentStep === 2 && (
-                 <div className="space-y-6">
-                   <h2 className="text-xl font-bold">2. Dados do Divulgador</h2>
-                   <TextField control={form.control} name="companyName" label="Nome completo / Empresa" />
-                   <TextField control={form.control} name="pinCode" label="PIN (4-8 dígitos)" type="password" />
-                   <TextField control={form.control} name="email" label="E-mail" required={false} />
-                   <CepField control={form.control} onCepFound={(data) => {
-                     form.setValue("addressStreet", data.logradouro || "");
-                     form.setValue("addressNeighborhood", data.bairro || "");
-                     form.setValue("addressCity", data.localidade || "");
-                     form.setValue("addressState", data.uf || "");
-                   }} />
-                   <TextField control={form.control} name="addressStreet" label="Endereço" required={false} />
-                   <TextField control={form.control} name="addressNumber" label="Número / Complemento" required={false} />
-                 </div>
-               )}
+                    <div className="space-y-6">
+                      <h2 className="text-xl font-bold">1. Identificação</h2>
+                      <p className="text-xs sm:text-sm text-muted-foreground bg-primary/5 p-3 rounded-lg border border-primary/10">
+                        Evento vinculado à conta: <strong>{profile.nick_name || profile.responsible_name || "Divulgador"}</strong>
+                      </p>
+                      <TextField control={form.control} name="nickName" label="Seu Nome" />
+                      <TextField control={form.control} name="basicPhone" label="WhatsApp de Contato" />
+                    </div>
+                  )}
+                  
+                  {currentStep === 2 && (
+                    <div className="space-y-6">
+                      <h2 className="text-xl font-bold">2. Dados Profissionais</h2>
+                      <TextField control={form.control} name="companyName" label="Nome da Empresa / Projeto" />
+                      <TextField control={form.control} name="email" label="E-mail" required={false} />
+                      <CepField control={form.control} onCepFound={(data) => {
+                        form.setValue("addressStreet", data.logradouro || "");
+                        form.setValue("addressNeighborhood", data.bairro || "");
+                        form.setValue("addressCity", data.localidade || "");
+                        form.setValue("addressState", data.uf || "");
+                      }} />
+                      <TextField control={form.control} name="addressStreet" label="Rua" required={false} />
+                      <TextField control={form.control} name="addressNumber" label="Número / Complemento" required={false} />
+                    </div>
+                  )}
 
                {currentStep === 3 && (
                  <div className="space-y-6 animate-in fade-in duration-500">
@@ -735,11 +752,10 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                      7. Prévia Final
                    </h2>
                    
-                    <SummarySection title="👤 Usuário" items={[
-                      { label: "Nick/Nome", value: form.watch("nickName") },
-                      { label: "WhatsApp", value: form.watch("basicPhone") },
-                      { label: "Bairro/Região", value: form.watch("userLocation") }
-                    ]} onEdit={() => goToStep(1)} />
+                     <SummarySection title="👤 Identificação" items={[
+                       { label: "Nome", value: form.watch("nickName") || "" },
+                       { label: "WhatsApp", value: form.watch("basicPhone") || "" }
+                     ]} onEdit={() => goToStep(1)} />
 
                     <SummarySection title="💼 Divulgador" items={[
                       { label: "Empresa", value: form.watch("companyName") },
