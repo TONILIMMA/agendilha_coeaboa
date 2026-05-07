@@ -203,19 +203,19 @@ export default function AgendaCultural() {
               </p>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8">
-              <Button variant="outline" className="rounded-full shadow-sm border-2 border-primary/40 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider" onClick={() => {
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8 px-4">
+              <Button variant="outline" className="rounded-full shadow-sm border-2 border-primary/40 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
                 navigator.clipboard.writeText(window.location.href);
                 toast.success("Link da agenda copiado!");
               }}>
                 <Copy className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Copiar Link</span><span className="sm:hidden">Link</span>
               </Button>
-              <Button variant="outline" className="rounded-full shadow-sm border-2 border-green-600/40 text-green-800 bg-green-50/50 hover:bg-green-50 hover:border-green-600 transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider" onClick={() => {
+              <Button variant="outline" className="rounded-full shadow-sm border-2 border-green-600/40 text-green-900 bg-green-50/50 hover:bg-green-50 hover:border-green-600 transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
                 window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
               }}>
                 <Share2 className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Compartilhar</span><span className="sm:hidden">Zap</span>
               </Button>
-              <Button variant="default" className="rounded-full shadow-xl bg-primary text-primary-foreground hover:bg-primary/90 font-black px-6 sm:px-10 h-11 sm:h-12 text-xs sm:text-sm border-2 border-primary transform hover:scale-105 transition-all uppercase tracking-widest" onClick={() => {
+              <Button variant="default" className="rounded-full shadow-xl bg-primary text-primary-foreground hover:bg-primary/90 font-black px-6 sm:px-10 h-11 sm:h-12 text-xs sm:text-sm border-2 border-primary transform hover:scale-105 transition-all uppercase tracking-widest focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
                 exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
                 toast.success("PDF da agenda gerado!");
               }}>
@@ -384,14 +384,14 @@ export default function AgendaCultural() {
                                 </p>
                               )}
 
-                               <div className="pt-2 flex flex-wrap items-center gap-3">
-                                 <Button size="sm" variant="outline" className="rounded-full h-10 px-6 border-2 border-green-600/30 text-green-700 font-bold hover:bg-green-50 hover:border-green-600 transition-all shadow-sm" onClick={() => {
+                               <div className="pt-2 flex flex-wrap items-center gap-3 sm:gap-4">
+                                 <Button size="sm" variant="outline" className="rounded-full h-11 sm:h-10 px-6 border-2 border-green-600/40 text-green-900 font-bold hover:bg-green-50 hover:border-green-600 transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
                                   trackShare(ev.id);
                                   window.open(buildWhatsAppShare(ev), "_blank");
                                 }}>
                                    <Share2 className="h-4 w-4 mr-2" /> WhatsApp
                                 </Button>
-                                 <Button size="sm" variant="ghost" className="rounded-full h-10 px-6 font-bold text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all" onClick={() => {
+                                 <Button size="sm" variant="ghost" className="rounded-full h-11 sm:h-10 px-6 font-bold text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
                                   const addr = buildFullAddress(ev);
                                   window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
                                 }}>
