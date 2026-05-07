@@ -499,12 +499,74 @@ export default function Eventos() {
                     <span><strong>Email:</strong> {sub.email}</span>
                   </div>
                 )}
-                {sub.address_street && (
-                  <div className="flex items-center gap-2 text-muted-foreground sm:col-span-2">
-                    <MapPin className="h-4 w-4 text-primary shrink-0" />
-                    <span><strong>Endereço:</strong> {[sub.address_street, sub.address_number, sub.address_neighborhood, sub.address_city, sub.address_state].filter(Boolean).join(", ")}{sub.address_zip ? ` – CEP: ${sub.address_zip}` : ""}</span>
-                  </div>
-                )}
+                 {sub.address_street && (
+                   <div className="flex items-center gap-2 text-muted-foreground sm:col-span-2">
+                     <MapPin className="h-4 w-4 text-primary shrink-0" />
+                     <span><strong>Endereço:</strong> {[sub.address_street, sub.address_number, sub.address_neighborhood, sub.address_city, sub.address_state].filter(Boolean).join(", ")}{sub.address_zip ? ` – CEP: ${sub.address_zip}` : ""}</span>
+                   </div>
+                 )}
+
+                 <div className="sm:col-span-2 mt-2 pt-2 border-t border-border flex flex-wrap gap-2">
+                   <Button
+                     size="sm"
+                     variant="outline"
+                     className="text-xs"
+                     onClick={() => exportSingleEventPdf(sub as any)}
+                   >
+                     <FileDown className="h-3.5 w-3.5 mr-1" />
+                     Baixar PDF Individual
+                   </Button>
+
+                   <Dialog>
+                     <DialogTrigger asChild>
+                       <Button size="sm" variant="outline" className="text-xs">
+                         <ImageIcon className="h-3.5 w-3.5 mr-1" />
+                         Card p/ Redes Sociais
+                       </Button>
+                     </DialogTrigger>
+                     <DialogContent className="max-w-[400px] p-0 overflow-hidden border-0">
+                       <div className="bg-primary p-8 text-white aspect-square flex flex-col justify-between relative overflow-hidden">
+                         {/* Abstract background shapes */}
+                         <div className="absolute top-[-20%] right-[-20%] w-[60%] h-[60%] bg-white/10 rounded-full blur-3xl" />
+                         <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/20 rounded-full blur-2xl" />
+                         
+                         <div className="relative z-10">
+                           <div className="flex items-center gap-2 mb-4">
+                             <div className="h-10 w-10 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center font-bold text-xl">🌴</div>
+                             <div className="font-display font-bold text-xl tracking-tight">AgendIlha</div>
+                           </div>
+                           <Badge className="bg-amber-500 text-white border-0 mb-4">{categoryLabels[sub.category || ''] || 'Evento'}</Badge>
+                           <h2 className="text-3xl font-display font-black leading-tight mb-4 uppercase tracking-tighter">{sub.event_title}</h2>
+                         </div>
+
+                         <div className="relative z-10 space-y-3">
+                           <div className="flex items-center gap-3">
+                             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center"><CalendarDays className="h-4 w-4" /></div>
+                             <div>
+                               <p className="text-[10px] uppercase opacity-70 font-bold tracking-widest">Quando</p>
+                               <p className="font-bold text-lg leading-none">{sub.date} • {sub.start_time}</p>
+                             </div>
+                           </div>
+                           <div className="flex items-center gap-3">
+                             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center"><MapPin className="h-4 w-4" /></div>
+                             <div>
+                               <p className="text-[10px] uppercase opacity-70 font-bold tracking-widest">Onde</p>
+                               <p className="font-bold text-lg leading-none line-clamp-1">{sub.location}</p>
+                             </div>
+                           </div>
+                         </div>
+
+                         <div className="mt-8 pt-6 border-t border-white/20 relative z-10 flex items-center justify-between">
+                           <p className="text-sm font-bold opacity-80 italic">#CoéABoaIlha</p>
+                           <p className="text-[10px] font-mono opacity-60">agendilha.com.br</p>
+                         </div>
+                       </div>
+                       <div className="p-4 bg-muted/30 border-t flex justify-center">
+                         <p className="text-xs text-muted-foreground">Tire um print para compartilhar no Instagram ou WhatsApp</p>
+                       </div>
+                     </DialogContent>
+                   </Dialog>
+                 </div>
                 {sub.contact_social && (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Globe className="h-4 w-4 text-primary shrink-0" />
