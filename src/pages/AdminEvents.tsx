@@ -6,9 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+ import {
+   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+ } from "@/components/ui/select";
+ import {
+   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
+ } from "@/components/ui/tooltip";
+ import {
+   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+ } from "@/components/ui/dropdown-menu";
 import {
   CalendarDays, Loader2, MessageCircle, Trash2, Search,
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
