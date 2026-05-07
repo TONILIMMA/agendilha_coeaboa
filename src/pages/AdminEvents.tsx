@@ -23,6 +23,7 @@ import {
   RotateCcw, LayoutDashboard, Edit, ExternalLink, Eye, History
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 
 interface Submission {
