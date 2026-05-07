@@ -687,7 +687,8 @@ export default function AdminEvents() {
             </Card>
           ))}
         </div>
-      )}
-    </div>
-  );
-}
+       )}
+     </div>
+     </div>
+   );
+ }
