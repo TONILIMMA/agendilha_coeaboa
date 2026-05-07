@@ -778,34 +778,170 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                  </div>
                )}
 
-               {currentStep === 6 && (
-                 <div className="space-y-6 animate-in fade-in duration-500">
-                   <h2 className="text-xl font-bold flex items-center gap-2">
-                     <Scale className="h-5 w-5 text-primary" />
-                     6. Questões Legais
-                   </h2>
-                   
-                   <div className="p-4 bg-muted rounded-xl space-y-4">
-                     <p className="text-sm leading-relaxed">
-                       Ao prosseguir, você concorda com nossos <a href="#" className="text-primary underline font-bold">Termos de Uso</a> e autoriza a publicação das informações fornecidas no portal AgendIlha.
-                     </p>
-                     
-                     <FormField
-                       control={form.control}
-                       name="legalAcceptance"
-                       render={({ field }) => (
-                         <FormItem className="flex items-start gap-3 space-y-0">
-                           <FormControl>
-                             <Checkbox checked={field.value} onCheckedChange={field.onChange} className="h-5 w-5" />
-                           </FormControl>
-                           <FormLabel className="font-bold cursor-pointer text-base">Eu aceito e autorizo a publicação</FormLabel>
-                         </FormItem>
-                       )}
-                     />
-                     <FormMessage />
-                   </div>
-                 </div>
-               )}
+                {currentStep === 6 && (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                      <ImageIcon className="h-5 w-5 text-primary" />
+                      6. Arte do Evento
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <button 
+                        type="button"
+                        onClick={() => setImageSource("upload")}
+                        className={cn(
+                          "flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-3",
+                          imageSource === "upload" ? "border-primary bg-primary/5 shadow-md" : "border-muted hover:border-primary/30"
+                        )}
+                      >
+                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Upload className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="text-center">
+                          <p className="font-bold">Enviar meu flyer</p>
+                          <p className="text-xs text-muted-foreground mt-1">PNG ou JPG até 5MB</p>
+                        </div>
+                      </button>
+                      
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setImageSource("ai");
+                          handleGenerateAIImage();
+                        }}
+                        disabled={isGeneratingImage}
+                        className={cn(
+                          "flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-3 relative overflow-hidden group",
+                          imageSource === "ai" ? "border-secondary bg-secondary/5 shadow-md" : "border-muted hover:border-secondary/30"
+                        )}
+                      >
+                        {isGeneratingImage && (
+                          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-10">
+                            <div className="flex flex-col items-center gap-2">
+                              <Loader2 className="h-6 w-6 animate-spin text-secondary" />
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-secondary">Criando...</span>
+                            </div>
+                          </div>
+                        )}
+                        <div className="h-12 w-12 rounded-full bg-secondary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Wand2 className="h-6 w-6 text-secondary" />
+                        </div>
+                        <div className="text-center">
+                          <p className="font-bold">Criar arte com IA</p>
+                          <p className="text-xs text-muted-foreground mt-1">Gere um flyer automaticamente</p>
+                        </div>
+                        <Sparkles className="absolute top-2 right-2 h-4 w-4 text-secondary opacity-40" />
+                      </button>
+                    </div>
+
+                    {imageSource === "upload" && (
+                      <div className="animate-in slide-in-from-top-4 duration-300">
+                        <FileUpload 
+                          label="Seu flyer ou banner" 
+                          accept="image/*" 
+                          file={eventImage instanceof File ? eventImage : null} 
+                          onFileChange={(f) => setEventImage(f)} 
+                        />
+                      </div>
+                    )}
+
+                    {eventImage && (
+                      <div className="relative mt-4 group rounded-2xl overflow-hidden border-2 border-border shadow-inner bg-muted">
+                        <p className="absolute top-2 left-2 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md">
+                          Pré-visualização
+                        </p>
+                        <img 
+                          src={typeof eventImage === 'string' ? eventImage : URL.createObjectURL(eventImage)} 
+                          alt="Pré-visualização" 
+                          className="w-full h-auto max-h-64 object-contain mx-auto"
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => { setEventImage(null); setImageSource(null); }}
+                          className="absolute top-2 right-2 z-10 h-8 w-8 bg-black/60 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {currentStep === 7 && (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                      <Scale className="h-5 w-5 text-primary" />
+                      7. Questões Legais
+                    </h2>
+                    
+                    <div className="p-4 bg-muted rounded-xl space-y-4">
+                      <p className="text-sm leading-relaxed">
+                        Ao prosseguir, você concorda com nossos <a href="#" className="text-primary underline font-bold">Termos de Uso</a> e autoriza a publicação das informações fornecidas no portal AgendIlha.
+                      </p>
+                      
+                      <FormField
+                        control={form.control}
+                        name="legalAcceptance"
+                        render={({ field }) => (
+                          <FormItem className="flex items-start gap-3 space-y-0">
+                            <FormControl>
+                              <Checkbox checked={field.value} onCheckedChange={field.onChange} className="h-5 w-5" />
+                            </FormControl>
+                            <FormLabel className="font-bold cursor-pointer text-base">Eu aceito e autorizo a publicação</FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      <FormMessage />
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 8 && (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                      <Eye className="h-5 w-5 text-primary" />
+                      8. Prévia Final
+                    </h2>
+                    
+                      <SummarySection title="👤 Identificação" items={[
+                        { label: "Nome", value: form.watch("nickName") || "" },
+                        { label: "WhatsApp", value: form.watch("basicPhone") || "" }
+                      ]} onEdit={() => goToStep(1)} />
+ 
+                     <SummarySection title="💼 Divulgador" items={[
+                       { label: "Empresa", value: form.watch("companyName") },
+                       { label: "E-mail", value: form.watch("email") },
+                       { label: "Endereço", value: `${form.watch("addressStreet") || ""}, ${form.watch("addressNumber") || ""}` }
+                     ]} onEdit={() => goToStep(2)} />
+ 
+                     <SummarySection title="🎉 Evento" items={[
+                       { label: "Título", value: form.watch("eventTitle") },
+                       { label: "Data", value: form.watch("date") },
+                       { label: "Horário", value: `${form.watch("startTime") || ""} às ${form.watch("endTime") || ""}` }
+                     ]} onEdit={() => goToStep(3)} />
+ 
+                     <SummarySection title="🎤 Atrativo" items={[
+                       { label: "Nome", value: form.watch("atrativoName") },
+                       { label: "Tipo", value: form.watch("atrativoType") }
+                     ]} onEdit={() => goToStep(4)} />
+ 
+                     <SummarySection title="📍 Local" items={[
+                       { label: "Nome do Local", value: form.watch("locationName") },
+                       { label: "Endereço", value: form.watch("eventAddress") }
+                     ]} onEdit={() => goToStep(5)} />
+
+                     {eventImage && (
+                        <SummarySection title="🖼️ Arte" items={[
+                          { label: "Status", value: "Arte vinculada" }
+                        ]} onEdit={() => goToStep(6)} />
+                     )}
+                    
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+                      <CheckCircle2 className="h-6 w-6 text-green-600" />
+                      <p className="text-sm font-medium text-green-800">Tudo pronto! Revise as informações acima e envie sua solicitação.</p>
+                    </div>
+                  </div>
+                )}
 
                {currentStep === 7 && (
                  <div className="space-y-6 animate-in fade-in duration-500">
