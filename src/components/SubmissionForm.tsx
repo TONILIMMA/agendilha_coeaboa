@@ -64,7 +64,7 @@ import {
    atrativoName: z.string().trim().min(1, "Atrativo é obrigatório"),
    atrativoType: z.string().trim().min(1, "Tipo de atrativo é obrigatório"),
    atrativoStyle: z.string().trim().optional(),
-   atrativoDescription: z.string().trim().max(300).optional(),
+    atrativoDescription: z.string().trim().max(500).optional(),
    atrativoContact: z.string().trim().optional(),
  
    // 5. Local do Evento
@@ -300,7 +300,20 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
   const saveDraft = async () => {
     setIsSavingDraft(true);
-    localStorage.setItem("agendilha_draft", JSON.stringify(form.getValues()));
+    const currentValues = form.getValues();
+    localStorage.setItem("agendilha_draft", JSON.stringify(currentValues));
+    
+    // If we have basic user data, save to profile as draft
+    if (currentValues.nickName && currentValues.basicPhone) {
+      await saveProfile({
+        nick_name: currentValues.nickName,
+        phone: currentValues.basicPhone,
+        home_location: currentValues.userLocation,
+        company_name: currentValues.companyName,
+        email: currentValues.email || "",
+      } as any);
+    }
+    
     toast.success("Rascunho salvo!", { description: "Você pode continuar depois." });
     setTimeout(() => setIsSavingDraft(false), 500);
   };
@@ -358,36 +371,44 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
    async function onSubmit(data: FormData) {
      setSubmitting(true);
-     const success = await addSubmission({
-       company_name: data.companyName,
-       responsible_name: data.nickName,
-       email: data.email || null,
-       phone: data.basicPhone,
-       event_title: data.eventTitle || data.atrativoName,
-       date: data.date,
-       start_time: data.startTime,
-       predicted_duration: data.predictedDuration || null,
-       end_time: data.endTime || null,
-       location: data.locationName,
-       location_type: data.locationType,
-       location_contact: data.locationContact || null,
-       address_street: data.eventAddress,
-       address_zip: data.addressZip || null,
-       address_number: data.addressNumber || null,
-       atrativo_name: data.atrativoName,
-       atrativo_type: data.atrativoType,
-       atrativo_style: data.atrativoStyle || null,
-       atrativo_contact: data.atrativoContact || null,
-       description: data.description || null,
-       video_link: data.videoLink || null,
-       category: data.category,
-       contact_social: data.contactSocial || null,
-       additional_details: data.additionalDetails || null,
-       legal_acceptance: data.legalAcceptance,
-       legal_acceptance_date: new Date().toISOString(),
-       stage: data.stage || "development",
-       responsible_person: data.responsiblePerson || "Toni",
-     } as any);
+    const submissionData = {
+      company_name: data.companyName,
+      responsible_name: data.nickName,
+      email: data.email || null,
+      phone: data.basicPhone,
+      event_title: data.eventTitle || data.atrativoName,
+      date: data.date,
+      start_time: data.startTime,
+      predicted_duration: data.predictedDuration || null,
+      end_time: data.endTime || null,
+      location: data.locationName,
+      location_type: data.locationType,
+      location_contact: data.locationContact || null,
+      address_street: data.eventAddress,
+      address_zip: data.addressZip || null,
+      address_number: data.addressNumber || null,
+      atrativo_name: data.atrativoName,
+      atrativo_type: data.atrativoType,
+      atrativo_style: data.atrativoStyle || null,
+      atrativo_contact: data.atrativoContact || null,
+      description: data.description || null,
+      video_link: data.videoLink || null,
+      category: data.category,
+      contact_social: data.contactSocial || null,
+      additional_details: data.additionalDetails || null,
+      legal_acceptance: data.legalAcceptance,
+      legal_acceptance_date: new Date().toISOString(),
+      stage: data.stage || "development",
+      responsible_person: data.responsiblePerson || "Toni",
+      status: "pending"
+    };
+
+    const success = await addSubmission(submissionData as any);
+
+    if (success) {
+      localStorage.removeItem("agendilha_draft");
+      // ... profile save already in current code
+    }
  
      setSubmitting(false);
      if (success) {
