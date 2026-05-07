@@ -1,0 +1,17 @@
+ {
+   "name": "AgendIlha",
+   "short_name": "AgendIlha",
+   "description": "A agenda cultural curada da Ilha do Governador.",
+   "start_url": "/",
+   "display": "standalone",
+   "background_color": "#ffffff",
+   "theme_color": "#ea580c",
+   "icons": [
+     {
+       "src": "logo.png",
+       "sizes": "512x512",
+       "type": "image/png",
+       "purpose": "any maskable"
+     }
+   ]
+ }
