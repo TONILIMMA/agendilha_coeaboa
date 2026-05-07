@@ -536,7 +536,7 @@ function buildUberLink(ev: Event): string {
                     return (
                       <Card 
                         key={ev.id} 
-                        className="overflow-hidden border-border/60 dark:border-border/20 bg-card/50 dark:bg-card/30 hover:shadow-elevated dark:hover:bg-card/40 transition-all group cursor-pointer rounded-[2.5rem]"
+                        className="overflow-hidden border-border/60 bg-card/50 hover:shadow-elevated transition-all group cursor-pointer rounded-[2.5rem]"
                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
                       >
                         <CardContent className="p-0">
