@@ -219,8 +219,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 }
 
  export default function SubmissionForm() {
-   const [flyerFile, setFlyerFile] = useState<File | null>(null);
-   const [bannerFile, setBannerFile] = useState<File | null>(null);
+    const [eventImage, setEventImage] = useState<File | string | null>(null);
+    const [imageSource, setImageSource] = useState<"upload" | "ai" | null>(null);
+    const [isGeneratingImage, setIsGeneratingImage] = useState(false);
    const [submitting, setSubmitting] = useState(false);
    const [submitted, setSubmitted] = useState(false);
    const navigate = useNavigate();
