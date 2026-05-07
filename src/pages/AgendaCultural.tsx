@@ -204,18 +204,18 @@ export default function AgendaCultural() {
             </div>
 
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8">
-              <Button variant="outline" className="rounded-full shadow-sm border-2 border-primary/40 text-primary-foreground bg-primary/5 hover:bg-primary/10 hover:border-primary transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider" onClick={() => {
+              <Button variant="outline" className="rounded-full shadow-sm border-2 border-primary/40 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider" onClick={() => {
                 navigator.clipboard.writeText(window.location.href);
                 toast.success("Link da agenda copiado!");
               }}>
                 <Copy className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Copiar Link</span><span className="sm:hidden">Link</span>
               </Button>
-              <Button variant="outline" className="rounded-full shadow-sm border-2 border-green-600/40 text-green-700 bg-green-50/50 hover:bg-green-50 hover:border-green-600 transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider" onClick={() => {
+              <Button variant="outline" className="rounded-full shadow-sm border-2 border-green-600/40 text-green-800 bg-green-50/50 hover:bg-green-50 hover:border-green-600 transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider" onClick={() => {
                 window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
               }}>
                 <Share2 className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Compartilhar</span><span className="sm:hidden">Zap</span>
               </Button>
-              <Button variant="default" className="rounded-full shadow-xl bg-primary hover:bg-primary/90 font-black px-6 sm:px-10 h-11 sm:h-12 text-xs sm:text-sm border-2 border-primary transform hover:scale-105 transition-all uppercase tracking-widest" onClick={() => {
+              <Button variant="default" className="rounded-full shadow-xl bg-primary text-primary-foreground hover:bg-primary/90 font-black px-6 sm:px-10 h-11 sm:h-12 text-xs sm:text-sm border-2 border-primary transform hover:scale-105 transition-all uppercase tracking-widest" onClick={() => {
                 exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
                 toast.success("PDF da agenda gerado!");
               }}>
@@ -391,7 +391,7 @@ export default function AgendaCultural() {
                                 }}>
                                    <Share2 className="h-4 w-4 mr-2" /> WhatsApp
                                 </Button>
-                                 <Button size="sm" variant="ghost" className="rounded-full h-10 px-6 font-bold text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all" onClick={() => {
+                                 <Button size="sm" variant="ghost" className="rounded-full h-10 px-6 font-bold text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all" onClick={() => {
                                   const addr = buildFullAddress(ev);
                                   window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
                                 }}>
