@@ -7,7 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useUserBadge } from "@/hooks/useUserBadge";
-import { Badge } from "@/components/ui/badge";
+ import { Badge } from "@/components/ui/badge";
+ import { HeaderUserMenu } from "@/components/HeaderUserMenu";
 import SubmissionsPanel from "@/components/SubmissionsPanel";
 import {
   DropdownMenu,
