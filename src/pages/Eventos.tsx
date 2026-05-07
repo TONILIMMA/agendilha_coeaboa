@@ -146,14 +146,22 @@ function buildBulkWhatsAppMessage(events: Submission[]): string {
   const endOfWeek = new Date(start);
   endOfWeek.setDate(start.getDate() + 6);
   const formatBR = (d: Date) => d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-  const lines: string[] = [
-    `📌 *AGENDILHA* - Eventos Confirmados da Semana`,
-    `📅 ${formatBR(start)} a ${formatBR(endOfWeek)}`,
-    ``,
-    `*Para mais informações:*`,
-    `https://coeaboa.lovable.app/`,
-    ``,
-  ];
+   const highlights = events.filter(e => e.is_highlight);
+   const lines: string[] = [
+     `🌴 *AGENDILHA* - O que tem de bom na Ilha?`,
+     `📅 Semana de ${formatBR(start)} a ${formatBR(endOfWeek)}`,
+     ``,
+   ];
+
+   if (highlights.length > 0) {
+     lines.push(`🔥 *DESTAQUES DA SEMANA*`);
+     highlights.forEach(h => {
+       lines.push(`• ${h.event_title} (${h.date} às ${h.start_time})`);
+     });
+     lines.push(``);
+   }
+
+   lines.push(`👇 *AGENDA COMPLETA*`);
   const byDate = new Map<string, Submission[]>();
   events.forEach((ev) => {
     const key = ev.date || "Sem data";
