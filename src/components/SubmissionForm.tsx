@@ -310,9 +310,10 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
       case 3: return ["category", "eventTitle", "date", "startTime", "predictedDuration", "endTime"];
       case 4: return ["atrativoName", "atrativoType", "atrativoStyle", "atrativoDescription", "atrativoContact"];
-      case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
-      case 6: return ["legalAcceptance"];
-      default: return [];
+       case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
+       case 6: return []; // Step 6 is image, handled via state
+       case 7: return ["legalAcceptance"];
+       default: return [];
     }
   };
 
