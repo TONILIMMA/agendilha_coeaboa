@@ -389,7 +389,10 @@ export default function Eventos() {
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0 space-y-1.5">
               <div className="flex items-start gap-2 flex-wrap">
-                <h3 className="font-display font-semibold text-foreground text-base">{sub.event_title}</h3>
+                 <div className="flex items-center gap-2">
+                   {sub.is_highlight && <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-0 text-[10px]">DESTAQUE</Badge>}
+                   <h3 className="font-display font-semibold text-foreground text-base">{sub.event_title}</h3>
+                 </div>
                 <Badge variant="outline" className="text-xs shrink-0">
                   {categoryLabels[sub.category || ""] || "—"}
                 </Badge>
@@ -434,6 +437,28 @@ export default function Eventos() {
           {/* Expanded */}
           {isExpanded && (
             <div className="mt-4 pt-4 border-t border-border space-y-4 animate-in slide-in-from-top-2 duration-200" onClick={(e) => e.stopPropagation()}>
+               <div className="flex flex-wrap gap-4 p-3 bg-muted/40 rounded-lg">
+                 <div className="flex items-center gap-2">
+                   <Users className="h-4 w-4 text-primary" />
+                   <span className="text-sm"><strong>Visualizações:</strong> {sub.views_count || 0}</span>
+                 </div>
+                 <div className="flex items-center gap-2">
+                   <Share2 className="h-4 w-4 text-primary" />
+                   <span className="text-sm"><strong>Compartilhamentos:</strong> {sub.shares_count || 0}</span>
+                 </div>
+                 <Button
+                   size="sm"
+                   variant={sub.is_highlight ? "default" : "outline"}
+                   className={`ml-auto h-8 text-xs ${sub.is_highlight ? 'bg-amber-500 hover:bg-amber-600 border-0' : ''}`}
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     handleHighlightToggle(sub.id, sub.is_highlight);
+                   }}
+                 >
+                   {sub.is_highlight ? '★ Em Destaque' : '☆ Marcar Destaque'}
+                 </Button>
+               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 {sub.company_name && (
                   <div className="flex items-center gap-2 text-muted-foreground">
