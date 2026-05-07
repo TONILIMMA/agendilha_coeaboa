@@ -10,10 +10,11 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  CalendarDays, Loader2, MessageCircle, Trash2, Search,
-  FileDown, SlidersHorizontal, MapPin, Clock, Building2,
-  CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp,
+   CalendarDays, Loader2, MessageCircle, Trash2, Search,
+   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
+   CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp,
    Phone, Mail, Globe, Info, Send, Star, TrendingUp, BarChart3,
+   RotateCcw, LayoutDashboard, Edit, ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
  import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
@@ -295,32 +296,6 @@ export default function AdminEvents() {
     }
   }
 
-  const filtered = useMemo(() => {
-    let list = [...submissions];
-
-    if (categoryFilter !== "all") {
-      list = list.filter((s) => s.category === categoryFilter);
-    }
-
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (s) =>
-          s.event_title.toLowerCase().includes(q) ||
-          (s.company_name || "").toLowerCase().includes(q) ||
-          (s.location || "").toLowerCase().includes(q) ||
-          (s.responsible_name || "").toLowerCase().includes(q)
-      );
-    }
-
-    if (sortBy === "oldest") {
-      list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-    } else if (sortBy === "date") {
-      list.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
-    }
-
-    return list;
-  }, [submissions, categoryFilter, search, sortBy]);
 
   if (authLoading) {
     return (
