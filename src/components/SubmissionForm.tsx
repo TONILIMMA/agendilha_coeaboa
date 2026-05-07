@@ -943,46 +943,6 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                   </div>
                 )}
 
-               {currentStep === 7 && (
-                 <div className="space-y-6 animate-in fade-in duration-500">
-                   <h2 className="text-xl font-bold flex items-center gap-2">
-                     <Eye className="h-5 w-5 text-primary" />
-                     7. Prévia Final
-                   </h2>
-                   
-                     <SummarySection title="👤 Identificação" items={[
-                       { label: "Nome", value: form.watch("nickName") || "" },
-                       { label: "WhatsApp", value: form.watch("basicPhone") || "" }
-                     ]} onEdit={() => goToStep(1)} />
-
-                    <SummarySection title="💼 Divulgador" items={[
-                      { label: "Empresa", value: form.watch("companyName") },
-                      { label: "E-mail", value: form.watch("email") },
-                      { label: "Endereço", value: `${form.watch("addressStreet") || ""}, ${form.watch("addressNumber") || ""}` }
-                    ]} onEdit={() => goToStep(2)} />
-
-                    <SummarySection title="🎉 Evento" items={[
-                      { label: "Título", value: form.watch("eventTitle") },
-                      { label: "Data", value: form.watch("date") },
-                      { label: "Horário", value: `${form.watch("startTime") || ""} às ${form.watch("endTime") || ""}` }
-                    ]} onEdit={() => goToStep(3)} />
-
-                    <SummarySection title="🎤 Atrativo" items={[
-                      { label: "Nome", value: form.watch("atrativoName") },
-                      { label: "Tipo", value: form.watch("atrativoType") }
-                    ]} onEdit={() => goToStep(4)} />
-
-                    <SummarySection title="📍 Local" items={[
-                      { label: "Nome do Local", value: form.watch("locationName") },
-                      { label: "Endereço", value: form.watch("eventAddress") }
-                    ]} onEdit={() => goToStep(5)} />
-                   
-                   <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
-                     <CheckCircle2 className="h-6 w-6 text-green-600" />
-                     <p className="text-sm font-medium text-green-800">Tudo pronto! Revise as informações acima e envie sua solicitação.</p>
-                   </div>
-                 </div>
-               )}
 
                   <div className="pt-4 sm:pt-8 border-t border-border space-y-4">
                     {currentStep < steps.length ? (
