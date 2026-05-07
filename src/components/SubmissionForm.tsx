@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -38,7 +39,7 @@ import {
    // 1. Dados Básicos do Usuário
    nickName: z.string().trim().min(1, "Nick/Nome é obrigatório").max(50),
    basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
-   userLocation: z.string().trim().min(1, "Selecione seu local"),
+    userLocation: z.string().trim().min(1, "Selecione seu Bairro/Região"),
    otherLocation: z.string().trim().optional(),
  
    // 2. Para Divulgadores
@@ -67,9 +68,9 @@ import {
     atrativoDescription: z.string().trim().max(500).optional(),
    atrativoContact: z.string().trim().optional(),
  
-   // 5. Local do Evento
-   locationName: z.string().trim().min(1, "Local é obrigatório"),
-   eventAddress: z.string().trim().min(1, "Endereço é obrigatório"),
+    // 5. Local de Realização
+    locationName: z.string().trim().min(1, "O nome do local onde será o evento é obrigatório"),
+    eventAddress: z.string().trim().min(1, "O endereço completo do evento é obrigatório"),
    locationType: z.enum(["public", "commercial"], { required_error: "Selecione o tipo do local" }),
    locationContact: z.string().trim().optional(),
  
@@ -276,13 +277,23 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
     const isValid = await form.trigger(fieldsToValidate as any);
     
     if (isValid) {
-      setCurrentStep(prev => Math.min(prev + 1, steps.length));
+      const newStep = Math.min(currentStep + 1, steps.length);
+      setCurrentStep(newStep);
+      localStorage.setItem("agendilha_step", String(newStep));
       window.scrollTo(0, 0);
     }
   };
 
   const prevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    const newStep = Math.max(currentStep - 1, 1);
+    setCurrentStep(newStep);
+    localStorage.setItem("agendilha_step", String(newStep));
+    window.scrollTo(0, 0);
+  };
+
+  const goToStep = (step: number) => {
+    setCurrentStep(step);
+    localStorage.setItem("agendilha_step", String(step));
     window.scrollTo(0, 0);
   };
 
@@ -320,10 +331,20 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
   useEffect(() => {
     const draft = localStorage.getItem("agendilha_draft");
+    const savedStep = localStorage.getItem("agendilha_step");
+    
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
         form.reset(parsed);
+        
+        if (savedStep) {
+          const stepNum = parseInt(savedStep);
+          if (stepNum > 1 && stepNum <= steps.length) {
+            setCurrentStep(stepNum);
+          }
+        }
+        
         toast.info("Rascunho recuperado", { description: "Continuamos de onde você parou." });
       } catch (e) {
         console.error("Error parsing draft", e);
@@ -407,28 +428,25 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
     if (success) {
       localStorage.removeItem("agendilha_draft");
-      // ... profile save already in current code
+      localStorage.removeItem("agendilha_step");
+      
+      saveProfile({
+        nick_name: data.nickName,
+        phone: data.basicPhone,
+        home_location: data.userLocation,
+        company_name: data.companyName,
+        email: data.email || "",
+        pin_code: data.pinCode,
+        address_street: data.addressStreet || "",
+        address_number: data.addressNumber || "",
+        address_zip: data.addressZip || "",
+        contact_social: data.contactSocial || "",
+      } as any);
+      
+      setSubmitted(true);
+      window.scrollTo(0, 0);
     }
- 
-     setSubmitting(false);
-     if (success) {
-       saveProfile({
-         nick_name: data.nickName,
-         phone: data.basicPhone,
-         home_location: data.userLocation,
-         company_name: data.companyName,
-         email: data.email || "",
-         pin_code: data.pinCode,
-         address_street: data.addressStreet || "",
-         address_number: data.addressNumber || "",
-         address_zip: data.addressZip || "",
-         contact_social: data.contactSocial || "",
-       } as any);
-       form.reset();
-       setFlyerFile(null);
-       setBannerFile(null);
-       setSubmitted(true);
-     }
+    setSubmitting(false);
    }
 
   return (
@@ -458,21 +476,59 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       {/* Form Container */}
       <div className="mx-auto max-w-2xl px-2 xs:px-3 sm:px-4 -mt-6 xs:-mt-8 sm:-mt-10 relative z-20 pb-12 sm:pb-16">
         <div className="rounded-xl sm:rounded-2xl bg-card shadow-elevated p-3 xs:p-4 sm:p-6 md:p-10">
-          <p className="text-muted-foreground text-sm leading-relaxed mb-6 sm:mb-8">
-            O <strong className="text-secondary">Coé a Boa?</strong> é o portal que conecta a comunidade às melhores experiências locais.
-            No <strong className="text-secondary">AgendIlha</strong>, você pode divulgar seus eventos, promoções e novidades com visibilidade garantida.
-          </p>
+          {submitted ? (
+            <div className="text-center py-8 animate-in fade-in zoom-in duration-500">
+              <div className="flex justify-center mb-6">
+                <div className="h-24 w-24 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="h-12 w-12 text-green-600" />
+                </div>
+              </div>
+              <h2 className="text-3xl font-black mb-4">Solicitação Enviada!</h2>
+              <p className="text-muted-foreground mb-8 leading-relaxed">
+                Obrigado por enviar seu evento. Nossa equipe fará a curadoria e você será notificado em breve.
+              </p>
+              
+              <div className="bg-muted/30 rounded-2xl p-6 mb-8 text-left space-y-4 border border-border/50 shadow-inner">
+                <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status Atual</span>
+                  <Badge className="bg-amber-100 text-amber-700 border-none font-black text-[10px] px-3 py-1">PENDENTE</Badge>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Resumo do Evento</p>
+                  <p className="font-black text-lg text-foreground leading-tight">{form.getValues("eventTitle") || form.getValues("atrativoName")}</p>
+                  <p className="text-sm text-muted-foreground font-medium mt-1 flex items-center gap-1.5">
+                    <CalendarIcon className="h-3.5 w-3.5" />
+                    {form.getValues("date")} às {form.getValues("startTime")}
+                  </p>
+                </div>
+              </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 sm:space-y-8">
-               <StepIndicator steps={steps} currentStep={currentStep} />
-               
-               {currentStep === 1 && (
+              <div className="grid gap-3">
+                <Button onClick={() => navigate("/")} variant="outline" size="lg" className="font-bold h-12 w-full border-2">
+                  Voltar para a Home
+                </Button>
+                <Button onClick={() => navigate("/agenda")} size="lg" className="font-bold h-12 w-full gradient-sunset text-primary-foreground shadow-lg">
+                  Ver Agenda Pública
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-6 sm:mb-8">
+                O <strong className="text-secondary">Coé a Boa?</strong> é o portal que conecta a comunidade às melhores experiências locais.
+                No <strong className="text-secondary">AgendIlha</strong>, você pode divulgar seus eventos, promoções e novidades com visibilidade garantida.
+              </p>
+
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 sm:space-y-8">
+                  <StepIndicator steps={steps} currentStep={currentStep} />
+                  
+                  {currentStep === 1 && (
                  <div className="space-y-6">
                    <h2 className="text-xl font-bold">1. Dados Básicos</h2>
-                   <TextField control={form.control} name="nickName" label="Nick / Nome" />
+                    <TextField control={form.control} name="nickName" label="Seu Apelido ou Nome Social" />
                    <TextField control={form.control} name="basicPhone" label="WhatsApp" />
-                   <TextField control={form.control} name="userLocation" label="Seu Local" />
+                    <TextField control={form.control} name="userLocation" label="Seu Bairro ou Região de Moradia" />
                  </div>
                )}
                
@@ -679,33 +735,33 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                      7. Prévia Final
                    </h2>
                    
-                   <SummarySection title="👤 Usuário" items={[
-                     { label: "Nick", value: form.watch("nickName") },
-                     { label: "WhatsApp", value: form.watch("basicPhone") },
-                     { label: "Local", value: form.watch("userLocation") }
-                   ]} onEdit={() => setCurrentStep(1)} />
+                    <SummarySection title="👤 Usuário" items={[
+                      { label: "Nick/Nome", value: form.watch("nickName") },
+                      { label: "WhatsApp", value: form.watch("basicPhone") },
+                      { label: "Bairro/Região", value: form.watch("userLocation") }
+                    ]} onEdit={() => goToStep(1)} />
 
-                   <SummarySection title="💼 Divulgador" items={[
-                     { label: "Empresa", value: form.watch("companyName") },
-                     { label: "E-mail", value: form.watch("email") },
-                     { label: "Endereço", value: `${form.watch("addressStreet")}, ${form.watch("addressNumber")}` }
-                   ]} onEdit={() => setCurrentStep(2)} />
+                    <SummarySection title="💼 Divulgador" items={[
+                      { label: "Empresa", value: form.watch("companyName") },
+                      { label: "E-mail", value: form.watch("email") },
+                      { label: "Endereço", value: `${form.watch("addressStreet") || ""}, ${form.watch("addressNumber") || ""}` }
+                    ]} onEdit={() => goToStep(2)} />
 
-                   <SummarySection title="🎉 Evento" items={[
-                     { label: "Título", value: form.watch("eventTitle") },
-                     { label: "Data", value: form.watch("date") },
-                     { label: "Horário", value: `${form.watch("startTime")} às ${form.watch("endTime")}` }
-                   ]} onEdit={() => setCurrentStep(3)} />
+                    <SummarySection title="🎉 Evento" items={[
+                      { label: "Título", value: form.watch("eventTitle") },
+                      { label: "Data", value: form.watch("date") },
+                      { label: "Horário", value: `${form.watch("startTime") || ""} às ${form.watch("endTime") || ""}` }
+                    ]} onEdit={() => goToStep(3)} />
 
-                   <SummarySection title="🎤 Atrativo" items={[
-                     { label: "Nome", value: form.watch("atrativoName") },
-                     { label: "Tipo", value: form.watch("atrativoType") }
-                   ]} onEdit={() => setCurrentStep(4)} />
+                    <SummarySection title="🎤 Atrativo" items={[
+                      { label: "Nome", value: form.watch("atrativoName") },
+                      { label: "Tipo", value: form.watch("atrativoType") }
+                    ]} onEdit={() => goToStep(4)} />
 
-                   <SummarySection title="📍 Local" items={[
-                     { label: "Nome", value: form.watch("locationName") },
-                     { label: "Endereço", value: form.watch("eventAddress") }
-                   ]} onEdit={() => setCurrentStep(5)} />
+                    <SummarySection title="📍 Local" items={[
+                      { label: "Nome do Local", value: form.watch("locationName") },
+                      { label: "Endereço", value: form.watch("eventAddress") }
+                    ]} onEdit={() => goToStep(5)} />
                    
                    <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
                      <CheckCircle2 className="h-6 w-6 text-green-600" />
@@ -714,90 +770,92 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                  </div>
                )}
 
-              <div className="pt-4 sm:pt-8 border-t border-border space-y-4">
-                {currentStep < steps.length ? (
-                  <div className="flex gap-3">
-                    {currentStep > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        onClick={prevStep}
-                        className="flex-1 font-bold h-12"
-                      >
-                        <ArrowLeft className="mr-2 h-5 w-5" />
-                        Voltar
-                      </Button>
+                  <div className="pt-4 sm:pt-8 border-t border-border space-y-4">
+                    {currentStep < steps.length ? (
+                      <div className="flex gap-3">
+                        {currentStep > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="lg"
+                            onClick={prevStep}
+                            className="flex-1 font-bold h-12"
+                          >
+                            <ArrowLeft className="mr-2 h-5 w-5" />
+                            Voltar
+                          </Button>
+                        )}
+                        <Button
+                          type="button"
+                          size="lg"
+                          onClick={nextStep}
+                          className={cn(
+                            "flex-1 font-bold h-12 gradient-sunset text-primary-foreground",
+                            currentStep === 1 && "w-full"
+                          )}
+                        >
+                          Continuar
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3">
+                        <div className="flex gap-3">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="lg"
+                            onClick={prevStep}
+                            className="flex-1 font-bold h-12"
+                            disabled={submitting}
+                          >
+                            <ArrowLeft className="mr-2 h-5 w-5" />
+                            Editar
+                          </Button>
+                          <Button
+                            type="submit"
+                            size="lg"
+                            disabled={submitting}
+                            className="flex-1 font-bold h-12 bg-green-600 hover:bg-green-700 text-white shadow-lg"
+                          >
+                            {submitting ? (
+                              "Enviando..."
+                            ) : (
+                              <>
+                                <Send className="mr-2 h-5 w-5" />
+                                Enviar Solicitação
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
                     )}
+
                     <Button
                       type="button"
-                      size="lg"
-                      onClick={nextStep}
-                      className={cn(
-                        "flex-1 font-bold h-12 gradient-sunset text-primary-foreground",
-                        currentStep === 1 && "w-full"
-                      )}
+                      variant="ghost"
+                      size="sm"
+                      onClick={saveDraft}
+                      disabled={isSavingDraft || submitting}
+                      className="w-full text-muted-foreground hover:text-primary h-10 gap-2"
                     >
-                      Continuar
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      {isSavingDraft ? (
+                        <span className="flex items-center gap-2">
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                          Salvando...
+                        </span>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4" />
+                          Salvar Rascunho para Continuar Depois
+                        </>
+                      )}
                     </Button>
                   </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    <div className="flex gap-3">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        onClick={prevStep}
-                        className="flex-1 font-bold h-12"
-                        disabled={submitting}
-                      >
-                        <ArrowLeft className="mr-2 h-5 w-5" />
-                        Editar
-                      </Button>
-                      <Button
-                        type="submit"
-                        size="lg"
-                        disabled={submitting}
-                        className="flex-1 font-bold h-12 bg-green-600 hover:bg-green-700 text-white shadow-lg"
-                      >
-                        {submitting ? (
-                          "Enviando..."
-                        ) : (
-                          <>
-                            <Send className="mr-2 h-5 w-5" />
-                            Enviar Solicitação
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={saveDraft}
-                  disabled={isSavingDraft || submitting}
-                  className="w-full text-muted-foreground hover:text-primary h-10 gap-2"
-                >
-                  {isSavingDraft ? (
-                    <span className="flex items-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      Salvando...
-                    </span>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4" />
-                      Salvar Rascunho para Continuar Depois
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </Form>
+                </form>
+              </Form>
+            </>
+          )}
         </div>
       </div>
     </div>
