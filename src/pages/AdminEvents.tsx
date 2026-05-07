@@ -289,13 +289,13 @@ export default function AdminEvents() {
 
         {/* Main List */}
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-          <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b bg-muted/20 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            <div className="col-span-4">Evento / Categoria</div>
-            <div className="col-span-2 text-center">Data / Horário</div>
-            <div className="col-span-2 text-center">Responsável</div>
-            <div className="col-span-2 text-center">Status</div>
-            <div className="col-span-2 text-right">Ações</div>
-          </div>
+           <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 border-b bg-muted/20 text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em]">
+             <div className="col-span-4">Informações do Evento</div>
+             <div className="col-span-2 text-center">Data & Hora</div>
+             <div className="col-span-2 text-center">Responsável & Contato</div>
+             <div className="col-span-2 text-center">Status Operacional</div>
+             <div className="col-span-2 text-right">Ações Rápidas</div>
+           </div>
           
           {loading ? (
             <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
