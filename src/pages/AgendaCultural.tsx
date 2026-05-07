@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
  import { Skeleton } from "@/components/ui/skeleton";
  import { Dialog, DialogContent } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
- import { toast } from "sonner";
+  import { toast } from "sonner";
+  import { cn } from "@/lib/utils";
  import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 
  interface Event {
