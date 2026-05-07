@@ -345,7 +345,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
         addressStreet: profile.address_street || "",
         addressNumber: profile.address_number || "",
         addressZip: profile.address_zip || "",
-        contact_social: profile.contact_social || "",
+        contactSocial: profile.contact_social || "",
       });
     }
   }, [loaded, profile, form]);
