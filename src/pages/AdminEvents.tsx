@@ -444,10 +444,15 @@ export default function AdminEvents() {
                             <Button 
                               size="icon" 
                               variant="outline" 
-                              className={`h-9 w-9 transition-all shadow-sm ${sub.is_highlight ? 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100' : 'bg-white border-border hover:bg-amber-50 hover:text-amber-600'}`} 
+                              className={cn(
+                                "h-9 w-9 transition-all shadow-sm",
+                                sub.is_highlight 
+                                  ? "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50" 
+                                  : "bg-background dark:bg-slate-900 border-border hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400"
+                              )} 
                               onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)}
                             >
-                              <Star className={`h-4 w-4 ${sub.is_highlight ? 'fill-amber-600' : ''}`} />
+                              <Star className={cn("h-4 w-4", sub.is_highlight && "fill-amber-600 dark:fill-amber-400")} />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>{sub.is_highlight ? 'Remover Destaque' : 'Destacar'}</TooltipContent>
