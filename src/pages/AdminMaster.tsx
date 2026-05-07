@@ -10,7 +10,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+ import { Label } from "@/components/ui/label";
+ import Header from "@/components/Header";
 import {
   Crown,
   Shield,
@@ -369,9 +370,10 @@ export default function AdminMaster() {
   if (!user) return <Navigate to="/auth" replace />;
   if (status !== "master") return <Navigate to="/" replace />;
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-muted pt-20 pb-16">
-      <div className="container max-w-6xl mx-auto px-4 space-y-8 animate-fade-in">
+   return (
+     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-muted pb-16">
+       <Header />
+       <div className="container max-w-6xl mx-auto px-4 pt-8 space-y-8 animate-fade-in">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center gap-3">

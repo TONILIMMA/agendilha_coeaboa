@@ -30,11 +30,12 @@ const statusStyles = {
 } as const;
 
 interface Props {
-  variant?: "desktop" | "mobile";
-  onNavigate?: () => void;
+   variant?: "desktop" | "mobile";
+   onNavigate?: () => void;
+   hideContext?: boolean;
 }
 
-export function HeaderUserMenu({ variant = "desktop", onNavigate }: Props) {
+ export function HeaderUserMenu({ variant = "desktop", onNavigate, hideContext }: Props) {
   const { user, signOut } = useAuth();
   const { name, initials, status, label, loaded } = useUserBadge();
   const navigate = useNavigate();
@@ -127,19 +128,21 @@ export function HeaderUserMenu({ variant = "desktop", onNavigate }: Props) {
           <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-display text-xs font-medium">
             {initials}
           </div>
-          <div className="flex flex-col items-start leading-tight">
-            <span className="font-display text-[13px] font-medium text-foreground max-w-[140px] truncate">
-              {loaded ? name.split(" ")[0] : "..."}
-            </span>
-            {showStatusBadge && (
-              <span
-                className={`mt-0.5 hidden sm:inline-flex items-center gap-1 px-1.5 py-0 rounded-full border font-mono text-[8px] tracking-wider uppercase ${badgeStyle}`}
-              >
-                <Icon className="h-2 w-2" strokeWidth={2.5} />
-                {label}
-              </span>
-            )}
-          </div>
+           {!hideContext && (
+             <div className="flex flex-col items-start leading-tight">
+               <span className="font-display text-[13px] font-medium text-foreground max-w-[140px] truncate">
+                 {loaded ? name.split(" ")[0] : "..."}
+               </span>
+               {showStatusBadge && (
+                 <span
+                   className={`mt-0.5 hidden sm:inline-flex items-center gap-1 px-1.5 py-0 rounded-full border font-mono text-[8px] tracking-wider uppercase ${badgeStyle}`}
+                 >
+                   <Icon className="h-2 w-2" strokeWidth={2.5} />
+                   {label}
+                 </span>
+               )}
+             </div>
+           )}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 rounded-2xl glass border-white/40 shadow-elevated p-2">

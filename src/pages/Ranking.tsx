@@ -23,15 +23,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import {
-  Trophy,
+ import {
+   Trophy,
   Loader2,
   Download,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  Calendar,
-} from "lucide-react";
+   Calendar,
+ } from "lucide-react";
+ import Header from "@/components/Header";
 import { toast } from "sonner";
 
 type Period = "week" | "month" | "year" | "all" | "custom";
@@ -217,9 +218,10 @@ export default function Ranking() {
 
   const filename = `ranking-${period}${category !== "all" ? `-${category}` : ""}-${new Date().toISOString().slice(0, 10)}.csv`;
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-muted pt-20 pb-16">
-      <div className="container max-w-6xl mx-auto px-4 space-y-6 animate-fade-in">
+   return (
+     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-muted pb-16">
+       <Header />
+       <div className="container max-w-6xl mx-auto px-4 pt-8 space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center gap-3">

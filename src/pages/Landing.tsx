@@ -106,9 +106,9 @@ export default function Landing() {
             ))}
           </ul>
 
-          <div className="hidden md:block">
-            <HeaderUserMenu variant="desktop" />
-          </div>
+           <div className="hidden md:block">
+             <HeaderUserMenu variant="desktop" hideContext={true} />
+           </div>
 
           <button
             className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full hover:bg-white/50 transition"
@@ -134,9 +134,9 @@ export default function Landing() {
                   </a>
                 </li>
               ))}
-              <li className="pt-6">
-                <HeaderUserMenu variant="mobile" onNavigate={() => setMobileOpen(false)} />
-              </li>
+               <li className="pt-6">
+                 <HeaderUserMenu variant="mobile" onNavigate={() => setMobileOpen(false)} hideContext={true} />
+               </li>
             </ul>
           </div>
         )}
