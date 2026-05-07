@@ -634,15 +634,11 @@ function buildUberLink(ev: Event): string {
                                   size="lg" 
                                   variant="outline" 
                                   className="rounded-full h-14 sm:h-16 px-8 font-bold text-primary dark:text-primary border-2 border-primary/20 dark:border-primary/30 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-foreground active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none uppercase text-sm tracking-widest" 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleShare(
-                                      `Evento: ${ev.event_title}`,
-                                      `Confira a programação do AgendIlha!`,
-                                      `${window.location.origin}/agenda?event=${ev.id}`,
-                                      ev.id
-                                    );
-                                  }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const data = getShareData(ev);
+                                      handleShare(data.title, data.text, data.url, ev.id);
+                                    }}
                                 >
                                   <Share2 className="h-5 w-5 mr-3" /> Compartilhar
                                 </Button>
