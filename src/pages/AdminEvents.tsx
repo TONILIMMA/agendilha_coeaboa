@@ -141,20 +141,21 @@ export default function AdminEvents() {
     };
   }, [submissions]);
 
-  const filtered = useMemo(() => {
-    let list = [...submissions];
-    if (statusFilter !== "all") list = list.filter(s => s.status === statusFilter);
-    if (categoryFilter !== "all") list = list.filter(s => s.category === categoryFilter);
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(s => 
-        s.event_title.toLowerCase().includes(q) ||
-        (s.company_name || "").toLowerCase().includes(q) ||
-        (s.location || "").toLowerCase().includes(q)
-      );
-    }
-    return list;
-  }, [submissions, statusFilter, categoryFilter, search]);
+   const filtered = useMemo(() => {
+     let list = [...submissions];
+     if (statusFilter !== "all") list = list.filter(s => s.status === statusFilter);
+     if (categoryFilter !== "all") list = list.filter(s => s.category === categoryFilter);
+     if (search.trim()) {
+       const q = search.toLowerCase();
+       list = list.filter(s => 
+         s.event_title.toLowerCase().includes(q) ||
+         (s.company_name || "").toLowerCase().includes(q) ||
+         (s.location || "").toLowerCase().includes(q) ||
+         (s.responsible_name || "").toLowerCase().includes(q)
+       );
+     }
+     return list;
+   }, [submissions, statusFilter, categoryFilter, search]);
 
   if (authLoading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   if (!user || !isAdmin) return <Navigate to="/" replace />;
