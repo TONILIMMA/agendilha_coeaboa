@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
- import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown } from "lucide-react";
+ import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
+ import { Dialog, DialogContent } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
  import { toast } from "sonner";
  import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
@@ -93,6 +94,7 @@ function buildWhatsAppShare(ev: Event) {
    const [search, setSearch] = useState("");
    const [categoryFilter, setCategoryFilter] = useState("all");
    const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
      const saved = localStorage.getItem("agendilha_sort_order");
      return (saved === "desc" ? "desc" : "asc");
@@ -220,13 +222,13 @@ function buildWhatsAppShare(ev: Event) {
             </div>
 
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8 px-4">
-              <Button variant="outline" className="rounded-full shadow-sm border-2 border-primary/40 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
+              <Button variant="outline" className="rounded-full shadow-md border-2 border-primary text-primary bg-primary/10 hover:bg-primary/20 transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
                 navigator.clipboard.writeText(window.location.href);
                 toast.success("Link da agenda copiado!");
               }}>
                 <Copy className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Copiar Link</span><span className="sm:hidden">Link</span>
               </Button>
-              <Button variant="outline" className="rounded-full shadow-sm border-2 border-green-600/40 text-green-900 bg-green-50/50 hover:bg-green-50 hover:border-green-600 transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
+              <Button variant="outline" className="rounded-full shadow-md border-2 border-green-600 text-green-700 bg-green-50 hover:bg-green-100 transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ring-offset-background outline-none" onClick={() => {
                 window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
               }}>
                 <Share2 className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Compartilhar</span><span className="sm:hidden">Zap</span>
