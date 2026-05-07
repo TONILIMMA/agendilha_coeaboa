@@ -152,10 +152,11 @@ function drawHeader(doc: jsPDF) {
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-   doc.text("AgendIlha", MARGIN + 16, 8);
-   doc.setFontSize(8);
-   doc.setTextColor(255, 255, 255, 0.8);
-   doc.text("Assinatura: Coé a Boa?", MARGIN + 16, 12);
+   doc.text("AgendIlha", MARGIN + 16, 7.5);
+   doc.setFontSize(7.5);
+   doc.setTextColor(255, 255, 255, 0.9);
+   doc.setFont("helvetica", "bold");
+   doc.text("COÉ A BOA?", MARGIN + 16, 11.5);
 
   // Right-aligned date
   doc.setFont("helvetica", "normal");
@@ -170,14 +171,16 @@ function drawFooter(doc: jsPDF, isLastPage: boolean) {
   doc.setLineWidth(0.3);
   doc.line(MARGIN, FOOTER_Y - 4, PAGE_W - MARGIN, FOOTER_Y - 4);
 
-   // Footer text & Branding
-   doc.setFontSize(7);
-   doc.setTextColor(...MEDIUM_TEXT);
-   doc.text(`Gerado em ${new Date().toLocaleDateString("pt-BR")} — AgendIlha`, MARGIN, FOOTER_Y);
-   
-   // Brand signature in footer
-   doc.setFont("helvetica", "bold");
-   doc.text("Coé a Boa?", PAGE_W - MARGIN, FOOTER_Y, { align: "right" });
+    // Footer text & Branding
+    doc.setFontSize(7);
+    doc.setTextColor(...MEDIUM_TEXT);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Gerado em ${new Date().toLocaleDateString("pt-BR")} • AgendIlha`, MARGIN, FOOTER_Y);
+    
+    // Brand signature in footer
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...BRAND_ORANGE);
+    doc.text("COÉ A BOA?", PAGE_W - MARGIN, FOOTER_Y, { align: "right" });
  
    if (isLastPage) {
      const linkUrl = "https://agendilha-divulgacao.lovable.app/agenda";
