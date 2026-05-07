@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter } from "lucide-react";
+   import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Sun, Moon } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
  import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
@@ -154,19 +154,14 @@ function buildUberLink(ev: Event): string {
       toast.success("Link copiado!");
     };
 
-   const { user } = useAuth();
+    const { user } = useAuth();
+    const { theme, toggleTheme } = useTheme();
    const [events, setEvents] = useState<Event[]>([]);
    const [loading, setLoading] = useState(true);
    const [search, setSearch] = useState("");
    const [categoryFilter, setCategoryFilter] = useState("all");
    const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  // Keep light mode only
-  useEffect(() => {
-    document.documentElement.classList.remove("dark");
-    document.documentElement.style.colorScheme = "light";
-    localStorage.removeItem("agendilha_high_contrast");
-  }, []);
+   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
      const saved = localStorage.getItem("agendilha_sort_order");
      return (saved === "desc" ? "desc" : "asc");
@@ -287,8 +282,19 @@ function buildUberLink(ev: Event): string {
     <div className="min-h-screen bg-background transition-colors duration-300">
 
       <main className="mx-auto max-w-4xl px-4 py-8">
-        {/* Topo da Página */}
-        <div className="mb-16 text-center space-y-8">
+         {/* Topo da Página */}
+         <div className="mb-16 text-center space-y-8 relative">
+             <div className="absolute top-0 right-0">
+               <Button
+                 variant="ghost"
+                 size="icon"
+                 onClick={toggleTheme}
+                 className="rounded-full h-12 w-12 hover:bg-muted/50 transition-colors"
+                 aria-label={theme === "light" ? "Mudar para modo escuro" : "Mudar para modo claro"}
+               >
+                 {theme === "light" ? <Moon className="h-6 w-6 text-primary" /> : <Sun className="h-6 w-6 text-primary" />}
+               </Button>
+             </div>
             <div className="flex flex-col items-center gap-6">
               <div className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-secondary/15 border border-secondary/30 mb-2 shadow-sm">
                 <span className="text-[11px] font-black uppercase tracking-[0.3em] text-secondary-foreground">Coé a Boa? apresenta:</span>
