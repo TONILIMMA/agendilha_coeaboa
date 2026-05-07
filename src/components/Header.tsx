@@ -150,11 +150,19 @@ export default function Header() {
               </div>
             </Link>
             <div className="flex items-center gap-2 sm:gap-3">
-              <Link to="/enviar-evento">
-                <Button size="sm" className="rounded-full text-[11px] sm:text-xs font-black bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md px-4 sm:px-6 h-9 sm:h-10 border-2 border-primary uppercase tracking-wider">
-                  Divulgar Evento
-                </Button>
-              </Link>
+              <Button 
+                size="sm" 
+                onClick={() => {
+                  if (user) {
+                    navigate("/enviar-evento");
+                  } else {
+                    navigate("/auth?redirect=/enviar-evento");
+                  }
+                }}
+                className="rounded-full text-[11px] sm:text-xs font-black bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md px-4 sm:px-6 h-9 sm:h-10 border-2 border-primary uppercase tracking-wider"
+              >
+                Divulgar Evento
+              </Button>
               {user && <HeaderUserMenu variant="desktop" hideContext={true} />}
             </div>
           </div>
