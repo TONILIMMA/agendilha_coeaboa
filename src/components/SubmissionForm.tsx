@@ -5,7 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useProfile } from "@/hooks/useProfile";
 import { z } from "zod";
-import { Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon } from "lucide-react";
+ import { Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon, Search, PlusCircle, CheckCircle2, AlertCircle } from "lucide-react";
+ import { IMaskInput } from "react-imask";
+ import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { getWeekdayFromDate } from "@/lib/dateUtils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -25,49 +27,61 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 
-const formSchema = z.object({
-  companyName: z.string().trim().min(1, "Campo obrigatório").max(100),
-  responsibleName: z.string().trim().min(1, "Campo obrigatório").max(100),
-  email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
-  phone: z.string().trim().min(1, "Campo obrigatório").max(30).regex(/^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/, "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321"),
-  eventTitle: z.string().trim().min(1, "Campo obrigatório").max(150),
-  date: z.string().trim().min(1, "Selecione a data do evento"),
-  startTime: z.string().trim().min(1, "Campo obrigatório").max(20),
-  endTime: z.string().trim().min(1, "Campo obrigatório").max(20),
-  location: z.string().trim().min(1, "Campo obrigatório").max(200),
-  addressStreet: z.string().trim().max(200).optional().or(z.literal("")),
-  addressNumber: z.string().trim().max(20).optional().or(z.literal("")),
-  addressNeighborhood: z.string().trim().max(100).optional().or(z.literal("")),
-  addressCity: z.string().trim().max(100).optional().or(z.literal("")),
-  addressState: z.string().trim().max(50).optional().or(z.literal("")),
-  addressZip: z.string().trim().max(20).optional().or(z.literal("")),
-  description: z.string().trim().min(1, "Campo obrigatório").max(300, "Máximo de 300 caracteres"),
-  videoLink: z.string().url("URL inválida").optional().or(z.literal("")),
-  category: z.string().min(1, "Selecione uma categoria"),
-  promotionType: z.string().trim().max(100).optional().or(z.literal("")),
-  targetAudience: z.string().trim().max(200).optional().or(z.literal("")),
-  promotionRules: z.string().trim().max(500).optional().or(z.literal("")),
-      contactSocial: z.string().trim().max(300).optional().or(z.literal("")),
-  additionalDetails: z.string().trim().max(500).optional().or(z.literal("")),
-  salePrice: z.string().trim().max(50).optional().or(z.literal("")),
-  maintenanceCost: z.string().trim().max(50).optional().or(z.literal("")),
-  subscriptionInfo: z.string().trim().max(200).optional().or(z.literal("")),
-  commission: z.string().trim().max(50).optional().or(z.literal("")),
-  stage: z.string().optional().or(z.literal("")),
-  conceptDescription: z.string().trim().max(1000).optional().or(z.literal("")),
-  responsiblePerson: z.string().trim().max(100).optional().or(z.literal("")),
-  authorization: z.literal(true, {
-    errorMap: () => ({ message: "Você precisa autorizar a publicação" }),
-  }),
-}).refine((data) => {
-  if (data.startTime && data.endTime) {
-    return data.endTime > data.startTime;
-  }
-  return true;
-}, {
-  message: "O horário de término deve ser posterior ao horário de início",
-  path: ["endTime"],
-});
+ const formSchema = z.object({
+   // 1. Dados Básicos do Usuário
+   nickName: z.string().trim().min(1, "Nick/Nome é obrigatório").max(50),
+   basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
+   userLocation: z.string().trim().min(1, "Selecione seu local"),
+   otherLocation: z.string().trim().optional(),
+ 
+   // 2. Para Divulgadores
+   companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
+   pinCode: z.string().trim().min(4, "Senha deve ter 4-8 dígitos").max(8),
+   email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
+   addressZip: z.string().trim().optional(),
+   addressStreet: z.string().trim().optional(),
+   addressNumber: z.string().trim().optional(),
+ 
+   // 3. Questões Legais
+   legalAcceptance: z.literal(true, {
+     errorMap: () => ({ message: "Você precisa aceitar os termos para continuar" }),
+   }),
+ 
+   // 4. Informações do Evento
+   category: z.string().min(1, "Selecione uma categoria"),
+   eventTitle: z.string().trim().optional(),
+   date: z.string().trim().min(1, "Selecione a data"),
+   startTime: z.string().trim().min(1, "Campo obrigatório"),
+   predictedDuration: z.string().trim().optional(),
+   endTime: z.string().trim().optional(),
+   atrativoName: z.string().trim().min(1, "Atrativo é obrigatório"),
+   atrativoType: z.string().trim().min(1, "Tipo de atrativo é obrigatório"),
+   atrativoStyle: z.string().trim().optional(),
+   atrativoDescription: z.string().trim().max(300).optional(),
+   atrativoContact: z.string().trim().optional(),
+ 
+   // 5. Local do Evento
+   locationName: z.string().trim().min(1, "Local é obrigatório"),
+   eventAddress: z.string().trim().min(1, "Endereço é obrigatório"),
+   locationType: z.enum(["public", "commercial"], { required_error: "Selecione o tipo do local" }),
+   locationContact: z.string().trim().optional(),
+ 
+   // 6. Complementares
+   description: z.string().trim().max(500).optional(),
+   contactSocial: z.string().trim().max(300).optional(),
+   videoLink: z.string().url("URL inválida").optional().or(z.literal("")),
+   additionalDetails: z.string().trim().optional(),
+   stage: z.string().optional(),
+   responsiblePerson: z.string().trim().optional(),
+ }).refine((data) => {
+   if (data.locationType === "commercial" && !data.locationContact) {
+     return false;
+   }
+   return true;
+ }, {
+   message: "Contato do responsável é obrigatório para estabelecimentos comerciais",
+   path: ["locationContact"],
+ });
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -185,58 +199,65 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
   );
 }
 
-export default function SubmissionForm() {
-  const [flyerFile, setFlyerFile] = useState<File | null>(null);
-  const [bannerFile, setBannerFile] = useState<File | null>(null);
+ export default function SubmissionForm() {
+   const [flyerFile, setFlyerFile] = useState<File | null>(null);
+   const [bannerFile, setBannerFile] = useState<File | null>(null);
    const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const navigate = useNavigate();
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    anunciante: true,
-    evento: true,
-    promocao: false,
-    upload: false,
-    contato: false,
-    categoria: true,
-  });
-  const { addSubmission } = useSubmissions();
-  const { profile, loaded, saveProfile } = useProfile();
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      companyName: "", responsibleName: "", email: "", phone: "",
-      eventTitle: "", date: "", startTime: "", endTime: "", location: "",
-      addressStreet: "", addressNumber: "", addressNeighborhood: "",
-      addressCity: "", addressState: "", addressZip: "",
-      description: "", videoLink: "", category: "",
-      promotionType: "", targetAudience: "", promotionRules: "",
-      contactSocial: "", additionalDetails: "",
-      salePrice: "", maintenanceCost: "", subscriptionInfo: "",
-      commission: "", stage: "", conceptDescription: "", responsiblePerson: "",
-      authorization: undefined,
-    },
-  });
-
-  useEffect(() => {
-    if (!loaded) return;
-    const fields = {
-      companyName: profile.company_name,
-      responsibleName: profile.responsible_name,
-      email: "",
-      phone: profile.phone,
-      addressStreet: profile.address_street,
-      addressNumber: profile.address_number,
-      addressNeighborhood: profile.address_neighborhood,
-      addressCity: profile.address_city,
-      addressState: profile.address_state,
-      addressZip: profile.address_zip,
-      contactSocial: profile.contact_social,
-    };
-    Object.entries(fields).forEach(([key, value]) => {
-      if (value) form.setValue(key as any, value);
-    });
-  }, [loaded, profile]);
+   const [submitted, setSubmitted] = useState(false);
+   const navigate = useNavigate();
+   
+   const [portalLocations, setPortalLocations] = useState<{ id: string; name: string }[]>([]);
+   const [searchingAtrativo, setSearchingAtrativo] = useState(false);
+   const [searchingLocation, setSearchingLocation] = useState(false);
+   const [locationSuggestions, setLocationSuggestions] = useState<{ name: string; address?: string; type?: string; contact_responsible?: string }[]>([]);
+   const [atrativoSuggestions, setAtrativoSuggestions] = useState<{ name: string; type?: string; style?: string; contact_whatsapp?: string; description?: string }[]>([]);
+ 
+   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+     basicos: true,
+     divulgador: false,
+     legal: true,
+     evento: true,
+     local: true,
+     complementares: false,
+   });
+ 
+   const { addSubmission } = useSubmissions();
+   const { profile, loaded, saveProfile } = useProfile();
+ 
+   const form = useForm<FormData>({
+     resolver: zodResolver(formSchema),
+     defaultValues: {
+       nickName: "", basicPhone: "", userLocation: "",
+       companyName: "", pinCode: "", email: "",
+       category: "", eventTitle: "", date: "", startTime: "",
+       atrativoName: "", atrativoType: "",
+       locationName: "", eventAddress: "", locationType: "commercial",
+       legalAcceptance: undefined,
+     },
+   });
+ 
+   useEffect(() => {
+     const fetchPortalLocations = async () => {
+       const { data } = await supabaseClient.from("portal_locations").select("id, name").order("name");
+       if (data) setPortalLocations(data);
+     };
+     fetchPortalLocations();
+   }, []);
+ 
+   useEffect(() => {
+     if (!loaded) return;
+     form.reset({
+       nickName: profile.nick_name || "",
+       basicPhone: profile.phone || "",
+       userLocation: profile.home_location || "",
+       companyName: profile.company_name || "",
+       email: profile.email || "",
+       addressStreet: profile.address_street || "",
+       addressNumber: profile.address_number || "",
+       addressZip: profile.address_zip || "",
+       contactSocial: profile.contact_social || "",
+     });
+   }, [loaded, profile, form]);
 
   const toggleSection = (key: string) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
@@ -244,61 +265,59 @@ export default function SubmissionForm() {
 
   const descriptionLength = form.watch("description")?.length || 0;
 
-  async function onSubmit(data: FormData) {
-    setSubmitting(true);
-    const success = await addSubmission({
-      company_name: data.companyName,
-      responsible_name: data.responsibleName,
-      email: data.email,
-      phone: data.phone,
-      event_title: data.eventTitle,
-      date: data.date,
-      start_time: data.startTime,
-      end_time: data.endTime,
-      location: data.location,
-      address_street: data.addressStreet || null,
-      address_number: data.addressNumber || null,
-      address_neighborhood: data.addressNeighborhood || null,
-      address_city: data.addressCity || null,
-      address_state: data.addressState || null,
-      address_zip: data.addressZip || null,
-      description: data.description,
-      video_link: data.videoLink || null,
-      category: data.category,
-      promotion_type: data.promotionType || null,
-      target_audience: data.targetAudience || null,
-      promotion_rules: data.promotionRules || null,
-      contact_social: data.contactSocial || null,
-      additional_details: data.additionalDetails || null,
-      sale_price: data.salePrice || null,
-      maintenance_cost: data.maintenanceCost || null,
-      subscription_info: data.subscriptionInfo || null,
-      commission: data.commission || null,
-      stage: data.stage || "development",
-      concept_description: data.conceptDescription || null,
-      responsible_person: data.responsiblePerson || "Toni",
-    });
-    setSubmitting(false);
-    if (success) {
-      saveProfile({
-        company_name: data.companyName,
-        responsible_name: data.responsibleName,
-        email: data.email,
-        phone: data.phone,
-        address_street: data.addressStreet || "",
-        address_number: data.addressNumber || "",
-        address_neighborhood: data.addressNeighborhood || "",
-        address_city: data.addressCity || "",
-        address_state: data.addressState || "",
-        address_zip: data.addressZip || "",
-        contact_social: data.contactSocial || "",
-      });
-      form.reset();
-      setFlyerFile(null);
-      setBannerFile(null);
-      setSubmitted(true);
-    }
-  }
+   async function onSubmit(data: FormData) {
+     setSubmitting(true);
+     const success = await addSubmission({
+       company_name: data.companyName,
+       responsible_name: data.nickName,
+       email: data.email || null,
+       phone: data.basicPhone,
+       event_title: data.eventTitle || data.atrativoName,
+       date: data.date,
+       start_time: data.startTime,
+       predicted_duration: data.predictedDuration || null,
+       end_time: data.endTime || null,
+       location: data.locationName,
+       location_type: data.locationType,
+       location_contact: data.locationContact || null,
+       address_street: data.eventAddress,
+       address_zip: data.addressZip || null,
+       address_number: data.addressNumber || null,
+       atrativo_name: data.atrativoName,
+       atrativo_type: data.atrativoType,
+       atrativo_style: data.atrativoStyle || null,
+       atrativo_contact: data.atrativoContact || null,
+       description: data.description || null,
+       video_link: data.videoLink || null,
+       category: data.category,
+       contact_social: data.contactSocial || null,
+       additional_details: data.additionalDetails || null,
+       legal_acceptance: data.legalAcceptance,
+       legal_acceptance_date: new Date().toISOString(),
+       stage: data.stage || "development",
+       responsible_person: data.responsiblePerson || "Toni",
+     } as any);
+ 
+     setSubmitting(false);
+     if (success) {
+       saveProfile({
+         nick_name: data.nickName,
+         phone: data.basicPhone,
+         home_location: data.userLocation,
+         company_name: data.companyName,
+         email: data.email || "",
+         pin_code: data.pinCode,
+         address_street: data.addressStreet || "",
+         address_number: data.addressNumber || "",
+         address_zip: data.addressZip || "",
+         contact_social: data.contactSocial || "",
+       } as any);
+       form.reset();
+       setFlyerFile(null);
+       setBannerFile(null);
+       setSubmitted(true);
+     }
+   }
 
   return (
     <div className="min-h-screen bg-background">

@@ -36,21 +36,30 @@ interface SubmissionEntry {
   commission: string | null;
   stage: string;
   concept_description: string | null;
-  responsible_person: string | null;
-  deleted_at: string | null;
-  status: string;
-  rejection_reason: string | null;
-}
-interface SubmissionContextType {
-  submissions: SubmissionEntry[];
-  loading: boolean;
-  fetchSubmissions: () => Promise<void>;
-  addSubmission: (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "stage" | "status" | "rejection_reason"> & { stage?: string }) => Promise<boolean>;
-  deleteSubmission: (id: string) => Promise<void>;
-  resubmit: (id: string) => Promise<void>;
-  updateStatus: (id: string, status: "pending" | "approved" | "rejected", reason?: string | null) => Promise<void>;
-  savedCount: number;
-}
+   responsible_person: string | null;
+   deleted_at: string | null;
+   status: string;
+   rejection_reason: string | null;
+   predicted_duration?: string | null;
+   atrativo_name?: string | null;
+   atrativo_type?: string | null;
+   atrativo_style?: string | null;
+   atrativo_contact?: string | null;
+   location_type?: string | null;
+   location_contact?: string | null;
+   legal_acceptance?: boolean | null;
+   legal_acceptance_date?: string | null;
+ }
+ interface SubmissionContextType {
+   submissions: SubmissionEntry[];
+   loading: boolean;
+   fetchSubmissions: () => Promise<void>;
+   addSubmission: (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "stage" | "status" | "rejection_reason"> & { stage?: string }) => Promise<boolean>;
+   deleteSubmission: (id: string) => Promise<void>;
+   resubmit: (id: string) => Promise<void>;
+   updateStatus: (id: string, status: "pending" | "approved" | "rejected", reason?: string | null) => Promise<void>;
+   savedCount: number;
+ }
 
 const SubmissionContext = createContext<SubmissionContextType | null>(null);
 
