@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
- import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog, Crown, Trophy, Megaphone } from "lucide-react";
+  import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog, Crown, Trophy, Megaphone, Sun, Moon } from "lucide-react";
  import { useNavigate, useLocation, Link } from "react-router-dom";
  import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
-import { useAuth } from "@/contexts/AuthContext";
+ import { useAuth } from "@/contexts/AuthContext";
+ import { useTheme } from "@/hooks/useTheme";
 import { useProfile } from "@/hooks/useProfile";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useUserBadge } from "@/hooks/useUserBadge";
@@ -88,7 +89,8 @@ function RoleBadge({
 
 export default function Header() {
   const { savedCount } = useSubmissions();
-  const { user, signOut, isAdmin } = useAuth();
+   const { user, signOut, isAdmin } = useAuth();
+   const { theme, toggleTheme } = useTheme();
   const { profile } = useProfile();
   const perms = usePermissions();
   const { status, name: badgeName } = useUserBadge();
@@ -123,7 +125,16 @@ export default function Header() {
                 <span className="text-[9px] sm:text-xs text-secondary/70 font-bold uppercase tracking-widest">Coé a Boa?</span>
               </div>
             </Link>
-            <div className="flex items-center gap-2 sm:gap-4">
+             <div className="flex items-center gap-2 sm:gap-3">
+               <Button
+                 variant="ghost"
+                 size="icon"
+                 onClick={toggleTheme}
+                 className="rounded-full h-9 w-9 text-foreground/70 hover:text-foreground"
+                 aria-label={theme === "light" ? "Mudar para modo escuro" : "Mudar para modo claro"}
+               >
+                 {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+               </Button>
               <Link to="/agenda" className="hidden sm:block">
                 <Button variant="ghost" size="sm" className="rounded-full text-foreground/80 hover:text-foreground font-bold h-9">Ver agenda</Button>
               </Link>
@@ -149,7 +160,16 @@ export default function Header() {
                 <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Coé a Boa?</span>
               </div>
             </Link>
-            <div className="flex items-center gap-2 sm:gap-3">
+             <div className="flex items-center gap-2 sm:gap-3">
+               <Button
+                 variant="ghost"
+                 size="icon"
+                 onClick={toggleTheme}
+                 className="rounded-full h-9 w-9 text-primary/70 hover:text-primary"
+                 aria-label={theme === "light" ? "Mudar para modo escuro" : "Mudar para modo claro"}
+               >
+                 {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+               </Button>
               <Button 
                 size="sm" 
                 variant="outline"
@@ -227,7 +247,16 @@ export default function Header() {
               : "text-muted-foreground";
 
             return (
-            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+               <Button
+                 variant="ghost"
+                 size="icon"
+                 onClick={toggleTheme}
+                 className="rounded-full h-8 w-8 text-primary/70 hover:text-primary"
+                 aria-label={theme === "light" ? "Mudar para modo escuro" : "Mudar para modo claro"}
+               >
+                 {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+               </Button>
               {/* Envios */}
               <Tooltip>
                 <TooltipTrigger asChild>
