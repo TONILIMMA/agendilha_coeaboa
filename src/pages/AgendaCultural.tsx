@@ -172,16 +172,6 @@ function buildUberLink(ev: Event): string {
      return (saved === "desc" ? "desc" : "asc");
    });
 
-    useEffect(() => {
-      localStorage.setItem("agendilha_high_contrast", String(highContrast));
-      if (highContrast) {
-        document.documentElement.classList.add("dark");
-        document.documentElement.style.colorScheme = "dark";
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.style.colorScheme = "light";
-      }
-    }, [highContrast]);
 
    useEffect(() => {
      localStorage.setItem("agendilha_sort_order", sortOrder);
