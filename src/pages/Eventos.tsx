@@ -12,11 +12,11 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  CalendarDays, Loader2, MessageCircle, Trash2, Search,
-  FileDown, MapPin, Clock, Building2,
-  CheckCircle, XCircle, ChevronDown, ChevronUp,
-  Phone, Mail, Globe, Info, Send, RotateCcw,
-  DollarSign, Users, Briefcase, History,
+   CalendarDays, Loader2, MessageCircle, Trash2, Search, Share2,
+   FileDown, MapPin, Clock, Building2, LayoutDashboard,
+   CheckCircle, XCircle, ChevronDown, ChevronUp, FileText,
+   Phone, Mail, Globe, Info, Send, RotateCcw, Copy,
+   DollarSign, Users, Briefcase, History, Megaphone,
 } from "lucide-react";
 import { toast } from "sonner";
  import { exportSingleEventPdf, exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
