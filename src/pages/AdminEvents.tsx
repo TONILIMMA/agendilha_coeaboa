@@ -52,25 +52,47 @@ interface Submission {
   shares_count?: number;
 }
 
-const categoryLabels: Record<string, string> = {
-  musica: "Música / Show",
-  gastronomia: "Gastronomia",
-  cultura: "Cultura / Arte",
-  esporte: "Esporte",
-  promocoes: "Promoções / Ofertas",
-  outros: "Outros",
-};
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR", {
-    day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit",
-  });
-}
-
-function buildWhatsAppMessage(sub: Submission): string {
-  const msg = `🗓️ *${sub.event_title}*\n⏰ ${sub.date} às ${sub.start_time}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: https://agendilha-divulgacao.lovable.app/agenda`;
-  return encodeURIComponent(msg);
-}
+ const categoryLabels: Record<string, string> = {
+   musica: "Música / Show",
+   gastronomia: "Gastronomia",
+   cultura: "Cultura / Arte",
+   esporte: "Esporte",
+   promocoes: "Promoções / Ofertas",
+   outros: "Outros",
+ };
+ 
+ const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string }> = {
+   draft: { label: "Rascunho", color: "text-slate-600", bg: "bg-slate-100", icon: History },
+   pending: { label: "Pendente", color: "text-amber-600", bg: "bg-amber-100", icon: Clock3 },
+   analysis: { label: "Em análise", color: "text-blue-600", bg: "bg-blue-100", icon: Search },
+   approved: { label: "Aprovado", color: "text-emerald-600", bg: "bg-emerald-100", icon: CheckCircle },
+   rejected: { label: "Rejeitado", color: "text-rose-600", bg: "bg-rose-100", icon: XCircle },
+   published: { label: "Publicado", color: "text-indigo-600", bg: "bg-indigo-100", icon: Globe },
+ };
+ 
+ function formatSubmissionDate(iso: string) {
+   if (!iso) return "—";
+   const date = new Date(iso);
+   return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }) + 
+          " às " + 
+          date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+ }
+ 
+ function formatEventDate(dateStr: string | null) {
+   if (!dateStr) return "—";
+   // Handle both ISO and DD/MM/YYYY formats
+   if (dateStr.includes("-")) {
+     const [y, m, d] = dateStr.split("-");
+     return `${d}/${m}/${y}`;
+   }
+   return dateStr;
+ }
+ 
+ function buildWhatsAppMessage(sub: Submission): string {
+   const date = formatEventDate(sub.date);
+   const msg = `🗓️ *${sub.event_title}*\n⏰ ${date} às ${sub.start_time || "--:--"}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: https://agendilha-divulgacao.lovable.app/agenda`;
+   return encodeURIComponent(msg);
+ }
 
 export default function AdminEvents() {
   const { user, isAdmin, loading: authLoading } = useAuth();
