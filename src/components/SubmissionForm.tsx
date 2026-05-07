@@ -269,14 +269,15 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
   const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   const steps = [
-    { id: 1, title: "Identificação", description: "Seus dados" },
-    { id: 2, title: "Profissional", description: "Informações da conta" },
-    { id: 3, title: "Evento", description: "O que vai rolar?" },
-    { id: 4, title: "Atrativo", description: "Quem se apresenta?" },
-    { id: 5, title: "Local", description: "Onde vai ser?" },
-    { id: 6, title: "Legal", description: "Termos" },
-    { id: 7, title: "Revisão", description: "Confira tudo" },
-  ];
+     { id: 1, title: "Identificação", description: "Seus dados" },
+     { id: 2, title: "Profissional", description: "Informações da conta" },
+     { id: 3, title: "Evento", description: "O que vai rolar?" },
+     { id: 4, title: "Atrativo", description: "Quem se apresenta?" },
+     { id: 5, title: "Local", description: "Onde vai ser?" },
+     { id: 6, title: "Arte", description: "Flyer/Banner" },
+     { id: 7, title: "Legal", description: "Termos" },
+     { id: 8, title: "Revisão", description: "Confira tudo" },
+   ];
 
   const nextStep = async () => {
     const fieldsToValidate = getFieldsForStep(currentStep);
