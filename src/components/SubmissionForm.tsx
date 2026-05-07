@@ -1065,11 +1065,21 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                        { label: "Endereço", value: form.watch("eventAddress") }
                      ]} onEdit={() => goToStep(5)} />
 
-                     {eventImage && (
-                        <SummarySection title="🖼️ Arte" items={[
-                          { label: "Status", value: "Arte vinculada" }
-                        ]} onEdit={() => goToStep(6)} />
-                     )}
+                      {eventImage && (
+                         <div className="bg-card border border-border rounded-xl p-4 sm:p-6 space-y-4">
+                           <div className="flex items-center justify-between">
+                             <h3 className="font-bold text-sm flex items-center gap-2">🖼️ Arte do Evento</h3>
+                             <Button variant="ghost" size="sm" onClick={() => goToStep(6)} className="h-8 text-xs font-bold text-primary">Editar</Button>
+                           </div>
+                           <div className="aspect-video rounded-lg overflow-hidden border border-border bg-muted max-w-[200px]">
+                             <img 
+                               src={typeof eventImage === 'string' ? eventImage : URL.createObjectURL(eventImage)} 
+                               alt="Flyer final" 
+                               className="w-full h-full object-cover"
+                             />
+                           </div>
+                         </div>
+                      )}
                     
                     <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
                       <CheckCircle2 className="h-6 w-6 text-green-600" />
