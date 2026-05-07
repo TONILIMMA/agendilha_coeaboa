@@ -171,17 +171,15 @@ export default function Header() {
                 <TooltipContent>Meus envios e rascunhos</TooltipContent>
               </Tooltip>
 
-               {/* Link para a Agenda Pública */}
+               {/* Enviar Evento CTA */}
                <Button 
                  size="sm" 
-                 variant="outline" 
-                 onClick={() => navigate("/agenda")} 
-                 aria-label="Agenda Cultural" 
-                 className="text-xs px-2 sm:px-3 border-primary/30 hover:border-primary text-primary"
+                 onClick={() => navigate("/enviar-evento")} 
+                 className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all text-xs sm:text-sm px-2 sm:px-3"
                >
-                 <CalendarDays className="h-4 w-4 mr-1" />
-                 <span className="hidden sm:inline">Agenda Pública</span>
-                 <span className="sm:hidden">Agenda</span>
+                 <Megaphone className="h-4 w-4 mr-1.5" />
+                 <span className="hidden sm:inline">Enviar Evento</span>
+                 <span className="sm:hidden">Enviar</span>
                </Button>
 
               {/* User dropdown — moved to the far right */}
