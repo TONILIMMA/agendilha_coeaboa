@@ -111,6 +111,31 @@ function buildUberLink(ev: Event): string {
 
  export default function AgendaCultural() {
    const navigate = useNavigate();
+    const handleShare = async (title: string, text: string, url: string, eventId?: string) => {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title,
+            text,
+            url,
+          });
+          if (eventId) trackShare(eventId);
+        } catch (err) {
+          if ((err as Error).name !== 'AbortError') {
+            console.error('Error sharing:', err);
+            handleCopyLink(url);
+          }
+        }
+      } else {
+        handleCopyLink(url);
+      }
+    };
+
+    const handleCopyLink = (url: string) => {
+      navigator.clipboard.writeText(url);
+      toast.success("Link copiado!");
+    };
+
    const { user } = useAuth();
    const [events, setEvents] = useState<Event[]>([]);
    const [loading, setLoading] = useState(true);
