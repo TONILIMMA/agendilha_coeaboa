@@ -10,7 +10,7 @@ import { z } from "zod";
 import { 
   Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon, Search, 
   PlusCircle, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Save,
-   Check, User, Info, MapPin, Scale, Eye, PartyPopper, Phone, Sparkles, Image as ImageIcon, Wand2, Loader2, RotateCcw
+   Check, User, Info, MapPin, Scale, Eye, PartyPopper, Phone, Sparkles, Image as ImageIcon, Wand2, Loader2, RotateCcw, Download
 } from "lucide-react";
  import { IMaskInput } from "react-imask";
  import { supabase as supabaseClient } from "@/integrations/supabase/client";
@@ -36,7 +36,13 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 
- const formSchema = z.object({
+  const formSchema = z.object({
+    imageSource: z.enum(["upload", "ai"]).optional(),
+    selectedTemplate: z.string().optional(),
+    aiTitle: z.string().optional(),
+    aiSubtitle: z.string().optional(),
+    aiVariant: z.enum(["modern", "vibrant", "elegant"]).optional(),
+    eventImageUrl: z.string().optional(),
     // 1. Identificação do Divulgador
     nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
     basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
@@ -288,17 +294,30 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
      { id: 8, title: "Revisão", description: "Confira tudo" },
    ];
 
-  const nextStep = async () => {
-    const fieldsToValidate = getFieldsForStep(currentStep);
-    const isValid = await form.trigger(fieldsToValidate as any);
-    
-    if (isValid) {
-      const newStep = Math.min(currentStep + 1, steps.length);
-      setCurrentStep(newStep);
-      localStorage.setItem("agendilha_step", String(newStep));
-      window.scrollTo(0, 0);
-    }
-  };
+   const nextStep = async () => {
+     const fieldsToValidate = getFieldsForStep(currentStep);
+     const isValid = await form.trigger(fieldsToValidate as any);
+     
+     if (isValid) {
+       // Save state to form before moving for draft persistence
+       if (currentStep === 6) {
+         form.setValue("imageSource", imageSource as any);
+         form.setValue("selectedTemplate", selectedTemplate as any);
+         form.setValue("aiTitle", aiStyles.title);
+         form.setValue("aiSubtitle", aiStyles.subtitle);
+         form.setValue("aiVariant", aiStyles.variant);
+         if (typeof eventImage === 'string') {
+           form.setValue("eventImageUrl", eventImage);
+         }
+       }
+       
+       const newStep = Math.min(currentStep + 1, steps.length);
+       setCurrentStep(newStep);
+       localStorage.setItem("agendilha_step", String(newStep));
+       saveDraft(); // Auto-save on step change
+       window.scrollTo(0, 0);
+     }
+   };
 
   const prevStep = () => {
     const newStep = Math.max(currentStep - 1, 1);
@@ -345,28 +364,41 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
     setTimeout(() => setIsSavingDraft(false), 500);
   };
 
-  useEffect(() => {
-    const draft = localStorage.getItem("agendilha_draft");
-    const savedStep = localStorage.getItem("agendilha_step");
-    
-    if (draft) {
-      try {
-        const parsed = JSON.parse(draft);
-        form.reset(parsed);
-        
-        if (savedStep) {
-          const stepNum = parseInt(savedStep);
-          if (stepNum > 1 && stepNum <= steps.length) {
-            setCurrentStep(stepNum);
-          }
-        }
-        
-        toast.info("Rascunho recuperado", { description: "Continuamos de onde você parou." });
-      } catch (e) {
-        console.error("Error parsing draft", e);
-      }
-    }
-  }, [form]);
+   useEffect(() => {
+     const draft = localStorage.getItem("agendilha_draft");
+     const savedStep = localStorage.getItem("agendilha_step");
+     
+     if (draft) {
+       try {
+         const parsed = JSON.parse(draft);
+         form.reset(parsed);
+         
+         // Restore AI/Image state
+         if (parsed.imageSource) setImageSource(parsed.imageSource);
+         if (parsed.selectedTemplate) setSelectedTemplate(parsed.selectedTemplate);
+         if (parsed.aiTitle || parsed.aiSubtitle || parsed.aiVariant) {
+           setAiStyles({
+             title: parsed.aiTitle || "",
+             subtitle: parsed.aiSubtitle || "",
+             color: "primary", // Default or derived
+             variant: parsed.aiVariant || "modern"
+           });
+         }
+         if (parsed.eventImageUrl) setEventImage(parsed.eventImageUrl);
+         
+         if (savedStep) {
+           const stepNum = parseInt(savedStep);
+           if (stepNum > 1 && stepNum <= steps.length) {
+             setCurrentStep(stepNum);
+           }
+         }
+         
+         toast.info("Rascunho recuperado", { description: "Continuamos de onde você parou." });
+       } catch (e) {
+         console.error("Error parsing draft", e);
+       }
+     }
+   }, [form]);
  
    useEffect(() => {
      const fetchPortalLocations = async () => {
@@ -970,6 +1002,36 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                             >
                               <RotateCcw className="mr-2 h-4 w-4" /> Regenerar Arte
                             </Button>
+                            
+                            <div className="flex gap-2">
+                              <Button 
+                                type="button" 
+                                variant="secondary" 
+                                onClick={async () => {
+                                  if (typeof eventImage === 'string') {
+                                    const link = document.createElement('a');
+                                    link.href = eventImage;
+                                    link.download = `flyer-${form.getValues("eventTitle") || "evento"}.jpg`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                    toast.success("Iniciando download...");
+                                  }
+                                }}
+                                className="flex-1 h-11 rounded-xl font-bold text-xs uppercase"
+                              >
+                                <Download className="mr-2 h-4 w-4" /> Baixar
+                              </Button>
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={() => { setImageSource("upload"); setEventImage(null); }}
+                                className="flex-1 h-11 rounded-xl font-bold text-xs uppercase border-2"
+                              >
+                                <Upload className="mr-2 h-4 w-4" /> Upload Manual
+                              </Button>
+                            </div>
+                            
                             <Button 
                               type="button" 
                               onClick={() => { setEventImage(null); setImageSource(null); }}
