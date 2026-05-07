@@ -23,6 +23,7 @@ import {
   RotateCcw, LayoutDashboard, Edit, ExternalLink, Eye, History
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 
 interface Submission {
@@ -67,14 +68,14 @@ interface Submission {
    outros: "Outros",
  };
  
-   const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string; border: string }> = {
-     draft: { label: "Rascunho", color: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200", icon: History },
-     pending: { label: "Pendente", color: "text-amber-700", bg: "bg-amber-100", border: "border-amber-200", icon: Clock3 },
-     analysis: { label: "Em análise", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", icon: Search },
-     approved: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
-     rejected: { label: "Rejeitado", color: "text-rose-700", bg: "bg-rose-100", border: "border-rose-200", icon: XCircle },
-     published: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
-   };
+    const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string; border: string }> = {
+      draft: { label: "Rascunho", color: "text-slate-700 dark:text-slate-300", bg: "bg-slate-100 dark:bg-slate-800/50", border: "border-slate-200 dark:border-slate-700", icon: History },
+      pending: { label: "Pendente", color: "text-amber-800 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30", border: "border-amber-200 dark:border-amber-800/50", icon: Clock3 },
+      analysis: { label: "Em análise", color: "text-blue-800 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30", border: "border-blue-200 dark:border-blue-800/50", icon: Search },
+      approved: { label: "Aprovado", color: "text-emerald-800 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-900/30", border: "border-emerald-200 dark:border-emerald-800/50", icon: CheckCircle },
+      rejected: { label: "Rejeitado", color: "text-rose-800 dark:text-rose-400", bg: "bg-rose-100 dark:bg-rose-900/30", border: "border-rose-200 dark:border-rose-800/50", icon: XCircle },
+      published: { label: "Publicado", color: "text-indigo-800 dark:text-indigo-400", bg: "bg-indigo-100 dark:bg-indigo-900/30", border: "border-indigo-300 dark:border-indigo-800/50", icon: Globe },
+    };
  
  function formatSubmissionDate(iso: string) {
    if (!iso) return "—";
@@ -201,21 +202,21 @@ export default function AdminEvents() {
               <h1 className="text-3xl font-black tracking-tight text-foreground">Gestão de Eventos</h1>
               <p className="text-muted-foreground text-sm">Controle operacional e curadoria da agenda hiperlocal.</p>
            </div>
-           <div className="flex flex-wrap gap-3">
-             <Button variant="outline" size="sm" className="h-10 font-bold border-border hover:bg-muted" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
-             <Button variant="outline" size="sm" className="h-10 font-bold border-border hover:bg-muted" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
-             <Button 
-               size="sm"
-               className="h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
-               onClick={() => {
-                 const approved = submissions.filter(s => s.status === 'approved' || s.status === 'published');
-                 if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
-                 window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
-               }}
-             >
-               <MessageCircle className="h-4 w-4 mr-2" /> Divulgação WhatsApp
-             </Button>
-           </div>
+            <div className="flex flex-wrap gap-3">
+              <Button variant="outline" size="sm" className="h-10 font-bold border-border dark:border-slate-700 bg-background dark:bg-slate-900 hover:bg-muted dark:hover:bg-slate-800" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
+              <Button variant="outline" size="sm" className="h-10 font-bold border-border dark:border-slate-700 bg-background dark:bg-slate-900 hover:bg-muted dark:hover:bg-slate-800" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
+              <Button 
+                size="sm"
+                className="h-10 font-bold bg-emerald-600 dark:bg-emerald-600 hover:bg-emerald-700 dark:hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20"
+                onClick={() => {
+                  const approved = submissions.filter(s => s.status === 'approved' || s.status === 'published');
+                  if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
+                  window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
+                }}
+              >
+                <MessageCircle className="h-4 w-4 mr-2" /> Divulgação WhatsApp
+              </Button>
+            </div>
          </div>
 
          {/* KPIs */}
@@ -321,13 +322,13 @@ export default function AdminEvents() {
                          </Badge>
                          <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">ID: {sub.id.slice(0, 8)}</span>
                        </div>
-                       <div className="flex flex-col gap-1 mt-2">
-                         <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Data de Cadastro</span>
-                         <p className="text-[11px] text-foreground font-medium flex items-center gap-1.5">
-                           <History className="h-3 w-3 text-muted-foreground" />
-                           {formatSubmissionDate(sub.created_at)}
-                         </p>
-                       </div>
+                        <div className="flex flex-col gap-1 mt-3 p-2 bg-muted/20 dark:bg-muted/10 rounded-lg border border-border/30 dark:border-border/10">
+                          <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-0.5">Data de Cadastro</span>
+                          <p className="text-[11px] text-foreground dark:text-slate-200 font-bold flex items-center gap-1.5">
+                            <History className="h-3 w-3 text-primary/70" />
+                            {formatSubmissionDate(sub.created_at)}
+                          </p>
+                        </div>
                      </div>
  
                      {/* Cronograma */}
@@ -444,10 +445,15 @@ export default function AdminEvents() {
                             <Button 
                               size="icon" 
                               variant="outline" 
-                              className={`h-9 w-9 transition-all shadow-sm ${sub.is_highlight ? 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100' : 'bg-white border-border hover:bg-amber-50 hover:text-amber-600'}`} 
+                              className={cn(
+                                "h-9 w-9 transition-all shadow-sm",
+                                sub.is_highlight 
+                                  ? "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50" 
+                                  : "bg-background dark:bg-slate-900 border-border hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400"
+                              )} 
                               onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)}
                             >
-                              <Star className={`h-4 w-4 ${sub.is_highlight ? 'fill-amber-600' : ''}`} />
+                              <Star className={cn("h-4 w-4", sub.is_highlight && "fill-amber-600 dark:fill-amber-400")} />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>{sub.is_highlight ? 'Remover Destaque' : 'Destacar'}</TooltipContent>
@@ -508,13 +514,13 @@ export default function AdminEvents() {
                             <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}><MessageCircle className="h-4 w-4 mr-2" /> Gerar Texto WhatsApp</Button>
                           </div>
                         </div>
-                        <div className="md:col-span-2 space-y-6">
-                          <div>
-                            <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-3">Conteúdo do Evento</h4>
-                            <div className="bg-white border border-border/60 p-4 rounded-lg shadow-inner">
-                              <p className="text-sm leading-relaxed whitespace-pre-wrap">{sub.description || "Sem descrição disponível."}</p>
-                            </div>
+                      <div className="md:col-span-2 space-y-6">
+                        <div>
+                          <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-3">Conteúdo do Evento</h4>
+                          <div className="bg-background dark:bg-slate-900 border border-border/60 dark:border-border/30 p-5 rounded-xl shadow-inner">
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap dark:text-slate-300">{sub.description || "Sem descrição disponível."}</p>
                           </div>
+                        </div>
                           {sub.additional_details && (
                             <div>
                               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-3">Detalhes Complementares</h4>
