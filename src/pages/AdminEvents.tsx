@@ -237,34 +237,55 @@ export default function AdminEvents() {
            ))}
          </div>
 
-        {/* Filters */}
-        <Card className="mb-6 shadow-sm border-border/40">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Buscar evento, local ou empresa..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
-              </div>
-               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                 <SelectTrigger className="h-10"><SelectValue placeholder="Filtrar por Status" /></SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="all">Todos os Status</SelectItem>
-                   {Object.entries(statusConfig).map(([key, cfg]) => (
-                     <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
-                   ))}
-                 </SelectContent>
-               </Select>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger><SelectValue placeholder="Categoria" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas as Categorias</SelectItem>
-                  {Object.entries(categoryLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Button variant="ghost" onClick={() => { setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); }}>Limpar Filtros</Button>
-            </div>
-          </CardContent>
-        </Card>
+         {/* Filters */}
+         <div className="mb-8 grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-card border border-border p-2 rounded-2xl shadow-sm">
+           <div className="md:col-span-5 relative">
+             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+             <Input 
+               placeholder="Buscar por título, empresa, local ou responsável..." 
+               className="pl-10 h-11 bg-muted/30 border-none focus-visible:ring-1 focus-visible:ring-primary/20" 
+               value={search} 
+               onChange={e => setSearch(e.target.value)} 
+             />
+           </div>
+           <div className="md:col-span-3">
+             <Select value={statusFilter} onValueChange={setStatusFilter}>
+               <SelectTrigger className="h-11 bg-muted/30 border-none"><SelectValue placeholder="Status" /></SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Todos os Status</SelectItem>
+                 {Object.entries(statusConfig).map(([key, cfg]) => (
+                   <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+           </div>
+           <div className="md:col-span-3">
+             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+               <SelectTrigger className="h-11 bg-muted/30 border-none"><SelectValue placeholder="Categoria" /></SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Todas as Categorias</SelectItem>
+                 {Object.entries(categoryLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+               </SelectContent>
+             </Select>
+           </div>
+           <div className="md:col-span-1 flex justify-center">
+             <TooltipProvider>
+               <Tooltip>
+                 <TooltipTrigger asChild>
+                   <Button 
+                     variant="ghost" 
+                     size="icon" 
+                     className="h-11 w-11 rounded-xl hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                     onClick={() => { setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); toast.info("Filtros limpos"); }}
+                   >
+                     <SlidersHorizontal className="h-4 w-4" />
+                   </Button>
+                 </TooltipTrigger>
+                 <TooltipContent>Limpar Filtros</TooltipContent>
+               </Tooltip>
+             </TooltipProvider>
+           </div>
+         </div>
 
         {/* Main List */}
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
