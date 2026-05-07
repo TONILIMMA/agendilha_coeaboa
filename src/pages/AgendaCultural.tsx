@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
  import { Loader2, MapPin, Clock, Share2, CalendarDays, ExternalLink, ArrowLeft, FileDown, Search, Filter } from "lucide-react";
-import { exportBulkEventsPdf } from "@/lib/pdfExport";
+ import { exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 
 const categoryIcons: Record<string, string> = {
@@ -338,10 +338,10 @@ export default function AgendaCultural() {
                 variant="outline"
                 className="text-xs"
                 disabled={upcomingEvents.length === 0}
-                onClick={() => {
-                  exportBulkEventsPdf(upcomingEvents as any);
-                  toast.success(`PDF da agenda gerado com ${upcomingEvents.length} evento(s)!`);
-                }}
+                 onClick={() => {
+                   exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
+                   toast.success(`PDF da agenda gerado com ${upcomingEvents.length} evento(s)!`);
+                 }}
               >
                 <FileDown className="h-3.5 w-3.5 mr-1.5" />
                 Baixar PDF da Agenda
