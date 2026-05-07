@@ -16,7 +16,8 @@ import {
    Phone, Mail, Globe, Info, Send, Star, TrendingUp, BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
-import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
+ import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
+ import Header from "@/components/Header";
 
 interface Submission {
   id: string;
@@ -331,8 +332,10 @@ export default function AdminEvents() {
 
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
-  return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
+   return (
+     <div className="min-h-screen bg-background">
+       <Header />
+       <div className="mx-auto max-w-5xl px-4 py-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-2">
           <CalendarDays className="h-6 w-6 text-primary" />
@@ -482,8 +485,9 @@ export default function AdminEvents() {
                            {sub.shares_count || 0} compartilhamentos
                          </div>
                        </div>
-                     )}
-                    </div>
+       )}
+     </div>
+     </div>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       {sub.date && (
