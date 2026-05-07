@@ -55,7 +55,7 @@ export function HeaderUserMenu({ variant = "desktop", onNavigate }: Props) {
             Entrar
           </Button>
         </Link>
-        <Link to="/coeaboa" onClick={onNavigate}>
+         <Link to="/agenda" onClick={onNavigate}>
           <Button
             size={variant === "mobile" ? "lg" : "sm"}
             className={
@@ -102,7 +102,7 @@ export function HeaderUserMenu({ variant = "desktop", onNavigate }: Props) {
             )}
           </div>
         </div>
-        <Link to="/coeaboa" onClick={onNavigate}>
+         <Link to="/agenda" onClick={onNavigate}>
           <Button size="lg" className="w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
             Ver agenda
           </Button>
@@ -162,12 +162,6 @@ export function HeaderUserMenu({ variant = "desktop", onNavigate }: Props) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-          <Link to="/coeaboa">
-            <UserIcon className="h-4 w-4 mr-2" />
-            Minha área
-          </Link>
-        </DropdownMenuItem>
         {(status === "admin" || status === "master") && (
           <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
             <Link to="/admin/users">

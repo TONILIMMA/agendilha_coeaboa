@@ -1,5 +1,5 @@
-import SubmissionForm from "@/components/SubmissionForm";
-
-const Index = () => <SubmissionForm />;
-
-export default Index;
+ import Landing from "./Landing";
+ 
+ const Index = () => <Landing />;
+ 
+ export default Index;
