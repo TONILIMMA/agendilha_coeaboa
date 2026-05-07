@@ -485,7 +485,6 @@ export default function AdminEvents() {
                       </TooltipProvider>
                     </div>
                   </div>
-                  </div>
 
                   {expandedId === sub.id && (
                     <div className="mt-4 p-5 bg-muted/30 rounded-xl border border-border/50 animate-in slide-in-from-top-2 duration-300">
