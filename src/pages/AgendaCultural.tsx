@@ -292,17 +292,6 @@ function buildUberLink(ev: Event): string {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
-      {/* Botão flutuante de Alto Contraste */}
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setHighContrast(!highContrast)}
-        className="fixed bottom-6 right-6 z-50 rounded-full h-12 w-12 shadow-2xl border-2 border-primary bg-background hover:scale-110 active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40"
-        aria-label={highContrast ? "Desativar Alto Contraste" : "Ativar Alto Contraste"}
-        title={highContrast ? "Desativar Alto Contraste" : "Ativar Alto Contraste"}
-      >
-        {highContrast ? <Sun className="h-6 w-6 text-yellow-400" /> : <Moon className="h-6 w-6 text-primary" />}
-      </Button>
 
       <main className="mx-auto max-w-4xl px-4 py-8">
         {/* Topo da Página */}
