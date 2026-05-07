@@ -142,13 +142,11 @@ export default function AgendaCultural() {
   useEffect(() => {
     async function load() {
       const { data } = await supabase
-        .from("submissions")
-        .select(
-          "id, event_title, date, start_time, end_time, location, address_neighborhood, address_street, address_number, address_city, description, category, company_name, phone"
-        )
-        .eq("status", "approved")
-        .order("date", { ascending: true, nullsFirst: false });
-      setEvents((data as Event[]) || []);
+         .from("submissions")
+         .select("*")
+         .eq("status", "approved")
+         .order("date", { ascending: true, nullsFirst: false });
+       setEvents((data as any[]) || []);
       setLoading(false);
     }
     load();
@@ -160,11 +158,19 @@ export default function AgendaCultural() {
   );
 
    async function trackView(id: string) {
-     await supabase.rpc('increment_views', { event_id: id });
+     try {
+       await supabase.rpc('increment_views', { event_id: id });
+     } catch (e) {
+       console.error("Error tracking view:", e);
+     }
    }
-
+ 
    async function trackShare(id: string) {
-     await supabase.rpc('increment_shares', { event_id: id });
+     try {
+       await supabase.rpc('increment_shares', { event_id: id });
+     } catch (e) {
+       console.error("Error tracking share:", e);
+     }
    }
 
    const [search, setSearch] = useState("");

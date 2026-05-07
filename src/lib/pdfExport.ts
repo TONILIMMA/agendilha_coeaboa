@@ -177,8 +177,8 @@ function drawFooter(doc: jsPDF, isLastPage: boolean) {
   );
 
   if (isLastPage) {
-    const linkUrl = "https://coeaboa.lovable.app";
-    const linkText = "Acesse: coeaboa.lovable.app";
+    const linkUrl = "https://agendilha-divulgacao.lovable.app/agenda";
+    const linkText = "Acesse a agenda completa: agendilha-divulgacao.lovable.app/agenda";
     doc.setFontSize(8);
     doc.setTextColor(...BRAND_ORANGE);
     doc.textWithLink(linkText, MARGIN, FOOTER_Y + 5, { url: linkUrl });
@@ -432,7 +432,7 @@ export function getEventPdfBlob(event: EventData): Blob {
    doc.setTextColor(...MEDIUM_TEXT);
    doc.text("Confira a agenda completa online:", PAGE_W/2, FOOTER_Y - 20, { align: "center" });
    doc.setTextColor(...BRAND_ORANGE);
-   doc.text("agendilha-divulgacao.lovable.app", PAGE_W/2, FOOTER_Y - 15, { align: "center" });
+   doc.text("agendilha-divulgacao.lovable.app/agenda", PAGE_W/2, FOOTER_Y - 15, { align: "center" });
 
    // --- Lista de Eventos ---
    const grouped: Record<string, EventData[]> = {};

@@ -13,7 +13,7 @@ import {
   CalendarDays, Loader2, MessageCircle, Trash2, Search,
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
   CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp,
-  Phone, Mail, Globe, Info, Send,
+   Phone, Mail, Globe, Info, Send, Star, TrendingUp, BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
@@ -45,7 +45,10 @@ interface Submission {
   promotion_rules: string | null;
   contact_social: string | null;
   additional_details: string | null;
-  status: string;
+   status: string;
+   is_highlight?: boolean;
+   views_count?: number;
+   shares_count?: number;
 }
 
 const categoryLabels: Record<string, string> = {
@@ -138,7 +141,12 @@ function buildBulkWhatsAppMessage(events: Submission[]): string {
     byDate.get(key)!.push(ev);
   });
 
-  const sortedDates = Array.from(byDate.keys()).sort((a, b) => a.localeCompare(b));
+   const sortedDates = Array.from(byDate.keys()).sort((a, b) => {
+     const da = parseEventDate(a);
+     const db = parseEventDate(b);
+     if (!da || !db) return a.localeCompare(b);
+     return da.getTime() - db.getTime();
+   });
 
   sortedDates.forEach((dateKey) => {
     const dayOfWeek = getDayOfWeek(dateKey);
@@ -154,7 +162,8 @@ function buildBulkWhatsAppMessage(events: Submission[]): string {
     });
   });
 
-  lines.push(`✔️ Mais informações: https://coeaboa.lovable.app/`);
+   lines.push(`✔️ Mais informações e agenda completa:`);
+   lines.push(`https://agendilha-divulgacao.lovable.app/agenda`);
 
   return encodeURIComponent(lines.join("\n"));
 }
@@ -170,7 +179,22 @@ export default function AdminEvents() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+   const [expandedId, setExpandedId] = useState<string | null>(null);
+   const [showStats, setShowStats] = useState(false);
+   async function toggleHighlight(id: string, current: boolean) {
+     const { error } = await supabase
+       .from("submissions")
+       .update({ is_highlight: !current })
+       .eq("id", id);
+     
+     if (error) {
+       toast.error("Erro ao atualizar destaque");
+     } else {
+       toast.success(!current ? "Evento em destaque! 🔥" : "Destaque removido");
+       setSubmissions(prev => prev.map(s => s.id === id ? { ...s, is_highlight: !current } : s));
+     }
+   }
+ 
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "date">("newest");
 
   async function fetchAll() {
@@ -316,19 +340,30 @@ export default function AdminEvents() {
           <Badge variant="secondary" className="text-xs">{filtered.length}</Badge>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              exportBulkEventsPdf(filtered);
-              toast.success("PDF com todos os eventos gerado!");
-            }}
-            disabled={filtered.length === 0}
-            className="text-xs"
-          >
-            <FileDown className="mr-1.5 h-3.5 w-3.5" />
-            Exportar Todos (PDF)
-          </Button>
+           <div className="flex gap-2">
+             <Button
+               size="sm"
+               variant={showStats ? "default" : "outline"}
+               onClick={() => setShowStats(!showStats)}
+               className="text-xs"
+             >
+               <BarChart3 className="mr-1.5 h-3.5 w-3.5" />
+               {showStats ? "Ocultar Métricas" : "Ver Métricas"}
+             </Button>
+             <Button
+               size="sm"
+               variant="outline"
+               onClick={() => {
+                 exportBulkEventsPdf(filtered);
+                 toast.success("PDF com todos os eventos gerado!");
+               }}
+               disabled={filtered.length === 0}
+               className="text-xs"
+             >
+               <FileDown className="mr-1.5 h-3.5 w-3.5" />
+               Exportar Agenda (PDF)
+             </Button>
+           </div>
           <Button
             size="sm"
             onClick={() => {
@@ -423,12 +458,31 @@ export default function AdminEvents() {
                       <Badge variant="outline" className="text-xs shrink-0">
                         {categoryLabels[sub.category || ""] || "—"}
                       </Badge>
-                      <Badge
-                        variant={sub.status === "approved" ? "default" : sub.status === "rejected" ? "destructive" : "secondary"}
-                        className="text-xs shrink-0"
-                      >
-                        {sub.status === "approved" ? "✅ Aprovado" : sub.status === "rejected" ? "❌ Rejeitado" : "⏳ Pendente"}
-                      </Badge>
+                       <div className="flex items-center gap-1.5">
+                         {sub.is_highlight && (
+                           <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-0 text-[10px] h-5">
+                             🔥 DESTAQUE
+                           </Badge>
+                         )}
+                         <Badge
+                           variant={sub.status === "approved" ? "default" : sub.status === "rejected" ? "destructive" : "secondary"}
+                           className="text-xs shrink-0"
+                         >
+                           {sub.status === "approved" ? "✅ Aprovado" : sub.status === "rejected" ? "❌ Rejeitado" : "⏳ Pendente"}
+                         </Badge>
+                       </div>
+                     {showStats && (
+                       <div className="flex items-center gap-4 mt-2 pt-2 border-t border-border/50">
+                         <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                           <TrendingUp className="h-3 w-3 text-blue-500" />
+                           {sub.views_count || 0} visualizações
+                         </div>
+                         <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                           <MessageCircle className="h-3 w-3 text-green-500" />
+                           {sub.shares_count || 0} compartilhamentos
+                         </div>
+                       </div>
+                     )}
                     </div>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -527,57 +581,102 @@ export default function AdminEvents() {
                       Enviado em {formatDate(sub.created_at)}
                     </p>
 
-                    {/* Actions */}
-                    <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
-                      <div className="flex gap-1">
-                        <Button
-                          size="sm"
-                          variant={sub.status === "approved" ? "default" : "outline"}
-                          onClick={() => handleStatusChange(sub.id, sub.status === "approved" ? "pending" : "approved")}
-                          className="text-xs"
-                          title="Aprovar"
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Aprovar
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={sub.status === "rejected" ? "destructive" : "outline"}
-                          onClick={() => handleStatusChange(sub.id, sub.status === "rejected" ? "pending" : "rejected")}
-                          className="text-xs"
-                          title="Rejeitar"
-                        >
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Rejeitar
-                        </Button>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
-                        className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
-                      >
-                        <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
-                        WhatsApp
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => downloadEventPdf(sub)}
-                        className="text-xs"
-                      >
-                        <FileDown className="mr-1.5 h-3.5 w-3.5" />
-                        PDF
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDelete(sub.id)}
-                        className="text-xs text-destructive hover:text-destructive ml-auto"
-                      >
-                        <Trash2 className="mr-1 h-3.5 w-3.5" />
-                        Excluir
-                      </Button>
-                    </div>
+                     {/* Actions */}
+                     <div className="flex flex-col gap-4 pt-2 border-t border-border">
+                       <div className="flex flex-wrap items-center gap-2">
+                         <div className="flex gap-1">
+                           <Button
+                             size="sm"
+                             variant={sub.status === "approved" ? "default" : "outline"}
+                             onClick={() => handleStatusChange(sub.id, sub.status === "approved" ? "pending" : "approved")}
+                             className="text-xs"
+                             title="Aprovar"
+                           >
+                             <CheckCircle className="h-4 w-4 mr-1" />
+                             Aprovar
+                           </Button>
+                           <Button
+                             size="sm"
+                             variant={sub.status === "rejected" ? "destructive" : "outline"}
+                             onClick={() => handleStatusChange(sub.id, sub.status === "rejected" ? "pending" : "rejected")}
+                             className="text-xs"
+                             title="Rejeitar"
+                           >
+                             <XCircle className="h-4 w-4 mr-1" />
+                             Rejeitar
+                           </Button>
+                           <Button
+                             size="sm"
+                             variant={sub.is_highlight ? "secondary" : "outline"}
+                             className={sub.is_highlight ? "bg-amber-100 text-amber-700 border-amber-200" : "text-amber-600 border-amber-200 hover:bg-amber-50"}
+                             onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)}
+                           >
+                             <Star className={`h-4 w-4 mr-1 ${sub.is_highlight ? "fill-amber-500" : ""}`} />
+                             {sub.is_highlight ? "Remover Destaque" : "Destacar"}
+                           </Button>
+                         </div>
+                         <Button
+                           size="sm"
+                           onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
+                           className="bg-[hsl(142,70%,40%)] hover:bg-[hsl(142,70%,35%)] text-white text-xs"
+                         >
+                           <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
+                           WhatsApp
+                         </Button>
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           onClick={() => downloadEventPdf(sub)}
+                           className="text-xs"
+                         >
+                           <FileDown className="mr-1.5 h-3.5 w-3.5" />
+                           PDF
+                         </Button>
+                         <Button
+                           size="sm"
+                           variant="ghost"
+                           onClick={() => handleDelete(sub.id)}
+                           className="text-xs text-destructive hover:text-destructive ml-auto"
+                         >
+                           <Trash2 className="mr-1 h-3.5 w-3.5" />
+                           Excluir
+                         </Button>
+                       </div>
+ 
+                       {sub.status === "approved" && (
+                         <div className="bg-primary/5 p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-primary/10">
+                           <div className="flex items-center gap-2 text-xs font-medium text-primary">
+                             <Send className="h-4 w-4" />
+                             Pronto para divulgação multiformato
+                           </div>
+                           <div className="flex gap-2 w-full sm:w-auto">
+                             <div className="text-[10px] text-muted-foreground mr-2 self-center hidden md:block italic">
+                               Visualize antes de enviar:
+                             </div>
+                             <Button 
+                               size="sm" 
+                               variant="ghost" 
+                               className="h-8 text-[10px] hover:bg-primary/10 flex-1 sm:flex-none"
+                               onClick={() => {
+                                 const msg = buildWhatsAppMessage(sub);
+                                 toast.info("Prévia da mensagem carregada!");
+                                 window.open(`https://wa.me/?text=${msg}`, "_blank");
+                               }}
+                             >
+                               Preview WhatsApp
+                             </Button>
+                             <Button 
+                               size="sm" 
+                               variant="ghost" 
+                               className="h-8 text-[10px] hover:bg-primary/10 flex-1 sm:flex-none"
+                               onClick={() => downloadEventPdf(sub)}
+                             >
+                               Preview PDF
+                             </Button>
+                           </div>
+                         </div>
+                       )}
+                     </div>
                   </div>
                 )}
               </CardContent>
