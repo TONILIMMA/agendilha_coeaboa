@@ -47,11 +47,7 @@ interface Props {
           <Button
             size={variant === "mobile" ? "lg" : "sm"}
             variant={variant === "mobile" ? "outline" : "ghost"}
-            className={
-              variant === "mobile"
-                ? "w-full rounded-full bg-white/70"
-                : "text-foreground/75 hover:text-foreground rounded-full px-4"
-            }
+            className="w-full rounded-full bg-white/70 shadow-sm border-border/50 text-foreground"
           >
             Entrar
           </Button>
