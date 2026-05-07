@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Sun, Moon } from "lucide-react";
+import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Sun, Moon, Download } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
  import { Dialog, DialogContent } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
@@ -687,7 +687,7 @@ function buildWhatsAppShare(ev: Event) {
 
                 {/* Footer - Fixed at bottom */}
                 <div className="p-6 sm:p-8 bg-card/50 backdrop-blur-md border-t border-border/50 shrink-0">
-                  <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex flex-col gap-4">
                     <div className="flex flex-col sm:flex-row gap-3 w-full">
                       <Button 
                         className="flex-1 h-14 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none" 
@@ -710,6 +710,25 @@ function buildWhatsAppShare(ev: Event) {
                         <MapPin className="h-5 w-5 mr-2.5" /> Ver no Mapa
                       </Button>
                     </div>
+                    
+                    {selectedEvent.image_url && (
+                      <Button 
+                        variant="ghost" 
+                        className="w-full h-10 text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const link = document.createElement('a');
+                          link.href = selectedEvent.image_url!;
+                          link.download = `flyer-${selectedEvent.event_title}.jpg`;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                          toast.success("Iniciando download do flyer...");
+                        }}
+                      >
+                        <Download className="h-4 w-4 mr-2" /> Baixar Flyer do Evento
+                      </Button>
+                    )}
                     
                     <Button 
                       variant="ghost" 
