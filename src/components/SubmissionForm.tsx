@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
-import { useProfile } from "@/hooks/useProfile";
+ import { useProfile } from "@/hooks/useProfile";
+ import { useAuth } from "@/contexts/AuthContext";
 import { z } from "zod";
 import { 
   Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon, Search, 
