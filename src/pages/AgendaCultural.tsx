@@ -680,11 +680,11 @@ function buildUberLink(ev: Event): string {
         </footer>
 
         <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEvent(null)}>
-          <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-[2rem] border-none bg-background sm:h-[90vh] flex flex-col">
+          <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-t-[2rem] sm:rounded-[2rem] border-none bg-background h-[95vh] sm:h-[90vh] flex flex-col focus:outline-none">
             {selectedEvent && (
               <>
                 {/* Header/Banner - Fixed at top */}
-                <div className="relative aspect-[16/10] sm:aspect-video w-full bg-muted overflow-hidden shrink-0">
+                <div className="relative aspect-[4/3] sm:aspect-video w-full bg-muted overflow-hidden shrink-0">
                   {selectedEvent.image_url ? (
                     <img src={selectedEvent.image_url} alt={selectedEvent.event_title} className="w-full h-full object-cover" />
                   ) : (
@@ -714,39 +714,39 @@ function buildUberLink(ev: Event): string {
 
                 {/* Scrollable Content */}
                 <div className="flex-1 overflow-y-auto">
-                  <div className="p-6 sm:p-10 space-y-10">
+                  <div className="p-5 sm:p-10 space-y-8 sm:space-y-10">
                     {/* Info Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                      <div className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                      <div className="space-y-5 sm:space-y-6">
                         <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/5">
-                            <CalendarDays className="h-6 w-6 text-primary" />
+                          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/5">
+                            <CalendarDays className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                           </div>
                           <div>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Data</p>
-                            <p className="font-bold text-lg text-foreground">{formatDayLabel(selectedEvent.date)}</p>
+                            <p className="font-bold text-base sm:text-lg text-foreground">{formatDayLabel(selectedEvent.date)}</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/5">
-                            <Clock className="h-6 w-6 text-primary" />
+                          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/5">
+                            <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                           </div>
                           <div>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Horário</p>
-                            <p className="font-bold text-lg text-foreground">{selectedEvent.start_time}{selectedEvent.end_time ? ` — ${selectedEvent.end_time}` : ""}</p>
+                            <p className="font-bold text-base sm:text-lg text-foreground">{selectedEvent.start_time}{selectedEvent.end_time ? ` — ${selectedEvent.end_time}` : ""}</p>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="space-y-6">
+                      <div className="space-y-5 sm:space-y-6">
                         <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0 shadow-sm border border-secondary/5">
-                            <MapPin className="h-6 w-6 text-secondary" />
+                          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0 shadow-sm border border-secondary/5">
+                            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
                           </div>
                           <div>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Local</p>
-                            <p className="font-bold text-lg leading-tight text-foreground">{selectedEvent.location}</p>
-                            <p className="text-sm text-muted-foreground font-medium mt-1.5 leading-relaxed">
+                            <p className="font-bold text-base sm:text-lg leading-tight text-foreground">{selectedEvent.location}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1.5 leading-relaxed line-clamp-2">
                               {selectedEvent.address_street}{selectedEvent.address_neighborhood ? `, ${selectedEvent.address_neighborhood}` : ""}
                             </p>
                           </div>
@@ -770,24 +770,24 @@ function buildUberLink(ev: Event): string {
                 </div>
 
                  {/* Footer - Fixed at bottom */}
-                 <div className="p-6 sm:p-10 lg:p-12 bg-card/70 backdrop-blur-xl border-t border-border/50 shrink-0">
-                   <div className="flex flex-col gap-6 sm:gap-8">
-                    <div className="flex flex-col gap-4">
+                 <div className="p-5 sm:p-10 lg:p-12 bg-card/80 backdrop-blur-xl border-t border-border/50 shrink-0">
+                   <div className="flex flex-col gap-5 sm:gap-8">
+                     <div className="flex flex-col gap-3.5">
                       <div className="flex flex-col sm:flex-row gap-4 w-full">
                         <Button 
-                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.05] active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
+                           className="flex-1 h-14 sm:h-16 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.03] active:scale-95 transition-all text-sm sm:text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
                           onClick={() => {
                             window.open(buildWhatsAppShare(selectedEvent), "_blank");
                             trackShare(selectedEvent.id);
                           }}
                           aria-label="Compartilhar evento no WhatsApp"
                         >
-                          <MessageCircle className="h-6 w-6 mr-3" /> WhatsApp
+                          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 mr-3" /> WhatsApp
                         </Button>
 
                         <Button
                           variant="outline"
-                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
+                          className="flex-1 h-14 sm:h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-sm sm:text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
                           onClick={() => {
                             const data = getShareData(selectedEvent);
                             handleShare(data.title, data.text, data.url, selectedEvent.id);
@@ -797,10 +797,10 @@ function buildUberLink(ev: Event): string {
                         </Button>
                       </div>
 
-                      <div className="flex flex-wrap gap-3">
+                      <div className="grid grid-cols-2 xs:flex xs:flex-wrap gap-2.5 sm:gap-3">
                         <Button
                           variant="ghost"
-                          className="flex-1 h-14 rounded-full font-bold text-sm uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 active:scale-95 transition-all"
+                          className="flex-1 h-12 sm:h-14 rounded-full font-bold text-[10px] sm:text-sm uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 active:scale-95 transition-all"
                           onClick={() => handleCopyLink(getShareUrl(selectedEvent.id))}
                         >
                           <Copy className="h-5 w-5 mr-2.5" /> Copiar link
@@ -808,7 +808,7 @@ function buildUberLink(ev: Event): string {
 
                         <Button 
                           variant="outline" 
-                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/20 text-primary bg-background hover:bg-primary hover:text-white active:scale-95 transition-all text-xs shadow-sm" 
+                          className="flex-1 h-12 sm:h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/20 text-primary bg-background hover:bg-primary hover:text-white active:scale-95 transition-all text-[10px] sm:text-xs shadow-sm" 
                           onClick={() => {
                             const addr = buildFullAddress(selectedEvent);
                             window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
@@ -819,7 +819,7 @@ function buildUberLink(ev: Event): string {
                         
                         <Button 
                           variant="outline" 
-                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-black/20 text-foreground bg-background hover:bg-foreground hover:text-background active:scale-95 transition-all text-xs shadow-sm" 
+                          className="flex-1 h-12 sm:h-14 rounded-full font-black uppercase tracking-wider border-2 border-black/20 text-foreground bg-background hover:bg-foreground hover:text-background active:scale-95 transition-all text-[10px] sm:text-xs shadow-sm" 
                           onClick={() => {
                             window.open(buildUberLink(selectedEvent), "_blank");
                           }}
