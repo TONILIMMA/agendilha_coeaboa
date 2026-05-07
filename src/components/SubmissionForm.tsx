@@ -265,61 +265,59 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
   const descriptionLength = form.watch("description")?.length || 0;
 
-  async function onSubmit(data: FormData) {
-    setSubmitting(true);
-    const success = await addSubmission({
-      company_name: data.companyName,
-      responsible_name: data.responsibleName,
-      email: data.email,
-      phone: data.phone,
-      event_title: data.eventTitle,
-      date: data.date,
-      start_time: data.startTime,
-      end_time: data.endTime,
-      location: data.location,
-      address_street: data.addressStreet || null,
-      address_number: data.addressNumber || null,
-      address_neighborhood: data.addressNeighborhood || null,
-      address_city: data.addressCity || null,
-      address_state: data.addressState || null,
-      address_zip: data.addressZip || null,
-      description: data.description,
-      video_link: data.videoLink || null,
-      category: data.category,
-      promotion_type: data.promotionType || null,
-      target_audience: data.targetAudience || null,
-      promotion_rules: data.promotionRules || null,
-      contact_social: data.contactSocial || null,
-      additional_details: data.additionalDetails || null,
-      sale_price: data.salePrice || null,
-      maintenance_cost: data.maintenanceCost || null,
-      subscription_info: data.subscriptionInfo || null,
-      commission: data.commission || null,
-      stage: data.stage || "development",
-      concept_description: data.conceptDescription || null,
-      responsible_person: data.responsiblePerson || "Toni",
-    });
-    setSubmitting(false);
-    if (success) {
-      saveProfile({
-        company_name: data.companyName,
-        responsible_name: data.responsibleName,
-        email: data.email,
-        phone: data.phone,
-        address_street: data.addressStreet || "",
-        address_number: data.addressNumber || "",
-        address_neighborhood: data.addressNeighborhood || "",
-        address_city: data.addressCity || "",
-        address_state: data.addressState || "",
-        address_zip: data.addressZip || "",
-        contact_social: data.contactSocial || "",
-      });
-      form.reset();
-      setFlyerFile(null);
-      setBannerFile(null);
-      setSubmitted(true);
-    }
-  }
+   async function onSubmit(data: FormData) {
+     setSubmitting(true);
+     const success = await addSubmission({
+       company_name: data.companyName,
+       responsible_name: data.nickName,
+       email: data.email || null,
+       phone: data.basicPhone,
+       event_title: data.eventTitle || data.atrativoName,
+       date: data.date,
+       start_time: data.startTime,
+       predicted_duration: data.predictedDuration || null,
+       end_time: data.endTime || null,
+       location: data.locationName,
+       location_type: data.locationType,
+       location_contact: data.locationContact || null,
+       address_street: data.eventAddress,
+       address_zip: data.addressZip || null,
+       address_number: data.addressNumber || null,
+       atrativo_name: data.atrativoName,
+       atrativo_type: data.atrativoType,
+       atrativo_style: data.atrativoStyle || null,
+       atrativo_contact: data.atrativoContact || null,
+       description: data.description || null,
+       video_link: data.videoLink || null,
+       category: data.category,
+       contact_social: data.contactSocial || null,
+       additional_details: data.additionalDetails || null,
+       legal_acceptance: data.legalAcceptance,
+       legal_acceptance_date: new Date().toISOString(),
+       stage: data.stage || "development",
+       responsible_person: data.responsiblePerson || "Toni",
+     } as any);
+ 
+     setSubmitting(false);
+     if (success) {
+       saveProfile({
+         nick_name: data.nickName,
+         phone: data.basicPhone,
+         home_location: data.userLocation,
+         company_name: data.companyName,
+         email: data.email || "",
+         pin_code: data.pinCode,
+         address_street: data.addressStreet || "",
+         address_number: data.addressNumber || "",
+         address_zip: data.addressZip || "",
+         contact_social: data.contactSocial || "",
+       } as any);
+       form.reset();
+       setFlyerFile(null);
+       setBannerFile(null);
+       setSubmitted(true);
+     }
+   }
 
   return (
     <div className="min-h-screen bg-background">
