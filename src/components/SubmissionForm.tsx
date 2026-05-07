@@ -1002,6 +1002,36 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                             >
                               <RotateCcw className="mr-2 h-4 w-4" /> Regenerar Arte
                             </Button>
+                            
+                            <div className="flex gap-2">
+                              <Button 
+                                type="button" 
+                                variant="secondary" 
+                                onClick={async () => {
+                                  if (typeof eventImage === 'string') {
+                                    const link = document.createElement('a');
+                                    link.href = eventImage;
+                                    link.download = `flyer-${form.getValues("eventTitle") || "evento"}.jpg`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                    toast.success("Iniciando download...");
+                                  }
+                                }}
+                                className="flex-1 h-11 rounded-xl font-bold text-xs uppercase"
+                              >
+                                <Download className="mr-2 h-4 w-4" /> Baixar
+                              </Button>
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={() => { setImageSource("upload"); setEventImage(null); }}
+                                className="flex-1 h-11 rounded-xl font-bold text-xs uppercase border-2"
+                              >
+                                <Upload className="mr-2 h-4 w-4" /> Upload Manual
+                              </Button>
+                            </div>
+                            
                             <Button 
                               type="button" 
                               onClick={() => { setEventImage(null); setImageSource(null); }}
