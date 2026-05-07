@@ -122,7 +122,7 @@ export default function Landing() {
           <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-sm sm:max-w-none mx-auto">
              <Link to="/agenda" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-10 sm:px-12 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl transition-all duration-300 hover:scale-[1.05] active:scale-95 text-lg sm:text-xl font-black border-2 border-primary">
-                Ver agenda <ArrowRight className="ml-2 h-5 w-5" />
+                Explorar agenda cultural <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
              <Button 
@@ -137,7 +137,7 @@ export default function Landing() {
                }}
                className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-10 sm:px-12 text-foreground font-black border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5 transition-all duration-300 hover:scale-[1.05] active:scale-95 text-lg sm:text-xl bg-white/50 backdrop-blur-sm"
              >
-               Enviar evento
+               Divulgar evento
              </Button>
           </div>
 
@@ -286,15 +286,15 @@ export default function Landing() {
                   via WhatsApp, redes sociais ou imprensa.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3 shrink-0">
-                 <Link to="/agenda">
-                  <Button className="rounded-full h-12 px-8 bg-white text-primary hover:bg-white/95 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-black shadow-lg border-2 border-white">
-                    <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
+              <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full lg:w-auto">
+                 <Link to="/agenda" className="w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto rounded-full h-12 px-8 bg-white text-primary hover:bg-white/95 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-black shadow-lg border-2 border-white">
+                    Abrir agenda
                   </Button>
                 </Link>
-                <Link to="/agenda">
-                  <Button variant="outline" className="rounded-full h-12 px-8 bg-transparent border-white text-white hover:bg-white/10 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-black border-2">
-                    Ver agenda completa
+                <Link to="/agenda" className="w-full sm:w-auto">
+                  <Button variant="outline" className="w-full sm:w-auto rounded-full h-12 px-8 bg-transparent border-white text-white hover:bg-white/10 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-black border-2">
+                    <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
                   </Button>
                 </Link>
               </div>
