@@ -117,9 +117,11 @@ export default function Header() {
                   <TooltipContent>Voltar à página inicial</TooltipContent>
                 </Tooltip>
               )}
-              <span className="font-display text-base sm:text-lg font-bold text-primary whitespace-nowrap">📌 AgendIlha</span>
-              <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
-              <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />
+               <Link to="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+                 <span className="font-display text-base sm:text-lg font-bold text-primary whitespace-nowrap">📌 AgendIlha</span>
+                 <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
+               </Link>
+               {isAdmin && <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />}
             </div>
             <span className="text-[10px] sm:text-[11px] text-muted-foreground capitalize block">{currentDate}</span>
           </div>
