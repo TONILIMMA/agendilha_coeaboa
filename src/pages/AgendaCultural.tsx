@@ -23,6 +23,7 @@ import { toast } from "sonner";
   company_name: string | null;
    is_highlight: boolean;
    status?: string;
+   image_url?: string | null;
 }
 
 const categoryLabels: Record<string, string> = {
@@ -87,18 +88,35 @@ export default function AgendaCultural() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
 
-    useEffect(() => {
-      async function load() {
-        const { data } = await supabase
-          .from("submissions")
-          .select("*")
-          .eq('status', 'published')
-          .order("date", { ascending: true, nullsFirst: false });
-        setEvents((data as any[]) || []);
-        setLoading(false);
-      }
-      load();
-    }, []);
+   useEffect(() => {
+     async function load() {
+       setLoading(true);
+       try {
+         const { data, error } = await supabase
+           .from("submissions")
+           .select("*")
+           .in('status', ['published', 'approved']) // Allow both as per "aprovados/publicados" but usually admin will move to published
+           .order("date", { ascending: true, nullsFirst: false });
+         
+         if (error) throw error;
+         
+         // Filter only published ones to strictly follow the "public" rule if required, 
+         // but based on user prompt "aprovados/publicados" I'll show both for now if they are "aptos".
+         // Actually, let's stick to 'published' to maintain the flow, but explain to user.
+         // RE-READ: "mostrar somente eventos aptos para publicação pública; - não mostrar rascunhos, pendentes, rejeitados ou itens internos;"
+         // If 'approved' is considered internal, then only 'published' should show.
+         // But if no events are published, it will be empty.
+         // I'll show 'published' events by default, but I'll update the filter to be more resilient.
+         setEvents((data as any[])?.filter(e => e.status === 'published') || []);
+       } catch (error) {
+         console.error("Error loading events:", error);
+         toast.error("Erro ao carregar a agenda. Tente novamente mais tarde.");
+       } finally {
+         setLoading(false);
+       }
+     }
+     load();
+   }, []);
 
   async function trackView(id: string) {
     try {
@@ -122,14 +140,16 @@ export default function AgendaCultural() {
     return Array.from(set).sort();
   }, [events]);
 
-  const upcomingEvents = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return events.filter(e => {
-      const d = parseDateToObj(e.date);
-      return !d || d >= today;
-    });
-  }, [events]);
+   const upcomingEvents = useMemo(() => {
+     const today = new Date();
+     today.setHours(0, 0, 0, 0);
+     // For debugging/transparency, we show events from today onwards
+     return events.filter(e => {
+       const d = parseDateToObj(e.date);
+       // If no date or date is today/future, show it
+       return !d || d >= today;
+     });
+   }, [events]);
 
   const filteredEvents = useMemo(() => {
     return upcomingEvents.filter(ev => {
@@ -235,13 +255,17 @@ export default function AgendaCultural() {
           <div className="flex justify-center py-20">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
           </div>
-        ) : sortedDays.length === 0 ? (
-          <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed border-border">
-            <CalendarDays className="mx-auto h-16 w-16 mb-4 text-muted-foreground/30" />
-            <p className="text-xl font-medium text-muted-foreground">Nenhum evento encontrado</p>
-            <p className="text-sm text-muted-foreground mt-1">Tente ajustar seus filtros ou volte mais tarde.</p>
-          </div>
-        ) : (
+         ) : sortedDays.length === 0 ? (
+           <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed border-border">
+             <CalendarDays className="mx-auto h-16 w-16 mb-4 text-muted-foreground/30" />
+             <p className="text-xl font-medium text-muted-foreground">Nenhum evento futuro encontrado</p>
+             <p className="text-sm text-muted-foreground mt-1">
+               {events.length > 0 
+                 ? "Existem eventos cadastrados, mas todos já ocorreram. Volte em breve!" 
+                 : "Tente ajustar seus filtros ou volte mais tarde."}
+             </p>
+           </div>
+         ) : (
           <div className="space-y-12">
             {/* Bloco de Destaques */}
             {filteredEvents.some(e => e.is_highlight) && (
@@ -301,11 +325,21 @@ export default function AgendaCultural() {
                         className="overflow-hidden border-border hover:shadow-md transition-all group"
                       >
                         <CardContent className="p-0">
-                          <div className="flex flex-col sm:flex-row">
-                            {/* Icon/Color strip */}
-                            <div className="w-full sm:w-1 bg-primary/20 group-hover:bg-primary transition-colors h-1 sm:h-auto" />
-                            
-                            <div className="flex-1 p-6 sm:p-8 space-y-4">
+                         <div className="flex flex-col md:flex-row">
+                           {/* Image or Icon strip */}
+                           {(ev as any).image_url ? (
+                             <div className="w-full md:w-48 h-48 md:h-auto shrink-0 relative overflow-hidden">
+                               <img 
+                                 src={(ev as any).image_url} 
+                                 alt={ev.event_title}
+                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                               />
+                             </div>
+                           ) : (
+                             <div className="w-full md:w-1 bg-primary/20 group-hover:bg-primary transition-colors h-1 md:h-auto" />
+                           )}
+                           
+                           <div className="flex-1 p-6 md:p-8 space-y-4">
                               <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div className="space-y-1 flex-1 min-w-0">
                                   <div className="flex items-center gap-2">

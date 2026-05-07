@@ -67,14 +67,14 @@ interface Submission {
    outros: "Outros",
  };
  
-  const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string; border: string }> = {
-    draft: { label: "Rascunho", color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-200", icon: History },
-    pending: { label: "Pendente", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200", icon: Clock3 },
-    analysis: { label: "Em análise", color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-200", icon: Search },
-    approved: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200", icon: CheckCircle },
-    rejected: { label: "Rejeitado", color: "text-rose-700", bg: "bg-rose-50", border: "border-rose-200", icon: XCircle },
-    published: { label: "Publicado", color: "text-white", bg: "bg-indigo-600", border: "border-indigo-700", icon: Globe },
-  };
+   const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string; border: string }> = {
+     draft: { label: "Rascunho", color: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200", icon: History },
+     pending: { label: "Pendente", color: "text-amber-700", bg: "bg-amber-100", border: "border-amber-200", icon: Clock3 },
+     analysis: { label: "Em análise", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", icon: Search },
+     approved: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
+     rejected: { label: "Rejeitado", color: "text-rose-700", bg: "bg-rose-100", border: "border-rose-200", icon: XCircle },
+     published: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
+   };
  
  function formatSubmissionDate(iso: string) {
    if (!iso) return "—";
@@ -310,36 +310,40 @@ export default function AdminEvents() {
                 <div key={sub.id} className="p-5 hover:bg-muted/5 transition-colors">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                     {/* Informações Principais */}
-                    <div className="col-span-3 space-y-2">
-                      <div className="flex items-start gap-2">
-                        {sub.is_highlight && <Star className="h-4 w-4 text-amber-500 fill-amber-500 shrink-0 mt-1" />}
-                        <h3 className="font-black text-lg text-foreground leading-tight tracking-tight">{sub.event_title}</h3>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <Badge variant="secondary" className="text-[10px] font-bold bg-primary/10 text-primary border-none uppercase tracking-wider">
-                          {categoryLabels[sub.category || ''] || 'Outros'}
-                        </Badge>
-                        <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">ID: {sub.id.slice(0, 8)}</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground flex items-center gap-1.5">
-                        <History className="h-3 w-3" />
-                        <span className="font-semibold">Cadastrado em:</span> {formatSubmissionDate(sub.created_at)}
-                      </p>
-                    </div>
-
-                    {/* Cronograma */}
-                    <div className="col-span-2 space-y-2">
-                      <div className="bg-muted/30 p-2.5 rounded-lg border border-border/50">
-                        <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                          <CalendarDays className="h-3.5 w-3.5 text-primary" />
-                          {formatEventDate(sub.date)}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1.5 ml-0.5">
-                          <Clock className="h-3.5 w-3.5" />
-                          {sub.start_time || '--:--'}
-                        </div>
-                      </div>
-                    </div>
+                     <div className="col-span-3 space-y-2">
+                       <div className="flex items-start gap-2">
+                         {sub.is_highlight && <Star className="h-4 w-4 text-amber-500 fill-amber-500 shrink-0 mt-1" />}
+                         <h3 className="font-black text-lg text-foreground leading-tight tracking-tight">{sub.event_title}</h3>
+                       </div>
+                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                         <Badge variant="secondary" className="text-[10px] font-bold bg-primary/10 text-primary border-none uppercase tracking-wider">
+                           {categoryLabels[sub.category || ''] || 'Outros'}
+                         </Badge>
+                         <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">ID: {sub.id.slice(0, 8)}</span>
+                       </div>
+                       <div className="flex flex-col gap-1 mt-2">
+                         <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Data de Cadastro</span>
+                         <p className="text-[11px] text-foreground font-medium flex items-center gap-1.5">
+                           <History className="h-3 w-3 text-muted-foreground" />
+                           {formatSubmissionDate(sub.created_at)}
+                         </p>
+                       </div>
+                     </div>
+ 
+                     {/* Cronograma */}
+                     <div className="col-span-2 space-y-2">
+                       <div className="bg-muted/30 p-2.5 rounded-lg border border-border/50">
+                         <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block mb-1.5">Data do Evento</span>
+                         <div className="flex items-center gap-2 text-sm font-black text-foreground">
+                           <CalendarDays className="h-4 w-4 text-primary" />
+                           {formatEventDate(sub.date)}
+                         </div>
+                         <div className="flex items-center gap-2 text-xs font-bold text-primary mt-2 ml-0.5">
+                           <Clock className="h-3.5 w-3.5" />
+                           {sub.start_time || '--:--'}
+                         </div>
+                       </div>
+                     </div>
 
                     {/* Responsável */}
                     <div className="col-span-2 space-y-1.5">
