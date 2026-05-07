@@ -660,7 +660,7 @@ function buildWhatsAppShare(ev: Event) {
                 <div className="p-6 sm:p-8 bg-card/50 backdrop-blur-md border-t border-border/50 shrink-0">
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button 
-                      className="flex-1 h-14 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all text-sm" 
+                      className="flex-1 h-14 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.05] active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none" 
                       onClick={() => {
                         window.open(`https://wa.me/?text=${encodeURIComponent("Confira este evento no AgendIlha: " + selectedEvent.event_title + " — " + window.location.origin + "/agenda")}`, "_blank");
                         trackShare(selectedEvent.id);
@@ -668,9 +668,10 @@ function buildWhatsAppShare(ev: Event) {
                     >
                       <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
                     </Button>
+                    
                     <Button 
                       variant="outline" 
-                      className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40 active:scale-[0.98] transition-all text-sm" 
+                      className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/60 text-primary bg-background hover:bg-primary hover:text-primary-foreground active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none shadow-md" 
                       onClick={() => {
                         const addr = buildFullAddress(selectedEvent);
                         window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
