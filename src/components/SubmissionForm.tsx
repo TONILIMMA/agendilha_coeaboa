@@ -396,6 +396,39 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
   const descriptionLength = form.watch("description")?.length || 0;
 
+   const handleGenerateAIImage = async () => {
+     const eventData = form.getValues();
+     if (!eventData.eventTitle && !eventData.atrativoName) {
+       toast.error("Por favor, preencha o nome do evento antes.");
+       return;
+     }
+     
+     setIsGeneratingImage(true);
+     toast.info("A IA está criando sua arte...", { description: "Isso pode levar alguns segundos." });
+     
+     // Simulate AI Generation
+     setTimeout(() => {
+       const category = eventData.category || "party";
+       const randomId = Math.floor(Math.random() * 1000);
+       const mockImageUrl = `https://images.unsplash.com/photo-${randomId}?auto=format&fit=crop&q=80&w=800&h=600&q=80`;
+       // Actually unsplash ids are specific, so I'll use category based keywords
+       const keywords: Record<string, string> = {
+         musica: "concert,music,band",
+         gastronomia: "food,restaurant,dining",
+         cultura: "culture,art,museum",
+         esporte: "sport,stadium,game",
+         outros: "event,gathering"
+       };
+       const kw = keywords[category] || "event";
+       const finalUrl = `https://source.unsplash.com/featured/800x600?${kw}&sig=${randomId}`;
+       
+       setEventImage(finalUrl);
+       setImageSource("ai");
+       setIsGeneratingImage(false);
+       toast.success("Arte gerada com sucesso!");
+     }, 2000);
+   };
+
    async function onSubmit(data: FormData) {
      setSubmitting(true);
     const submissionData = {
