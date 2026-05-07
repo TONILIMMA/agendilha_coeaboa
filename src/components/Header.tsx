@@ -1,6 +1,24 @@
 import { useState, useEffect } from "react";
-  import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog, Crown, Trophy, Megaphone, Sun, Moon } from "lucide-react";
- import { useNavigate, useLocation, Link } from "react-router-dom";
+import { 
+  CalendarDays, 
+  ClipboardList, 
+  LogOut, 
+  Users, 
+  Menu, 
+  X, 
+  ArrowLeft, 
+  CheckCircle, 
+  Shield, 
+  Settings, 
+  ChevronDown, 
+  UserCog, 
+  Crown, 
+  Trophy, 
+  Megaphone, 
+  Sun, 
+  Moon 
+} from "lucide-react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
  import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
@@ -27,6 +45,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetTrigger, 
+  SheetHeader, 
+  SheetTitle 
+} from "@/components/ui/sheet";
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -116,23 +141,69 @@ export default function Header() {
  
     if (isHome) {
       return (
-        <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? "glass border-b border-white/40" : "bg-transparent border-b border-transparent"}`}>
-          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
-            <Link to="/" className="flex items-center gap-2 group shrink-0">
-              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-7 w-7 sm:h-8 sm:w-8 rounded-full ring-1 ring-foreground/10" />
+        <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? "bg-white/90 backdrop-blur-xl border-b border-white/40 shadow-sm" : "bg-transparent border-b border-transparent"}`}>
+          <div className="mx-auto flex h-16 sm:h-20 max-w-6xl items-center justify-between px-4 sm:px-8">
+            <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-8 w-8 sm:h-10 sm:w-10 rounded-full ring-2 ring-foreground/5 shadow-sm" />
               <div className="flex flex-col leading-none">
-                <span className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">AgendIlha</span>
-                <span className="text-[9px] sm:text-xs text-secondary/70 font-bold uppercase tracking-widest">Coé a Boa?</span>
+                <span className="font-display text-lg sm:text-xl font-black tracking-tight text-primary">AgendIlha</span>
+                <span className="text-[9px] sm:text-[10px] text-secondary font-black uppercase tracking-[0.2em]">Coé a Boa?</span>
               </div>
             </Link>
-             <div className="flex items-center gap-2 sm:gap-3">
-              <Link to="/agenda" className="hidden sm:block">
-                <Button variant="ghost" size="sm" className="rounded-full text-foreground/80 hover:text-foreground font-bold h-9">Ver agenda</Button>
+
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center gap-3">
+              <Link to="/agenda">
+                <Button variant="ghost" size="sm" className="rounded-full text-foreground/70 hover:text-primary font-bold h-10 px-5 transition-colors">Ver agenda</Button>
               </Link>
               <Link to="/enviar-evento">
-                <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-sm px-4 sm:px-6 h-9 sm:h-10 text-xs sm:text-sm border-2 border-primary">Divulgar</Button>
+                <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-lg px-6 h-10 border-2 border-primary transition-transform active:scale-95">Divulgar</Button>
               </Link>
-               <HeaderUserMenu variant="desktop" hideContext={true} />
+              <HeaderUserMenu variant="desktop" hideContext={true} />
+            </div>
+
+            {/* Mobile Nav Trigger */}
+            <div className="flex md:hidden items-center gap-2">
+              <Link to="/enviar-evento">
+                <Button size="sm" className="rounded-full bg-primary text-primary-foreground font-black shadow-md px-4 h-9 text-[10px] uppercase tracking-widest">Divulgar</Button>
+              </Link>
+              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm">
+                    <Menu className="h-5 w-5 text-foreground" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[85vw] p-0 border-l-0 bg-background/95 backdrop-blur-xl">
+                  <SheetHeader className="p-6 border-b border-border/40">
+                    <div className="flex items-center gap-3">
+                      <img src={logoCoeABoa} alt="Coé a Boa?" className="h-8 w-8 rounded-full" />
+                      <SheetTitle className="text-left font-display text-xl font-black text-primary">AgendIlha</SheetTitle>
+                    </div>
+                  </SheetHeader>
+                  <div className="flex flex-col p-6 gap-6">
+                    <div className="flex flex-col gap-2">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-2">Navegação</p>
+                      <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors group">
+                        <Sun className="h-5 w-5 text-primary" />
+                        <span className="font-bold text-foreground">Página Inicial</span>
+                      </Link>
+                      <Link to="/agenda" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
+                        <CalendarDays className="h-5 w-5 text-primary" />
+                        <span className="font-bold text-foreground">Agenda Cultural</span>
+                      </Link>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-2">Conta</p>
+                      <HeaderUserMenu variant="mobile" onNavigate={() => setMenuOpen(false)} />
+                    </div>
+
+                    <div className="mt-auto pt-10 text-center">
+                      <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/40">© {new Date().getFullYear()} Coé a Boa?</p>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </header>
