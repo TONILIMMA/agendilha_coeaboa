@@ -431,6 +431,29 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
    async function onSubmit(data: FormData) {
      setSubmitting(true);
+     
+     let imageUrl = null;
+     if (eventImage) {
+       if (typeof eventImage === 'string') {
+         imageUrl = eventImage;
+       } else {
+         const fileExt = eventImage.name.split('.').pop();
+         const fileName = `${user?.id || 'anon'}/${crypto.randomUUID()}.${fileExt}`;
+         const { data: uploadData, error: uploadError } = await supabaseClient.storage
+           .from('event-flyers')
+           .upload(fileName, eventImage);
+         
+         if (uploadError) {
+           console.error("Error uploading image:", uploadError);
+         } else {
+           const { data: { publicUrl } } = supabaseClient.storage
+             .from('event-flyers')
+             .getPublicUrl(fileName);
+           imageUrl = publicUrl;
+         }
+       }
+     }
+
     const submissionData = {
       company_name: data.companyName,
       responsible_name: data.nickName,
@@ -459,8 +482,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       legal_acceptance: data.legalAcceptance,
       legal_acceptance_date: new Date().toISOString(),
       stage: data.stage || "development",
-      responsible_person: data.responsiblePerson || "Toni",
-      status: "pending"
+       responsible_person: data.responsiblePerson || "Toni",
+       status: "pending",
+       image_url: imageUrl
     };
 
     const success = await addSubmission(submissionData as any);
