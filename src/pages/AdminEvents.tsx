@@ -243,17 +243,15 @@ export default function AdminEvents() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Buscar evento, local ou empresa..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os Status</SelectItem>
-                  <SelectItem value="pending">Pendentes</SelectItem>
-                  <SelectItem value="analysis">Em Análise</SelectItem>
-                  <SelectItem value="approved">Aprovados</SelectItem>
-                  <SelectItem value="rejected">Rejeitados</SelectItem>
-                  <SelectItem value="published">Publicados</SelectItem>
-                </SelectContent>
-              </Select>
+               <Select value={statusFilter} onValueChange={setStatusFilter}>
+                 <SelectTrigger className="h-10"><SelectValue placeholder="Filtrar por Status" /></SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="all">Todos os Status</SelectItem>
+                   {Object.entries(statusConfig).map(([key, cfg]) => (
+                     <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger><SelectValue placeholder="Categoria" /></SelectTrigger>
                 <SelectContent>
