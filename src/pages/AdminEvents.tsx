@@ -374,9 +374,16 @@ export default function AdminEvents() {
                          </Tooltip>
                          <Tooltip>
                            <TooltipTrigger asChild>
-                             <Button size="icon" variant="ghost" className="h-9 w-9 text-indigo-600 hover:bg-indigo-50" onClick={() => handleStatusChange(sub.id, 'published')}><Globe className="h-4 w-4" /></Button>
+                             <Button 
+                               size="icon" 
+                               variant={sub.status === 'published' ? 'default' : 'ghost'} 
+                               className={`h-9 w-9 transition-colors ${sub.status === 'published' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-indigo-600 hover:bg-indigo-50'}`}
+                               onClick={() => handleStatusChange(sub.id, sub.status === 'published' ? 'approved' : 'published')}
+                             >
+                               <Globe className="h-4 w-4" />
+                             </Button>
                            </TooltipTrigger>
-                           <TooltipContent>Publicar na Agenda</TooltipContent>
+                           <TooltipContent>{sub.status === 'published' ? 'Remover da Agenda' : 'Publicar na Agenda'}</TooltipContent>
                          </Tooltip>
                          <DropdownMenu>
                            <DropdownMenuTrigger asChild>
