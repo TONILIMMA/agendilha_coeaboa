@@ -485,13 +485,24 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                 </div>
               </div>
               <h2 className="text-3xl font-black mb-4">Solicitação Enviada!</h2>
-              <p className="text-muted-foreground mb-8 leading-relaxed">
-                Obrigado por enviar seu evento. Nossa equipe fará a curadoria e você será notificado em breve.
-              </p>
+              <div className="space-y-4 mb-8">
+                <p className="text-muted-foreground leading-relaxed">
+                  Obrigado por enviar seu evento. Nossa equipe fará a curadoria e você será notificado em breve.
+                </p>
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-left">
+                  <p className="text-sm text-blue-800 font-medium flex items-center gap-2">
+                    <Info className="h-4 w-4" />
+                    Acompanhe o status na sua conta:
+                  </p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Vá em <strong>Menu &gt; Envios</strong> para ver o andamento deste e de outros eventos.
+                  </p>
+                </div>
+              </div>
               
               <div className="bg-muted/30 rounded-2xl p-6 mb-8 text-left space-y-4 border border-border/50 shadow-inner">
                 <div className="flex justify-between items-center border-b border-border/50 pb-2">
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status Atual</span>
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status Inicial</span>
                   <Badge className="bg-amber-100 text-amber-700 border-none font-black text-[10px] px-3 py-1">PENDENTE</Badge>
                 </div>
                 <div>
@@ -501,6 +512,10 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                     <CalendarIcon className="h-3.5 w-3.5" />
                     {form.getValues("date")} às {form.getValues("startTime")}
                   </p>
+                </div>
+                <div className="pt-2 border-t border-border/50">
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Vinculado à conta</p>
+                  <p className="text-sm font-bold text-foreground">{profile.nick_name || profile.responsible_name || "Sua Conta"}</p>
                 </div>
               </div>
 
