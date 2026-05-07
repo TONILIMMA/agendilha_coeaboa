@@ -475,82 +475,151 @@ export default function AdminEvents() {
         </CardContent>
       </Card>
 
-      {/* List */}
-      {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <CalendarDays className="h-12 w-12 text-muted-foreground/40 mb-3" />
-          <p className="text-muted-foreground text-sm">Nenhum evento encontrado.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filtered.map((sub) => (
-            <Card
-              key={sub.id}
-              className={`border-border hover:shadow-md transition-all cursor-pointer ${expandedId === sub.id ? "ring-2 ring-primary/30" : ""}`}
-              onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)}
-            >
-              <CardContent className="p-4 sm:p-5">
-                {/* Summary row - always visible */}
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0 space-y-1.5">
-                    <div className="flex items-start gap-2 flex-wrap">
-                      <h3 className="font-display font-semibold text-foreground text-base">
-                        {sub.event_title}
-                      </h3>
-                      <Badge variant="outline" className="text-xs shrink-0">
-                        {categoryLabels[sub.category || ""] || "—"}
-                      </Badge>
-                       <div className="flex items-center gap-1.5">
-                         {sub.is_highlight && (
-                           <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-0 text-[10px] h-5">
-                             🔥 DESTAQUE
-                           </Badge>
-                         )}
-                         <Badge
-                           variant={sub.status === "approved" ? "default" : sub.status === "rejected" ? "destructive" : "secondary"}
-                           className="text-xs shrink-0"
-                         >
-                           {sub.status === "approved" ? "✅ Aprovado" : sub.status === "rejected" ? "❌ Rejeitado" : "⏳ Pendente"}
-                         </Badge>
-                       </div>
-                     {showStats && (
-                       <div className="flex items-center gap-4 mt-2 pt-2 border-t border-border/50">
-                         <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
-                           <TrendingUp className="h-3 w-3 text-blue-500" />
-                           {sub.views_count || 0} visualizações
-                         </div>
-                         <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
-                           <MessageCircle className="h-3 w-3 text-green-500" />
-                           {sub.shares_count || 0} compartilhamentos
+          {/* Event Listing Table/Cards */}
+          <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
+            <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b bg-muted/20 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <div className="col-span-4">Evento / Categoria</div>
+              <div className="col-span-2 text-center">Data / Horário</div>
+              <div className="col-span-2 text-center">Responsável</div>
+              <div className="col-span-2 text-center">Status</div>
+              <div className="col-span-2 text-right">Ações</div>
+            </div>
+            
+            {loading ? (
+              <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+            ) : filtered.length === 0 ? (
+              <div className="py-12 text-center text-muted-foreground">Nenhum evento encontrado para os filtros selecionados.</div>
+            ) : (
+              <div className="divide-y divide-border">
+                {filtered.map((sub) => (
+                  <div key={sub.id} className="p-4 hover:bg-muted/5 transition-colors">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                      {/* Event/Category */}
+                      <div className="col-span-4 space-y-1">
+                        <div className="flex items-center gap-2">
+                          {sub.is_highlight && <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />}
+                          <h3 className="font-semibold text-foreground truncate">{sub.event_title}</h3>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-[10px] py-0">{categoryLabels[sub.category || ''] || 'Outros'}</Badge>
+                          <span className="text-[10px] text-muted-foreground">Envio: {formatDate(sub.created_at)}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Date/Time */}
+                      <div className="col-span-2 text-center text-sm">
+                        <div className="font-medium text-foreground">{sub.date || 'Sem data'}</div>
+                        <div className="text-xs text-muted-foreground">{sub.start_time || '--:--'} {sub.end_time ? `- ${sub.end_time}` : ''}</div>
+                      </div>
+
+                      {/* Responsible */}
+                      <div className="col-span-2 text-center text-sm truncate">
+                        <div className="font-medium text-foreground">{sub.company_name || sub.responsible_name || '—'}</div>
+                        {sub.phone && <div className="text-[10px] text-muted-foreground">{sub.phone}</div>}
+                      </div>
+
+                      {/* Status */}
+                      <div className="col-span-2 text-center">
+                        <Badge 
+                          variant={
+                            sub.status === 'approved' ? 'default' : 
+                            sub.status === 'rejected' ? 'destructive' : 
+                            sub.status === 'analysis' ? 'outline' : 'secondary'
+                          }
+                          className="text-[10px]"
+                        >
+                          {
+                            sub.status === 'approved' ? 'Aprovado' : 
+                            sub.status === 'rejected' ? 'Rejeitado' : 
+                            sub.status === 'analysis' ? 'Em Análise' : 
+                            sub.status === 'published' ? 'Publicado' : 'Pendente'
+                          }
+                        </Badge>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="col-span-2 flex justify-end gap-1">
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)} title="Ver Detalhes">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" title="Editar">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className={`h-8 w-8 ${sub.status === 'approved' ? 'text-green-600' : 'text-muted-foreground'}`}
+                          onClick={() => handleStatusChange(sub.id, 'approved')}
+                          title="Aprovar"
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="h-8 w-8 text-destructive" 
+                          onClick={() => handleDelete(sub.id)}
+                          title="Excluir"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Expanded Content */}
+                    {expandedId === sub.id && (
+                      <div className="mt-4 p-4 bg-muted/30 rounded-lg border border-border/50 animate-in slide-in-from-top-2">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="space-y-4">
+                            <div>
+                              <h4 className="text-xs font-bold uppercase text-muted-foreground mb-2">Informações Gerais</h4>
+                              <div className="space-y-2 text-sm text-foreground">
+                                <p className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-primary" /> {sub.location || 'Local não informado'}</p>
+                                {sub.address_street && <p className="text-xs text-muted-foreground ml-5">{sub.address_street}, {sub.address_number} - {sub.address_neighborhood}</p>}
+                                {sub.email && <p className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-primary" /> {sub.email}</p>}
+                                {sub.contact_social && <p className="flex items-center gap-2"><Globe className="h-3.5 w-3.5 text-primary" /> {sub.contact_social}</p>}
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm" className="text-xs" onClick={() => downloadEventPdf(sub)}>
+                                <FileDown className="h-3.5 w-3.5 mr-1.5" /> PDF Individual
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-xs" onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}>
+                                <MessageCircle className="h-3.5 w-3.5 mr-1.5" /> Texto WhatsApp
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="md:col-span-2 space-y-4">
+                            <div>
+                              <h4 className="text-xs font-bold uppercase text-muted-foreground mb-2">Descrição / Promoção</h4>
+                              <p className="text-sm text-foreground bg-white p-3 rounded border border-border/40 whitespace-pre-wrap">{sub.description || 'Nenhuma descrição fornecida.'}</p>
+                            </div>
+                            {sub.additional_details && (
+                              <div>
+                                <h4 className="text-xs font-bold uppercase text-muted-foreground mb-2">Observações Internas / Extras</h4>
+                                <p className="text-sm text-foreground bg-amber-50 p-3 rounded border border-amber-100">{sub.additional_details}</p>
+                              </div>
+                            )}
+                            <div className="flex flex-wrap gap-2 pt-2">
+                              <Button size="sm" variant={sub.status === 'analysis' ? 'default' : 'outline'} onClick={() => handleStatusChange(sub.id, 'analysis')}>Analisar</Button>
+                              <Button size="sm" variant={sub.status === 'rejected' ? 'destructive' : 'outline'} onClick={() => handleStatusChange(sub.id, 'rejected')}>Reprovar</Button>
+                              <Button size="sm" variant={sub.is_highlight ? 'secondary' : 'outline'} className={sub.is_highlight ? 'bg-amber-100' : ''} onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)}>
+                                <Star className={`h-4 w-4 mr-1.5 ${sub.is_highlight ? 'fill-amber-500' : ''}`} /> {sub.is_highlight ? 'Destaque: Sim' : 'Marcar Destaque'}
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => handleStatusChange(sub.id, 'published')}>Publicar</Button>
+                            </div>
                           </div>
                         </div>
-                       )}
-                     </div>
- 
-                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                      {sub.date && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" />
-                          {sub.date} {sub.start_time && `às ${sub.start_time}`}{sub.end_time && ` - ${sub.end_time}`}
-                        </span>
-                      )}
-                      {sub.location && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {sub.location}
-                        </span>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
-
-                  <div className="shrink-0 text-muted-foreground">
-                    {expandedId === sub.id ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                  </div>
-                </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
                 {/* Expanded details */}
                 {expandedId === sub.id && (
