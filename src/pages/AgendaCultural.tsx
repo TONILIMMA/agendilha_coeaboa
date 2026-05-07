@@ -688,32 +688,35 @@ function buildWhatsAppShare(ev: Event) {
                 {/* Footer - Fixed at bottom */}
                 <div className="p-6 sm:p-8 bg-card/50 backdrop-blur-md border-t border-border/50 shrink-0">
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <Button 
-                      className="flex-1 h-14 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.05] active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none" 
-                      onClick={() => {
-                        window.open(`https://wa.me/?text=${encodeURIComponent("Confira este evento no AgendIlha: " + selectedEvent.event_title + " — " + window.location.origin + "/agenda")}`, "_blank");
-                        trackShare(selectedEvent.id);
-                      }}
-                    >
-                      <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
-                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full">
+                      <Button 
+                        className="flex-1 h-14 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none" 
+                        onClick={() => {
+                          window.open(`https://wa.me/?text=${encodeURIComponent("Confira este evento no AgendIlha: " + selectedEvent.event_title + " — " + window.location.origin + "/agenda")}`, "_blank");
+                          trackShare(selectedEvent.id);
+                        }}
+                      >
+                        <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary bg-background hover:bg-primary hover:text-primary-foreground active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none shadow-md" 
+                        onClick={() => {
+                          const addr = buildFullAddress(selectedEvent);
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
+                        }}
+                      >
+                        <MapPin className="h-5 w-5 mr-2.5" /> Ver no Mapa
+                      </Button>
+                    </div>
                     
                     <Button 
-                      variant="outline" 
-                      className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/60 text-primary bg-background hover:bg-primary hover:text-primary-foreground active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none shadow-md" 
-                      onClick={() => {
-                        const addr = buildFullAddress(selectedEvent);
-                        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
-                      }}
-                    >
-                      <MapPin className="h-5 w-5 mr-2.5" /> Ver no Mapa
-                    </Button>
-                    <Button 
                       variant="ghost" 
-                      className="h-14 rounded-full font-bold text-muted-foreground hover:text-foreground sm:hidden"
+                      className="h-14 rounded-full font-bold text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-muted-foreground/30 active:scale-95 transition-all"
                       onClick={() => setSelectedEvent(null)}
                     >
-                      Fechar
+                      Fechar Detalhes
                     </Button>
                   </div>
                 </div>
