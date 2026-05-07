@@ -202,21 +202,21 @@ export default function AdminEvents() {
               <h1 className="text-3xl font-black tracking-tight text-foreground">Gestão de Eventos</h1>
               <p className="text-muted-foreground text-sm">Controle operacional e curadoria da agenda hiperlocal.</p>
            </div>
-           <div className="flex flex-wrap gap-3">
-             <Button variant="outline" size="sm" className="h-10 font-bold border-border hover:bg-muted" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
-             <Button variant="outline" size="sm" className="h-10 font-bold border-border hover:bg-muted" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
-             <Button 
-               size="sm"
-               className="h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
-               onClick={() => {
-                 const approved = submissions.filter(s => s.status === 'approved' || s.status === 'published');
-                 if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
-                 window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
-               }}
-             >
-               <MessageCircle className="h-4 w-4 mr-2" /> Divulgação WhatsApp
-             </Button>
-           </div>
+            <div className="flex flex-wrap gap-3">
+              <Button variant="outline" size="sm" className="h-10 font-bold border-border dark:border-slate-700 bg-background dark:bg-slate-900 hover:bg-muted dark:hover:bg-slate-800" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
+              <Button variant="outline" size="sm" className="h-10 font-bold border-border dark:border-slate-700 bg-background dark:bg-slate-900 hover:bg-muted dark:hover:bg-slate-800" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
+              <Button 
+                size="sm"
+                className="h-10 font-bold bg-emerald-600 dark:bg-emerald-600 hover:bg-emerald-700 dark:hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20"
+                onClick={() => {
+                  const approved = submissions.filter(s => s.status === 'approved' || s.status === 'published');
+                  if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
+                  window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
+                }}
+              >
+                <MessageCircle className="h-4 w-4 mr-2" /> Divulgação WhatsApp
+              </Button>
+            </div>
          </div>
 
          {/* KPIs */}
