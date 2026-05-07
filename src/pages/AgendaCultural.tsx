@@ -1,12 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
- import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
- import { Loader2, MapPin, Clock, Share2, CalendarDays, ExternalLink, ArrowLeft, FileDown, Search, Filter } from "lucide-react";
- import { exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
-import { toast } from "sonner";
+ import { useState, useMemo, useEffect } from "react";
+ import { supabase } from "@/integrations/supabase/client";
+ import { Card, CardContent } from "@/components/ui/card";
+ import { Badge } from "@/components/ui/badge";
+ import { Button } from "@/components/ui/button";
+ import { Input } from "@/components/ui/input";
+ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+ import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, ArrowRight, Copy } from "lucide-react";
+ import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
+ import { toast } from "sonner";
 
 const categoryIcons: Record<string, string> = {
   musica: "🎸",
@@ -134,23 +136,25 @@ function formatDayLabel(dateStr: string | null): string {
   return `${wd.charAt(0).toUpperCase()}${wd.slice(1)} · ${dayMonth}`;
 }
 
-export default function AgendaCultural() {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    async function load() {
-      const { data } = await supabase
-         .from("submissions")
-         .select("*")
-         .eq("status", "approved")
-         .order("date", { ascending: true, nullsFirst: false });
-       setEvents((data as any[]) || []);
-      setLoading(false);
-    }
-    load();
-  }, []);
+ export default function AgendaCultural() {
+   const [events, setEvents] = useState<Event[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [search, setSearch] = useState("");
+   const [categoryFilter, setCategoryFilter] = useState("all");
+   const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+ 
+   useEffect(() => {
+     async function load() {
+       const { data } = await supabase
+          .from("submissions")
+          .select("*")
+          .eq("status", "approved")
+          .order("date", { ascending: true, nullsFirst: false });
+        setEvents((data as any[]) || []);
+       setLoading(false);
+     }
+     load();
+   }, []);
 
   const upcomingEvents = useMemo(
     () => events.filter((e) => isUpcoming(e.date)),
@@ -229,76 +233,61 @@ export default function AgendaCultural() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header clean */}
-      <header className="border-b border-border bg-background">
-        <div className="mx-auto max-w-4xl px-4 py-5 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <Button
-              size="icon"
-              variant="ghost"
-               onClick={() => navigate("/")}
-               asChild
-              className="shrink-0"
-               aria-label="Voltar à página inicial"
-             >
-               <Link to="/">
-                 <ArrowLeft className="h-5 w-5" />
-               </Link>
-             </Button>
-            <div className="min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold font-display text-foreground truncate">
-                🌴 AgendIlha
-              </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 capitalize">
-                {today}
-              </p>
-            </div>
-           </div>
-         </div>
-       </header>
-
-       <div className="bg-muted/30 border-b border-border">
-         <div className="mx-auto max-w-4xl px-4 py-4">
-           <div className="flex flex-col md:flex-row gap-3">
-             <div className="relative flex-1">
-               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-               <Input
-                 placeholder="Buscar eventos..."
-                 className="pl-9 bg-background"
-                 value={search}
-                 onChange={(e) => setSearch(e.target.value)}
-               />
-             </div>
-             <div className="flex gap-2">
-               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                 <SelectTrigger className="w-[140px] bg-background">
-                   <SelectValue placeholder="Categoria" />
-                 </SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="all">Categorias</SelectItem>
-                   {Object.entries(categoryLabels).map(([k, v]) => (
-                     <SelectItem key={k} value={k}>{v}</SelectItem>
-                   ))}
-                 </SelectContent>
-               </Select>
-               <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
-                 <SelectTrigger className="w-[140px] bg-background">
-                   <SelectValue placeholder="Bairro" />
-                 </SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="all">Bairros</SelectItem>
-                   {neighborhoods.map((n) => (
-                     <SelectItem key={n} value={n}>{n}</SelectItem>
-                   ))}
-                 </SelectContent>
-               </Select>
-             </div>
-           </div>
-         </div>
-       </div>
-
-       {/* Content */}
        <main className="mx-auto max-w-4xl px-4 py-8">
+         <div className="mb-8 text-center space-y-2">
+           <h1 className="text-3xl sm:text-4xl font-bold font-display">Agenda Cultural da Ilha</h1>
+           <p className="text-muted-foreground">Eventos aprovados e divulgados da Ilha do Governador</p>
+           <div className="flex justify-center gap-2 mt-4">
+             <Button variant="outline" size="sm" onClick={() => {
+               navigator.clipboard.writeText(window.location.href);
+               toast.success("Link copiado!");
+             }}>
+               <Copy className="h-4 w-4 mr-2" /> Copiar Link
+             </Button>
+             <Button variant="outline" size="sm" onClick={() => {
+               exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
+               toast.success("PDF da agenda gerado!");
+             }}>
+               <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
+             </Button>
+           </div>
+         </div>
+ 
+         <div className="mb-8 space-y-4">
+           <div className="relative">
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+             <Input
+               placeholder="Buscar eventos por nome..."
+               className="pl-9"
+               value={search}
+               onChange={(e) => setSearch(e.target.value)}
+             />
+           </div>
+           <div className="flex gap-2">
+             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+               <SelectTrigger className="flex-1">
+                 <SelectValue placeholder="Categoria" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Todas categorias</SelectItem>
+                 {Object.entries(categoryLabels).map(([k, v]) => (
+                   <SelectItem key={k} value={k}>{v}</SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+             <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
+               <SelectTrigger className="flex-1">
+                 <SelectValue placeholder="Bairro" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Todos bairros</SelectItem>
+                 {neighborhoods.map((n) => (
+                   <SelectItem key={n} value={n}>{n}</SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+           </div>
+         </div>
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
