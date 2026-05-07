@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      atrativos: {
+        Row: {
+          contact_whatsapp: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          style: string | null
+          type: string | null
+        }
+        Insert: {
+          contact_whatsapp?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          style?: string | null
+          type?: string | null
+        }
+        Update: {
+          contact_whatsapp?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          style?: string | null
+          type?: string | null
+        }
+        Relationships: []
+      }
       collaborators: {
         Row: {
           can_approve: boolean
@@ -86,6 +116,27 @@ export type Database = {
         }
         Relationships: []
       }
+      location_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          requested_name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          requested_name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          requested_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       password_reset_codes: {
         Row: {
           attempts: number
@@ -116,6 +167,51 @@ export type Database = {
         }
         Relationships: []
       }
+      places: {
+        Row: {
+          address: string | null
+          contact_responsible: string | null
+          created_at: string | null
+          id: string
+          name: string
+          type: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_responsible?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          type?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_responsible?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          type?: string | null
+        }
+        Relationships: []
+      }
+      portal_locations: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address_city: string | null
@@ -128,8 +224,11 @@ export type Database = {
           contact_social: string | null
           created_at: string
           email: string | null
+          home_location: string | null
           id: string
+          nick_name: string | null
           phone: string | null
+          pin_code: string | null
           responsible_name: string | null
           updated_at: string
           user_id: string
@@ -145,8 +244,11 @@ export type Database = {
           contact_social?: string | null
           created_at?: string
           email?: string | null
+          home_location?: string | null
           id?: string
+          nick_name?: string | null
           phone?: string | null
+          pin_code?: string | null
           responsible_name?: string | null
           updated_at?: string
           user_id: string
@@ -162,8 +264,11 @@ export type Database = {
           contact_social?: string | null
           created_at?: string
           email?: string | null
+          home_location?: string | null
           id?: string
+          nick_name?: string | null
           phone?: string | null
+          pin_code?: string | null
           responsible_name?: string | null
           updated_at?: string
           user_id?: string
@@ -179,6 +284,10 @@ export type Database = {
           address_state: string | null
           address_street: string | null
           address_zip: string | null
+          atrativo_contact: string | null
+          atrativo_name: string | null
+          atrativo_style: string | null
+          atrativo_type: string | null
           category: string | null
           commission: string | null
           company_name: string | null
@@ -192,9 +301,14 @@ export type Database = {
           end_time: string | null
           event_title: string
           id: string
+          legal_acceptance: boolean | null
+          legal_acceptance_date: string | null
           location: string | null
+          location_contact: string | null
+          location_type: string | null
           maintenance_cost: string | null
           phone: string | null
+          predicted_duration: string | null
           promotion_rules: string | null
           promotion_type: string | null
           rejection_reason: string | null
@@ -217,6 +331,10 @@ export type Database = {
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          atrativo_contact?: string | null
+          atrativo_name?: string | null
+          atrativo_style?: string | null
+          atrativo_type?: string | null
           category?: string | null
           commission?: string | null
           company_name?: string | null
@@ -230,9 +348,14 @@ export type Database = {
           end_time?: string | null
           event_title: string
           id?: string
+          legal_acceptance?: boolean | null
+          legal_acceptance_date?: string | null
           location?: string | null
+          location_contact?: string | null
+          location_type?: string | null
           maintenance_cost?: string | null
           phone?: string | null
+          predicted_duration?: string | null
           promotion_rules?: string | null
           promotion_type?: string | null
           rejection_reason?: string | null
@@ -255,6 +378,10 @@ export type Database = {
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          atrativo_contact?: string | null
+          atrativo_name?: string | null
+          atrativo_style?: string | null
+          atrativo_type?: string | null
           category?: string | null
           commission?: string | null
           company_name?: string | null
@@ -268,9 +395,14 @@ export type Database = {
           end_time?: string | null
           event_title?: string
           id?: string
+          legal_acceptance?: boolean | null
+          legal_acceptance_date?: string | null
           location?: string | null
+          location_contact?: string | null
+          location_type?: string | null
           maintenance_cost?: string | null
           phone?: string | null
+          predicted_duration?: string | null
           promotion_rules?: string | null
           promotion_type?: string | null
           rejection_reason?: string | null
