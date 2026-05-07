@@ -487,9 +487,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                {currentStep === 1 && (
                  <div className="space-y-6">
                    <h2 className="text-xl font-bold">1. Dados Básicos</h2>
-                   <TextField control={form.control} name="nickName" label="Nick / Nome" />
+                    <TextField control={form.control} name="nickName" label="Seu Apelido ou Nome Social" />
                    <TextField control={form.control} name="basicPhone" label="WhatsApp" />
-                   <TextField control={form.control} name="userLocation" label="Seu Local" />
+                    <TextField control={form.control} name="userLocation" label="Seu Bairro ou Região de Moradia" />
                  </div>
                )}
                
@@ -696,33 +696,33 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                      7. Prévia Final
                    </h2>
                    
-                   <SummarySection title="👤 Usuário" items={[
-                     { label: "Nick", value: form.watch("nickName") },
-                     { label: "WhatsApp", value: form.watch("basicPhone") },
-                     { label: "Local", value: form.watch("userLocation") }
-                   ]} onEdit={() => setCurrentStep(1)} />
+                    <SummarySection title="👤 Usuário" items={[
+                      { label: "Nick/Nome", value: form.watch("nickName") },
+                      { label: "WhatsApp", value: form.watch("basicPhone") },
+                      { label: "Bairro/Região", value: form.watch("userLocation") }
+                    ]} onEdit={() => goToStep(1)} />
 
-                   <SummarySection title="💼 Divulgador" items={[
-                     { label: "Empresa", value: form.watch("companyName") },
-                     { label: "E-mail", value: form.watch("email") },
-                     { label: "Endereço", value: `${form.watch("addressStreet")}, ${form.watch("addressNumber")}` }
-                   ]} onEdit={() => setCurrentStep(2)} />
+                    <SummarySection title="💼 Divulgador" items={[
+                      { label: "Empresa", value: form.watch("companyName") },
+                      { label: "E-mail", value: form.watch("email") },
+                      { label: "Endereço", value: `${form.watch("addressStreet") || ""}, ${form.watch("addressNumber") || ""}` }
+                    ]} onEdit={() => goToStep(2)} />
 
-                   <SummarySection title="🎉 Evento" items={[
-                     { label: "Título", value: form.watch("eventTitle") },
-                     { label: "Data", value: form.watch("date") },
-                     { label: "Horário", value: `${form.watch("startTime")} às ${form.watch("endTime")}` }
-                   ]} onEdit={() => setCurrentStep(3)} />
+                    <SummarySection title="🎉 Evento" items={[
+                      { label: "Título", value: form.watch("eventTitle") },
+                      { label: "Data", value: form.watch("date") },
+                      { label: "Horário", value: `${form.watch("startTime") || ""} às ${form.watch("endTime") || ""}` }
+                    ]} onEdit={() => goToStep(3)} />
 
-                   <SummarySection title="🎤 Atrativo" items={[
-                     { label: "Nome", value: form.watch("atrativoName") },
-                     { label: "Tipo", value: form.watch("atrativoType") }
-                   ]} onEdit={() => setCurrentStep(4)} />
+                    <SummarySection title="🎤 Atrativo" items={[
+                      { label: "Nome", value: form.watch("atrativoName") },
+                      { label: "Tipo", value: form.watch("atrativoType") }
+                    ]} onEdit={() => goToStep(4)} />
 
-                   <SummarySection title="📍 Local" items={[
-                     { label: "Nome", value: form.watch("locationName") },
-                     { label: "Endereço", value: form.watch("eventAddress") }
-                   ]} onEdit={() => setCurrentStep(5)} />
+                    <SummarySection title="📍 Local" items={[
+                      { label: "Nome do Local", value: form.watch("locationName") },
+                      { label: "Endereço", value: form.watch("eventAddress") }
+                    ]} onEdit={() => goToStep(5)} />
                    
                    <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
                      <CheckCircle2 className="h-6 w-6 text-green-600" />
