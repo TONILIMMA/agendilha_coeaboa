@@ -44,7 +44,7 @@ const AppRoutes = () => (
     <Routes>
       {/* Públicas */}
       <Route path="/" element={<Landing />} />
-      <Route path="/agenda" element={<AgendaCultural />} />
+      <Route path="/agenda" element={<><Header /><AgendaCultural /></>} />
       <Route path="/auth" element={<><Header /><Auth /></>} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
