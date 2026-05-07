@@ -90,9 +90,9 @@ export default function Landing() {
       >
         <nav className="mx-auto max-w-6xl px-5 sm:px-8 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-2.5 group">
-            <img src={logo} alt="Coé a Boa?" className="h-9 w-9 rounded-full ring-1 ring-foreground/10 transition-transform group-hover:scale-105" />
-            <span className="font-display text-[15px] sm:text-base font-medium tracking-tight text-foreground">
-              Coé a Boa<span className="font-serif italic text-secondary">?</span>
+            <img src={logo} alt="AgendIlha" className="h-9 w-9 rounded-full ring-1 ring-foreground/10 transition-transform group-hover:scale-105" />
+            <span className="font-display text-[15px] sm:text-base font-bold tracking-tight text-foreground">
+              AgendIlha <span className="text-secondary/60 font-medium">| Coé a Boa?</span>
             </span>
           </a>
 
@@ -158,12 +158,15 @@ export default function Landing() {
             </span>
           </div>
 
-          <h1 className="font-display text-[clamp(2.75rem,8vw,6rem)] font-medium leading-[0.92] tracking-tightest text-foreground text-balance">
-            A cultura da Ilha,
-            <br />
-            <span className="font-serif italic font-normal text-primary">reunida</span>{" "}
-            num só lugar.
-          </h1>
+          <div className="space-y-4 mb-8">
+            <h2 className="font-mono text-sm tracking-[0.3em] uppercase text-secondary font-semibold">AgendIlha</h2>
+            <h1 className="font-display text-[clamp(2.75rem,8vw,6rem)] font-medium leading-[0.92] tracking-tightest text-foreground text-balance">
+              A cultura da Ilha,
+              <br />
+              <span className="font-serif italic font-normal text-primary">reunida</span>{" "}
+              num só lugar.
+            </h1>
+          </div>
 
           <p className="mt-8 text-base sm:text-lg text-foreground/65 max-w-xl mx-auto leading-relaxed text-balance">
             Eventos, divulgação inteligente e uma rede ativa de produtores
@@ -285,8 +288,8 @@ export default function Landing() {
           <div className="text-center mb-16 reveal max-w-xl mx-auto">
             <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-secondary">— Diferenciais</p>
             <h2 className="mt-6 font-display text-4xl sm:text-6xl font-medium tracking-tightest">
-              Por que{" "}
-              <span className="font-serif italic font-normal text-primary">Coé a Boa?</span>
+            Por que o{" "}
+            <span className="font-serif italic font-normal text-primary">AgendIlha?</span>
             </h2>
           </div>
 
@@ -358,11 +361,11 @@ export default function Landing() {
           </p>
           <div className="mt-10">
             <a
-              href="https://wa.me/5521999999999?text=Ol%C3%A1%2C%20quero%20saber%20mais%20sobre%20o%20Co%C3%A9%20a%20Boa"
+              href="https://wa.me/5521999999999?text=Ol%C3%A1%2C%20quero%20saber%20mais%20sobre%20o%20AgendIlha"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button size="lg" className="rounded-full h-12 px-7 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated">
+              <Button size="lg" className="rounded-full h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated font-display font-bold">
                 <MessageCircle className="h-4 w-4 mr-1.5" />
                 Falar no WhatsApp
               </Button>
@@ -373,11 +376,9 @@ export default function Landing() {
 
       <footer className="py-10 px-6 border-t border-border/60">
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-wider text-foreground/55">
-          <div className="flex items-center gap-2">
-            <img src={logo} alt="" className="h-6 w-6 rounded-full ring-1 ring-foreground/10" />
-            <span className="font-display text-sm font-medium normal-case tracking-tight text-foreground/75">
-              Coé a Boa<span className="font-serif italic text-secondary">?</span>
-            </span>
+          <div className="flex items-center gap-2 font-bold text-foreground/75">
+            <img src={logo} alt="AgendIlha" className="h-6 w-6 rounded-full ring-1 ring-foreground/10" />
+            <span>AgendIlha | Coé a Boa?</span>
           </div>
           <span>© {new Date().getFullYear()} — Ilha do Governador</span>
         </div>
