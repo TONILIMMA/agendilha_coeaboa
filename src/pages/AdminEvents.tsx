@@ -287,31 +287,91 @@ export default function AdminEvents() {
                         {sub.is_highlight && <Star className="h-4 w-4 text-amber-500 fill-amber-500" />}
                         <h3 className="font-bold text-foreground truncate">{sub.event_title}</h3>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[9px] uppercase">{categoryLabels[sub.category || ''] || 'Outros'}</Badge>
-                        <span className="text-[10px] text-muted-foreground">ID: {sub.id.slice(0,8)} • {formatDate(sub.created_at)}</span>
-                      </div>
-                    </div>
-                    <div className="col-span-2 text-center text-sm">
-                      <div className="font-semibold">{sub.date || '—'}</div>
-                      <div className="text-xs text-muted-foreground">{sub.start_time || '--:--'}</div>
-                    </div>
-                    <div className="col-span-2 text-center text-sm truncate">
-                      <div className="font-medium">{sub.company_name || sub.responsible_name || '—'}</div>
-                      <div className="text-[10px] text-muted-foreground">{sub.phone || 'Sem tel'}</div>
-                    </div>
-                    <div className="col-span-2 text-center">
-                      <Badge variant={sub.status === 'approved' ? 'default' : sub.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px] font-bold">
-                        {sub.status.toUpperCase()}
-                      </Badge>
-                    </div>
-                    <div className="col-span-2 flex justify-end gap-1">
-                      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)}><Eye className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" onClick={() => handleStatusChange(sub.id, 'analysis')}><Clock3 className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600" onClick={() => handleStatusChange(sub.id, 'approved')}><CheckCircle className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600" onClick={() => handleStatusChange(sub.id, 'rejected')}><XCircle className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDelete(sub.id)}><Trash2 className="h-4 w-4" /></Button>
-                    </div>
+                       <div className="flex items-center gap-2">
+                         <Badge variant="outline" className="text-[9px] font-semibold bg-muted/30">{categoryLabels[sub.category || ''] || 'Outros'}</Badge>
+                         <span className="text-[10px] text-muted-foreground/60 font-mono tracking-tight">ID: {sub.id.slice(0,8)}</span>
+                         <span className="text-[10px] text-muted-foreground/60">• Cadastrado em: {formatSubmissionDate(sub.created_at)}</span>
+                       </div>
+                     </div>
+                     <div className="col-span-2 text-center">
+                       <div className="font-bold text-foreground text-sm">{formatEventDate(sub.date)}</div>
+                       <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground mt-0.5">
+                         <Clock className="h-3 w-3" />
+                         {sub.start_time || '--:--'}
+                       </div>
+                     </div>
+                     <div className="col-span-2 text-center px-2">
+                       <div className="font-bold text-foreground text-sm truncate">{sub.company_name || sub.responsible_name || '—'}</div>
+                       <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground mt-0.5">
+                         <Phone className="h-3 w-3" />
+                         {sub.phone || 'Sem tel'}
+                       </div>
+                     </div>
+                     <div className="col-span-2 flex justify-center">
+                       {(() => {
+                         const cfg = statusConfig[sub.status] || statusConfig.pending;
+                         const StatusIcon = cfg.icon;
+                         return (
+                           <Badge className={`${cfg.bg} ${cfg.color} border-none font-bold text-[10px] py-1 px-2.5 flex items-center gap-1.5`}>
+                             <StatusIcon className="h-3 w-3" />
+                             {cfg.label.toUpperCase()}
+                           </Badge>
+                         );
+                       })()}
+                     </div>
+                     <div className="col-span-2 flex justify-end gap-1">
+                       <TooltipProvider>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                             <Button size="icon" variant="ghost" className="h-9 w-9 hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)}><Eye className="h-4 w-4" /></Button>
+                           </TooltipTrigger>
+                           <TooltipContent>Ver Detalhes</TooltipContent>
+                         </Tooltip>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                             <Button size="icon" variant="ghost" className="h-9 w-9 text-blue-600 hover:bg-blue-50" onClick={() => handleStatusChange(sub.id, 'analysis')}><Clock3 className="h-4 w-4" /></Button>
+                           </TooltipTrigger>
+                           <TooltipContent>Em Análise</TooltipContent>
+                         </Tooltip>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                             <Button size="icon" variant="ghost" className="h-9 w-9 text-emerald-600 hover:bg-emerald-50" onClick={() => handleStatusChange(sub.id, 'approved')}><CheckCircle className="h-4 w-4" /></Button>
+                           </TooltipTrigger>
+                           <TooltipContent>Aprovar</TooltipContent>
+                         </Tooltip>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                             <Button size="icon" variant="ghost" className="h-9 w-9 text-indigo-600 hover:bg-indigo-50" onClick={() => handleStatusChange(sub.id, 'published')}><Globe className="h-4 w-4" /></Button>
+                           </TooltipTrigger>
+                           <TooltipContent>Publicar na Agenda</TooltipContent>
+                         </Tooltip>
+                         <DropdownMenu>
+                           <DropdownMenuTrigger asChild>
+                             <Button size="icon" variant="ghost" className="h-9 w-9"><ChevronDown className="h-4 w-4" /></Button>
+                           </DropdownMenuTrigger>
+                           <DropdownMenuContent align="end" className="w-48">
+                             <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'rejected')} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer">
+                               <XCircle className="h-4 w-4 mr-2" /> Rejeitar
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)} className="cursor-pointer">
+                               <Star className={`h-4 w-4 mr-2 ${sub.is_highlight ? 'fill-amber-500 text-amber-500' : ''}`} /> 
+                               {sub.is_highlight ? 'Remover Destaque' : 'Marcar Destaque'}
+                             </DropdownMenuItem>
+                             <DropdownMenuSeparator />
+                             <DropdownMenuItem onClick={() => exportSingleEventPdf(sub)} className="cursor-pointer">
+                               <FileDown className="h-4 w-4 mr-2" /> Exportar PDF
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")} className="cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50">
+                               <MessageCircle className="h-4 w-4 mr-2" /> Divulgar WhatsApp
+                             </DropdownMenuItem>
+                             <DropdownMenuSeparator />
+                             <DropdownMenuItem onClick={() => handleDelete(sub.id)} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer">
+                               <Trash2 className="h-4 w-4 mr-2" /> Excluir permanentemente
+                             </DropdownMenuItem>
+                           </DropdownMenuContent>
+                         </DropdownMenu>
+                       </TooltipProvider>
+                     </div>
                   </div>
 
                   {expandedId === sub.id && (
