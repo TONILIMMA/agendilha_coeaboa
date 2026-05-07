@@ -5,7 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useProfile } from "@/hooks/useProfile";
 import { z } from "zod";
-import { Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon } from "lucide-react";
+ import { Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon, Search, PlusCircle, CheckCircle2, AlertCircle } from "lucide-react";
+ import { IMaskInput } from "react-imask";
+ import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { getWeekdayFromDate } from "@/lib/dateUtils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -25,49 +27,61 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 
-const formSchema = z.object({
-  companyName: z.string().trim().min(1, "Campo obrigatório").max(100),
-  responsibleName: z.string().trim().min(1, "Campo obrigatório").max(100),
-  email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
-  phone: z.string().trim().min(1, "Campo obrigatório").max(30).regex(/^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/, "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321"),
-  eventTitle: z.string().trim().min(1, "Campo obrigatório").max(150),
-  date: z.string().trim().min(1, "Selecione a data do evento"),
-  startTime: z.string().trim().min(1, "Campo obrigatório").max(20),
-  endTime: z.string().trim().min(1, "Campo obrigatório").max(20),
-  location: z.string().trim().min(1, "Campo obrigatório").max(200),
-  addressStreet: z.string().trim().max(200).optional().or(z.literal("")),
-  addressNumber: z.string().trim().max(20).optional().or(z.literal("")),
-  addressNeighborhood: z.string().trim().max(100).optional().or(z.literal("")),
-  addressCity: z.string().trim().max(100).optional().or(z.literal("")),
-  addressState: z.string().trim().max(50).optional().or(z.literal("")),
-  addressZip: z.string().trim().max(20).optional().or(z.literal("")),
-  description: z.string().trim().min(1, "Campo obrigatório").max(300, "Máximo de 300 caracteres"),
-  videoLink: z.string().url("URL inválida").optional().or(z.literal("")),
-  category: z.string().min(1, "Selecione uma categoria"),
-  promotionType: z.string().trim().max(100).optional().or(z.literal("")),
-  targetAudience: z.string().trim().max(200).optional().or(z.literal("")),
-  promotionRules: z.string().trim().max(500).optional().or(z.literal("")),
-      contactSocial: z.string().trim().max(300).optional().or(z.literal("")),
-  additionalDetails: z.string().trim().max(500).optional().or(z.literal("")),
-  salePrice: z.string().trim().max(50).optional().or(z.literal("")),
-  maintenanceCost: z.string().trim().max(50).optional().or(z.literal("")),
-  subscriptionInfo: z.string().trim().max(200).optional().or(z.literal("")),
-  commission: z.string().trim().max(50).optional().or(z.literal("")),
-  stage: z.string().optional().or(z.literal("")),
-  conceptDescription: z.string().trim().max(1000).optional().or(z.literal("")),
-  responsiblePerson: z.string().trim().max(100).optional().or(z.literal("")),
-  authorization: z.literal(true, {
-    errorMap: () => ({ message: "Você precisa autorizar a publicação" }),
-  }),
-}).refine((data) => {
-  if (data.startTime && data.endTime) {
-    return data.endTime > data.startTime;
-  }
-  return true;
-}, {
-  message: "O horário de término deve ser posterior ao horário de início",
-  path: ["endTime"],
-});
+ const formSchema = z.object({
+   // 1. Dados Básicos do Usuário
+   nickName: z.string().trim().min(1, "Nick/Nome é obrigatório").max(50),
+   basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
+   userLocation: z.string().trim().min(1, "Selecione seu local"),
+   otherLocation: z.string().trim().optional(),
+ 
+   // 2. Para Divulgadores
+   companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
+   pinCode: z.string().trim().min(4, "Senha deve ter 4-8 dígitos").max(8),
+   email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
+   addressZip: z.string().trim().optional(),
+   addressStreet: z.string().trim().optional(),
+   addressNumber: z.string().trim().optional(),
+ 
+   // 3. Questões Legais
+   legalAcceptance: z.literal(true, {
+     errorMap: () => ({ message: "Você precisa aceitar os termos para continuar" }),
+   }),
+ 
+   // 4. Informações do Evento
+   category: z.string().min(1, "Selecione uma categoria"),
+   eventTitle: z.string().trim().optional(),
+   date: z.string().trim().min(1, "Selecione a data"),
+   startTime: z.string().trim().min(1, "Campo obrigatório"),
+   predictedDuration: z.string().trim().optional(),
+   endTime: z.string().trim().optional(),
+   atrativoName: z.string().trim().min(1, "Atrativo é obrigatório"),
+   atrativoType: z.string().trim().min(1, "Tipo de atrativo é obrigatório"),
+   atrativoStyle: z.string().trim().optional(),
+   atrativoDescription: z.string().trim().max(300).optional(),
+   atrativoContact: z.string().trim().optional(),
+ 
+   // 5. Local do Evento
+   locationName: z.string().trim().min(1, "Local é obrigatório"),
+   eventAddress: z.string().trim().min(1, "Endereço é obrigatório"),
+   locationType: z.enum(["public", "commercial"], { required_error: "Selecione o tipo do local" }),
+   locationContact: z.string().trim().optional(),
+ 
+   // 6. Complementares
+   description: z.string().trim().max(500).optional(),
+   contactSocial: z.string().trim().max(300).optional(),
+   videoLink: z.string().url("URL inválida").optional().or(z.literal("")),
+   additionalDetails: z.string().trim().optional(),
+   stage: z.string().optional(),
+   responsiblePerson: z.string().trim().optional(),
+ }).refine((data) => {
+   if (data.locationType === "commercial" && !data.locationContact) {
+     return false;
+   }
+   return true;
+ }, {
+   message: "Contato do responsável é obrigatório para estabelecimentos comerciais",
+   path: ["locationContact"],
+ });
 
 type FormData = z.infer<typeof formSchema>;
 
