@@ -139,14 +139,16 @@ export default function AgendaCultural() {
     return Array.from(set).sort();
   }, [events]);
 
-  const upcomingEvents = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return events.filter(e => {
-      const d = parseDateToObj(e.date);
-      return !d || d >= today;
-    });
-  }, [events]);
+   const upcomingEvents = useMemo(() => {
+     const today = new Date();
+     today.setHours(0, 0, 0, 0);
+     // For debugging/transparency, we show events from today onwards
+     return events.filter(e => {
+       const d = parseDateToObj(e.date);
+       // If no date or date is today/future, show it
+       return !d || d >= today;
+     });
+   }, [events]);
 
   const filteredEvents = useMemo(() => {
     return upcomingEvents.filter(ev => {
@@ -252,13 +254,17 @@ export default function AgendaCultural() {
           <div className="flex justify-center py-20">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
           </div>
-        ) : sortedDays.length === 0 ? (
-          <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed border-border">
-            <CalendarDays className="mx-auto h-16 w-16 mb-4 text-muted-foreground/30" />
-            <p className="text-xl font-medium text-muted-foreground">Nenhum evento encontrado</p>
-            <p className="text-sm text-muted-foreground mt-1">Tente ajustar seus filtros ou volte mais tarde.</p>
-          </div>
-        ) : (
+         ) : sortedDays.length === 0 ? (
+           <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed border-border">
+             <CalendarDays className="mx-auto h-16 w-16 mb-4 text-muted-foreground/30" />
+             <p className="text-xl font-medium text-muted-foreground">Nenhum evento futuro encontrado</p>
+             <p className="text-sm text-muted-foreground mt-1">
+               {events.length > 0 
+                 ? "Existem eventos cadastrados, mas todos já ocorreram. Volte em breve!" 
+                 : "Tente ajustar seus filtros ou volte mais tarde."}
+             </p>
+           </div>
+         ) : (
           <div className="space-y-12">
             {/* Bloco de Destaques */}
             {filteredEvents.some(e => e.is_highlight) && (
