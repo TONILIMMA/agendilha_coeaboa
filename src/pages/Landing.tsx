@@ -91,22 +91,22 @@ export default function Landing() {
       {/* ── Hero ── */}
       <section
         id="top"
-        className="relative pt-28 pb-20 sm:pt-40 sm:pb-32 overflow-hidden gradient-eco gradient-mesh grain"
+        className="relative pt-24 pb-16 sm:pt-40 sm:pb-32 overflow-hidden gradient-eco gradient-mesh grain"
       >
         <div aria-hidden className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
         <div aria-hidden className="absolute top-20 right-[-100px] h-96 w-96 rounded-full bg-secondary/15 blur-3xl" />
 
-        <div className="relative mx-auto max-w-4xl px-6 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass mb-10">
+        <div className="relative mx-auto max-w-4xl px-4 sm:px-6 text-center animate-in fade-in slide-in-from-bottom-6 duration-1000">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass mb-8 sm:mb-10 shadow-sm border border-white/40 backdrop-blur-md">
             <span className="h-1.5 w-1.5 rounded-full bg-secondary animate-pulse" />
-            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-foreground/65">
+            <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-foreground/70">
               Ilha do Governador · RJ
             </span>
           </div>
 
-          <div className="space-y-4 mb-8">
-            <h2 className="font-mono text-sm tracking-[0.3em] uppercase text-secondary font-semibold">AgendIlha</h2>
-            <h1 className="font-display text-[clamp(2.75rem,8vw,6rem)] font-medium leading-[0.92] tracking-tightest text-foreground text-balance">
+          <div className="space-y-4 mb-6 sm:mb-8">
+            <h2 className="font-mono text-xs sm:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase text-secondary font-bold">AgendIlha</h2>
+            <h1 className="font-display text-[clamp(2.5rem,10vw,5.5rem)] font-black leading-[0.9] tracking-tightest text-foreground text-balance">
               A cultura da Ilha,
               <br />
               <span className="font-serif italic font-normal text-primary">reunida</span>{" "}
@@ -114,14 +114,14 @@ export default function Landing() {
             </h1>
           </div>
 
-          <p className="mt-8 text-base sm:text-lg text-foreground/65 max-w-xl mx-auto leading-relaxed text-balance">
+          <p className="mt-6 sm:mt-8 text-base sm:text-xl text-foreground/70 max-w-xl mx-auto leading-relaxed text-balance font-medium">
             Eventos, divulgação inteligente e uma rede ativa de produtores
-            e moradores — com curadoria, design e <em className="font-serif text-foreground/80">alma local</em>.
+            e moradores — com curadoria e <em className="font-serif text-foreground/90">alma local</em>.
           </p>
 
-          <div className="mt-12 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 w-full max-w-lg mx-auto sm:max-w-none">
-             <Link to="/agenda" className="w-full xs:w-auto">
-              <Button size="lg" className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-8 sm:px-12 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] text-lg sm:text-xl font-black border-2 border-primary">
+          <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-sm sm:max-w-none mx-auto">
+             <Link to="/agenda" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-10 sm:px-12 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl transition-all duration-300 hover:scale-[1.05] active:scale-95 text-lg sm:text-xl font-black border-2 border-primary">
                 Ver agenda <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -135,7 +135,7 @@ export default function Landing() {
                    navigate("/auth?redirect=/enviar-evento");
                  }
                }}
-               className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-8 sm:px-12 text-foreground font-black border-2 border-primary/40 hover:border-primary/60 hover:bg-primary/5 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] text-lg sm:text-xl"
+               className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-10 sm:px-12 text-foreground font-black border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5 transition-all duration-300 hover:scale-[1.05] active:scale-95 text-lg sm:text-xl bg-white/50 backdrop-blur-sm"
              >
                Enviar evento
              </Button>

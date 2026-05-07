@@ -282,23 +282,25 @@ function buildUberLink(ev: Event): string {
   return (
     <div className="min-h-screen bg-background">
 
-      <main className="mx-auto max-w-4xl px-4 py-8">
-         {/* Topo da Página */}
-         <div className="mb-16 text-center space-y-8 relative">
-            <div className="flex flex-col items-center gap-6">
-              <div className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-secondary/15 border border-secondary/30 mb-2 shadow-sm">
-                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-secondary-foreground">Coé a Boa? apresenta:</span>
+      <main className="mx-auto max-w-4xl px-4 py-8 sm:py-12 md:py-16">
+         {/* Topo da Página - Hero Mobile-First */}
+         <div className="mb-12 sm:mb-20 text-center space-y-8 relative animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="flex flex-col items-center gap-4 sm:gap-6">
+              <div className="inline-flex items-center justify-center px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-secondary/10 border border-secondary/20 mb-2 shadow-sm">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-secondary-foreground">Coé a Boa? apresenta:</span>
               </div>
-              <h1 className="text-5xl sm:text-8xl font-black font-display text-primary tracking-tightest leading-none drop-shadow-sm">AgendIlha</h1>
-              <p className="text-muted-foreground text-lg sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-4 text-balance">
+              <h1 className="text-5xl xs:text-6xl sm:text-8xl font-black font-display text-primary tracking-tightest leading-[0.9] drop-shadow-sm">
+                AgendIlha
+              </h1>
+              <p className="text-muted-foreground text-base sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-2 sm:px-4 text-balance">
                 A agenda cultural curada da Ilha do Governador.
               </p>
             </div>
 
-            <div className="flex flex-col items-center gap-8 mt-12 px-4" role="group" aria-label="Ações da agenda">
-              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-2xl">
+            <div className="flex flex-col items-center gap-6 sm:gap-8 mt-8 sm:mt-12 px-2" role="group" aria-label="Ações da agenda">
+              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full max-w-2xl">
                 <Button
-                  className="rounded-full shadow-xl gradient-sunset text-primary-foreground font-black px-8 sm:px-12 h-16 text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-105 active:scale-95 flex-1"
+                  className="rounded-full shadow-lg sm:shadow-xl gradient-sunset text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-[1.02] active:scale-95 flex-1"
                   onClick={() => window.open(buildWhatsAppShare(), "_blank")}
                   aria-label="Compartilhar agenda no WhatsApp"
                 >
@@ -307,7 +309,7 @@ function buildUberLink(ev: Event): string {
 
                 <Button 
                   variant="outline" 
-                  className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-8 h-16 text-base font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1" 
+                  className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1" 
                   onClick={() => {
                     const data = getShareData();
                     handleShare(data.title, data.text, data.url);
@@ -318,10 +320,10 @@ function buildUberLink(ev: Event): string {
                 </Button>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-6 w-full opacity-80 hover:opacity-100 transition-opacity">
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 w-full opacity-80 hover:opacity-100 transition-opacity">
                 <Button 
                   variant="ghost" 
-                  className="rounded-full h-11 px-6 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
+                  className="rounded-full h-10 sm:h-11 px-4 sm:px-6 text-[11px] sm:text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
                   onClick={() => handleCopyLink(getShareUrl())}
                   aria-label="Copiar link da agenda"
                 >
@@ -330,7 +332,7 @@ function buildUberLink(ev: Event): string {
 
                 <Button 
                   variant="ghost" 
-                  className="rounded-full h-11 px-6 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
+                  className="rounded-full h-10 sm:h-11 px-4 sm:px-6 text-[11px] sm:text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
                   onClick={() => {
                     exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
                     toast.success("PDF da agenda gerado!");
@@ -341,69 +343,74 @@ function buildUberLink(ev: Event): string {
                 </Button>
               </div>
             </div>
-        </div>
+         </div>
 
-        {/* Filtros Públicos */}
-        <div className="mb-12 bg-card border border-border rounded-2xl p-6 shadow-card space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="O que você procura hoje? (show, feira, etc...)"
-                className="pl-10 h-12 text-lg border-none bg-muted/50 focus-visible:ring-primary/20"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+        {/* Bloco de Busca e Filtros - Mobile-First */}
+        <div className="mb-12 space-y-4 sm:space-y-6">
+          <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
+            <div className="flex flex-col gap-5 sm:gap-6">
+              {/* Barra de Busca e Ordenação */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="relative flex-1 group">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                  <Input
+                    placeholder="O que você procura hoje?"
+                    className="pl-12 h-14 text-base sm:text-lg border-none bg-muted/40 focus-visible:ring-2 focus-visible:ring-primary/20 rounded-2xl sm:rounded-3xl"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+                <div className="relative shrink-0">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const newOrder = sortOrder === "asc" ? "desc" : "asc";
+                      setSortOrder(newOrder);
+                      toast.info(`Ordenado por: ${newOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}`, {
+                        duration: 2000,
+                        position: "bottom-center"
+                      });
+                    }}
+                    className="w-full sm:w-auto h-14 px-6 rounded-2xl sm:rounded-3xl border-2 border-primary/10 text-primary font-bold transition-all active:scale-95 bg-white hover:bg-primary/5 hover:border-primary/30 flex items-center justify-center gap-2"
+                  >
+                    <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
+                    <span className="text-[11px] sm:text-xs uppercase tracking-widest">
+                      {sortOrder === "asc" ? "Próximos" : "Distantes"}
+                    </span>
+                  </Button>
+                  <div className={cn(
+                    "absolute -top-1.5 -right-1 h-3.5 w-3.5 rounded-full border-2 border-background shadow-sm",
+                    sortOrder === "asc" ? "bg-primary" : "bg-secondary"
+                  )} />
+                </div>
+              </div>
+
+              {/* Dropdowns de Filtro */}
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="h-12 sm:h-13 border-2 border-primary/10 bg-white hover:bg-primary/5 transition-colors focus:ring-2 focus:ring-primary/20 rounded-xl sm:rounded-2xl font-semibold text-sm">
+                    <SelectValue placeholder="Categorias" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-border/50">
+                    <SelectItem value="all" className="font-semibold">Todas as categorias</SelectItem>
+                    {Object.entries(categoryLabels).map(([k, v]) => (
+                      <SelectItem key={k} value={k}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
+                  <SelectTrigger className="h-12 sm:h-13 border-2 border-primary/10 bg-white hover:bg-primary/5 transition-colors focus:ring-2 focus:ring-primary/20 rounded-xl sm:rounded-2xl font-semibold text-sm">
+                    <SelectValue placeholder="Bairros" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-border/50">
+                    <SelectItem value="all" className="font-semibold">Todos os bairros</SelectItem>
+                    {neighborhoods.map((n) => (
+                      <SelectItem key={n} value={n}>{n}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="relative group">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const newOrder = sortOrder === "asc" ? "desc" : "asc";
-                  setSortOrder(newOrder);
-                  toast.info(`Ordenado por: ${newOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}`, {
-                    duration: 2000,
-                    position: "bottom-center"
-                  });
-                }}
-                aria-label={`Ordenar eventos: atual ${sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}. Clique para inverter.`}
-                aria-pressed={sortOrder === "desc"}
-                className="h-12 px-5 rounded-xl border-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none font-bold flex items-center gap-2 bg-white border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40"
-              >
-                <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
-                <span className="text-xs uppercase tracking-wider">
-                  {sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}
-                </span>
-              </Button>
-              <div className={cn(
-                "absolute -top-2 -right-1 h-3 w-3 rounded-full border-2 border-background animate-pulse",
-                sortOrder === "asc" ? "bg-primary" : "bg-secondary"
-              )} />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="h-11 border-2 border-primary/20 bg-white hover:bg-primary/5 transition-colors focus:ring-primary/20">
-                <SelectValue placeholder="Todas as categorias" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as categorias</SelectItem>
-                {Object.entries(categoryLabels).map(([k, v]) => (
-                  <SelectItem key={k} value={k}>{v}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
-              <SelectTrigger className="h-11 border-2 border-primary/20 bg-white hover:bg-primary/5 transition-colors focus:ring-primary/20">
-                <SelectValue placeholder="Todos os bairros" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os bairros</SelectItem>
-                {neighborhoods.map((n) => (
-                  <SelectItem key={n} value={n}>{n}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
 
@@ -536,98 +543,111 @@ function buildUberLink(ev: Event): string {
                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
                       >
                         <CardContent className="p-0">
-                         <div className="flex flex-col lg:flex-row">
-                          {/* Image or Icon strip */}
-                           {(ev as any).image_url && (
-                             <div className="w-full lg:w-72 xl:w-80 h-64 lg:h-auto shrink-0 relative overflow-hidden">
-                              <img 
-                                src={(ev as any).image_url} 
-                                alt={ev.event_title}
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                              />
-                               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent lg:hidden" />
-                            </div>
+                         <div className="flex flex-col lg:flex-row min-h-[320px]">
+                           {/* Imagem do Evento - Mobile-First */}
+                           {(ev as any).image_url ? (
+                             <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
+                               <img 
+                                 src={(ev as any).image_url} 
+                                 alt={ev.event_title}
+                                 loading="lazy"
+                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                               />
+                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
+                               {/* Badge flutuante na imagem para mobile */}
+                               <div className="absolute bottom-4 left-4 lg:hidden">
+                                 <Badge className="bg-white/95 text-primary border-none font-black text-[10px] tracking-widest px-3 py-1 shadow-lg backdrop-blur-sm">
+                                   {categoryLabels[ev.category!]?.split(' ')[0] || ev.category}
+                                 </Badge>
+                               </div>
+                             </div>
+                           ) : (
+                             /* Faixa lateral decorativa se não houver imagem */
+                             <div className="hidden lg:block w-3 bg-primary/10 shrink-0" />
                            )}
 
-                           <div className={cn(
-                             "flex-1 p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8",
-                             !(ev as any).image_url && "border-l-4 border-primary/20"
-                           )}>
-                              <div className="flex flex-wrap items-start justify-between gap-6">
-                                <div className="space-y-4 flex-1 min-w-0">
-                                  <div className="flex flex-wrap items-center gap-3">
-                                    <span className="text-4xl drop-shadow-sm">{icon}</span>
-                                    <Badge variant="secondary" className="bg-[#F6EEEA] text-[#2F5D46] text-[10px] font-semibold uppercase tracking-[0.15em] border-[#E6D6CF] border px-3 py-1.5 rounded-full shadow-sm whitespace-nowrap">
-                                      {categoryLabels[ev.category!] || ev.category}
-                                    </Badge>
+                           <div className="flex-1 p-5 sm:p-8 lg:p-10 flex flex-col justify-between space-y-5 sm:space-y-6">
+                              <div className="space-y-4 sm:space-y-6">
+                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                                  <div className="space-y-2 flex-1 min-w-0">
+                                    <div className="hidden lg:flex items-center gap-2 mb-2">
+                                      <span className="text-2xl">{icon}</span>
+                                      <Badge variant="secondary" className="bg-[#F6EEEA] text-[#2F5D46] text-[10px] font-semibold uppercase tracking-[0.15em] border-[#E6D6CF] border px-2.5 py-1 rounded-full shadow-sm">
+                                        {categoryLabels[ev.category!] || ev.category}
+                                      </Badge>
+                                    </div>
+                                    <h3 className="text-xl sm:text-3xl lg:text-4xl font-black text-foreground leading-[1.2] tracking-tight group-hover:text-primary transition-colors">
+                                      {ev.event_title}
+                                    </h3>
                                   </div>
-                                   <h3 className="text-2xl sm:text-4xl lg:text-5xl font-black text-foreground leading-[1.1] tracking-tightest group-hover:text-primary transition-colors">
-                                    {ev.event_title}
-                                  </h3>
+
+                                  {/* Horário e Bairro */}
+                                  <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 shrink-0">
+                                    <div className="flex items-center gap-2 text-primary font-black bg-primary/5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-primary/10 shadow-sm">
+                                      <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
+                                      <span className="text-lg sm:text-2xl tracking-tighter">{ev.start_time || "--:--"}</span>
+                                    </div>
+                                    <div className="text-[10px] sm:text-[11px] font-bold text-muted-foreground/70 uppercase tracking-[0.15em]">
+                                      {ev.address_neighborhood || "Ilha do Gv."}
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="flex flex-col items-start sm:items-end sm:text-right shrink-0 gap-3">
-                                   <div className="flex items-center gap-3 text-primary font-black bg-primary/5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl border border-primary/10 shadow-sm">
-                                    <Clock className="h-6 w-6" />
-                                    <span className="text-2xl sm:text-3xl tracking-tighter">{ev.start_time || "--:--"}</span>
-                                  </div>
-                                   <div className="text-xs sm:text-sm font-bold text-muted-foreground/80 uppercase tracking-[0.2em]">
-                                    {ev.address_neighborhood || "Ilha do Governador"}
-                                  </div>
+
+                                {/* Endereço formatado */}
+                                <div className="flex items-start gap-2.5 sm:gap-3 text-xs sm:text-base text-muted-foreground bg-muted/30 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-border/40">
+                                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary/60 shrink-0 mt-0.5" />
+                                  <span className="font-semibold leading-snug line-clamp-2">{buildFullAddress(ev)}</span>
                                 </div>
+
+                                {ev.description && (
+                                  <p className="text-muted-foreground/80 line-clamp-2 sm:line-clamp-3 leading-relaxed text-sm sm:text-base font-medium max-w-2xl">
+                                    {ev.description}
+                                  </p>
+                                )}
                               </div>
 
-                               <div className="flex items-start gap-3 sm:gap-4 text-sm sm:text-base lg:text-lg text-muted-foreground bg-muted/30 p-4 sm:p-5 rounded-2xl border border-border/40">
-                                <MapPin className="h-6 w-6 text-primary/70 shrink-0 mt-0.5" />
-                                <span className="font-semibold leading-snug">{buildFullAddress(ev)}</span>
-                              </div>
-
-                              {ev.description && (
-                                <p className="text-muted-foreground line-clamp-3 leading-relaxed text-lg font-medium max-w-2xl">
-                                  {ev.description}
-                                </p>
-                              )}
-
-                               <div className="pt-4 sm:pt-6 flex flex-wrap items-center gap-3 sm:gap-4 lg:gap-6">
+                               {/* Ações Mobile-Friendly */}
+                               <div className="pt-2 sm:pt-4 flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4">
                                 <Button 
-                                  size="lg" 
-                                  className="rounded-full h-14 sm:h-16 px-10 font-black uppercase tracking-widest gradient-sunset text-white shadow-xl hover:scale-105 active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
+                                  size="sm" 
+                                  className="rounded-full h-11 sm:h-14 px-5 sm:px-8 font-black uppercase tracking-widest gradient-sunset text-white shadow-md sm:shadow-lg hover:scale-[1.03] active:scale-95 transition-all text-[11px] sm:text-xs flex-1 sm:flex-initial" 
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     trackShare(ev.id);
                                     window.open(buildWhatsAppShare(ev), "_blank");
                                   }}
                                 >
-                                  <MessageCircle className="h-5 w-5 mr-3" /> WhatsApp
+                                  <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
                                 </Button>
 
                                 <Button 
-                                  size="lg" 
+                                  size="sm" 
                                   variant="outline" 
-                                  className="rounded-full h-14 sm:h-16 px-8 font-bold text-primary border-2 border-primary/20 hover:bg-primary hover:text-white active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none uppercase text-sm tracking-widest" 
+                                  className="rounded-full h-11 sm:h-14 px-4 sm:px-6 font-bold text-primary border-2 border-primary/20 hover:bg-primary hover:text-white active:scale-95 transition-all text-[11px] sm:text-xs flex-1 sm:flex-initial" 
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);
                                       handleShare(data.title, data.text, data.url, ev.id);
                                     }}
                                 >
-                                  <Share2 className="h-5 w-5 mr-3" /> Compartilhar
+                                  <Share2 className="h-4 w-4 mr-2" /> Compartilhar
                                 </Button>
                                 
                                 <Button 
-                                  size="lg" 
+                                  size="sm" 
                                   variant="ghost" 
-                                  className="rounded-full h-14 sm:h-16 px-8 font-bold text-muted-foreground/60 hover:text-primary transition-all active:scale-95 uppercase text-sm tracking-widest" 
+                                  className="rounded-full h-11 sm:h-14 px-4 sm:px-6 font-bold text-muted-foreground/60 hover:text-primary transition-all active:scale-95 text-[11px] sm:text-xs hidden xs:flex items-center" 
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     const addr = buildFullAddress(ev);
                                     window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
                                   }}
                                 >
-                                  <MapPin className="h-5 w-5 mr-3" /> Ver Mapa
+                                  <MapPin className="h-4 w-4 mr-2" /> Ver Mapa
                                 </Button>
                             </div>
-                          </div>
-                        </div>
+                           </div>
+                         </div>
                         </CardContent>
                       </Card>
                     );
@@ -660,11 +680,11 @@ function buildUberLink(ev: Event): string {
         </footer>
 
         <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEvent(null)}>
-          <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-[2rem] border-none bg-background sm:h-[90vh] flex flex-col">
+          <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-t-[2rem] sm:rounded-[2rem] border-none bg-background h-[95vh] sm:h-[90vh] flex flex-col focus:outline-none">
             {selectedEvent && (
               <>
                 {/* Header/Banner - Fixed at top */}
-                <div className="relative aspect-[16/10] sm:aspect-video w-full bg-muted overflow-hidden shrink-0">
+                <div className="relative aspect-[4/3] sm:aspect-video w-full bg-muted overflow-hidden shrink-0">
                   {selectedEvent.image_url ? (
                     <img src={selectedEvent.image_url} alt={selectedEvent.event_title} className="w-full h-full object-cover" />
                   ) : (
@@ -694,39 +714,39 @@ function buildUberLink(ev: Event): string {
 
                 {/* Scrollable Content */}
                 <div className="flex-1 overflow-y-auto">
-                  <div className="p-6 sm:p-10 space-y-10">
+                  <div className="p-5 sm:p-10 space-y-8 sm:space-y-10">
                     {/* Info Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                      <div className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                      <div className="space-y-5 sm:space-y-6">
                         <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/5">
-                            <CalendarDays className="h-6 w-6 text-primary" />
+                          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/5">
+                            <CalendarDays className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                           </div>
                           <div>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Data</p>
-                            <p className="font-bold text-lg text-foreground">{formatDayLabel(selectedEvent.date)}</p>
+                            <p className="font-bold text-base sm:text-lg text-foreground">{formatDayLabel(selectedEvent.date)}</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/5">
-                            <Clock className="h-6 w-6 text-primary" />
+                          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/5">
+                            <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                           </div>
                           <div>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Horário</p>
-                            <p className="font-bold text-lg text-foreground">{selectedEvent.start_time}{selectedEvent.end_time ? ` — ${selectedEvent.end_time}` : ""}</p>
+                            <p className="font-bold text-base sm:text-lg text-foreground">{selectedEvent.start_time}{selectedEvent.end_time ? ` — ${selectedEvent.end_time}` : ""}</p>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="space-y-6">
+                      <div className="space-y-5 sm:space-y-6">
                         <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0 shadow-sm border border-secondary/5">
-                            <MapPin className="h-6 w-6 text-secondary" />
+                          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0 shadow-sm border border-secondary/5">
+                            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
                           </div>
                           <div>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Local</p>
-                            <p className="font-bold text-lg leading-tight text-foreground">{selectedEvent.location}</p>
-                            <p className="text-sm text-muted-foreground font-medium mt-1.5 leading-relaxed">
+                            <p className="font-bold text-base sm:text-lg leading-tight text-foreground">{selectedEvent.location}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1.5 leading-relaxed line-clamp-2">
                               {selectedEvent.address_street}{selectedEvent.address_neighborhood ? `, ${selectedEvent.address_neighborhood}` : ""}
                             </p>
                           </div>
@@ -750,24 +770,24 @@ function buildUberLink(ev: Event): string {
                 </div>
 
                  {/* Footer - Fixed at bottom */}
-                 <div className="p-6 sm:p-10 lg:p-12 bg-card/70 backdrop-blur-xl border-t border-border/50 shrink-0">
-                   <div className="flex flex-col gap-6 sm:gap-8">
-                    <div className="flex flex-col gap-4">
+                 <div className="p-5 sm:p-10 lg:p-12 bg-card/80 backdrop-blur-xl border-t border-border/50 shrink-0">
+                   <div className="flex flex-col gap-5 sm:gap-8">
+                     <div className="flex flex-col gap-3.5">
                       <div className="flex flex-col sm:flex-row gap-4 w-full">
                         <Button 
-                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.05] active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
+                           className="flex-1 h-14 sm:h-16 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.03] active:scale-95 transition-all text-sm sm:text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
                           onClick={() => {
                             window.open(buildWhatsAppShare(selectedEvent), "_blank");
                             trackShare(selectedEvent.id);
                           }}
                           aria-label="Compartilhar evento no WhatsApp"
                         >
-                          <MessageCircle className="h-6 w-6 mr-3" /> WhatsApp
+                          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 mr-3" /> WhatsApp
                         </Button>
 
                         <Button
                           variant="outline"
-                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
+                          className="flex-1 h-14 sm:h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-sm sm:text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
                           onClick={() => {
                             const data = getShareData(selectedEvent);
                             handleShare(data.title, data.text, data.url, selectedEvent.id);
@@ -777,10 +797,10 @@ function buildUberLink(ev: Event): string {
                         </Button>
                       </div>
 
-                      <div className="flex flex-wrap gap-3">
+                      <div className="grid grid-cols-2 xs:flex xs:flex-wrap gap-2.5 sm:gap-3">
                         <Button
                           variant="ghost"
-                          className="flex-1 h-14 rounded-full font-bold text-sm uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 active:scale-95 transition-all"
+                          className="flex-1 h-12 sm:h-14 rounded-full font-bold text-[10px] sm:text-sm uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 active:scale-95 transition-all"
                           onClick={() => handleCopyLink(getShareUrl(selectedEvent.id))}
                         >
                           <Copy className="h-5 w-5 mr-2.5" /> Copiar link
@@ -788,7 +808,7 @@ function buildUberLink(ev: Event): string {
 
                         <Button 
                           variant="outline" 
-                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/20 text-primary bg-background hover:bg-primary hover:text-white active:scale-95 transition-all text-xs shadow-sm" 
+                          className="flex-1 h-12 sm:h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/20 text-primary bg-background hover:bg-primary hover:text-white active:scale-95 transition-all text-[10px] sm:text-xs shadow-sm" 
                           onClick={() => {
                             const addr = buildFullAddress(selectedEvent);
                             window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
@@ -799,7 +819,7 @@ function buildUberLink(ev: Event): string {
                         
                         <Button 
                           variant="outline" 
-                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-black/20 text-foreground bg-background hover:bg-foreground hover:text-background active:scale-95 transition-all text-xs shadow-sm" 
+                          className="flex-1 h-12 sm:h-14 rounded-full font-black uppercase tracking-wider border-2 border-black/20 text-foreground bg-background hover:bg-foreground hover:text-background active:scale-95 transition-all text-[10px] sm:text-xs shadow-sm" 
                           onClick={() => {
                             window.open(buildUberLink(selectedEvent), "_blank");
                           }}
