@@ -1,11 +1,15 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useProfile } from "@/hooks/useProfile";
 import { z } from "zod";
- import { Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon, Search, PlusCircle, CheckCircle2, AlertCircle } from "lucide-react";
+import { 
+  Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon, Search, 
+  PlusCircle, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Save,
+  Check, User, Info, MapPin, Scale, Eye, PartyPopper, Phone
+} from "lucide-react";
  import { IMaskInput } from "react-imask";
  import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { getWeekdayFromDate } from "@/lib/dateUtils";
@@ -14,6 +18,8 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { StepIndicator } from "./submission-form/StepIndicator";
+import { SummarySection } from "./submission-form/SummarySection";
 import heroBanner from "@/assets/hero-banner.jpg";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage
@@ -224,17 +230,78 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
    const { addSubmission } = useSubmissions();
    const { profile, loaded, saveProfile } = useProfile();
  
-   const form = useForm<FormData>({
-     resolver: zodResolver(formSchema),
-     defaultValues: {
-       nickName: "", basicPhone: "", userLocation: "",
-       companyName: "", pinCode: "", email: "",
-       category: "", eventTitle: "", date: "", startTime: "",
-       atrativoName: "", atrativoType: "",
-       locationName: "", eventAddress: "", locationType: "commercial",
-       legalAcceptance: undefined,
-     },
-   });
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      nickName: "", basicPhone: "", userLocation: "",
+      companyName: "", pinCode: "", email: "",
+      category: "", eventTitle: "", date: "", startTime: "",
+      atrativoName: "", atrativoType: "",
+      locationName: "", eventAddress: "", locationType: "commercial",
+      legalAcceptance: undefined,
+    },
+    mode: "onChange",
+  });
+
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+
+  const steps = [
+    { id: 1, title: "Básico", description: "Dados do usuário" },
+    { id: 2, title: "Divulgador", description: "Informações profissionais" },
+    { id: 3, title: "Evento", description: "O que vai rolar?" },
+    { id: 4, title: "Atrativo", description: "Quem vai se apresentar?" },
+    { id: 5, title: "Local", description: "Onde vai ser?" },
+    { id: 6, title: "Legal", description: "Termos e condições" },
+    { id: 7, title: "Revisão", description: "Confira tudo" },
+  ];
+
+  const nextStep = async () => {
+    const fieldsToValidate = getFieldsForStep(currentStep);
+    const isValid = await form.trigger(fieldsToValidate as any);
+    
+    if (isValid) {
+      setCurrentStep(prev => Math.min(prev + 1, steps.length));
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const prevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+    window.scrollTo(0, 0);
+  };
+
+  const getFieldsForStep = (step: number) => {
+    switch (step) {
+      case 1: return ["nickName", "basicPhone", "userLocation", "otherLocation"];
+      case 2: return ["companyName", "pinCode", "email", "addressZip", "addressStreet", "addressNumber"];
+      case 3: return ["category", "eventTitle", "date", "startTime", "predictedDuration", "endTime"];
+      case 4: return ["atrativoName", "atrativoType", "atrativoStyle", "atrativoDescription", "atrativoContact"];
+      case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
+      case 6: return ["legalAcceptance"];
+      default: return [];
+    }
+  };
+
+  const saveDraft = async () => {
+    setIsSavingDraft(true);
+    localStorage.setItem("agendilha_draft", JSON.stringify(form.getValues()));
+    toast.success("Rascunho salvo!", { description: "Você pode continuar depois." });
+    setTimeout(() => setIsSavingDraft(false), 500);
+  };
+
+  useEffect(() => {
+    const draft = localStorage.getItem("agendilha_draft");
+    if (draft) {
+      try {
+        const parsed = JSON.parse(draft);
+        form.reset(parsed);
+        toast.info("Rascunho recuperado", { description: "Continuamos de onde você parou." });
+      } catch (e) {
+        console.error("Error parsing draft", e);
+      }
+    }
+  }, [form]);
  
    useEffect(() => {
      const fetchPortalLocations = async () => {
@@ -244,20 +311,26 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
      fetchPortalLocations();
    }, []);
  
-   useEffect(() => {
-     if (!loaded) return;
-     form.reset({
-       nickName: profile.nick_name || "",
-       basicPhone: profile.phone || "",
-       userLocation: profile.home_location || "",
-       companyName: profile.company_name || "",
-       email: profile.email || "",
-       addressStreet: profile.address_street || "",
-       addressNumber: profile.address_number || "",
-       addressZip: profile.address_zip || "",
-       contactSocial: profile.contact_social || "",
-     });
-   }, [loaded, profile, form]);
+  useEffect(() => {
+    if (!loaded) return;
+    const currentValues = form.getValues();
+    const isDefault = !currentValues.nickName && !currentValues.companyName;
+    
+    if (isDefault) {
+      form.reset({
+        ...currentValues,
+        nickName: profile.nick_name || "",
+        basicPhone: profile.phone || "",
+        userLocation: profile.home_location || "",
+        companyName: profile.company_name || "",
+        email: profile.email || "",
+        addressStreet: profile.address_street || "",
+        addressNumber: profile.address_number || "",
+        addressZip: profile.address_zip || "",
+        contactSocial: profile.contact_social || "",
+      });
+    }
+  }, [loaded, profile, form]);
 
   const toggleSection = (key: string) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
