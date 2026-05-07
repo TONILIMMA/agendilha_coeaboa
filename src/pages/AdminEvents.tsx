@@ -6,9 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+ import {
+   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+ } from "@/components/ui/select";
+ import {
+   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
+ } from "@/components/ui/tooltip";
+ import {
+   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+ } from "@/components/ui/dropdown-menu";
 import {
   CalendarDays, Loader2, MessageCircle, Trash2, Search,
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
@@ -52,25 +58,47 @@ interface Submission {
   shares_count?: number;
 }
 
-const categoryLabels: Record<string, string> = {
-  musica: "Música / Show",
-  gastronomia: "Gastronomia",
-  cultura: "Cultura / Arte",
-  esporte: "Esporte",
-  promocoes: "Promoções / Ofertas",
-  outros: "Outros",
-};
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR", {
-    day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit",
-  });
-}
-
-function buildWhatsAppMessage(sub: Submission): string {
-  const msg = `🗓️ *${sub.event_title}*\n⏰ ${sub.date} às ${sub.start_time}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: https://agendilha-divulgacao.lovable.app/agenda`;
-  return encodeURIComponent(msg);
-}
+ const categoryLabels: Record<string, string> = {
+   musica: "Música / Show",
+   gastronomia: "Gastronomia",
+   cultura: "Cultura / Arte",
+   esporte: "Esporte",
+   promocoes: "Promoções / Ofertas",
+   outros: "Outros",
+ };
+ 
+ const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string }> = {
+   draft: { label: "Rascunho", color: "text-slate-600", bg: "bg-slate-100", icon: History },
+   pending: { label: "Pendente", color: "text-amber-600", bg: "bg-amber-100", icon: Clock3 },
+   analysis: { label: "Em análise", color: "text-blue-600", bg: "bg-blue-100", icon: Search },
+   approved: { label: "Aprovado", color: "text-emerald-600", bg: "bg-emerald-100", icon: CheckCircle },
+   rejected: { label: "Rejeitado", color: "text-rose-600", bg: "bg-rose-100", icon: XCircle },
+   published: { label: "Publicado", color: "text-indigo-600", bg: "bg-indigo-100", icon: Globe },
+ };
+ 
+ function formatSubmissionDate(iso: string) {
+   if (!iso) return "—";
+   const date = new Date(iso);
+   return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }) + 
+          " às " + 
+          date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+ }
+ 
+ function formatEventDate(dateStr: string | null) {
+   if (!dateStr) return "—";
+   // Handle both ISO and DD/MM/YYYY formats
+   if (dateStr.includes("-")) {
+     const [y, m, d] = dateStr.split("-");
+     return `${d}/${m}/${y}`;
+   }
+   return dateStr;
+ }
+ 
+ function buildWhatsAppMessage(sub: Submission): string {
+   const date = formatEventDate(sub.date);
+   const msg = `🗓️ *${sub.event_title}*\n⏰ ${date} às ${sub.start_time || "--:--"}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: https://agendilha-divulgacao.lovable.app/agenda`;
+   return encodeURIComponent(msg);
+ }
 
 export default function AdminEvents() {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -163,90 +191,111 @@ export default function AdminEvents() {
   return (
     <div className="min-h-screen bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* Header Area */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <LayoutDashboard className="h-8 w-8 text-primary" />
-              Gestão de Eventos
-            </h1>
-            <p className="text-muted-foreground mt-1 text-lg">Área operacional para moderação e distribuição de eventos.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
-            <Button variant="outline" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
-            <Button 
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={() => {
-                const approved = submissions.filter(s => s.status === 'approved');
-                if (approved.length === 0) return toast.warning("Sem eventos aprovados.");
-                window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
-              }}
-            >
-              <Send className="h-4 w-4 mr-2" /> Divulgação WhatsApp
-            </Button>
-          </div>
-        </div>
+         {/* Header Area */}
+         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+           <div className="space-y-1">
+             <div className="flex items-center gap-2 text-primary">
+               <LayoutDashboard className="h-5 w-5" />
+               <span className="text-xs font-black uppercase tracking-[0.2em]">Backoffice</span>
+             </div>
+             <h1 className="text-4xl font-black tracking-tight text-foreground">Gestão de Eventos</h1>
+             <p className="text-muted-foreground text-base">Moderação, curadoria e distribuição da agenda hiperlocal.</p>
+           </div>
+           <div className="flex flex-wrap gap-3">
+             <Button variant="outline" size="sm" className="h-10 font-bold border-border hover:bg-muted" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
+             <Button variant="outline" size="sm" className="h-10 font-bold border-border hover:bg-muted" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
+             <Button 
+               size="sm"
+               className="h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
+               onClick={() => {
+                 const approved = submissions.filter(s => s.status === 'approved' || s.status === 'published');
+                 if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
+                 window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
+               }}
+             >
+               <MessageCircle className="h-4 w-4 mr-2" /> Divulgação WhatsApp
+             </Button>
+           </div>
+         </div>
 
-        {/* KPIs */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          {[
-            { label: 'Total', value: kpis.total, color: 'text-blue-600', bg: 'bg-blue-50' },
-            { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-amber-50' },
-            { label: 'Em Análise', value: kpis.analysis, color: 'text-purple-600', bg: 'bg-purple-50' },
-            { label: 'Aprovados', value: kpis.approved, color: 'text-green-600', bg: 'bg-green-50' },
-            { label: 'Rejeitados', value: kpis.rejected, color: 'text-red-600', bg: 'bg-red-50' },
-            { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-          ].map((kpi) => (
-            <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm`}>
-              <CardContent className="p-4">
-                <p className="text-xs font-semibold uppercase text-muted-foreground">{kpi.label}</p>
-                <p className={`text-2xl font-bold ${kpi.color}`}>{kpi.value}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+         {/* KPIs */}
+         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+           {[
+             { label: 'Total', value: kpis.total, color: 'text-blue-600', bg: 'bg-blue-50' },
+             { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-amber-50' },
+             { label: 'Em Análise', value: kpis.analysis, color: 'text-blue-600', bg: 'bg-blue-50' },
+             { label: 'Aprovados', value: kpis.approved, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+             { label: 'Rejeitados', value: kpis.rejected, color: 'text-rose-600', bg: 'bg-rose-50' },
+             { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+           ].map((kpi) => (
+             <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm hover:shadow-md transition-all`}>
+               <CardContent className="p-4">
+                 <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">{kpi.label}</p>
+                 <p className={`text-3xl font-black ${kpi.color} mt-1`}>{kpi.value}</p>
+               </CardContent>
+             </Card>
+           ))}
+         </div>
 
-        {/* Filters */}
-        <Card className="mb-6 shadow-sm border-border/40">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Buscar evento, local ou empresa..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os Status</SelectItem>
-                  <SelectItem value="pending">Pendentes</SelectItem>
-                  <SelectItem value="analysis">Em Análise</SelectItem>
-                  <SelectItem value="approved">Aprovados</SelectItem>
-                  <SelectItem value="rejected">Rejeitados</SelectItem>
-                  <SelectItem value="published">Publicados</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger><SelectValue placeholder="Categoria" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas as Categorias</SelectItem>
-                  {Object.entries(categoryLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Button variant="ghost" onClick={() => { setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); }}>Limpar Filtros</Button>
-            </div>
-          </CardContent>
-        </Card>
+         {/* Filters */}
+         <div className="mb-8 grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-card border border-border p-2 rounded-2xl shadow-sm">
+           <div className="md:col-span-5 relative">
+             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+             <Input 
+               placeholder="Buscar por título, empresa, local ou responsável..." 
+               className="pl-10 h-11 bg-muted/30 border-none focus-visible:ring-1 focus-visible:ring-primary/20" 
+               value={search} 
+               onChange={e => setSearch(e.target.value)} 
+             />
+           </div>
+           <div className="md:col-span-3">
+             <Select value={statusFilter} onValueChange={setStatusFilter}>
+               <SelectTrigger className="h-11 bg-muted/30 border-none"><SelectValue placeholder="Status" /></SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Todos os Status</SelectItem>
+                 {Object.entries(statusConfig).map(([key, cfg]) => (
+                   <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
+           </div>
+           <div className="md:col-span-3">
+             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+               <SelectTrigger className="h-11 bg-muted/30 border-none"><SelectValue placeholder="Categoria" /></SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Todas as Categorias</SelectItem>
+                 {Object.entries(categoryLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+               </SelectContent>
+             </Select>
+           </div>
+           <div className="md:col-span-1 flex justify-center">
+             <TooltipProvider>
+               <Tooltip>
+                 <TooltipTrigger asChild>
+                   <Button 
+                     variant="ghost" 
+                     size="icon" 
+                     className="h-11 w-11 rounded-xl hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                     onClick={() => { setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); toast.info("Filtros limpos"); }}
+                   >
+                     <SlidersHorizontal className="h-4 w-4" />
+                   </Button>
+                 </TooltipTrigger>
+                 <TooltipContent>Limpar Filtros</TooltipContent>
+               </Tooltip>
+             </TooltipProvider>
+           </div>
+         </div>
 
         {/* Main List */}
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-          <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b bg-muted/20 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            <div className="col-span-4">Evento / Categoria</div>
-            <div className="col-span-2 text-center">Data / Horário</div>
-            <div className="col-span-2 text-center">Responsável</div>
-            <div className="col-span-2 text-center">Status</div>
-            <div className="col-span-2 text-right">Ações</div>
-          </div>
+           <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 border-b bg-muted/20 text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em]">
+             <div className="col-span-4">Informações do Evento</div>
+             <div className="col-span-2 text-center">Data & Hora</div>
+             <div className="col-span-2 text-center">Responsável & Contato</div>
+             <div className="col-span-2 text-center">Status Operacional</div>
+             <div className="col-span-2 text-right">Ações Rápidas</div>
+           </div>
           
           {loading ? (
             <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
@@ -265,31 +314,104 @@ export default function AdminEvents() {
                         {sub.is_highlight && <Star className="h-4 w-4 text-amber-500 fill-amber-500" />}
                         <h3 className="font-bold text-foreground truncate">{sub.event_title}</h3>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[9px] uppercase">{categoryLabels[sub.category || ''] || 'Outros'}</Badge>
-                        <span className="text-[10px] text-muted-foreground">ID: {sub.id.slice(0,8)} • {formatDate(sub.created_at)}</span>
-                      </div>
-                    </div>
-                    <div className="col-span-2 text-center text-sm">
-                      <div className="font-semibold">{sub.date || '—'}</div>
-                      <div className="text-xs text-muted-foreground">{sub.start_time || '--:--'}</div>
-                    </div>
-                    <div className="col-span-2 text-center text-sm truncate">
-                      <div className="font-medium">{sub.company_name || sub.responsible_name || '—'}</div>
-                      <div className="text-[10px] text-muted-foreground">{sub.phone || 'Sem tel'}</div>
-                    </div>
-                    <div className="col-span-2 text-center">
-                      <Badge variant={sub.status === 'approved' ? 'default' : sub.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px] font-bold">
-                        {sub.status.toUpperCase()}
-                      </Badge>
-                    </div>
-                    <div className="col-span-2 flex justify-end gap-1">
-                      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)}><Eye className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" onClick={() => handleStatusChange(sub.id, 'analysis')}><Clock3 className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600" onClick={() => handleStatusChange(sub.id, 'approved')}><CheckCircle className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600" onClick={() => handleStatusChange(sub.id, 'rejected')}><XCircle className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDelete(sub.id)}><Trash2 className="h-4 w-4" /></Button>
-                    </div>
+                       <div className="flex items-center gap-2">
+                         <Badge variant="outline" className="text-[9px] font-semibold bg-muted/30">{categoryLabels[sub.category || ''] || 'Outros'}</Badge>
+                         <span className="text-[10px] text-muted-foreground/60 font-mono tracking-tight">ID: {sub.id.slice(0,8)}</span>
+                         <span className="text-[10px] text-muted-foreground/60">• Cadastrado em: {formatSubmissionDate(sub.created_at)}</span>
+                       </div>
+                     </div>
+                     <div className="col-span-2 text-center">
+                       <div className="font-bold text-foreground text-sm">{formatEventDate(sub.date)}</div>
+                       <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground mt-0.5">
+                         <Clock className="h-3 w-3" />
+                         {sub.start_time || '--:--'}
+                       </div>
+                     </div>
+                     <div className="col-span-2 text-center px-2">
+                       <div className="font-bold text-foreground text-sm truncate">{sub.company_name || sub.responsible_name || '—'}</div>
+                       <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground mt-0.5">
+                         <Phone className="h-3 w-3" />
+                         {sub.phone || 'Sem tel'}
+                       </div>
+                     </div>
+                     <div className="col-span-2 flex flex-col items-center gap-1.5">
+                       {(() => {
+                         const cfg = statusConfig[sub.status] || statusConfig.pending;
+                         const StatusIcon = cfg.icon;
+                         return (
+                           <Badge className={`${cfg.bg} ${cfg.color} border-none font-black text-[9px] py-1 px-2.5 flex items-center gap-1.5 shadow-sm`}>
+                             <StatusIcon className="h-3 w-3" />
+                             {cfg.label.toUpperCase()}
+                           </Badge>
+                         );
+                       })()}
+                       {sub.status === 'published' && (
+                         <span className="text-[9px] font-bold text-indigo-600/70 flex items-center gap-1">
+                           <Globe className="h-2.5 w-2.5" />
+                           NA AGENDA PÚBLICA
+                         </span>
+                       )}
+                     </div>
+                     <div className="col-span-2 flex justify-end gap-1">
+                       <TooltipProvider>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                             <Button size="icon" variant="ghost" className="h-9 w-9 hover:bg-primary/5 hover:text-primary transition-colors" onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)}><Eye className="h-4 w-4" /></Button>
+                           </TooltipTrigger>
+                           <TooltipContent>Ver Detalhes</TooltipContent>
+                         </Tooltip>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                             <Button size="icon" variant="ghost" className="h-9 w-9 text-blue-600 hover:bg-blue-50" onClick={() => handleStatusChange(sub.id, 'analysis')}><Clock3 className="h-4 w-4" /></Button>
+                           </TooltipTrigger>
+                           <TooltipContent>Em Análise</TooltipContent>
+                         </Tooltip>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                             <Button size="icon" variant="ghost" className="h-9 w-9 text-emerald-600 hover:bg-emerald-50" onClick={() => handleStatusChange(sub.id, 'approved')}><CheckCircle className="h-4 w-4" /></Button>
+                           </TooltipTrigger>
+                           <TooltipContent>Aprovar</TooltipContent>
+                         </Tooltip>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                             <Button 
+                               size="icon" 
+                               variant={sub.status === 'published' ? 'default' : 'ghost'} 
+                               className={`h-9 w-9 transition-colors ${sub.status === 'published' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-indigo-600 hover:bg-indigo-50'}`}
+                               onClick={() => handleStatusChange(sub.id, sub.status === 'published' ? 'approved' : 'published')}
+                             >
+                               <Globe className="h-4 w-4" />
+                             </Button>
+                           </TooltipTrigger>
+                           <TooltipContent>{sub.status === 'published' ? 'Remover da Agenda' : 'Publicar na Agenda'}</TooltipContent>
+                         </Tooltip>
+                         <DropdownMenu>
+                           <DropdownMenuTrigger asChild>
+                             <Button size="icon" variant="ghost" className="h-9 w-9"><ChevronDown className="h-4 w-4" /></Button>
+                           </DropdownMenuTrigger>
+                           <DropdownMenuContent align="end" className="w-48">
+                             <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'rejected')} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer">
+                               <XCircle className="h-4 w-4 mr-2" /> Rejeitar
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)} className="cursor-pointer">
+                               <Star className={`h-4 w-4 mr-2 ${sub.is_highlight ? 'fill-amber-500 text-amber-500' : ''}`} /> 
+                               {sub.is_highlight ? 'Remover Destaque' : 'Marcar Destaque'}
+                             </DropdownMenuItem>
+                             <DropdownMenuSeparator />
+                             <DropdownMenuItem onClick={() => exportSingleEventPdf(sub)} className="cursor-pointer">
+                               <FileDown className="h-4 w-4 mr-2" /> Exportar PDF
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")} className="cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50">
+                               <MessageCircle className="h-4 w-4 mr-2" /> Divulgar WhatsApp
+                             </DropdownMenuItem>
+                             <DropdownMenuSeparator />
+                             <DropdownMenuItem onClick={() => handleDelete(sub.id)} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer">
+                               <Trash2 className="h-4 w-4 mr-2" /> Excluir permanentemente
+                             </DropdownMenuItem>
+                           </DropdownMenuContent>
+                         </DropdownMenu>
+                       </TooltipProvider>
+                     </div>
                   </div>
 
                   {expandedId === sub.id && (
