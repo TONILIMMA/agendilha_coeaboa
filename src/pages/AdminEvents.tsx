@@ -483,13 +483,11 @@ export default function AdminEvents() {
                          <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
                            <MessageCircle className="h-3 w-3 text-green-500" />
                            {sub.shares_count || 0} compartilhamentos
-                         </div>
-                       </div>
-       )}
-     </div>
-     </div>
-
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                          </div>
+                        </div>
+                      )}
+ 
+                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       {sub.date && (
                         <span className="flex items-center gap-1">
                           <Clock className="h-3.5 w-3.5" />
