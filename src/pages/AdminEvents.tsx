@@ -198,8 +198,8 @@ export default function AdminEvents() {
                <LayoutDashboard className="h-5 w-5" />
                <span className="text-xs font-black uppercase tracking-[0.2em]">Backoffice</span>
              </div>
-             <h1 className="text-4xl font-black tracking-tight text-foreground">Gestão de Eventos</h1>
-             <p className="text-muted-foreground text-base">Moderação, curadoria e distribuição da agenda hiperlocal.</p>
+              <h1 className="text-3xl font-black tracking-tight text-foreground">Gestão de Eventos</h1>
+              <p className="text-muted-foreground text-sm">Controle operacional e curadoria da agenda hiperlocal.</p>
            </div>
            <div className="flex flex-wrap gap-3">
              <Button variant="outline" size="sm" className="h-10 font-bold border-border hover:bg-muted" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
@@ -220,14 +220,14 @@ export default function AdminEvents() {
 
          {/* KPIs */}
          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-           {[
-             { label: 'Total', value: kpis.total, color: 'text-blue-600', bg: 'bg-blue-50' },
-             { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-amber-50' },
-             { label: 'Em Análise', value: kpis.analysis, color: 'text-blue-600', bg: 'bg-blue-50' },
-             { label: 'Aprovados', value: kpis.approved, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-             { label: 'Rejeitados', value: kpis.rejected, color: 'text-rose-600', bg: 'bg-rose-50' },
-             { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-           ].map((kpi) => (
+              {[
+                { label: 'Total', value: kpis.total, color: 'text-slate-600', bg: 'bg-white' },
+                { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-white' },
+                { label: 'Em Análise', value: kpis.analysis, color: 'text-blue-600', bg: 'bg-white' },
+                { label: 'Aprovados', value: kpis.approved, color: 'text-emerald-600', bg: 'bg-white' },
+                { label: 'Rejeitados', value: kpis.rejected, color: 'text-rose-600', bg: 'bg-white' },
+                { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-white' },
+              ].map((kpi) => (
              <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm hover:shadow-md transition-all`}>
                <CardContent className="p-4">
                  <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">{kpi.label}</p>
