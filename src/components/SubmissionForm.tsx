@@ -316,7 +316,6 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       await saveProfile({
         nick_name: currentValues.nickName,
         phone: currentValues.basicPhone,
-        home_location: currentValues.userLocation,
         company_name: currentValues.companyName,
         email: currentValues.email || "",
       } as any);
@@ -370,14 +369,13 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
         ...currentValues,
         nickName: profile.nick_name || "",
         basicPhone: profile.phone || "",
-        userLocation: profile.home_location || "",
         companyName: profile.company_name || "",
         email: profile.email || "",
         addressStreet: profile.address_street || "",
         addressNumber: profile.address_number || "",
         addressZip: profile.address_zip || "",
         contactSocial: profile.contact_social || "",
-      });
+      } as any);
     }
   }, [loaded, profile, form]);
 
@@ -430,14 +428,12 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       saveProfile({
         nick_name: data.nickName,
         phone: data.basicPhone,
-        home_location: data.userLocation,
         company_name: data.companyName,
         email: data.email || "",
-        pin_code: data.pinCode,
-        address_street: data.addressStreet || "",
-        address_number: data.addressNumber || "",
-        address_zip: data.addressZip || "",
-        contact_social: data.contactSocial || "",
+        address_street: data.address_street || "",
+        address_number: data.address_number || "",
+        address_zip: data.address_zip || "",
+        contact_social: data.contact_social || "",
       } as any);
       
       setSubmitted(true);
