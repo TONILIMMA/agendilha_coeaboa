@@ -411,18 +411,30 @@ export default function AgendaCultural() {
         )}
       </main>
 
-       <footer className="bg-muted/40 border-t border-border mt-20">
-         <div className="mx-auto max-w-4xl px-4 py-16 text-center space-y-6">
-           <div className="flex justify-center items-center gap-3 font-display text-xl font-bold text-primary">
-             <img src={logoCoeABoa} alt="" className="h-8 w-8 rounded-full" />
-             AgendIlha <span className="text-muted-foreground/60 font-medium">| Coé a Boa?</span>
+       <footer className="bg-muted/30 border-t border-border mt-24">
+         <div className="mx-auto max-w-4xl px-4 py-20 text-center space-y-8">
+           <div className="flex flex-col items-center gap-4">
+             <div className="flex items-center gap-3">
+               <img src={logoCoeABoa} alt="Coé a Boa?" className="h-10 w-10 rounded-full ring-2 ring-primary/10" />
+               <div className="flex flex-col items-start leading-[1.1] text-left">
+                 <span className="font-display text-2xl font-black text-primary tracking-tight">AgendIlha</span>
+                 <span className="text-[10px] text-secondary font-bold uppercase tracking-widest">Coé a Boa?</span>
+               </div>
+             </div>
+             <p className="text-[15px] text-muted-foreground max-w-md mx-auto leading-relaxed font-medium italic opacity-80">
+               "Sua agenda cultural hiperlocal. Os melhores eventos da Ilha do Governador reunidos e curados em um só lugar."
+             </p>
            </div>
-           <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-             Sua agenda cultural hiperlocal. Os melhores eventos da Ilha do Governador reunidos e curados em um só lugar.
-           </p>
-           <div className="pt-8 text-[11px] uppercase tracking-[0.2em] text-muted-foreground/40 font-bold">
-            © {new Date().getFullYear()} AgendIlha do Governador
-          </div>
+           
+           <div className="pt-10 flex flex-col items-center gap-2">
+             <div className="h-px w-12 bg-border mb-4" />
+             <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/50 font-black">
+               © {new Date().getFullYear()} AgendIlha do Governador
+             </div>
+             <div className="text-[9px] uppercase tracking-wider text-muted-foreground/30 font-bold">
+               Uma iniciativa da marca Coé a Boa?
+             </div>
+           </div>
         </div>
       </footer>
     </div>
