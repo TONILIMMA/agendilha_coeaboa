@@ -683,7 +683,7 @@ function buildUberLink(ev: Event): string {
                     </Button>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                    <Badge className="mb-2 bg-primary text-primary-foreground border-none px-3 py-1 font-black text-[10px] tracking-widest uppercase">
+                    <Badge className="mb-3 bg-[#F6EEEA] text-[#2F5D46] border-[#E6D6CF] border px-3 py-1.5 font-semibold text-[10px] tracking-[0.15em] uppercase rounded-full shadow-sm">
                       {categoryLabels[selectedEvent.category || ""] || "Evento"}
                     </Badge>
                     <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-[1.1]">
