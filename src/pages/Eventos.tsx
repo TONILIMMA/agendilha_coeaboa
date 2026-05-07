@@ -582,16 +582,12 @@ export default function Eventos() {
                            </div>
                          </div>
                        </div>
-                       <div className="p-4 bg-muted/50 border-t flex flex-col items-center gap-2">
-                         <p className="text-xs font-medium text-muted-foreground">Tire um print para compartilhar no Story ou WhatsApp</p>
-                         <Button size="sm" variant="ghost" className="text-[10px] h-6 opacity-50 hover:opacity-100" onClick={() => {
-                            const el = document.getElementById(`event-card-${sub.id}`);
-                            if (el) {
-                              toast.info("Dica: Use a ferramenta de captura do sistema para salvar o card em alta qualidade!");
-                            }
-                         }}>
-                           Ajustar Visualização
-                         </Button>
+                       <div className="p-4 bg-muted/50 border-t flex flex-col items-center gap-3">
+                         <div className="flex items-center gap-2 text-primary font-bold animate-pulse">
+                           <ImageIcon className="h-4 w-4" />
+                           <p className="text-xs">CARD PRONTO PARA POSTAR!</p>
+                         </div>
+                         <p className="text-[10px] text-muted-foreground text-center px-4 italic leading-tight">DICA: No celular, pressione o card e escolha "Salvar" ou tire um print. No PC, use "Ferramenta de Captura" (Win+Shift+S).</p>
                        </div>
                      </DialogContent>
                    </Dialog>
