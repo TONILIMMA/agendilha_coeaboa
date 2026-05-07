@@ -171,12 +171,12 @@ export default function Landing() {
           </p>
 
           <div className="mt-10 flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-2.5 w-full xs:w-auto">
-            <Link to="/coeaboa" className="w-full xs:w-auto">
+             <Link to="/agenda" className="w-full xs:w-auto">
               <Button size="lg" className="w-full rounded-full h-12 px-7 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                 Ver agenda <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </Link>
-            <Link to="/auth" className="w-full xs:w-auto">
+             <Link to="/enviar-evento" className="w-full xs:w-auto">
               <Button size="lg" variant="ghost" className="w-full rounded-full h-12 px-7 text-foreground/80 hover:bg-white/60 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                 Cadastrar evento
               </Button>
@@ -325,7 +325,7 @@ export default function Landing() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2.5 shrink-0">
-                <Link to="/coeaboa">
+                 <Link to="/agenda">
                   <Button className="rounded-full h-12 px-6 bg-background text-foreground hover:bg-background/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
                     <FileDown className="h-4 w-4 mr-1.5" />
                     Baixar PDF
