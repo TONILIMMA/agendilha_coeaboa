@@ -116,9 +116,9 @@ export default function Landing() {
             e moradores — com curadoria, design e <em className="font-serif text-foreground/80">alma local</em>.
           </p>
 
-          <div className="mt-12 flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-4 w-full xs:w-auto">
+          <div className="mt-12 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 w-full max-w-lg mx-auto sm:max-w-none">
              <Link to="/agenda" className="w-full xs:w-auto">
-              <Button size="lg" className="w-full rounded-full h-14 px-10 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] text-lg font-bold border-2 border-primary">
+              <Button size="lg" className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-8 sm:px-12 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] text-lg sm:text-xl font-black border-2 border-primary">
                 Ver agenda <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -126,18 +126,22 @@ export default function Landing() {
                size="lg" 
                variant="outline" 
                asChild
-               className="w-full xs:w-auto rounded-full h-14 px-10 text-foreground font-bold border-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] text-lg"
+                className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-8 sm:px-12 text-foreground font-black border-2 border-primary/40 hover:border-primary/60 hover:bg-primary/5 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] text-lg sm:text-xl"
              >
                <Link to="/enviar-evento">Enviar evento</Link>
              </Button>
           </div>
 
-          {/* Floating logo chip */}
-          <div className="mt-16 inline-flex items-center gap-3 px-4 py-2.5 rounded-full glass-strong shadow-glass">
-            <img src={logo} alt="" className="h-8 w-8 rounded-full ring-1 ring-foreground/10" />
-            <span className="font-mono text-[11px] tracking-wider text-foreground/60 uppercase">
-              Feito com carinho
-            </span>
+          {/* Branding Signature Chip */}
+          <div className="mt-16 inline-flex flex-col items-center gap-3 reveal">
+            <div className="flex items-center gap-3 px-5 py-3 rounded-full glass-strong shadow-glass border border-white/20">
+              <img src={logo} alt="Coé a Boa?" className="h-8 w-8 sm:h-10 sm:w-10 rounded-full ring-2 ring-primary/20 shadow-sm" />
+              <div className="flex flex-col items-start leading-none">
+                <span className="font-display text-sm sm:text-base font-bold text-foreground">Coé a Boa?</span>
+                <span className="font-mono text-[9px] sm:text-[10px] tracking-widest text-foreground/50 uppercase">Assinatura Visual</span>
+              </div>
+            </div>
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-foreground/40">Conectando a Ilha do Governador</p>
           </div>
         </div>
       </section>
