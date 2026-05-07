@@ -475,16 +475,54 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       {/* Form Container */}
       <div className="mx-auto max-w-2xl px-2 xs:px-3 sm:px-4 -mt-6 xs:-mt-8 sm:-mt-10 relative z-20 pb-12 sm:pb-16">
         <div className="rounded-xl sm:rounded-2xl bg-card shadow-elevated p-3 xs:p-4 sm:p-6 md:p-10">
-          <p className="text-muted-foreground text-sm leading-relaxed mb-6 sm:mb-8">
-            O <strong className="text-secondary">Coé a Boa?</strong> é o portal que conecta a comunidade às melhores experiências locais.
-            No <strong className="text-secondary">AgendIlha</strong>, você pode divulgar seus eventos, promoções e novidades com visibilidade garantida.
-          </p>
+          {submitted ? (
+            <div className="text-center py-8 animate-in fade-in zoom-in duration-500">
+              <div className="flex justify-center mb-6">
+                <div className="h-24 w-24 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="h-12 w-12 text-green-600" />
+                </div>
+              </div>
+              <h2 className="text-3xl font-black mb-4">Solicitação Enviada!</h2>
+              <p className="text-muted-foreground mb-8 leading-relaxed">
+                Obrigado por enviar seu evento. Nossa equipe fará a curadoria e você será notificado em breve.
+              </p>
+              
+              <div className="bg-muted/30 rounded-2xl p-6 mb-8 text-left space-y-4 border border-border/50 shadow-inner">
+                <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status Atual</span>
+                  <Badge className="bg-amber-100 text-amber-700 border-none font-black text-[10px] px-3 py-1">PENDENTE</Badge>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Resumo do Evento</p>
+                  <p className="font-black text-lg text-foreground leading-tight">{form.getValues("eventTitle") || form.getValues("atrativoName")}</p>
+                  <p className="text-sm text-muted-foreground font-medium mt-1 flex items-center gap-1.5">
+                    <CalendarIcon className="h-3.5 w-3.5" />
+                    {form.getValues("date")} às {form.getValues("startTime")}
+                  </p>
+                </div>
+              </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 sm:space-y-8">
-               <StepIndicator steps={steps} currentStep={currentStep} />
-               
-               {currentStep === 1 && (
+              <div className="grid gap-3">
+                <Button onClick={() => navigate("/")} variant="outline" size="lg" className="font-bold h-12 w-full border-2">
+                  Voltar para a Home
+                </Button>
+                <Button onClick={() => navigate("/agenda")} size="lg" className="font-bold h-12 w-full gradient-sunset text-primary-foreground shadow-lg">
+                  Ver Agenda Pública
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-6 sm:mb-8">
+                O <strong className="text-secondary">Coé a Boa?</strong> é o portal que conecta a comunidade às melhores experiências locais.
+                No <strong className="text-secondary">AgendIlha</strong>, você pode divulgar seus eventos, promoções e novidades com visibilidade garantida.
+              </p>
+
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 sm:space-y-8">
+                  <StepIndicator steps={steps} currentStep={currentStep} />
+                  
+                  {currentStep === 1 && (
                  <div className="space-y-6">
                    <h2 className="text-xl font-bold">1. Dados Básicos</h2>
                     <TextField control={form.control} name="nickName" label="Seu Apelido ou Nome Social" />
