@@ -470,242 +470,225 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                )}
 
                {currentStep === 3 && (
-                 <div className="space-y-6">
-                   <h2 className="text-xl font-bold">3. Informações do Evento</h2>
-                   {/* Add categories/event fields here */}
+                 <div className="space-y-6 animate-in fade-in duration-500">
+                   <h2 className="text-xl font-bold flex items-center gap-2">
+                     <PartyPopper className="h-5 w-5 text-primary" />
+                     3. Informações do Evento
+                   </h2>
+                   
+                   <div className="grid gap-4 sm:grid-cols-2">
+                     <FormField
+                       control={form.control}
+                       name="category"
+                       render={({ field }) => (
+                         <FormItem>
+                           <FormLabel>Categoria <span className="text-accent">*</span></FormLabel>
+                           <Select onValueChange={field.onChange} value={field.value}>
+                             <FormControl>
+                               <SelectTrigger className="h-12 text-base">
+                                 <SelectValue placeholder="Selecione a categoria" />
+                               </SelectTrigger>
+                             </FormControl>
+                             <SelectContent>
+                               {categories.map((cat) => (
+                                 <SelectItem key={cat.value} value={cat.value} className="py-2">{cat.label}</SelectItem>
+                               ))}
+                             </SelectContent>
+                           </Select>
+                           <FormMessage />
+                         </FormItem>
+                       )}
+                     />
+                     <TextField control={form.control} name="eventTitle" label="Título do evento (opcional)" />
+                     
+                     <FormField
+                       control={form.control}
+                       name="date"
+                       render={({ field }) => {
+                         const weekday = getWeekdayFromDate(field.value || "");
+                         let selectedDate: Date | undefined;
+                         if (field.value && /^\d{2}\/\d{2}\/\d{4}$/.test(field.value)) {
+                           const [d, m, y] = field.value.split("/").map(Number);
+                           selectedDate = new Date(y, m - 1, d);
+                         }
+                         return (
+                           <FormItem className="flex flex-col">
+                             <FormLabel>Data <span className="text-accent">*</span></FormLabel>
+                             <Popover>
+                               <PopoverTrigger asChild>
+                                 <FormControl>
+                                   <Button variant="outline" className={cn("h-12 w-full justify-start text-left text-base font-normal", !field.value && "text-muted-foreground")}>
+                                     <CalendarIcon className="mr-2 h-4 w-4" />
+                                     {field.value ? (
+                                       <span className="capitalize">{field.value} {weekday && <span className="ml-1 text-primary">({weekday})</span>}</span>
+                                     ) : "Selecione a data"}
+                                   </Button>
+                                 </FormControl>
+                               </PopoverTrigger>
+                               <PopoverContent className="w-auto p-0" align="start">
+                                 <Calendar
+                                   mode="single"
+                                   selected={selectedDate}
+                                   onSelect={(date) => date && field.onChange(format(date, "dd/MM/yyyy"))}
+                                   disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                                   locale={ptBR}
+                                   initialFocus
+                                 />
+                               </PopoverContent>
+                             </Popover>
+                             <FormMessage />
+                           </FormItem>
+                         );
+                       }}
+                     />
+                     
+                     <div className="grid grid-cols-2 gap-4">
+                       <TextField control={form.control} name="startTime" label="Início" type="time" />
+                       <TextField control={form.control} name="endTime" label="Término" type="time" />
+                     </div>
+                   </div>
+                 </div>
+               )}
+
+               {currentStep === 4 && (
+                 <div className="space-y-6 animate-in fade-in duration-500">
+                   <h2 className="text-xl font-bold flex items-center gap-2">
+                     <User className="h-5 w-5 text-primary" />
+                     4. Atrativo
+                   </h2>
+                   <TextField control={form.control} name="atrativoName" label="Nome do Atrativo" />
+                   <TextField control={form.control} name="atrativoType" label="Tipo (Banda, DJ, Palestrante...)" />
+                   <TextField control={form.control} name="atrativoContact" label="WhatsApp do Atrativo" />
+                   <FormField
+                     control={form.control}
+                     name="atrativoDescription"
+                     render={({ field }) => (
+                       <FormItem>
+                         <FormLabel>Breve descrição</FormLabel>
+                         <FormControl>
+                           <Textarea {...field} placeholder="Conte um pouco sobre o atrativo..." className="min-h-[100px] text-base" />
+                         </FormControl>
+                         <FormMessage />
+                       </FormItem>
+                     )}
+                   />
+                 </div>
+               )}
+
+               {currentStep === 5 && (
+                 <div className="space-y-6 animate-in fade-in duration-500">
+                   <h2 className="text-xl font-bold flex items-center gap-2">
+                     <MapPin className="h-5 w-5 text-primary" />
+                     5. Local do Evento
+                   </h2>
+                   <TextField control={form.control} name="locationName" label="Nome do Local" />
+                   <TextField control={form.control} name="eventAddress" label="Endereço Completo" />
+                   
+                   <FormField
+                     control={form.control}
+                     name="locationType"
+                     render={({ field }) => (
+                       <FormItem className="space-y-3">
+                         <FormLabel>Tipo do Local</FormLabel>
+                         <FormControl>
+                           <div className="flex gap-4">
+                             <label className={cn(
+                               "flex-1 flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all",
+                               field.value === "public" ? "border-primary bg-primary/5" : "border-muted"
+                             )}>
+                               <input type="radio" className="hidden" checked={field.value === "public"} onChange={() => field.onChange("public")} />
+                               <span className="font-bold">Área Pública</span>
+                             </label>
+                             <label className={cn(
+                               "flex-1 flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all",
+                               field.value === "commercial" ? "border-primary bg-primary/5" : "border-muted"
+                             )}>
+                               <input type="radio" className="hidden" checked={field.value === "commercial"} onChange={() => field.onChange("commercial")} />
+                               <span className="font-bold">Comercial</span>
+                             </label>
+                           </div>
+                         </FormControl>
+                         <FormMessage />
+                       </FormItem>
+                     )}
+                   />
+                   
+                   {form.watch("locationType") === "commercial" && (
+                     <TextField control={form.control} name="locationContact" label="Contato do Responsável" />
+                   )}
+                 </div>
+               )}
+
+               {currentStep === 6 && (
+                 <div className="space-y-6 animate-in fade-in duration-500">
+                   <h2 className="text-xl font-bold flex items-center gap-2">
+                     <Scale className="h-5 w-5 text-primary" />
+                     6. Questões Legais
+                   </h2>
+                   
+                   <div className="p-4 bg-muted rounded-xl space-y-4">
+                     <p className="text-sm leading-relaxed">
+                       Ao prosseguir, você concorda com nossos <a href="#" className="text-primary underline font-bold">Termos de Uso</a> e autoriza a publicação das informações fornecidas no portal AgendIlha.
+                     </p>
+                     
+                     <FormField
+                       control={form.control}
+                       name="legalAcceptance"
+                       render={({ field }) => (
+                         <FormItem className="flex items-start gap-3 space-y-0">
+                           <FormControl>
+                             <Checkbox checked={field.value} onCheckedChange={field.onChange} className="h-5 w-5" />
+                           </FormControl>
+                           <FormLabel className="font-bold cursor-pointer text-base">Eu aceito e autorizo a publicação</FormLabel>
+                         </FormItem>
+                       )}
+                     />
+                     <FormMessage />
+                   </div>
                  </div>
                )}
 
                {currentStep === 7 && (
-                 <div className="space-y-6">
-                   <h2 className="text-xl font-bold">7. Prévia Final</h2>
-                   <SummarySection title="Dados do Usuário" items={[
+                 <div className="space-y-6 animate-in fade-in duration-500">
+                   <h2 className="text-xl font-bold flex items-center gap-2">
+                     <Eye className="h-5 w-5 text-primary" />
+                     7. Prévia Final
+                   </h2>
+                   
+                   <SummarySection title="👤 Usuário" items={[
                      { label: "Nick", value: form.watch("nickName") },
-                     { label: "WhatsApp", value: form.watch("basicPhone") }
+                     { label: "WhatsApp", value: form.watch("basicPhone") },
+                     { label: "Local", value: form.watch("userLocation") }
                    ]} onEdit={() => setCurrentStep(1)} />
+
+                   <SummarySection title="💼 Divulgador" items={[
+                     { label: "Empresa", value: form.watch("companyName") },
+                     { label: "E-mail", value: form.watch("email") },
+                     { label: "Endereço", value: `${form.watch("addressStreet")}, ${form.watch("addressNumber")}` }
+                   ]} onEdit={() => setCurrentStep(2)} />
+
+                   <SummarySection title="🎉 Evento" items={[
+                     { label: "Título", value: form.watch("eventTitle") },
+                     { label: "Data", value: form.watch("date") },
+                     { label: "Horário", value: `${form.watch("startTime")} às ${form.watch("endTime")}` }
+                   ]} onEdit={() => setCurrentStep(3)} />
+
+                   <SummarySection title="🎤 Atrativo" items={[
+                     { label: "Nome", value: form.watch("atrativoName") },
+                     { label: "Tipo", value: form.watch("atrativoType") }
+                   ]} onEdit={() => setCurrentStep(4)} />
+
+                   <SummarySection title="📍 Local" items={[
+                     { label: "Nome", value: form.watch("locationName") },
+                     { label: "Endereço", value: form.watch("eventAddress") }
+                   ]} onEdit={() => setCurrentStep(5)} />
+                   
+                   <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+                     <CheckCircle2 className="h-6 w-6 text-green-600" />
+                     <p className="text-sm font-medium text-green-800">Tudo pronto! Revise as informações acima e envie sua solicitação.</p>
+                   </div>
                  </div>
                )}
-
-              <CollapsibleSection title="🎉 Informações do Evento" sectionKey="evento" expanded={expandedSections.evento} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <TextField control={form.control} name="eventTitle" label="Título do evento ou promoção" className="sm:col-span-2" />
-                  <FormField
-                    control={form.control}
-                    name="date"
-                    render={({ field }) => {
-                      const weekday = getWeekdayFromDate(field.value || "");
-                      // Parse dd/mm/yyyy to Date for calendar
-                      let selectedDate: Date | undefined;
-                      if (field.value && /^\d{2}\/\d{2}\/\d{4}$/.test(field.value)) {
-                        const [d, m, y] = field.value.split("/").map(Number);
-                        selectedDate = new Date(y, m - 1, d);
-                      }
-                      return (
-                        <FormItem className="flex flex-col">
-                          <FormLabel className="text-sm">Data do Evento <span className="text-accent">*</span></FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  className={cn(
-                                    "h-12 w-full justify-start text-left text-base font-normal",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {field.value ? (
-                                    <span className="capitalize">
-                                      {field.value}
-                                      {weekday && <span className="ml-1 text-primary font-medium">({weekday})</span>}
-                                    </span>
-                                  ) : (
-                                    <span>Selecione a data</span>
-                                  )}
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={selectedDate}
-                                onSelect={(date) => {
-                                  if (date) {
-                                    field.onChange(format(date, "dd/MM/yyyy"));
-                                  }
-                                }}
-                                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                                locale={ptBR}
-                                initialFocus
-                                className={cn("p-3 pointer-events-auto")}
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
-                  <TextField control={form.control} name="endTime" label="Previsão de término" type="time" />
-                  <TextField control={form.control} name="location" label="Nome do local / estabelecimento" className="sm:col-span-2" />
-                </div>
-
-                {/* Endereço detalhado */}
-                <div className="mt-3 sm:mt-4 rounded-lg border border-border bg-muted/30 p-3 sm:p-4 space-y-3">
-                  <p className="text-sm font-medium text-foreground">📍 Endereço completo <span className="text-muted-foreground font-normal">(opcional)</span></p>
-                  <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
-                    <CepField control={form.control} onCepFound={(data) => {
-                      form.setValue("addressStreet", data.logradouro || "");
-                      form.setValue("addressNeighborhood", data.bairro || "");
-                      form.setValue("addressCity", data.localidade || "");
-                      form.setValue("addressState", data.uf || "");
-                    }} />
-                    <TextField control={form.control} name="addressNumber" label="Número" required={false} />
-                    <TextField control={form.control} name="addressStreet" label="Rua" required={false} />
-                    <TextField control={form.control} name="addressNeighborhood" label="Bairro" required={false} />
-                    <TextField control={form.control} name="addressCity" label="Cidade" required={false} />
-                    <TextField control={form.control} name="addressState" label="Estado" required={false} />
-                  </div>
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem className="mt-3 sm:mt-4">
-                      <FormLabel>Breve descrição – "Qual é a boa?"</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} maxLength={300} rows={3} placeholder="Descreva o que vai rolar..." className="resize-none text-base min-h-[100px]" />
-                      </FormControl>
-                      <div className="flex justify-between">
-                        <FormMessage />
-                        <span className="text-xs text-muted-foreground">{descriptionLength}/300</span>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </CollapsibleSection>
-
-              <CollapsibleSection title="🎯 Detalhes da Promoção" sectionKey="promocao" expanded={expandedSections.promocao} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <TextField control={form.control} name="promotionType" label="Tipo de promoção" required={false} />
-                  <TextField control={form.control} name="targetAudience" label="Público-alvo" required={false} />
-                </div>
-                  <TextField control={form.control} name="promotionRules" label="Regras ou condições" required={false} />
-              </CollapsibleSection>
-
-              <CollapsibleSection title="📎 Upload de Materiais" sectionKey="upload" expanded={expandedSections.upload} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <FileUpload label="Flyer" accept=".pdf,.jpg,.jpeg,.png" file={flyerFile} onFileChange={setFlyerFile} />
-                  <FileUpload label="Banner" accept=".jpg,.jpeg,.png" file={bannerFile} onFileChange={setBannerFile} />
-                </div>
-                <div className="mt-3 sm:mt-4">
-                  <TextField control={form.control} name="videoLink" label="Link para vídeo (YouTube/Instagram)" required={false} type="url" inputMode="url" />
-                </div>
-              </CollapsibleSection>
-
-              <CollapsibleSection title="📞 Contato e Informações Adicionais" sectionKey="contato" expanded={expandedSections.contato} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1">
-                  <TextField control={form.control} name="contactSocial" label="Redes sociais (Instagram, Facebook, etc.)" required={false} />
-                  <FormField
-                    control={form.control}
-                    name="additionalDetails"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Outros detalhes relevantes</FormLabel>
-                        <FormControl>
-                          <Textarea {...field} maxLength={500} rows={3} placeholder="Ex.: estacionamento disponível, local acessível..." className="resize-none text-base min-h-[80px]" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CollapsibleSection>
-
-              <CollapsibleSection title="💰 Valores e Gestão" sectionKey="valores" expanded={expandedSections.valores || false} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <TextField control={form.control} name="salePrice" label="Valor de venda" required={false} placeholder="Ex.: R$ 50,00" />
-                  <TextField control={form.control} name="maintenanceCost" label="Custo de manutenção" required={false} placeholder="Ex.: R$ 200,00" />
-                  <TextField control={form.control} name="subscriptionInfo" label="Assinatura (se houver)" required={false} placeholder="Ex.: Mensal R$ 29,90" />
-                  <TextField control={form.control} name="commission" label="Comissão" required={false} placeholder="Ex.: 10%" />
-                  <TextField control={form.control} name="responsiblePerson" label="Responsável pelo evento" required={false} placeholder="Ex.: Toni" />
-                  <FormField
-                    control={form.control}
-                    name="stage"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Estágio do evento</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-12 text-base">
-                              <SelectValue placeholder="Selecione o estágio" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="development" className="py-3 text-base">Em desenvolvimento</SelectItem>
-                            <SelectItem value="confirmed" className="py-3 text-base">Confirmado</SelectItem>
-                            <SelectItem value="update" className="py-3 text-base">Atualização</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                  <TextField control={form.control} name="conceptDescription" label="Conceito / Ideias do evento" required={false} />
-              </CollapsibleSection>
-
-              <CollapsibleSection title="📂 Categoria do Evento" sectionKey="categoria" expanded={expandedSections.categoria} onToggle={toggleSection}>
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Categoria <span className="text-accent">*</span></FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-12 text-base">
-                            <SelectValue placeholder="Selecione uma categoria" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat.value} value={cat.value} className="py-3 text-base">{cat.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {form.watch("category") === "outros" && (
-                  <div className="mt-3">
-                    <TextField control={form.control} name="additionalDetails" label="Especifique a categoria" required={false} />
-                  </div>
-                )}
-              </CollapsibleSection>
-
-              <FormField
-                control={form.control}
-                name="authorization"
-                render={({ field }) => (
-                  <FormItem className="rounded-lg border border-border bg-muted/50 p-4">
-                    <div className="flex items-start gap-3">
-                  <FormControl>
-                    <Checkbox checked={field.value === true} onCheckedChange={field.onChange} className="mt-0.5 h-5 w-5" />
-                  </FormControl>
-                      <div className="space-y-1">
-                        <FormLabel className="text-sm font-medium leading-snug cursor-pointer">
-                          Autorizo a publicação dos materiais enviados no portal AgendIlha/Coé a Boa?
-                        </FormLabel>
-                        <FormMessage />
-                      </div>
-                    </div>
-                  </FormItem>
-                )}
-              />
 
               <div className="pt-4 sm:pt-8 border-t border-border space-y-4">
                 {currentStep < steps.length ? (
