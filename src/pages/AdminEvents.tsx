@@ -210,24 +210,24 @@ export default function AdminEvents() {
           </div>
         </div>
 
-        {/* KPIs */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          {[
-            { label: 'Total', value: kpis.total, color: 'text-blue-600', bg: 'bg-blue-50' },
-            { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-amber-50' },
-            { label: 'Em Análise', value: kpis.analysis, color: 'text-purple-600', bg: 'bg-purple-50' },
-            { label: 'Aprovados', value: kpis.approved, color: 'text-green-600', bg: 'bg-green-50' },
-            { label: 'Rejeitados', value: kpis.rejected, color: 'text-red-600', bg: 'bg-red-50' },
-            { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-          ].map((kpi) => (
-            <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm`}>
-              <CardContent className="p-4">
-                <p className="text-xs font-semibold uppercase text-muted-foreground">{kpi.label}</p>
-                <p className={`text-2xl font-bold ${kpi.color}`}>{kpi.value}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+         {/* KPIs */}
+         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+           {[
+             { label: 'Total', value: kpis.total, color: 'text-blue-600', bg: 'bg-blue-50' },
+             { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-amber-50' },
+             { label: 'Em Análise', value: kpis.analysis, color: 'text-blue-600', bg: 'bg-blue-50' },
+             { label: 'Aprovados', value: kpis.approved, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+             { label: 'Rejeitados', value: kpis.rejected, color: 'text-rose-600', bg: 'bg-rose-50' },
+             { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+           ].map((kpi) => (
+             <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm hover:shadow-md transition-all`}>
+               <CardContent className="p-4">
+                 <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">{kpi.label}</p>
+                 <p className={`text-3xl font-black ${kpi.color} mt-1`}>{kpi.value}</p>
+               </CardContent>
+             </Card>
+           ))}
+         </div>
 
         {/* Filters */}
         <Card className="mb-6 shadow-sm border-border/40">
