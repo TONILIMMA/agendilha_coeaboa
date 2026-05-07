@@ -132,23 +132,20 @@ function buildUberLink(ev: Event): string {
 
  export default function AgendaCultural() {
    const navigate = useNavigate();
+    const [shareData, setShareData] = useState<{ title: string; text: string; url: string; eventId?: string } | null>(null);
+
     const handleShare = async (title: string, text: string, url: string, eventId?: string) => {
       if (navigator.share) {
         try {
-          await navigator.share({
-            title,
-            text,
-            url,
-          });
+          await navigator.share({ title, text, url });
           if (eventId) trackShare(eventId);
         } catch (err) {
           if ((err as Error).name !== 'AbortError') {
-            console.error('Error sharing:', err);
-            handleCopyLink(url);
+            setShareData({ title, text, url, eventId });
           }
         }
       } else {
-        handleCopyLink(url);
+        setShareData({ title, text, url, eventId });
       }
     };
 
