@@ -345,67 +345,72 @@ function buildUberLink(ev: Event): string {
             </div>
          </div>
 
-        {/* Filtros Públicos */}
-        <div className="mb-12 bg-card border border-border rounded-2xl p-6 shadow-card space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="O que você procura hoje? (show, feira, etc...)"
-                className="pl-10 h-12 text-lg border-none bg-muted/50 focus-visible:ring-primary/20"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+        {/* Bloco de Busca e Filtros - Mobile-First */}
+        <div className="mb-12 space-y-4 sm:space-y-6">
+          <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
+            <div className="flex flex-col gap-5 sm:gap-6">
+              {/* Barra de Busca e Ordenação */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="relative flex-1 group">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                  <Input
+                    placeholder="O que você procura hoje?"
+                    className="pl-12 h-14 text-base sm:text-lg border-none bg-muted/40 focus-visible:ring-2 focus-visible:ring-primary/20 rounded-2xl sm:rounded-3xl"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+                <div className="relative shrink-0">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const newOrder = sortOrder === "asc" ? "desc" : "asc";
+                      setSortOrder(newOrder);
+                      toast.info(`Ordenado por: ${newOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}`, {
+                        duration: 2000,
+                        position: "bottom-center"
+                      });
+                    }}
+                    className="w-full sm:w-auto h-14 px-6 rounded-2xl sm:rounded-3xl border-2 border-primary/10 text-primary font-bold transition-all active:scale-95 bg-white hover:bg-primary/5 hover:border-primary/30 flex items-center justify-center gap-2"
+                  >
+                    <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
+                    <span className="text-[11px] sm:text-xs uppercase tracking-widest">
+                      {sortOrder === "asc" ? "Próximos" : "Distantes"}
+                    </span>
+                  </Button>
+                  <div className={cn(
+                    "absolute -top-1.5 -right-1 h-3.5 w-3.5 rounded-full border-2 border-background shadow-sm",
+                    sortOrder === "asc" ? "bg-primary" : "bg-secondary"
+                  )} />
+                </div>
+              </div>
+
+              {/* Dropdowns de Filtro */}
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="h-12 sm:h-13 border-2 border-primary/10 bg-white hover:bg-primary/5 transition-colors focus:ring-2 focus:ring-primary/20 rounded-xl sm:rounded-2xl font-semibold text-sm">
+                    <SelectValue placeholder="Categorias" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-border/50">
+                    <SelectItem value="all" className="font-semibold">Todas as categorias</SelectItem>
+                    {Object.entries(categoryLabels).map(([k, v]) => (
+                      <SelectItem key={k} value={k}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
+                  <SelectTrigger className="h-12 sm:h-13 border-2 border-primary/10 bg-white hover:bg-primary/5 transition-colors focus:ring-2 focus:ring-primary/20 rounded-xl sm:rounded-2xl font-semibold text-sm">
+                    <SelectValue placeholder="Bairros" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-border/50">
+                    <SelectItem value="all" className="font-semibold">Todos os bairros</SelectItem>
+                    {neighborhoods.map((n) => (
+                      <SelectItem key={n} value={n}>{n}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="relative group">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const newOrder = sortOrder === "asc" ? "desc" : "asc";
-                  setSortOrder(newOrder);
-                  toast.info(`Ordenado por: ${newOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}`, {
-                    duration: 2000,
-                    position: "bottom-center"
-                  });
-                }}
-                aria-label={`Ordenar eventos: atual ${sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}. Clique para inverter.`}
-                aria-pressed={sortOrder === "desc"}
-                className="h-12 px-5 rounded-xl border-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none font-bold flex items-center gap-2 bg-white border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40"
-              >
-                <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
-                <span className="text-xs uppercase tracking-wider">
-                  {sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}
-                </span>
-              </Button>
-              <div className={cn(
-                "absolute -top-2 -right-1 h-3 w-3 rounded-full border-2 border-background animate-pulse",
-                sortOrder === "asc" ? "bg-primary" : "bg-secondary"
-              )} />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="h-11 border-2 border-primary/20 bg-white hover:bg-primary/5 transition-colors focus:ring-primary/20">
-                <SelectValue placeholder="Todas as categorias" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as categorias</SelectItem>
-                {Object.entries(categoryLabels).map(([k, v]) => (
-                  <SelectItem key={k} value={k}>{v}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
-              <SelectTrigger className="h-11 border-2 border-primary/20 bg-white hover:bg-primary/5 transition-colors focus:ring-primary/20">
-                <SelectValue placeholder="Todos os bairros" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os bairros</SelectItem>
-                {neighborhoods.map((n) => (
-                  <SelectItem key={n} value={n}>{n}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
 
