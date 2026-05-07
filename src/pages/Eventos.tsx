@@ -297,6 +297,20 @@ export default function Eventos() {
     } as any);
   }
 
+   async function handleHighlightToggle(id: string, current: boolean) {
+     const { error } = await supabase
+       .from("submissions")
+       .update({ is_highlight: !current } as any)
+       .eq("id", id);
+     if (error) {
+       toast.error("Erro ao atualizar destaque");
+     } else {
+       toast.success(!current ? "Evento marcado como destaque!" : "Destaque removido");
+       setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, is_highlight: !current } : s));
+       await logAudit(id, !current ? "highlighted" : "unhighlighted");
+     }
+   }
+
   async function handleStatusChange(id: string, newStatus: string) {
     const { error } = await supabase.from("submissions").update({ status: newStatus } as any).eq("id", id);
     if (error) {
