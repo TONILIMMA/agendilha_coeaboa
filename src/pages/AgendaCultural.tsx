@@ -282,23 +282,25 @@ function buildUberLink(ev: Event): string {
   return (
     <div className="min-h-screen bg-background">
 
-      <main className="mx-auto max-w-4xl px-4 py-8">
-         {/* Topo da Página */}
-         <div className="mb-16 text-center space-y-8 relative">
-            <div className="flex flex-col items-center gap-6">
-              <div className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-secondary/15 border border-secondary/30 mb-2 shadow-sm">
-                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-secondary-foreground">Coé a Boa? apresenta:</span>
+      <main className="mx-auto max-w-4xl px-4 py-8 sm:py-12 md:py-16">
+         {/* Topo da Página - Hero Mobile-First */}
+         <div className="mb-12 sm:mb-20 text-center space-y-8 relative animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="flex flex-col items-center gap-4 sm:gap-6">
+              <div className="inline-flex items-center justify-center px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-secondary/10 border border-secondary/20 mb-2 shadow-sm">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-secondary-foreground">Coé a Boa? apresenta:</span>
               </div>
-              <h1 className="text-5xl sm:text-8xl font-black font-display text-primary tracking-tightest leading-none drop-shadow-sm">AgendIlha</h1>
-              <p className="text-muted-foreground text-lg sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-4 text-balance">
+              <h1 className="text-5xl xs:text-6xl sm:text-8xl font-black font-display text-primary tracking-tightest leading-[0.9] drop-shadow-sm">
+                AgendIlha
+              </h1>
+              <p className="text-muted-foreground text-base sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-2 sm:px-4 text-balance">
                 A agenda cultural curada da Ilha do Governador.
               </p>
             </div>
 
-            <div className="flex flex-col items-center gap-8 mt-12 px-4" role="group" aria-label="Ações da agenda">
-              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-2xl">
+            <div className="flex flex-col items-center gap-6 sm:gap-8 mt-8 sm:mt-12 px-2" role="group" aria-label="Ações da agenda">
+              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full max-w-2xl">
                 <Button
-                  className="rounded-full shadow-xl gradient-sunset text-primary-foreground font-black px-8 sm:px-12 h-16 text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-105 active:scale-95 flex-1"
+                  className="rounded-full shadow-lg sm:shadow-xl gradient-sunset text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-[1.02] active:scale-95 flex-1"
                   onClick={() => window.open(buildWhatsAppShare(), "_blank")}
                   aria-label="Compartilhar agenda no WhatsApp"
                 >
@@ -307,7 +309,7 @@ function buildUberLink(ev: Event): string {
 
                 <Button 
                   variant="outline" 
-                  className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-8 h-16 text-base font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1" 
+                  className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1" 
                   onClick={() => {
                     const data = getShareData();
                     handleShare(data.title, data.text, data.url);
@@ -318,10 +320,10 @@ function buildUberLink(ev: Event): string {
                 </Button>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-6 w-full opacity-80 hover:opacity-100 transition-opacity">
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 w-full opacity-80 hover:opacity-100 transition-opacity">
                 <Button 
                   variant="ghost" 
-                  className="rounded-full h-11 px-6 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
+                  className="rounded-full h-10 sm:h-11 px-4 sm:px-6 text-[11px] sm:text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
                   onClick={() => handleCopyLink(getShareUrl())}
                   aria-label="Copiar link da agenda"
                 >
@@ -330,7 +332,7 @@ function buildUberLink(ev: Event): string {
 
                 <Button 
                   variant="ghost" 
-                  className="rounded-full h-11 px-6 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
+                  className="rounded-full h-10 sm:h-11 px-4 sm:px-6 text-[11px] sm:text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
                   onClick={() => {
                     exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
                     toast.success("PDF da agenda gerado!");
@@ -341,7 +343,7 @@ function buildUberLink(ev: Event): string {
                 </Button>
               </div>
             </div>
-        </div>
+         </div>
 
         {/* Filtros Públicos */}
         <div className="mb-12 bg-card border border-border rounded-2xl p-6 shadow-card space-y-4">
