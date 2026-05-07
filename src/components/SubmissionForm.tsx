@@ -36,17 +36,14 @@ import {
 } from "@/components/ui/select";
 
  const formSchema = z.object({
-   // 1. Dados Básicos do Usuário
-   nickName: z.string().trim().min(1, "Nick/Nome é obrigatório").max(50),
-   basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
-    userLocation: z.string().trim().min(1, "Selecione seu Bairro/Região"),
-   otherLocation: z.string().trim().optional(),
- 
-   // 2. Para Divulgadores
-   companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
-   pinCode: z.string().trim().min(4, "Senha deve ter 4-8 dígitos").max(8),
-   email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
-   addressZip: z.string().trim().optional(),
+    // 1. Identificação do Divulgador
+    nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
+    basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
+
+    // 2. Dados Profissionais
+    companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
+    email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
+    addressZip: z.string().trim().optional(),
    addressStreet: z.string().trim().optional(),
    addressNumber: z.string().trim().optional(),
  
@@ -263,12 +260,12 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
   const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   const steps = [
-    { id: 1, title: "Básico", description: "Dados do usuário" },
-    { id: 2, title: "Divulgador", description: "Informações profissionais" },
+    { id: 1, title: "Identificação", description: "Seus dados" },
+    { id: 2, title: "Profissional", description: "Informações da conta" },
     { id: 3, title: "Evento", description: "O que vai rolar?" },
-    { id: 4, title: "Atrativo", description: "Quem vai se apresentar?" },
+    { id: 4, title: "Atrativo", description: "Quem se apresenta?" },
     { id: 5, title: "Local", description: "Onde vai ser?" },
-    { id: 6, title: "Legal", description: "Termos e condições" },
+    { id: 6, title: "Legal", description: "Termos" },
     { id: 7, title: "Revisão", description: "Confira tudo" },
   ];
 
@@ -299,8 +296,8 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
   const getFieldsForStep = (step: number) => {
     switch (step) {
-      case 1: return ["nickName", "basicPhone", "userLocation", "otherLocation"];
-      case 2: return ["companyName", "pinCode", "email", "addressZip", "addressStreet", "addressNumber"];
+      case 1: return ["nickName", "basicPhone"];
+      case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
       case 3: return ["category", "eventTitle", "date", "startTime", "predictedDuration", "endTime"];
       case 4: return ["atrativoName", "atrativoType", "atrativoStyle", "atrativoDescription", "atrativoContact"];
       case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
