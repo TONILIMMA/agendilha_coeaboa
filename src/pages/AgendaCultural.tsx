@@ -360,7 +360,7 @@ function buildWhatsAppShare(ev: Event) {
                       toast.info("Acesse sua conta primeiro", {
                         description: "É necessário estar logado para divulgar eventos."
                       });
-                      navigate("/auth");
+                      navigate("/auth?redirect=/enviar-evento");
                     }
                   }} 
                   className="rounded-full font-black h-12 px-8 gradient-sunset shadow-lg hover:scale-105 transition-transform"
