@@ -256,10 +256,19 @@ function buildWhatsAppShare(ev: Event) {
             </div>
             <Button
               variant="outline"
-              onClick={() => setSortOrder(prev => prev === "asc" ? "desc" : "asc")}
-              className="h-12 px-5 rounded-xl border-none bg-muted/50 hover:bg-muted font-bold text-muted-foreground flex items-center gap-2 transition-colors"
+              onClick={() => {
+                const newOrder = sortOrder === "asc" ? "desc" : "asc";
+                setSortOrder(newOrder);
+                toast.info(`Ordenado por: ${newOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}`, {
+                  duration: 2000,
+                  position: "bottom-center"
+                });
+              }}
+              aria-label={`Ordenar eventos: atual ${sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}. Clique para inverter.`}
+              aria-pressed={sortOrder === "desc"}
+              className="h-12 px-5 rounded-xl border-none bg-muted/50 hover:bg-muted font-bold text-muted-foreground flex items-center gap-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none"
             >
-              <ArrowUpDown className="h-4 w-4" />
+              <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
               <span className="text-xs uppercase tracking-wider">
                 {sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}
               </span>
