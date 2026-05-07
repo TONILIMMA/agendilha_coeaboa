@@ -310,24 +310,35 @@ export default function AgendaCultural() {
                    <h2 className="text-lg font-bold text-foreground">Destaques AgendIlha</h2>
                  </div>
                  <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-                   {filteredEvents.filter(e => e.is_highlight).map(ev => (
-                     <Card key={ev.id} className="min-w-[280px] border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 transition-colors cursor-pointer" onClick={() => trackView(ev.id)}>
-                       <CardContent className="p-4">
-                         <Badge className="mb-2 bg-amber-500 hover:bg-amber-600 text-white border-0">DESTAQUE</Badge>
-                         <h3 className="font-bold text-lg leading-tight line-clamp-1">{ev.event_title}</h3>
-                         <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                           <div className="flex items-center gap-1.5">
-                             <CalendarDays className="h-3.5 w-3.5" />
-                             <span>{ev.date} • {ev.start_time}</span>
-                           </div>
-                           <div className="flex items-center gap-1.5">
-                             <MapPin className="h-3.5 w-3.5" />
-                             <span className="line-clamp-1">{ev.location}</span>
-                           </div>
-                         </div>
-                       </CardContent>
-                     </Card>
-                   ))}
+                    {filteredEvents.filter(e => e.is_highlight).map(ev => (
+                      <Card 
+                        key={ev.id} 
+                        className="min-w-[280px] border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-transparent hover:from-amber-500/20 transition-all cursor-pointer group relative overflow-hidden" 
+                        onClick={() => {
+                          trackView(ev.id);
+                        }}
+                      >
+                        <div className="absolute -right-4 -top-4 w-16 h-16 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all" />
+                        <CardContent className="p-5">
+                          <Badge className="mb-3 bg-amber-500 hover:bg-amber-600 text-white border-0 shadow-sm">DESTAQUE 🔥</Badge>
+                          <h3 className="font-display font-bold text-xl leading-tight line-clamp-2 mb-3 group-hover:text-primary transition-colors">{ev.event_title}</h3>
+                          <div className="mt-2 space-y-2 text-sm text-muted-foreground font-medium">
+                            <div className="flex items-center gap-2">
+                              <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
+                                <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                              </div>
+                              <span>{ev.date} • <span className="text-foreground">{ev.start_time}</span></span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
+                                <MapPin className="h-3.5 w-3.5 text-primary" />
+                              </div>
+                              <span className="line-clamp-1">{ev.location}</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                  </div>
                </section>
              )}
