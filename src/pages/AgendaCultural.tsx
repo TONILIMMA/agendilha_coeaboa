@@ -236,12 +236,15 @@ export default function AgendaCultural() {
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => navigate("/")}
+               onClick={() => navigate("/")}
+               asChild
               className="shrink-0"
-              aria-label="Voltar à página inicial"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+               aria-label="Voltar à página inicial"
+             >
+               <Link to="/">
+                 <ArrowLeft className="h-5 w-5" />
+               </Link>
+             </Button>
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold font-display text-foreground truncate">
                 🌴 AgendIlha
