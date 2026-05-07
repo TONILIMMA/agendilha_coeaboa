@@ -192,30 +192,36 @@ export default function AgendaCultural() {
       <main className="mx-auto max-w-4xl px-4 py-8">
         {/* Topo da Página */}
         <div className="mb-10 text-center space-y-3">
-           <h1 className="text-3xl sm:text-5xl font-bold font-display text-primary flex flex-col sm:flex-row items-center justify-center gap-3">
-             <img src={logoCoeABoa} alt="" className="h-10 w-10 sm:h-14 sm:w-14 rounded-full ring-2 ring-primary/10 shadow-sm" />
-             Agenda Cultural da Ilha
-           </h1>
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-3 mb-2">
+                <img src={logoCoeABoa} alt="" className="h-12 w-12 sm:h-16 sm:w-16 rounded-full ring-4 ring-primary/10 shadow-md" />
+                <div className="flex flex-col items-start leading-none text-left">
+                  <span className="text-[10px] sm:text-sm font-bold uppercase tracking-[0.2em] text-secondary">Coé a Boa? apresenta:</span>
+                  <h1 className="text-3xl sm:text-6xl font-black font-display text-primary tracking-tightest">AgendIlha</h1>
+                </div>
+              </div>
+              <p className="text-muted-foreground text-base sm:text-xl font-medium max-w-lg mx-auto">Eventos curados e divulgados na Ilha do Governador</p>
+            </div>
            <p className="text-muted-foreground text-lg font-medium">Eventos curados e divulgados na Ilha do Governador</p>
-           <div className="flex flex-wrap justify-center gap-3 mt-8">
-             <Button variant="outline" className="rounded-full shadow-sm border-2 font-bold hover:bg-primary/5 transition-colors" onClick={() => {
-              navigator.clipboard.writeText(window.location.href);
-              toast.success("Link da agenda copiado!");
-            }}>
-              <Copy className="h-4 w-4 mr-2" /> Copiar Link
-            </Button>
-             <Button variant="outline" className="rounded-full shadow-sm border-2 font-bold hover:bg-primary/5 transition-colors" onClick={() => {
-               window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
-             }}>
-               <Share2 className="h-4 w-4 mr-2 text-green-600" /> Compartilhar Agenda
-             </Button>
-             <Button variant="default" className="rounded-full shadow-md bg-primary hover:bg-primary/90 font-bold px-6 border-2 border-primary" onClick={() => {
-               exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
-               toast.success("PDF da agenda gerado!");
-             }}>
-               <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
-             </Button>
-          </div>
+            <div className="flex flex-wrap justify-center gap-2.5 sm:gap-4 mt-10">
+              <Button variant="outline" className="rounded-full shadow-sm border-2 border-primary/30 text-primary font-black hover:bg-primary/5 hover:border-primary/50 transition-all px-4 sm:px-6 h-11 sm:h-12 text-sm" onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                toast.success("Link da agenda copiado!");
+              }}>
+                <Copy className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Copiar Link</span><span className="sm:hidden">Link</span>
+              </Button>
+              <Button variant="outline" className="rounded-full shadow-sm border-2 border-green-600/30 text-green-700 font-black hover:bg-green-50 hover:border-green-600/50 transition-all px-4 sm:px-6 h-11 sm:h-12 text-sm" onClick={() => {
+                window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
+              }}>
+                <Share2 className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Compartilhar</span><span className="sm:hidden">Zap</span>
+              </Button>
+              <Button variant="default" className="rounded-full shadow-lg bg-primary hover:bg-primary/90 font-black px-6 sm:px-8 h-11 sm:h-12 text-sm border-2 border-primary transform hover:scale-105 transition-all" onClick={() => {
+                exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
+                toast.success("PDF da agenda gerado!");
+              }}>
+                <FileDown className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Baixar PDF</span><span className="sm:hidden">PDF</span>
+              </Button>
+            </div>
         </div>
 
         {/* Filtros Públicos */}
