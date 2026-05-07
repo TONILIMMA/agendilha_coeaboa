@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User, Trash2, Pencil, Check, X } from "lucide-react";
+import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User, Trash2, Pencil, Check, X, Crown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
@@ -72,6 +72,7 @@ export default function AdminUsers() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
+  const [togglingMaster, setTogglingMaster] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -196,6 +197,49 @@ export default function AdminUsers() {
       toast.error(err.message || "Erro ao alterar papel");
     }
     setToggling(null);
+  }
+
+  async function toggleMaster(targetUser: UserWithRole) {
+    if (targetUser.id === user?.id) {
+      toast.error("Você não pode alterar seu próprio papel de Master");
+      return;
+    }
+    const isMasterUser = targetUser.status === "master";
+    if (isMasterUser) {
+      const mastersCount = users.filter((x) => x.status === "master").length;
+      if (mastersCount <= 1) {
+        toast.error("Deve existir ao menos um Admin Master");
+        return;
+      }
+    }
+    setTogglingMaster(targetUser.id);
+    try {
+      if (isMasterUser) {
+        const { error } = await supabase
+          .from("user_roles")
+          .delete()
+          .eq("user_id", targetUser.id)
+          .eq("role", "master");
+        if (error) throw error;
+        toast.success(`Master removido de ${targetUser.responsible_name || targetUser.email}`);
+      } else {
+        if (!targetUser.is_admin) {
+          const { error: errAdmin } = await supabase
+            .from("user_roles")
+            .insert({ user_id: targetUser.id, role: "admin" });
+          if (errAdmin) throw errAdmin;
+        }
+        const { error } = await supabase
+          .from("user_roles")
+          .insert({ user_id: targetUser.id, role: "master" });
+        if (error) throw error;
+        toast.success(`${targetUser.responsible_name || targetUser.email} agora é Admin Master`);
+      }
+      await fetchUsers();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao alterar Master");
+    }
+    setTogglingMaster(null);
   }
 
   async function deleteUser(targetUser: UserWithRole) {
@@ -359,6 +403,30 @@ export default function AdminUsers() {
                         </>
                       )}
                     </Button>
+
+                    {isMaster && (
+                      <Button
+                        size="sm"
+                        variant={u.status === "master" ? "destructive" : "secondary"}
+                        disabled={togglingMaster === u.id || u.id === user?.id}
+                        onClick={() => toggleMaster(u)}
+                        className="text-xs min-h-[44px] sm:min-h-0"
+                      >
+                        {togglingMaster === u.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : u.status === "master" ? (
+                          <>
+                            <ShieldOff className="h-3.5 w-3.5 mr-1" />
+                            Remover Master
+                          </>
+                        ) : (
+                          <>
+                            <Crown className="h-3.5 w-3.5 mr-1" />
+                            Tornar Master
+                          </>
+                        )}
+                      </Button>
+                    )}
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
