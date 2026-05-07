@@ -405,11 +405,16 @@ export function getEventPdfBlob(event: EventData): Blob {
 
    doc.setTextColor(255, 255, 255);
    doc.setFont("helvetica", "bold");
-   doc.setFontSize(32);
-   doc.text("AgendIlha", PAGE_W/2, 70, { align: "center" });
-   
-   doc.setFontSize(16);
-   doc.text(title, PAGE_W/2, 82, { align: "center" });
+    doc.setFontSize(36);
+    doc.text("AgendIlha", PAGE_W/2, 65, { align: "center" });
+    
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255, 0.9);
+    doc.text("by Coé a Boa?", PAGE_W/2, 73, { align: "center" });
+    
+    doc.setFontSize(18);
+    doc.setTextColor(255, 255, 255);
+    doc.text(title, PAGE_W/2, 85, { align: "center" });
    
    doc.setTextColor(...DARK_TEXT);
    doc.setFontSize(14);
