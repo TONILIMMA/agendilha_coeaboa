@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Sun, Moon, Download, Car, Facebook, Twitter, Mail } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
- import { Dialog, DialogContent } from "@/components/ui/dialog";
+ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
   import { toast } from "sonner";
   import { cn } from "@/lib/utils";
@@ -82,17 +82,35 @@ function buildFullAddress(ev: Event): string {
   return parts.join(" – ");
 }
 
-function buildWhatsAppShare(ev: Event, isAgenda = false) {
-  const agendaUrl = `${window.location.origin}/agenda`;
+const getShareUrl = (eventId?: string) => {
+  const base = `${window.location.origin}/agenda`;
+  return eventId ? `${base}?event=${eventId}` : base;
+};
+
+const getShareData = (ev?: Event) => {
+  const isAgenda = !ev;
+  const title = isAgenda ? "Agenda Cultural da Ilha" : `Evento: ${ev.event_title}`;
+  const url = getShareUrl(ev?.id);
   
-  if (isAgenda) {
-    const msg = `🌴 *Confira a Agenda Cultural da Ilha do Governador!* 🌴\n\nVeja a programação completa e atualizada em:\n${agendaUrl}`;
-    return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  let text = isAgenda 
+    ? "Confira a programação completa da Ilha do Governador!" 
+    : `Confira este evento e a agenda completa no AgendIlha!`;
+
+  if (ev) {
+    const time = ev.start_time ? `${ev.start_time}` : "";
+    const addr = buildFullAddress(ev);
+    const eventDetails = `🗓️ *${ev.event_title}*${time ? `\n⏰ ${time}` : ""}${addr ? `\n📍 ${addr}` : ""}`;
+    text = `${eventDetails}\n\n🌴 Veja os detalhes no AgendIlha:`;
+  } else {
+    text = `🌴 *Confira a Agenda Cultural da Ilha do Governador!* 🌴\n\nVeja a programação completa e atualizada em:`;
   }
-  
-  const time = ev.start_time ? `${ev.start_time}` : "";
-  const addr = buildFullAddress(ev);
-  const msg = `🗓️ *${ev.event_title}*\n${time ? `⏰ ${time}\n` : ""}${addr ? `📍 ${addr}\n` : ""}\n🌴 Veja os detalhes no AgendIlha:\n${agendaUrl}?event=${ev.id}`;
+
+  return { title, text, url };
+};
+
+function buildWhatsAppShare(ev?: Event) {
+  const { text, url } = getShareData(ev);
+  const msg = `${text}\n${url}`;
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
@@ -114,23 +132,20 @@ function buildUberLink(ev: Event): string {
 
  export default function AgendaCultural() {
    const navigate = useNavigate();
+    const [shareData, setShareData] = useState<{ title: string; text: string; url: string; eventId?: string } | null>(null);
+
     const handleShare = async (title: string, text: string, url: string, eventId?: string) => {
       if (navigator.share) {
         try {
-          await navigator.share({
-            title,
-            text,
-            url,
-          });
+          await navigator.share({ title, text, url });
           if (eventId) trackShare(eventId);
         } catch (err) {
           if ((err as Error).name !== 'AbortError') {
-            console.error('Error sharing:', err);
-            handleCopyLink(url);
+            setShareData({ title, text, url, eventId });
           }
         }
       } else {
-        handleCopyLink(url);
+        setShareData({ title, text, url, eventId });
       }
     };
 
@@ -307,9 +322,7 @@ function buildUberLink(ev: Event): string {
               <div className="flex flex-wrap justify-center gap-4 w-full">
                 <Button 
                   className="rounded-full shadow-xl gradient-sunset text-primary-foreground font-black px-8 sm:px-12 h-14 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-105 active:scale-95 flex-1 max-w-[300px]" 
-                  onClick={() => {
-                    window.open(buildWhatsAppShare({} as any, true), "_blank");
-                  }}
+                  onClick={() => window.open(buildWhatsAppShare(), "_blank")}
                   aria-label="Compartilhar agenda no WhatsApp"
                 >
                   <MessageCircle className="h-5 w-5 mr-2.5" /> WhatsApp
@@ -318,11 +331,10 @@ function buildUberLink(ev: Event): string {
                 <Button 
                   variant="outline" 
                   className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-6 sm:px-8 h-14 text-sm font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1 max-w-[250px]" 
-                  onClick={() => handleShare(
-                    "Agenda Cultural da Ilha",
-                    "Confira a programação completa da Ilha do Governador!",
-                    window.location.href
-                  )}
+                  onClick={() => {
+                    const data = getShareData();
+                    handleShare(data.title, data.text, data.url);
+                  }}
                   aria-label="Abrir compartilhamento do sistema"
                 >
                   <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
@@ -333,7 +345,7 @@ function buildUberLink(ev: Event): string {
                 <Button 
                   variant="ghost" 
                   className="rounded-full h-11 px-6 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-all active:scale-95" 
-                  onClick={() => handleCopyLink(window.location.href)}
+                  onClick={() => handleCopyLink(getShareUrl())}
                   aria-label="Copiar link da agenda"
                 >
                   <Copy className="h-4 w-4 mr-2" /> Copiar link
@@ -619,15 +631,11 @@ function buildUberLink(ev: Event): string {
                                   size="lg" 
                                   variant="outline" 
                                   className="rounded-full h-14 sm:h-16 px-8 font-bold text-primary dark:text-primary border-2 border-primary/20 dark:border-primary/30 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-foreground active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none uppercase text-sm tracking-widest" 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleShare(
-                                      `Evento: ${ev.event_title}`,
-                                      `Confira a programação do AgendIlha!`,
-                                      `${window.location.origin}/agenda?event=${ev.id}`,
-                                      ev.id
-                                    );
-                                  }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const data = getShareData(ev);
+                                      handleShare(data.title, data.text, data.url, ev.id);
+                                    }}
                                 >
                                   <Share2 className="h-5 w-5 mr-3" /> Compartilhar
                                 </Button>
@@ -784,25 +792,23 @@ function buildUberLink(ev: Event): string {
                           <MessageCircle className="h-6 w-6 mr-3" /> WhatsApp
                         </Button>
 
-                        <Button 
+                        <Button
                           variant="outline"
-                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary dark:text-primary dark:border-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
-                          onClick={() => handleShare(
-                            `Evento: ${selectedEvent.event_title}`,
-                            `Confira este evento e a agenda completa no AgendIlha!`,
-                            `${window.location.origin}/agenda?event=${selectedEvent.id}`,
-                            selectedEvent.id
-                          )}
+                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary dark:text-primary dark:border-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none"
+                          onClick={() => {
+                            const data = getShareData(selectedEvent);
+                            handleShare(data.title, data.text, data.url, selectedEvent.id);
+                          }}
                         >
                           <Share2 className="h-6 w-6 mr-3" /> Compartilhar
                         </Button>
                       </div>
 
                       <div className="flex flex-wrap gap-3">
-                        <Button 
+                        <Button
                           variant="ghost"
-                          className="flex-1 h-14 rounded-full font-bold text-sm uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 active:scale-95 transition-all" 
-                          onClick={() => handleCopyLink(`${window.location.origin}/agenda?event=${selectedEvent.id}`)}
+                          className="flex-1 h-14 rounded-full font-bold text-sm uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 active:scale-95 transition-all"
+                          onClick={() => handleCopyLink(getShareUrl(selectedEvent.id))}
                         >
                           <Copy className="h-5 w-5 mr-2.5" /> Copiar link
                         </Button>
