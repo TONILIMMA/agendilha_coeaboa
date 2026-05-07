@@ -19,7 +19,8 @@ import AdminMaster from "./pages/AdminMaster";
 import Ranking from "./pages/Ranking";
 import AdminPinGate from "@/components/AdminPinGate";
 import NotFound from "./pages/NotFound";
-import Landing from "./pages/Landing";
+ import Landing from "./pages/Landing";
+ import SubmitEvent from "./pages/SubmitEvent";
 
 import { Loader2 } from "lucide-react";
 
@@ -39,9 +40,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 const AppRoutes = () => (
-  <SubmissionProvider>
-    <Header />
-    <Routes>
+   <SubmissionProvider>
+     <Routes>
       <Route path="/auth" element={<Auth />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/lp" element={<Landing />} />
@@ -50,7 +50,7 @@ const AppRoutes = () => (
          path="/enviar-evento"
          element={
            <ProtectedRoute>
-             <Index />
+             <SubmitEvent />
            </ProtectedRoute>
          }
        />
