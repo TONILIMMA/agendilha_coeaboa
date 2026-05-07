@@ -334,17 +334,23 @@ export default function AdminEvents() {
                          {sub.phone || 'Sem tel'}
                        </div>
                      </div>
-                     <div className="col-span-2 flex justify-center">
+                     <div className="col-span-2 flex flex-col items-center gap-1.5">
                        {(() => {
                          const cfg = statusConfig[sub.status] || statusConfig.pending;
                          const StatusIcon = cfg.icon;
                          return (
-                           <Badge className={`${cfg.bg} ${cfg.color} border-none font-bold text-[10px] py-1 px-2.5 flex items-center gap-1.5`}>
+                           <Badge className={`${cfg.bg} ${cfg.color} border-none font-black text-[9px] py-1 px-2.5 flex items-center gap-1.5 shadow-sm`}>
                              <StatusIcon className="h-3 w-3" />
                              {cfg.label.toUpperCase()}
                            </Badge>
                          );
                        })()}
+                       {sub.status === 'published' && (
+                         <span className="text-[9px] font-bold text-indigo-600/70 flex items-center gap-1">
+                           <Globe className="h-2.5 w-2.5" />
+                           NA AGENDA PÚBLICA
+                         </span>
+                       )}
                      </div>
                      <div className="col-span-2 flex justify-end gap-1">
                        <TooltipProvider>
