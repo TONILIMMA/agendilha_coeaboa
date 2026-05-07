@@ -161,9 +161,12 @@ function buildUberLink(ev: Event): string {
    const [categoryFilter, setCategoryFilter] = useState("all");
    const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [highContrast, setHighContrast] = useState(() => {
-    return localStorage.getItem("agendilha_high_contrast") === "true";
-  });
+  // Keep light mode only
+  useEffect(() => {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.style.colorScheme = "light";
+    localStorage.removeItem("agendilha_high_contrast");
+  }, []);
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
      const saved = localStorage.getItem("agendilha_sort_order");
      return (saved === "desc" ? "desc" : "asc");
