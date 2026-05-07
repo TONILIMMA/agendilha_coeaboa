@@ -116,19 +116,19 @@ export default function Landing() {
             e moradores — com curadoria, design e <em className="font-serif text-foreground/80">alma local</em>.
           </p>
 
-          <div className="mt-10 flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-2.5 w-full xs:w-auto">
+          <div className="mt-12 flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-4 w-full xs:w-auto">
              <Link to="/agenda" className="w-full xs:w-auto">
-              <Button size="lg" className="w-full rounded-full h-12 px-7 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
-                Ver agenda <ArrowRight className="ml-1 h-4 w-4" />
+              <Button size="lg" className="w-full rounded-full h-14 px-10 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] text-lg font-bold border-2 border-primary">
+                Ver agenda <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
              <Button 
                size="lg" 
-               variant="ghost" 
+               variant="outline" 
                asChild
-               className="w-full xs:w-auto rounded-full h-12 px-7 text-foreground/80 hover:bg-white/60 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+               className="w-full xs:w-auto rounded-full h-14 px-10 text-foreground font-bold border-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] text-lg"
              >
-               <Link to="/enviar-evento">Cadastrar evento</Link>
+               <Link to="/enviar-evento">Enviar evento</Link>
              </Button>
           </div>
 
@@ -273,15 +273,15 @@ export default function Landing() {
                   via WhatsApp, redes sociais ou imprensa.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2.5 shrink-0">
+              <div className="flex flex-wrap gap-3 shrink-0">
                  <Link to="/agenda">
-                  <Button className="rounded-full h-12 px-6 bg-background text-foreground hover:bg-background/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
-                    <FileDown className="h-4 w-4 mr-1.5" />
+                  <Button className="rounded-full h-12 px-8 bg-white text-primary hover:bg-white/95 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-bold shadow-lg border-2 border-white">
+                    <FileDown className="h-4 w-4 mr-2" />
                     Baixar PDF
                   </Button>
                 </Link>
                 <Link to="/agenda">
-                  <Button variant="outline" className="rounded-full h-12 px-6 bg-transparent border-white/25 text-primary-foreground hover:bg-white/10 hover:text-primary-foreground transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
+                  <Button variant="outline" className="rounded-full h-12 px-8 bg-transparent border-white/40 text-white hover:bg-white/10 hover:border-white transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-bold">
                     Ver agenda completa
                   </Button>
                 </Link>
@@ -302,14 +302,14 @@ export default function Landing() {
           <p className="mt-7 text-foreground/65 text-base leading-relaxed max-w-md mx-auto">
             Tem um evento, parceria ou ideia? Nossa equipe está pronta para te atender.
           </p>
-          <div className="mt-10">
+          <div className="mt-12">
             <a
               href="https://wa.me/5521999999999?text=Ol%C3%A1%2C%20quero%20saber%20mais%20sobre%20o%20AgendIlha"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button size="lg" className="rounded-full h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated font-display font-bold">
-                <MessageCircle className="h-4 w-4 mr-1.5" />
+              <Button size="lg" className="rounded-full h-14 px-10 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated font-display font-black text-lg transition-transform hover:scale-105 active:scale-95 border-2 border-primary">
+                <MessageCircle className="h-5 w-5 mr-3" />
                 Falar no WhatsApp
               </Button>
             </a>
