@@ -325,11 +325,21 @@ export default function AgendaCultural() {
                         className="overflow-hidden border-border hover:shadow-md transition-all group"
                       >
                         <CardContent className="p-0">
-                          <div className="flex flex-col sm:flex-row">
-                            {/* Icon/Color strip */}
-                            <div className="w-full sm:w-1 bg-primary/20 group-hover:bg-primary transition-colors h-1 sm:h-auto" />
-                            
-                            <div className="flex-1 p-6 sm:p-8 space-y-4">
+                         <div className="flex flex-col md:flex-row">
+                           {/* Image or Icon strip */}
+                           {(ev as any).image_url ? (
+                             <div className="w-full md:w-48 h-48 md:h-auto shrink-0 relative overflow-hidden">
+                               <img 
+                                 src={(ev as any).image_url} 
+                                 alt={ev.event_title}
+                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                               />
+                             </div>
+                           ) : (
+                             <div className="w-full md:w-1 bg-primary/20 group-hover:bg-primary transition-colors h-1 md:h-auto" />
+                           )}
+                           
+                           <div className="flex-1 p-6 md:p-8 space-y-4">
                               <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div className="space-y-1 flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
