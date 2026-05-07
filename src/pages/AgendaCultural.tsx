@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
+ import { useState, useMemo, useEffect } from "react";
+ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -82,8 +83,9 @@ function buildWhatsAppShare(ev: Event) {
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
-export default function AgendaCultural() {
-  const [events, setEvents] = useState<Event[]>([]);
+ export default function AgendaCultural() {
+   const navigate = useNavigate();
+   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -265,17 +267,29 @@ export default function AgendaCultural() {
           <div className="flex justify-center py-20">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
           </div>
-         ) : sortedDays.length === 0 ? (
-           <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed border-border">
-             <CalendarDays className="mx-auto h-16 w-16 mb-4 text-muted-foreground/30" />
-             <p className="text-xl font-medium text-muted-foreground">Nenhum evento futuro encontrado</p>
-             <p className="text-sm text-muted-foreground mt-1">
-               {events.length > 0 
-                 ? "Existem eventos cadastrados, mas todos já ocorreram. Volte em breve!" 
-                 : "Tente ajustar seus filtros ou volte mais tarde."}
-             </p>
-           </div>
-         ) : (
+          ) : sortedDays.length === 0 ? (
+            <div className="text-center py-16 px-6 bg-muted/10 rounded-[2rem] border-2 border-dashed border-border/60 animate-in fade-in zoom-in duration-500">
+              <div className="bg-background w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm ring-8 ring-muted/5">
+                <CalendarDays className="h-10 w-10 text-muted-foreground/40" />
+              </div>
+              <h3 className="text-2xl font-black text-foreground mb-3 tracking-tight">A Ilha está descansando...</h3>
+              <p className="text-muted-foreground text-lg font-medium max-w-md mx-auto leading-relaxed mb-8">
+                {search || categoryFilter !== "all" || neighborhoodFilter !== "all" 
+                  ? "Não encontramos nada com esses filtros. Que tal tentar uma busca mais ampla?" 
+                  : "No momento não temos eventos publicados para os próximos dias. Volte em breve!"}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                {(search || categoryFilter !== "all" || neighborhoodFilter !== "all") && (
+                  <Button variant="outline" onClick={() => { setSearch(""); setCategoryFilter("all"); setNeighborhoodFilter("all"); }} className="rounded-full font-bold border-2 h-11 px-8">
+                    Limpar Filtros
+                  </Button>
+                )}
+                <Button variant="default" onClick={() => navigate("/enviar-evento")} className="rounded-full font-black h-12 px-8 gradient-sunset shadow-lg hover:scale-105 transition-transform">
+                  Divulgar meu Evento
+                </Button>
+              </div>
+            </div>
+          ) : (
           <div className="space-y-12">
             {/* Bloco de Destaques */}
             {filteredEvents.some(e => e.is_highlight) && (
@@ -349,34 +363,34 @@ export default function AgendaCultural() {
                              <div className="w-full md:w-1 bg-primary/20 group-hover:bg-primary transition-colors h-1 md:h-auto" />
                            )}
 
-                           <div className="flex-1 p-6 md:p-7 space-y-5">
-                              <div className="flex flex-wrap items-start justify-between gap-3">
-                                <div className="space-y-1 flex-1 min-w-0">
-                                  <div className="flex items-center gap-2">
+                           <div className="flex-1 p-5 sm:p-7 md:p-8 space-y-5 sm:space-y-6">
+                              <div className="flex flex-wrap items-start justify-between gap-4">
+                                <div className="space-y-2 flex-1 min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2.5">
                                      <span className="text-2xl drop-shadow-sm">{icon}</span>
-                                     <Badge variant="secondary" className="bg-secondary/10 text-secondary-foreground text-[10px] font-bold uppercase tracking-widest border-secondary/20">
+                                     <Badge variant="secondary" className="bg-secondary/10 text-secondary-foreground text-[11px] font-black uppercase tracking-widest border-secondary/20 px-2.5 py-0.5">
                                       {categoryLabels[ev.category!] || ev.category}
                                     </Badge>
                                   </div>
-                                   <h3 className="text-2xl sm:text-3xl font-black text-foreground leading-[1.15] tracking-tight">
+                                   <h3 className="text-2xl sm:text-4xl font-black text-foreground leading-[1.1] tracking-tightest group-hover:text-primary transition-colors">
                                     {ev.event_title}
                                   </h3>
                                 </div>
-                                <div className="flex flex-col items-end text-right shrink-0">
-                                  <div className="flex items-center gap-1.5 text-primary font-black bg-primary/5 px-2.5 py-1 rounded-lg border border-primary/10">
-                                    <Clock className="h-3.5 w-3.5" />
-                                    <span className="text-lg">{ev.start_time || "--:--"}</span>
+                                <div className="flex flex-col items-start sm:items-end sm:text-right shrink-0">
+                                  <div className="flex items-center gap-2 text-primary font-black bg-primary/5 px-3 py-1.5 rounded-xl border border-primary/10 shadow-sm ring-1 ring-primary/5">
+                                    <Clock className="h-4 w-4" />
+                                    <span className="text-xl sm:text-2xl tracking-tighter">{ev.start_time || "--:--"}</span>
                                   </div>
-                                  <div className="text-xs text-muted-foreground mt-1">
+                                  <div className="text-xs sm:text-sm font-bold text-muted-foreground/80 mt-1.5 uppercase tracking-wider">
                                     {ev.address_neighborhood || "Ilha do Governador"}
                                   </div>
                                 </div>
                                </div>
  
-                               <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                                 <MapPin className="h-4 w-4 text-primary/70 shrink-0 mt-0.5" />
-                                 <span className="font-semibold leading-relaxed">{buildFullAddress(ev)}</span>
-                              </div>
+                               <div className="flex items-start gap-2.5 text-sm sm:text-base text-muted-foreground/90 bg-muted/30 p-3 rounded-xl border border-border/40">
+                                 <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary/70 shrink-0 mt-0.5" />
+                                 <span className="font-semibold leading-tight">{buildFullAddress(ev)}</span>
+                               </div>
 
                               {ev.description && (
                                  <p className="text-muted-foreground line-clamp-2 leading-relaxed text-[15px]">
