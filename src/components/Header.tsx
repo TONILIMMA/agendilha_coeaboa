@@ -116,20 +116,19 @@ export default function Header() {
       return (
         <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? "glass border-b border-white/40" : "bg-transparent border-b border-transparent"}`}>
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="flex items-center gap-2">
-                <img src={logoCoeABoa} alt="Coé a Boa?" className="h-8 w-8 rounded-full ring-1 ring-foreground/10" />
-                <span className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">
-                  AgendIlha <span className="text-secondary/70 font-medium text-sm hidden sm:inline">| Coé a Boa?</span>
-                </span>
+            <Link to="/" className="flex items-center gap-2 group shrink-0">
+              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-7 w-7 sm:h-8 sm:w-8 rounded-full ring-1 ring-foreground/10" />
+              <div className="flex flex-col leading-none">
+                <span className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">AgendIlha</span>
+                <span className="text-[9px] sm:text-xs text-secondary/70 font-bold uppercase tracking-widest">Coé a Boa?</span>
               </div>
             </Link>
-            <div className="flex items-center gap-4">
-              <Link to="/agenda" className="hidden xs:block">
-                <Button variant="ghost" size="sm" className="rounded-full text-foreground/80 hover:text-foreground font-semibold">Ver agenda</Button>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Link to="/agenda" className="hidden sm:block">
+                <Button variant="ghost" size="sm" className="rounded-full text-foreground/80 hover:text-foreground font-bold h-9">Ver agenda</Button>
               </Link>
               <Link to="/enviar-evento">
-                <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-sm px-5">Enviar Evento</Button>
+                <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-sm px-4 sm:px-6 h-9 sm:h-10 text-xs sm:text-sm border-2 border-primary">Divulgar</Button>
               </Link>
                <HeaderUserMenu variant="desktop" hideContext={true} />
             </div>
@@ -142,18 +141,20 @@ export default function Header() {
     if (isAgenda) {
       return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
-          <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity group">
+          <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 gap-2">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity group shrink-0">
               <img src={logoCoeABoa} alt="Coé a Boa?" className="h-7 w-7 rounded-full ring-1 ring-primary/20" />
-              <span className="font-display text-lg font-black text-primary tracking-tight">AgendIlha</span>
-              <span className="text-xs text-muted-foreground font-medium hidden xs:inline">| Coé a Boa?</span>
+              <div className="flex flex-col leading-none">
+                <span className="font-display text-base font-black text-primary tracking-tight">AgendIlha</span>
+                <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">Coé a Boa?</span>
+              </div>
             </Link>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="ghost" className="text-xs font-bold hover:bg-primary/5 text-foreground/80" onClick={() => navigate("/")}>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Button size="sm" variant="ghost" className="text-xs font-bold hover:bg-primary/5 text-foreground/80 px-2 h-8 hidden xs:flex" onClick={() => navigate("/")}>
                 Início
               </Button>
-              <Button size="sm" variant="outline" className="rounded-full text-xs font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all shadow-sm" onClick={() => navigate("/enviar-evento")}>
-                Divulgar Evento
+              <Button size="sm" variant="outline" className="rounded-full text-[10px] sm:text-xs font-black border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all shadow-sm h-8 sm:h-9 px-3 sm:px-4" onClick={() => navigate("/enviar-evento")}>
+                Divulgar
               </Button>
               <HeaderUserMenu variant="desktop" hideContext={true} />
             </div>
