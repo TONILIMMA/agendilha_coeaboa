@@ -1,12 +1,14 @@
  import { useState, useMemo, useEffect } from "react";
  import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+ import { supabase } from "@/integrations/supabase/client";
+ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
- import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink } from "lucide-react";
+ import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown } from "lucide-react";
+ import { Skeleton } from "@/components/ui/skeleton";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
  import { toast } from "sonner";
  import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
@@ -85,11 +87,20 @@ function buildWhatsAppShare(ev: Event) {
 
  export default function AgendaCultural() {
    const navigate = useNavigate();
+   const { user } = useAuth();
    const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+   const [loading, setLoading] = useState(true);
+   const [search, setSearch] = useState("");
+   const [categoryFilter, setCategoryFilter] = useState("all");
+   const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+   const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
+     const saved = localStorage.getItem("agendilha_sort_order");
+     return (saved === "desc" ? "desc" : "asc");
+   });
+
+   useEffect(() => {
+     localStorage.setItem("agendilha_sort_order", sortOrder);
+   }, [sortOrder]);
 
    useEffect(() => {
      async function load() {
@@ -98,8 +109,7 @@ function buildWhatsAppShare(ev: Event) {
          const { data, error } = await supabase
            .from("submissions")
            .select("*")
-           .in('status', ['published', 'approved']) // Allow both as per "aprovados/publicados" but usually admin will move to published
-           .order("date", { ascending: true, nullsFirst: false });
+           .in('status', ['published', 'approved']);
          
          if (error) throw error;
          
@@ -183,11 +193,15 @@ function buildWhatsAppShare(ev: Event) {
     return map;
   }, [filteredEvents]);
 
-  const sortedDays = useMemo(() =>
-    Object.entries(grouped)
-      .sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey))
-      .map(([key]) => key)
-  , [grouped]);
+   const sortedDays = useMemo(() =>
+     Object.entries(grouped)
+       .sort(([, a], [, b]) => {
+         return sortOrder === "asc" 
+           ? a.sortKey.localeCompare(b.sortKey) 
+           : b.sortKey.localeCompare(a.sortKey);
+       })
+       .map(([key]) => key)
+   , [grouped, sortOrder]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -228,14 +242,26 @@ function buildWhatsAppShare(ev: Event) {
 
         {/* Filtros Públicos */}
         <div className="mb-12 bg-card border border-border rounded-2xl p-6 shadow-sm space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              placeholder="O que você procura hoje? (show, feira, etc...)"
-              className="pl-10 h-12 text-lg border-none bg-muted/50 focus-visible:ring-primary/20"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="O que você procura hoje? (show, feira, etc...)"
+                className="pl-10 h-12 text-lg border-none bg-muted/50 focus-visible:ring-primary/20"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setSortOrder(prev => prev === "asc" ? "desc" : "asc")}
+              className="h-12 px-5 rounded-xl border-none bg-muted/50 hover:bg-muted font-bold text-muted-foreground flex items-center gap-2 transition-colors"
+            >
+              <ArrowUpDown className="h-4 w-4" />
+              <span className="text-xs uppercase tracking-wider">
+                {sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}
+              </span>
+            </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -264,8 +290,37 @@ function buildWhatsAppShare(ev: Event) {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <div className="space-y-12">
+            {[1, 2].map((i) => (
+              <div key={i} className="space-y-6">
+                <div className="flex items-center gap-3 py-3 border-b border-border/50">
+                  <Skeleton className="h-10 w-10 rounded-2xl" />
+                  <Skeleton className="h-7 w-48" />
+                </div>
+                <div className="grid grid-cols-1 gap-6">
+                  {[1, 2].map((j) => (
+                    <Card key={j} className="overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className="flex flex-col md:flex-row">
+                          <Skeleton className="w-full md:w-1 shrink-0 h-1 md:h-auto" />
+                          <div className="flex-1 p-5 sm:p-7 md:p-8 space-y-5">
+                            <div className="space-y-2">
+                              <Skeleton className="h-6 w-32" />
+                              <Skeleton className="h-10 w-3/4" />
+                            </div>
+                            <Skeleton className="h-12 w-full rounded-xl" />
+                            <div className="flex gap-3">
+                              <Skeleton className="h-10 w-32 rounded-full" />
+                              <Skeleton className="h-10 w-32 rounded-full" />
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
           ) : sortedDays.length === 0 ? (
             <div className="text-center py-16 px-6 bg-muted/10 rounded-[2rem] border-2 border-dashed border-border/60 animate-in fade-in zoom-in duration-500">
@@ -284,7 +339,20 @@ function buildWhatsAppShare(ev: Event) {
                     Limpar Filtros
                   </Button>
                 )}
-                <Button variant="default" onClick={() => navigate("/enviar-evento")} className="rounded-full font-black h-12 px-8 gradient-sunset shadow-lg hover:scale-105 transition-transform">
+                <Button 
+                  variant="default" 
+                  onClick={() => {
+                    if (user) {
+                      navigate("/enviar-evento");
+                    } else {
+                      toast.info("Acesse sua conta primeiro", {
+                        description: "É necessário estar logado para divulgar eventos."
+                      });
+                      navigate("/auth");
+                    }
+                  }} 
+                  className="rounded-full font-black h-12 px-8 gradient-sunset shadow-lg hover:scale-105 transition-transform"
+                >
                   Divulgar meu Evento
                 </Button>
               </div>
