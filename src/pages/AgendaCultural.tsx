@@ -244,12 +244,52 @@ export default function AgendaCultural() {
                 {today}
               </p>
             </div>
-          </div>
-        </div>
-      </header>
+           </div>
+         </div>
+       </header>
 
-      {/* Content */}
-      <main className="mx-auto max-w-4xl px-4 py-8">
+       <div className="bg-muted/30 border-b border-border">
+         <div className="mx-auto max-w-4xl px-4 py-4">
+           <div className="flex flex-col md:flex-row gap-3">
+             <div className="relative flex-1">
+               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+               <Input
+                 placeholder="Buscar eventos..."
+                 className="pl-9 bg-background"
+                 value={search}
+                 onChange={(e) => setSearch(e.target.value)}
+               />
+             </div>
+             <div className="flex gap-2">
+               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                 <SelectTrigger className="w-[140px] bg-background">
+                   <SelectValue placeholder="Categoria" />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="all">Categorias</SelectItem>
+                   {Object.entries(categoryLabels).map(([k, v]) => (
+                     <SelectItem key={k} value={k}>{v}</SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+               <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
+                 <SelectTrigger className="w-[140px] bg-background">
+                   <SelectValue placeholder="Bairro" />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="all">Bairros</SelectItem>
+                   {neighborhoods.map((n) => (
+                     <SelectItem key={n} value={n}>{n}</SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+             </div>
+           </div>
+         </div>
+       </div>
+
+       {/* Content */}
+       <main className="mx-auto max-w-4xl px-4 py-8">
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -262,6 +302,36 @@ export default function AgendaCultural() {
           </div>
         ) : (
           <div className="space-y-10">
+             {/* Highlights Carousel (Simples) */}
+             {filteredEvents.some(e => e.is_highlight) && (
+               <section className="mb-10">
+                 <div className="flex items-center gap-2 mb-4">
+                   <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                   <h2 className="text-lg font-bold text-foreground">Destaques AgendIlha</h2>
+                 </div>
+                 <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+                   {filteredEvents.filter(e => e.is_highlight).map(ev => (
+                     <Card key={ev.id} className="min-w-[280px] border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 transition-colors cursor-pointer" onClick={() => trackView(ev.id)}>
+                       <CardContent className="p-4">
+                         <Badge className="mb-2 bg-amber-500 hover:bg-amber-600 text-white border-0">DESTAQUE</Badge>
+                         <h3 className="font-bold text-lg leading-tight line-clamp-1">{ev.event_title}</h3>
+                         <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                           <div className="flex items-center gap-1.5">
+                             <CalendarDays className="h-3.5 w-3.5" />
+                             <span>{ev.date} • {ev.start_time}</span>
+                           </div>
+                           <div className="flex items-center gap-1.5">
+                             <MapPin className="h-3.5 w-3.5" />
+                             <span className="line-clamp-1">{ev.location}</span>
+                           </div>
+                         </div>
+                       </CardContent>
+                     </Card>
+                   ))}
+                 </div>
+               </section>
+             )}
+
             <div className="flex items-center justify-end">
               <Button
                 size="sm"
@@ -356,9 +426,10 @@ export default function AgendaCultural() {
                                   size="sm"
                                   variant="outline"
                                   className="text-xs"
-                                  onClick={() =>
-                                    window.open(buildWhatsAppShare(ev), "_blank")
-                                  }
+                                   onClick={() => {
+                                     trackShare(ev.id);
+                                     window.open(buildWhatsAppShare(ev), "_blank");
+                                   }}
                                 >
                                   <Share2 className="h-3.5 w-3.5 mr-1" />
                                   Compartilhar no WhatsApp
