@@ -557,7 +557,7 @@ function buildUberLink(ev: Event): string {
                                 <div className="space-y-4 flex-1 min-w-0">
                                   <div className="flex flex-wrap items-center gap-3">
                                     <span className="text-4xl drop-shadow-sm">{icon}</span>
-                                    <Badge variant="secondary" className="bg-secondary/10 text-secondary-foreground text-xs font-black uppercase tracking-widest border-secondary/20 px-4 py-1.5 rounded-full">
+                                    <Badge variant="secondary" className="bg-[#F6EEEA] text-[#2F5D46] text-[10px] font-semibold uppercase tracking-[0.15em] border-[#E6D6CF] border px-3 py-1.5 rounded-full shadow-sm whitespace-nowrap">
                                       {categoryLabels[ev.category!] || ev.category}
                                     </Badge>
                                   </div>
