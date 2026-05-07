@@ -176,11 +176,14 @@ export default function Landing() {
                 Ver agenda <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </Link>
-             <Link to="/enviar-evento" className="w-full xs:w-auto">
-              <Button size="lg" variant="ghost" className="w-full rounded-full h-12 px-7 text-foreground/80 hover:bg-white/60 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
-                Cadastrar evento
-              </Button>
-            </Link>
+             <Button 
+               size="lg" 
+               variant="ghost" 
+               asChild
+               className="w-full xs:w-auto rounded-full h-12 px-7 text-foreground/80 hover:bg-white/60 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+             >
+               <Link to="/enviar-evento">Cadastrar evento</Link>
+             </Button>
           </div>
 
           {/* Floating logo chip */}
