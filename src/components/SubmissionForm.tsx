@@ -1,11 +1,16 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useProfile } from "@/hooks/useProfile";
 import { z } from "zod";
- import { Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon, Search, PlusCircle, CheckCircle2, AlertCircle } from "lucide-react";
+import { 
+  Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon, Search, 
+  PlusCircle, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Save,
+  Check, User, Info, MapPin, Scale, Eye, PartyPopper, Phone
+} from "lucide-react";
  import { IMaskInput } from "react-imask";
  import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { getWeekdayFromDate } from "@/lib/dateUtils";
@@ -14,6 +19,8 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { StepIndicator } from "./submission-form/StepIndicator";
+import { SummarySection } from "./submission-form/SummarySection";
 import heroBanner from "@/assets/hero-banner.jpg";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage
@@ -57,7 +64,7 @@ import {
    atrativoName: z.string().trim().min(1, "Atrativo é obrigatório"),
    atrativoType: z.string().trim().min(1, "Tipo de atrativo é obrigatório"),
    atrativoStyle: z.string().trim().optional(),
-   atrativoDescription: z.string().trim().max(300).optional(),
+    atrativoDescription: z.string().trim().max(500).optional(),
    atrativoContact: z.string().trim().optional(),
  
    // 5. Local do Evento
@@ -66,14 +73,28 @@ import {
    locationType: z.enum(["public", "commercial"], { required_error: "Selecione o tipo do local" }),
    locationContact: z.string().trim().optional(),
  
-   // 6. Complementares
-   description: z.string().trim().max(500).optional(),
-   contactSocial: z.string().trim().max(300).optional(),
-   videoLink: z.string().url("URL inválida").optional().or(z.literal("")),
-   additionalDetails: z.string().trim().optional(),
-   stage: z.string().optional(),
-   responsiblePerson: z.string().trim().optional(),
- }).refine((data) => {
+    // 6. Complementares
+    description: z.string().trim().max(500).optional(),
+    contactSocial: z.string().trim().max(300).optional(),
+    videoLink: z.string().url("URL inválida").optional().or(z.literal("")),
+    additionalDetails: z.string().trim().optional(),
+    stage: z.string().optional(),
+    responsiblePerson: z.string().trim().optional(),
+    
+    // Campos que estavam faltando mas sendo usados
+    addressNeighborhood: z.string().optional(),
+    addressCity: z.string().optional(),
+    addressState: z.string().optional(),
+    promotionType: z.string().optional(),
+    promotionRules: z.string().optional(),
+    targetAudience: z.string().optional(),
+    salePrice: z.string().optional(),
+    maintenanceCost: z.string().optional(),
+    subscriptionInfo: z.string().optional(),
+    commission: z.string().optional(),
+    conceptDescription: z.string().optional(),
+    authorization: z.boolean().optional(),
+  }).refine((data) => {
    if (data.locationType === "commercial" && !data.locationContact) {
      return false;
    }
@@ -224,17 +245,91 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
    const { addSubmission } = useSubmissions();
    const { profile, loaded, saveProfile } = useProfile();
  
-   const form = useForm<FormData>({
-     resolver: zodResolver(formSchema),
-     defaultValues: {
-       nickName: "", basicPhone: "", userLocation: "",
-       companyName: "", pinCode: "", email: "",
-       category: "", eventTitle: "", date: "", startTime: "",
-       atrativoName: "", atrativoType: "",
-       locationName: "", eventAddress: "", locationType: "commercial",
-       legalAcceptance: undefined,
-     },
-   });
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      nickName: "", basicPhone: "", userLocation: "",
+      companyName: "", pinCode: "", email: "",
+      category: "", eventTitle: "", date: "", startTime: "",
+      atrativoName: "", atrativoType: "",
+      locationName: "", eventAddress: "", locationType: "commercial",
+      legalAcceptance: undefined,
+    },
+    mode: "onChange",
+  });
+
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+
+  const steps = [
+    { id: 1, title: "Básico", description: "Dados do usuário" },
+    { id: 2, title: "Divulgador", description: "Informações profissionais" },
+    { id: 3, title: "Evento", description: "O que vai rolar?" },
+    { id: 4, title: "Atrativo", description: "Quem vai se apresentar?" },
+    { id: 5, title: "Local", description: "Onde vai ser?" },
+    { id: 6, title: "Legal", description: "Termos e condições" },
+    { id: 7, title: "Revisão", description: "Confira tudo" },
+  ];
+
+  const nextStep = async () => {
+    const fieldsToValidate = getFieldsForStep(currentStep);
+    const isValid = await form.trigger(fieldsToValidate as any);
+    
+    if (isValid) {
+      setCurrentStep(prev => Math.min(prev + 1, steps.length));
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const prevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+    window.scrollTo(0, 0);
+  };
+
+  const getFieldsForStep = (step: number) => {
+    switch (step) {
+      case 1: return ["nickName", "basicPhone", "userLocation", "otherLocation"];
+      case 2: return ["companyName", "pinCode", "email", "addressZip", "addressStreet", "addressNumber"];
+      case 3: return ["category", "eventTitle", "date", "startTime", "predictedDuration", "endTime"];
+      case 4: return ["atrativoName", "atrativoType", "atrativoStyle", "atrativoDescription", "atrativoContact"];
+      case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
+      case 6: return ["legalAcceptance"];
+      default: return [];
+    }
+  };
+
+  const saveDraft = async () => {
+    setIsSavingDraft(true);
+    const currentValues = form.getValues();
+    localStorage.setItem("agendilha_draft", JSON.stringify(currentValues));
+    
+    // If we have basic user data, save to profile as draft
+    if (currentValues.nickName && currentValues.basicPhone) {
+      await saveProfile({
+        nick_name: currentValues.nickName,
+        phone: currentValues.basicPhone,
+        home_location: currentValues.userLocation,
+        company_name: currentValues.companyName,
+        email: currentValues.email || "",
+      } as any);
+    }
+    
+    toast.success("Rascunho salvo!", { description: "Você pode continuar depois." });
+    setTimeout(() => setIsSavingDraft(false), 500);
+  };
+
+  useEffect(() => {
+    const draft = localStorage.getItem("agendilha_draft");
+    if (draft) {
+      try {
+        const parsed = JSON.parse(draft);
+        form.reset(parsed);
+        toast.info("Rascunho recuperado", { description: "Continuamos de onde você parou." });
+      } catch (e) {
+        console.error("Error parsing draft", e);
+      }
+    }
+  }, [form]);
  
    useEffect(() => {
      const fetchPortalLocations = async () => {
@@ -244,20 +339,29 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
      fetchPortalLocations();
    }, []);
  
-   useEffect(() => {
-     if (!loaded) return;
-     form.reset({
-       nickName: profile.nick_name || "",
-       basicPhone: profile.phone || "",
-       userLocation: profile.home_location || "",
-       companyName: profile.company_name || "",
-       email: profile.email || "",
-       addressStreet: profile.address_street || "",
-       addressNumber: profile.address_number || "",
-       addressZip: profile.address_zip || "",
-       contactSocial: profile.contact_social || "",
-     });
-   }, [loaded, profile, form]);
+  useEffect(() => {
+    if (!loaded) return;
+    
+    // Check if we already have data in form or localStorage draft
+    const currentValues = form.getValues();
+    const hasDraft = !!localStorage.getItem("agendilha_draft");
+    const isDefault = !currentValues.nickName && !currentValues.companyName && !hasDraft;
+    
+    if (isDefault) {
+      form.reset({
+        ...currentValues,
+        nickName: profile.nick_name || "",
+        basicPhone: profile.phone || "",
+        userLocation: profile.home_location || "",
+        companyName: profile.company_name || "",
+        email: profile.email || "",
+        addressStreet: profile.address_street || "",
+        addressNumber: profile.address_number || "",
+        addressZip: profile.address_zip || "",
+        contactSocial: profile.contact_social || "",
+      });
+    }
+  }, [loaded, profile, form]);
 
   const toggleSection = (key: string) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
@@ -267,36 +371,44 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
    async function onSubmit(data: FormData) {
      setSubmitting(true);
-     const success = await addSubmission({
-       company_name: data.companyName,
-       responsible_name: data.nickName,
-       email: data.email || null,
-       phone: data.basicPhone,
-       event_title: data.eventTitle || data.atrativoName,
-       date: data.date,
-       start_time: data.startTime,
-       predicted_duration: data.predictedDuration || null,
-       end_time: data.endTime || null,
-       location: data.locationName,
-       location_type: data.locationType,
-       location_contact: data.locationContact || null,
-       address_street: data.eventAddress,
-       address_zip: data.addressZip || null,
-       address_number: data.addressNumber || null,
-       atrativo_name: data.atrativoName,
-       atrativo_type: data.atrativoType,
-       atrativo_style: data.atrativoStyle || null,
-       atrativo_contact: data.atrativoContact || null,
-       description: data.description || null,
-       video_link: data.videoLink || null,
-       category: data.category,
-       contact_social: data.contactSocial || null,
-       additional_details: data.additionalDetails || null,
-       legal_acceptance: data.legalAcceptance,
-       legal_acceptance_date: new Date().toISOString(),
-       stage: data.stage || "development",
-       responsible_person: data.responsiblePerson || "Toni",
-     } as any);
+    const submissionData = {
+      company_name: data.companyName,
+      responsible_name: data.nickName,
+      email: data.email || null,
+      phone: data.basicPhone,
+      event_title: data.eventTitle || data.atrativoName,
+      date: data.date,
+      start_time: data.startTime,
+      predicted_duration: data.predictedDuration || null,
+      end_time: data.endTime || null,
+      location: data.locationName,
+      location_type: data.locationType,
+      location_contact: data.locationContact || null,
+      address_street: data.eventAddress,
+      address_zip: data.addressZip || null,
+      address_number: data.addressNumber || null,
+      atrativo_name: data.atrativoName,
+      atrativo_type: data.atrativoType,
+      atrativo_style: data.atrativoStyle || null,
+      atrativo_contact: data.atrativoContact || null,
+      description: data.description || null,
+      video_link: data.videoLink || null,
+      category: data.category,
+      contact_social: data.contactSocial || null,
+      additional_details: data.additionalDetails || null,
+      legal_acceptance: data.legalAcceptance,
+      legal_acceptance_date: new Date().toISOString(),
+      stage: data.stage || "development",
+      responsible_person: data.responsiblePerson || "Toni",
+      status: "pending"
+    };
+
+    const success = await addSubmission(submissionData as any);
+
+    if (success) {
+      localStorage.removeItem("agendilha_draft");
+      // ... profile save already in current code
+    }
  
      setSubmitting(false);
      if (success) {
@@ -353,290 +465,337 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 sm:space-y-8">
-              <CollapsibleSection title="👤 Dados do Anunciante" sectionKey="anunciante" expanded={expandedSections.anunciante} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <TextField control={form.control} name="companyName" label="Nome da empresa/organização" />
-                  <TextField control={form.control} name="responsibleName" label="Nome do responsável" />
-                  <TextField control={form.control} name="email" label="E-mail de contato (opcional)" type="email" inputMode="email" required={false} />
-                  <TextField control={form.control} name="phone" label="Telefone/WhatsApp" type="tel" inputMode="tel" />
-                </div>
-              </CollapsibleSection>
+               <StepIndicator steps={steps} currentStep={currentStep} />
+               
+               {currentStep === 1 && (
+                 <div className="space-y-6">
+                   <h2 className="text-xl font-bold">1. Dados Básicos</h2>
+                   <TextField control={form.control} name="nickName" label="Nick / Nome" />
+                   <TextField control={form.control} name="basicPhone" label="WhatsApp" />
+                   <TextField control={form.control} name="userLocation" label="Seu Local" />
+                 </div>
+               )}
+               
+               {currentStep === 2 && (
+                 <div className="space-y-6">
+                   <h2 className="text-xl font-bold">2. Dados do Divulgador</h2>
+                   <TextField control={form.control} name="companyName" label="Nome completo / Empresa" />
+                   <TextField control={form.control} name="pinCode" label="PIN (4-8 dígitos)" type="password" />
+                   <TextField control={form.control} name="email" label="E-mail" required={false} />
+                   <CepField control={form.control} onCepFound={(data) => {
+                     form.setValue("addressStreet", data.logradouro || "");
+                     form.setValue("addressNeighborhood", data.bairro || "");
+                     form.setValue("addressCity", data.localidade || "");
+                     form.setValue("addressState", data.uf || "");
+                   }} />
+                   <TextField control={form.control} name="addressStreet" label="Endereço" required={false} />
+                   <TextField control={form.control} name="addressNumber" label="Número / Complemento" required={false} />
+                 </div>
+               )}
 
-              <CollapsibleSection title="🎉 Informações do Evento" sectionKey="evento" expanded={expandedSections.evento} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <TextField control={form.control} name="eventTitle" label="Título do evento ou promoção" className="sm:col-span-2" />
-                  <FormField
-                    control={form.control}
-                    name="date"
-                    render={({ field }) => {
-                      const weekday = getWeekdayFromDate(field.value || "");
-                      // Parse dd/mm/yyyy to Date for calendar
-                      let selectedDate: Date | undefined;
-                      if (field.value && /^\d{2}\/\d{2}\/\d{4}$/.test(field.value)) {
-                        const [d, m, y] = field.value.split("/").map(Number);
-                        selectedDate = new Date(y, m - 1, d);
-                      }
-                      return (
-                        <FormItem className="flex flex-col">
-                          <FormLabel className="text-sm">Data do Evento <span className="text-accent">*</span></FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  className={cn(
-                                    "h-12 w-full justify-start text-left text-base font-normal",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {field.value ? (
-                                    <span className="capitalize">
-                                      {field.value}
-                                      {weekday && <span className="ml-1 text-primary font-medium">({weekday})</span>}
-                                    </span>
-                                  ) : (
-                                    <span>Selecione a data</span>
-                                  )}
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={selectedDate}
-                                onSelect={(date) => {
-                                  if (date) {
-                                    field.onChange(format(date, "dd/MM/yyyy"));
-                                  }
-                                }}
-                                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                                locale={ptBR}
-                                initialFocus
-                                className={cn("p-3 pointer-events-auto")}
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <TextField control={form.control} name="startTime" label="Horário de início" type="time" />
-                  <TextField control={form.control} name="endTime" label="Previsão de término" type="time" />
-                  <TextField control={form.control} name="location" label="Nome do local / estabelecimento" className="sm:col-span-2" />
-                </div>
+               {currentStep === 3 && (
+                 <div className="space-y-6 animate-in fade-in duration-500">
+                   <h2 className="text-xl font-bold flex items-center gap-2">
+                     <PartyPopper className="h-5 w-5 text-primary" />
+                     3. Informações do Evento
+                   </h2>
+                   
+                   <div className="grid gap-4 sm:grid-cols-2">
+                     <FormField
+                       control={form.control}
+                       name="category"
+                       render={({ field }) => (
+                         <FormItem>
+                           <FormLabel>Categoria <span className="text-accent">*</span></FormLabel>
+                           <Select onValueChange={field.onChange} value={field.value}>
+                             <FormControl>
+                               <SelectTrigger className="h-12 text-base">
+                                 <SelectValue placeholder="Selecione a categoria" />
+                               </SelectTrigger>
+                             </FormControl>
+                             <SelectContent>
+                               {categories.map((cat) => (
+                                 <SelectItem key={cat.value} value={cat.value} className="py-2">{cat.label}</SelectItem>
+                               ))}
+                             </SelectContent>
+                           </Select>
+                           <FormMessage />
+                         </FormItem>
+                       )}
+                     />
+                     <TextField control={form.control} name="eventTitle" label="Título do evento (opcional)" />
+                     
+                     <FormField
+                       control={form.control}
+                       name="date"
+                       render={({ field }) => {
+                         const weekday = getWeekdayFromDate(field.value || "");
+                         let selectedDate: Date | undefined;
+                         if (field.value && /^\d{2}\/\d{2}\/\d{4}$/.test(field.value)) {
+                           const [d, m, y] = field.value.split("/").map(Number);
+                           selectedDate = new Date(y, m - 1, d);
+                         }
+                         return (
+                           <FormItem className="flex flex-col">
+                             <FormLabel>Data <span className="text-accent">*</span></FormLabel>
+                             <Popover>
+                               <PopoverTrigger asChild>
+                                 <FormControl>
+                                   <Button variant="outline" className={cn("h-12 w-full justify-start text-left text-base font-normal", !field.value && "text-muted-foreground")}>
+                                     <CalendarIcon className="mr-2 h-4 w-4" />
+                                     {field.value ? (
+                                       <span className="capitalize">{field.value} {weekday && <span className="ml-1 text-primary">({weekday})</span>}</span>
+                                     ) : "Selecione a data"}
+                                   </Button>
+                                 </FormControl>
+                               </PopoverTrigger>
+                               <PopoverContent className="w-auto p-0" align="start">
+                                 <Calendar
+                                   mode="single"
+                                   selected={selectedDate}
+                                   onSelect={(date) => date && field.onChange(format(date, "dd/MM/yyyy"))}
+                                   disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                                   locale={ptBR}
+                                   initialFocus
+                                 />
+                               </PopoverContent>
+                             </Popover>
+                             <FormMessage />
+                           </FormItem>
+                         );
+                       }}
+                     />
+                     
+                     <div className="grid grid-cols-2 gap-4">
+                       <TextField control={form.control} name="startTime" label="Início" type="time" />
+                       <TextField control={form.control} name="endTime" label="Término" type="time" />
+                     </div>
+                   </div>
+                 </div>
+               )}
 
-                {/* Endereço detalhado */}
-                <div className="mt-3 sm:mt-4 rounded-lg border border-border bg-muted/30 p-3 sm:p-4 space-y-3">
-                  <p className="text-sm font-medium text-foreground">📍 Endereço completo <span className="text-muted-foreground font-normal">(opcional)</span></p>
-                  <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
-                    <CepField control={form.control} onCepFound={(data) => {
-                      form.setValue("addressStreet", data.logradouro || "");
-                      form.setValue("addressNeighborhood", data.bairro || "");
-                      form.setValue("addressCity", data.localidade || "");
-                      form.setValue("addressState", data.uf || "");
-                    }} />
-                    <TextField control={form.control} name="addressNumber" label="Número" required={false} inputMode="numeric" />
-                    <TextField control={form.control} name="addressStreet" label="Rua" required={false} />
-                    <TextField control={form.control} name="addressNeighborhood" label="Bairro" required={false} />
-                    <TextField control={form.control} name="addressCity" label="Cidade" required={false} />
-                    <TextField control={form.control} name="addressState" label="Estado" required={false} />
+               {currentStep === 4 && (
+                 <div className="space-y-6 animate-in fade-in duration-500">
+                   <h2 className="text-xl font-bold flex items-center gap-2">
+                     <User className="h-5 w-5 text-primary" />
+                     4. Atrativo
+                   </h2>
+                   <TextField control={form.control} name="atrativoName" label="Nome do Atrativo" />
+                   <TextField control={form.control} name="atrativoType" label="Tipo (Banda, DJ, Palestrante...)" />
+                   <TextField control={form.control} name="atrativoContact" label="WhatsApp do Atrativo" />
+                   <FormField
+                     control={form.control}
+                     name="atrativoDescription"
+                     render={({ field }) => (
+                       <FormItem>
+                         <FormLabel>Breve descrição</FormLabel>
+                         <FormControl>
+                           <Textarea {...field} placeholder="Conte um pouco sobre o atrativo..." className="min-h-[100px] text-base" />
+                         </FormControl>
+                         <FormMessage />
+                       </FormItem>
+                     )}
+                   />
+                 </div>
+               )}
+
+               {currentStep === 5 && (
+                 <div className="space-y-6 animate-in fade-in duration-500">
+                   <h2 className="text-xl font-bold flex items-center gap-2">
+                     <MapPin className="h-5 w-5 text-primary" />
+                     5. Local do Evento
+                   </h2>
+                   <TextField control={form.control} name="locationName" label="Nome do Local" />
+                   <TextField control={form.control} name="eventAddress" label="Endereço Completo" />
+                   
+                   <FormField
+                     control={form.control}
+                     name="locationType"
+                     render={({ field }) => (
+                       <FormItem className="space-y-3">
+                         <FormLabel>Tipo do Local</FormLabel>
+                         <FormControl>
+                           <div className="flex gap-4">
+                             <label className={cn(
+                               "flex-1 flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all",
+                               field.value === "public" ? "border-primary bg-primary/5" : "border-muted"
+                             )}>
+                               <input type="radio" className="hidden" checked={field.value === "public"} onChange={() => field.onChange("public")} />
+                               <span className="font-bold">Área Pública</span>
+                             </label>
+                             <label className={cn(
+                               "flex-1 flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all",
+                               field.value === "commercial" ? "border-primary bg-primary/5" : "border-muted"
+                             )}>
+                               <input type="radio" className="hidden" checked={field.value === "commercial"} onChange={() => field.onChange("commercial")} />
+                               <span className="font-bold">Comercial</span>
+                             </label>
+                           </div>
+                         </FormControl>
+                         <FormMessage />
+                       </FormItem>
+                     )}
+                   />
+                   
+                   {form.watch("locationType") === "commercial" && (
+                     <TextField control={form.control} name="locationContact" label="Contato do Responsável" />
+                   )}
+                 </div>
+               )}
+
+               {currentStep === 6 && (
+                 <div className="space-y-6 animate-in fade-in duration-500">
+                   <h2 className="text-xl font-bold flex items-center gap-2">
+                     <Scale className="h-5 w-5 text-primary" />
+                     6. Questões Legais
+                   </h2>
+                   
+                   <div className="p-4 bg-muted rounded-xl space-y-4">
+                     <p className="text-sm leading-relaxed">
+                       Ao prosseguir, você concorda com nossos <a href="#" className="text-primary underline font-bold">Termos de Uso</a> e autoriza a publicação das informações fornecidas no portal AgendIlha.
+                     </p>
+                     
+                     <FormField
+                       control={form.control}
+                       name="legalAcceptance"
+                       render={({ field }) => (
+                         <FormItem className="flex items-start gap-3 space-y-0">
+                           <FormControl>
+                             <Checkbox checked={field.value} onCheckedChange={field.onChange} className="h-5 w-5" />
+                           </FormControl>
+                           <FormLabel className="font-bold cursor-pointer text-base">Eu aceito e autorizo a publicação</FormLabel>
+                         </FormItem>
+                       )}
+                     />
+                     <FormMessage />
+                   </div>
+                 </div>
+               )}
+
+               {currentStep === 7 && (
+                 <div className="space-y-6 animate-in fade-in duration-500">
+                   <h2 className="text-xl font-bold flex items-center gap-2">
+                     <Eye className="h-5 w-5 text-primary" />
+                     7. Prévia Final
+                   </h2>
+                   
+                   <SummarySection title="👤 Usuário" items={[
+                     { label: "Nick", value: form.watch("nickName") },
+                     { label: "WhatsApp", value: form.watch("basicPhone") },
+                     { label: "Local", value: form.watch("userLocation") }
+                   ]} onEdit={() => setCurrentStep(1)} />
+
+                   <SummarySection title="💼 Divulgador" items={[
+                     { label: "Empresa", value: form.watch("companyName") },
+                     { label: "E-mail", value: form.watch("email") },
+                     { label: "Endereço", value: `${form.watch("addressStreet")}, ${form.watch("addressNumber")}` }
+                   ]} onEdit={() => setCurrentStep(2)} />
+
+                   <SummarySection title="🎉 Evento" items={[
+                     { label: "Título", value: form.watch("eventTitle") },
+                     { label: "Data", value: form.watch("date") },
+                     { label: "Horário", value: `${form.watch("startTime")} às ${form.watch("endTime")}` }
+                   ]} onEdit={() => setCurrentStep(3)} />
+
+                   <SummarySection title="🎤 Atrativo" items={[
+                     { label: "Nome", value: form.watch("atrativoName") },
+                     { label: "Tipo", value: form.watch("atrativoType") }
+                   ]} onEdit={() => setCurrentStep(4)} />
+
+                   <SummarySection title="📍 Local" items={[
+                     { label: "Nome", value: form.watch("locationName") },
+                     { label: "Endereço", value: form.watch("eventAddress") }
+                   ]} onEdit={() => setCurrentStep(5)} />
+                   
+                   <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+                     <CheckCircle2 className="h-6 w-6 text-green-600" />
+                     <p className="text-sm font-medium text-green-800">Tudo pronto! Revise as informações acima e envie sua solicitação.</p>
+                   </div>
+                 </div>
+               )}
+
+              <div className="pt-4 sm:pt-8 border-t border-border space-y-4">
+                {currentStep < steps.length ? (
+                  <div className="flex gap-3">
+                    {currentStep > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        onClick={prevStep}
+                        className="flex-1 font-bold h-12"
+                      >
+                        <ArrowLeft className="mr-2 h-5 w-5" />
+                        Voltar
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      size="lg"
+                      onClick={nextStep}
+                      className={cn(
+                        "flex-1 font-bold h-12 gradient-sunset text-primary-foreground",
+                        currentStep === 1 && "w-full"
+                      )}
+                    >
+                      Continuar
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
                   </div>
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem className="mt-3 sm:mt-4">
-                      <FormLabel>Breve descrição – "Qual é a boa?"</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} maxLength={300} rows={3} placeholder="Descreva o que vai rolar..." className="resize-none text-base min-h-[100px]" />
-                      </FormControl>
-                      <div className="flex justify-between">
-                        <FormMessage />
-                        <span className="text-xs text-muted-foreground">{descriptionLength}/300</span>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </CollapsibleSection>
-
-              <CollapsibleSection title="🎯 Detalhes da Promoção" sectionKey="promocao" expanded={expandedSections.promocao} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="promotionType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipo de promoção</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-12 text-base">
-                              <SelectValue placeholder="Selecione o tipo" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {promotionTypes.map((type) => (
-                              <SelectItem key={type} value={type} className="py-3 text-base">{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <TextField control={form.control} name="targetAudience" label="Público-alvo" required={false} />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="promotionRules"
-                  render={({ field }) => (
-                    <FormItem className="mt-3 sm:mt-4">
-                      <FormLabel>Regras ou condições</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} maxLength={500} rows={2} placeholder='Ex.: "Válido para compras acima de R$ 100"...' className="resize-none text-base min-h-[80px]" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CollapsibleSection>
-
-              <CollapsibleSection title="📎 Upload de Materiais" sectionKey="upload" expanded={expandedSections.upload} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <FileUpload label="Flyer" accept=".pdf,.jpg,.jpeg,.png" file={flyerFile} onFileChange={setFlyerFile} />
-                  <FileUpload label="Banner" accept=".jpg,.jpeg,.png" file={bannerFile} onFileChange={setBannerFile} />
-                </div>
-                <div className="mt-3 sm:mt-4">
-                  <TextField control={form.control} name="videoLink" label="Link para vídeo (YouTube/Instagram)" required={false} type="url" inputMode="url" />
-                </div>
-              </CollapsibleSection>
-
-              <CollapsibleSection title="📞 Contato e Informações Adicionais" sectionKey="contato" expanded={expandedSections.contato} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1">
-                  <TextField control={form.control} name="contactSocial" label="Redes sociais (Instagram, Facebook, etc.)" required={false} />
-                  <FormField
-                    control={form.control}
-                    name="additionalDetails"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Outros detalhes relevantes</FormLabel>
-                        <FormControl>
-                          <Textarea {...field} maxLength={500} rows={3} placeholder="Ex.: estacionamento disponível, local acessível..." className="resize-none text-base min-h-[80px]" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CollapsibleSection>
-
-              <CollapsibleSection title="💰 Valores e Gestão" sectionKey="valores" expanded={expandedSections.valores || false} onToggle={toggleSection}>
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <TextField control={form.control} name="salePrice" label="Valor de venda" required={false} placeholder="Ex.: R$ 50,00" />
-                  <TextField control={form.control} name="maintenanceCost" label="Custo de manutenção" required={false} placeholder="Ex.: R$ 200,00" />
-                  <TextField control={form.control} name="subscriptionInfo" label="Assinatura (se houver)" required={false} placeholder="Ex.: Mensal R$ 29,90" />
-                  <TextField control={form.control} name="commission" label="Comissão" required={false} placeholder="Ex.: 10%" />
-                  <TextField control={form.control} name="responsiblePerson" label="Responsável pelo evento" required={false} placeholder="Ex.: Toni" />
-                  <FormField
-                    control={form.control}
-                    name="stage"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Estágio do evento</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-12 text-base">
-                              <SelectValue placeholder="Selecione o estágio" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="development" className="py-3 text-base">Em desenvolvimento</SelectItem>
-                            <SelectItem value="confirmed" className="py-3 text-base">Confirmado</SelectItem>
-                            <SelectItem value="update" className="py-3 text-base">Atualização</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="conceptDescription"
-                  render={({ field }) => (
-                    <FormItem className="mt-3 sm:mt-4">
-                      <FormLabel>Conceito / Ideias do evento</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} maxLength={1000} rows={3} placeholder="Descreva conceitos, ideias e contexto do evento..." className="resize-none text-base min-h-[80px]" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CollapsibleSection>
-
-              <CollapsibleSection title="📂 Categoria do Evento" sectionKey="categoria" expanded={expandedSections.categoria} onToggle={toggleSection}>
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Categoria <span className="text-accent">*</span></FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-12 text-base">
-                            <SelectValue placeholder="Selecione uma categoria" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat.value} value={cat.value} className="py-3 text-base">{cat.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {form.watch("category") === "outros" && (
-                  <div className="mt-3">
-                    <TextField control={form.control} name="additionalDetails" label="Especifique a categoria" required={false} />
-                  </div>
-                )}
-              </CollapsibleSection>
-
-              <FormField
-                control={form.control}
-                name="authorization"
-                render={({ field }) => (
-                  <FormItem className="rounded-lg border border-border bg-muted/50 p-4">
-                    <div className="flex items-start gap-3">
-                      <FormControl>
-                        <Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-0.5 h-5 w-5" />
-                      </FormControl>
-                      <div className="space-y-1">
-                        <FormLabel className="text-sm font-medium leading-snug cursor-pointer">
-                          Autorizo a publicação dos materiais enviados no portal AgendIlha/Coé a Boa?
-                        </FormLabel>
-                        <FormMessage />
-                      </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        onClick={prevStep}
+                        className="flex-1 font-bold h-12"
+                        disabled={submitting}
+                      >
+                        <ArrowLeft className="mr-2 h-5 w-5" />
+                        Editar
+                      </Button>
+                      <Button
+                        type="submit"
+                        size="lg"
+                        disabled={submitting}
+                        className="flex-1 font-bold h-12 bg-green-600 hover:bg-green-700 text-white shadow-lg"
+                      >
+                        {submitting ? (
+                          "Enviando..."
+                        ) : (
+                          <>
+                            <Send className="mr-2 h-5 w-5" />
+                            Enviar Solicitação
+                          </>
+                        )}
+                      </Button>
                     </div>
-                  </FormItem>
+                  </div>
                 )}
-              />
 
-               <Button
-                type="submit"
-                size="lg"
-                disabled={submitting}
-                className="w-full gradient-sunset text-primary-foreground font-display font-bold text-sm xs:text-base tracking-wide shadow-elevated hover:opacity-90 active:scale-[0.98] transition-all min-h-[48px] sm:min-h-[52px]"
-              >
-                <Send className="mr-2 h-5 w-5" />
-                {submitting ? "Enviando..." : "Enviar Divulgação"}
-              </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={saveDraft}
+                  disabled={isSavingDraft || submitting}
+                  className="w-full text-muted-foreground hover:text-primary h-10 gap-2"
+                >
+                  {isSavingDraft ? (
+                    <span className="flex items-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      Salvando...
+                    </span>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4" />
+                      Salvar Rascunho para Continuar Depois
+                    </>
+                  )}
+                </Button>
+              </div>
             </form>
           </Form>
         </div>
