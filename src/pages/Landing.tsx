@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Calendar,
   Megaphone,
@@ -72,6 +73,8 @@ export default function Landing() {
   useScrollReveal();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -125,10 +128,16 @@ export default function Landing() {
              <Button 
                size="lg" 
                variant="outline" 
-               asChild
-                className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-8 sm:px-12 text-foreground font-black border-2 border-primary/40 hover:border-primary/60 hover:bg-primary/5 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] text-lg sm:text-xl"
+               onClick={() => {
+                 if (user) {
+                   navigate("/enviar-evento");
+                 } else {
+                   navigate("/auth?redirect=/enviar-evento");
+                 }
+               }}
+               className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-8 sm:px-12 text-foreground font-black border-2 border-primary/40 hover:border-primary/60 hover:bg-primary/5 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] text-lg sm:text-xl"
              >
-               <Link to="/enviar-evento">Enviar evento</Link>
+               Enviar evento
              </Button>
           </div>
 
