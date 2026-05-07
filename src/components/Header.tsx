@@ -117,9 +117,9 @@ export default function Header() {
                   <TooltipContent>Voltar à página inicial</TooltipContent>
                 </Tooltip>
               )}
-               <Link to="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-                 <span className="font-display text-base sm:text-lg font-bold text-primary whitespace-nowrap">📌 AgendIlha</span>
-                 <span className="hidden sm:inline text-sm text-muted-foreground">/ Coé a Boa?</span>
+               <Link to="/" className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-1.5 hover:opacity-80 transition-opacity">
+                 <span className="font-display text-base sm:text-xl font-black text-primary whitespace-nowrap tracking-tight">AgendIlha</span>
+                 <span className="text-[10px] sm:text-sm text-muted-foreground font-medium opacity-70">Coé a Boa?</span>
                </Link>
                {isAdmin && <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />}
             </div>
