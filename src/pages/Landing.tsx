@@ -331,8 +331,8 @@ export default function Landing() {
 
       <footer className="py-16 px-6 border-t border-border/40 bg-card/30">
         <div className="mx-auto max-w-6xl flex flex-col items-center gap-8">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <div className="flex items-center gap-3 px-6 py-3 rounded-full glass border border-white/20 shadow-sm">
+          <div className="flex flex-col items-center gap-6 text-center">
+            <div className="inline-flex items-center gap-3 px-6 py-4 rounded-[2rem] glass border border-white/20 shadow-sm">
               <img src={logo} alt="Coé a Boa?" className="h-8 w-8 rounded-full ring-2 ring-primary/10" />
               <div className="flex flex-col items-start leading-none gap-0.5">
                 <div className="flex items-center gap-1.5">
@@ -342,20 +342,9 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-foreground/40 font-semibold">
-              Conectando a Ilha do Governador · RJ
-            </p>
-          </div>
-          
-          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border/40 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40">
-            <div className="flex items-center gap-6">
-              <span>© {new Date().getFullYear()}</span>
-              <span className="hidden sm:inline text-border">|</span>
-              <span>Design Hiperlocal</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-1 w-1 rounded-full bg-primary/40" />
-              <span>Feito com alma insulana</span>
+            
+            <div className="text-[10px] text-foreground/30 font-mono uppercase tracking-[0.4em]">
+              © {new Date().getFullYear()} — Ilha do Governador, RJ
             </div>
           </div>
         </div>

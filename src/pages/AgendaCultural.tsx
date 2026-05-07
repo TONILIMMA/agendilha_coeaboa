@@ -529,9 +529,9 @@ function buildWhatsAppShare(ev: Event) {
         )}
       </main>
 
-        <footer className="mt-20 pt-10 border-t border-border/50 text-center space-y-8 pb-10">
-          <div className="flex flex-col items-center gap-4">
-            <div className="inline-flex items-center gap-3 px-6 py-4 rounded-[2rem] bg-card border border-border/60 shadow-sm hover:shadow-md transition-all group">
+        <footer className="mt-20 py-16 border-t border-border/50 text-center space-y-6">
+          <div className="flex flex-col items-center gap-6">
+            <div className="inline-flex items-center gap-3 px-6 py-4 rounded-[2rem] bg-card/50 border border-border/60 shadow-sm hover:shadow-md transition-all group backdrop-blur-sm">
               <img src={logoCoeABoa} alt="Coé a Boa?" className="h-10 w-10 sm:h-12 sm:w-12 rounded-full ring-2 ring-primary/10 shadow-sm group-hover:scale-110 transition-transform" />
               <div className="flex flex-col items-start leading-none gap-0.5">
                 <div className="flex items-center gap-2">
@@ -539,20 +539,11 @@ function buildWhatsAppShare(ev: Event) {
                   <span className="h-1.5 w-1.5 rounded-full bg-secondary/30" />
                   <span className="font-display text-base sm:text-lg font-bold text-secondary tracking-tight">Coé a Boa?</span>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-muted-foreground font-bold uppercase tracking-[0.15em] opacity-70">
-                  Curadoria e Tecnologia para a Ilha do Governador
-                </p>
               </div>
             </div>
-            <div className="flex flex-col items-center gap-2 mt-4">
-              <div className="flex gap-4">
-                 <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Design Hiperlocal</span>
-                 <span className="text-border">•</span>
-                 <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Alma Insulana</span>
-              </div>
-              <div className="text-[10px] text-muted-foreground/40 font-mono uppercase tracking-[0.3em] mt-2">
-                © {new Date().getFullYear()} — RJ, Brasil
-              </div>
+            
+            <div className="text-[10px] text-muted-foreground/40 font-mono uppercase tracking-[0.4em]">
+              © {new Date().getFullYear()} — Ilha do Governador, RJ
             </div>
           </div>
         </footer>
