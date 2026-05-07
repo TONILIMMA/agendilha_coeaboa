@@ -355,7 +355,7 @@ function buildUberLink(ev: Event): string {
         </div>
 
         {/* Filtros Públicos */}
-        <div className="mb-12 bg-card border border-border rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="mb-12 bg-card border border-border rounded-2xl p-6 shadow-card space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -379,12 +379,7 @@ function buildUberLink(ev: Event): string {
                 }}
                 aria-label={`Ordenar eventos: atual ${sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}. Clique para inverter.`}
                 aria-pressed={sortOrder === "desc"}
-                className={cn(
-                  "h-12 px-5 rounded-xl border-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none font-bold flex items-center gap-2",
-                  sortOrder === "asc" 
-                    ? "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20" 
-                    : "bg-secondary/10 border-secondary/20 text-secondary hover:bg-secondary/20"
-                )}
+                className="h-12 px-5 rounded-xl border-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none font-bold flex items-center gap-2 bg-muted/30 border-border/50 text-foreground hover:bg-muted"
               >
                 <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
                 <span className="text-xs uppercase tracking-wider">
