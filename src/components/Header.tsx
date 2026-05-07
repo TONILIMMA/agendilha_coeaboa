@@ -149,6 +149,7 @@ export default function Header() {
              <Button size="sm" variant="outline" className="rounded-full text-xs font-bold border-primary text-primary" onClick={() => navigate("/enviar-evento")}>
                Divulgar Evento
              </Button>
+             <HeaderUserMenu variant="desktop" hideContext={true} />
            </div>
          </div>
          <div className="h-1 w-full gradient-pumpkin-strip" />
