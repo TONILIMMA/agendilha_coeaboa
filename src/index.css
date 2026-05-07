@@ -70,44 +70,6 @@
     --font-mono: 'Geist Mono', ui-monospace, monospace;
   }
 
-  .dark {
-    --background: 220 20% 6%;           /* midnight blue / deep grey */
-    --foreground: 220 10% 98%;          /* off-white */
-
-    --card: 220 15% 10%;                /* slightly elevated dark */
-    --card-foreground: 220 10% 98%;
-
-    --popover: 220 15% 10%;
-    --popover-foreground: 220 10% 98%;
-
-    --primary: 28 85% 58%;              /* brand terracotta for primary in dark */
-    --primary-foreground: 220 10% 98%;
-
-    --secondary: 150 25% 45%;           /* mossy secondary */
-    --secondary-foreground: 220 10% 98%;
-
-    --muted: 220 15% 15%;
-    --muted-foreground: 220 10% 65%;
-
-    --accent: 28 85% 58%;
-    --accent-foreground: 220 10% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 220 10% 98%;
-
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 28 85% 58%;
-
-    --gradient-eco: linear-gradient(160deg, hsl(220 20% 8%) 0%, hsl(220 15% 12%) 100%);
-    --gradient-mesh:
-      radial-gradient(at 12% 18%, hsl(28 85% 15% / 0.15) 0px, transparent 55%),
-      radial-gradient(at 88% 14%, hsl(150 35% 15% / 0.15) 0px, transparent 55%);
-      
-    --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-    --glass-bg: hsl(220 15% 10% / 0.7);
-    --glass-border: hsl(220 15% 20% / 0.5);
-  }
 
   * {
     @apply border-border;

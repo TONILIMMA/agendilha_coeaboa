@@ -581,7 +581,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       {/* Hero */}
       <div className="relative h-40 xs:h-48 sm:h-64 md:h-80 overflow-hidden">
         <img src={heroBanner} alt="Paisagem tropical" className="absolute inset-0 w-full h-full object-cover" width={1920} height={640} />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-background/90" />
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-3 sm:px-4">
           <h1 className="font-display text-xl xs:text-2xl sm:text-3xl md:text-5xl font-extrabold text-primary-foreground drop-shadow-lg leading-tight">
             📌 Informações de Eventos

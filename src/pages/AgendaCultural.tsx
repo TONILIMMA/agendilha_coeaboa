@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
- import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Sun, Moon, Download, Car, Facebook, Twitter, Mail } from "lucide-react";
+  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
  import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
@@ -161,24 +161,17 @@ function buildUberLink(ev: Event): string {
    const [categoryFilter, setCategoryFilter] = useState("all");
    const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [highContrast, setHighContrast] = useState(() => {
-    return localStorage.getItem("agendilha_high_contrast") === "true";
-  });
+  // Keep light mode only
+  useEffect(() => {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.style.colorScheme = "light";
+    localStorage.removeItem("agendilha_high_contrast");
+  }, []);
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
      const saved = localStorage.getItem("agendilha_sort_order");
      return (saved === "desc" ? "desc" : "asc");
    });
 
-    useEffect(() => {
-      localStorage.setItem("agendilha_high_contrast", String(highContrast));
-      if (highContrast) {
-        document.documentElement.classList.add("dark");
-        document.documentElement.style.colorScheme = "dark";
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.style.colorScheme = "light";
-      }
-    }, [highContrast]);
 
    useEffect(() => {
      localStorage.setItem("agendilha_sort_order", sortOrder);
@@ -292,36 +285,24 @@ function buildUberLink(ev: Event): string {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
-      {/* Botão flutuante de Alto Contraste */}
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setHighContrast(!highContrast)}
-        className="fixed bottom-6 right-6 z-50 rounded-full h-12 w-12 shadow-2xl border-2 border-primary bg-background hover:scale-110 active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40"
-        aria-label={highContrast ? "Desativar Alto Contraste" : "Ativar Alto Contraste"}
-        title={highContrast ? "Desativar Alto Contraste" : "Ativar Alto Contraste"}
-      >
-        {highContrast ? <Sun className="h-6 w-6 text-yellow-400" /> : <Moon className="h-6 w-6 text-primary" />}
-      </Button>
 
       <main className="mx-auto max-w-4xl px-4 py-8">
         {/* Topo da Página */}
-        <div className="mb-12 text-center space-y-6">
-            <div className="flex flex-col items-center gap-4">
-              <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-secondary/10 border border-secondary/20 mb-2">
-                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-secondary-foreground">Coé a Boa? apresenta:</span>
+        <div className="mb-16 text-center space-y-8">
+            <div className="flex flex-col items-center gap-6">
+              <div className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-secondary/15 border border-secondary/30 mb-2 shadow-sm">
+                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-secondary-foreground">Coé a Boa? apresenta:</span>
               </div>
-              <h1 className="text-4xl sm:text-7xl font-black font-display text-primary tracking-tightest leading-none drop-shadow-sm">AgendIlha</h1>
-              <p className="text-muted-foreground text-base sm:text-xl font-medium max-w-2xl mx-auto leading-relaxed px-4">
+              <h1 className="text-5xl sm:text-8xl font-black font-display text-primary tracking-tightest leading-none drop-shadow-sm">AgendIlha</h1>
+              <p className="text-muted-foreground text-lg sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-4 text-balance">
                 A agenda cultural curada da Ilha do Governador.
-                <span className="hidden sm:inline"> Descubra o que há de melhor no nosso bairro.</span>
               </p>
             </div>
 
-            <div className="flex flex-col items-center gap-6 mt-8 px-4" role="group" aria-label="Ações da agenda">
-              <div className="flex flex-wrap justify-center gap-4 w-full">
-                <Button 
-                  className="rounded-full shadow-xl gradient-sunset text-primary-foreground font-black px-8 sm:px-12 h-14 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-105 active:scale-95 flex-1 max-w-[300px]" 
+            <div className="flex flex-col items-center gap-8 mt-12 px-4" role="group" aria-label="Ações da agenda">
+              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-2xl">
+                <Button
+                  className="rounded-full shadow-xl gradient-sunset text-primary-foreground font-black px-8 sm:px-12 h-16 text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-105 active:scale-95 flex-1"
                   onClick={() => window.open(buildWhatsAppShare(), "_blank")}
                   aria-label="Compartilhar agenda no WhatsApp"
                 >
@@ -330,7 +311,7 @@ function buildUberLink(ev: Event): string {
 
                 <Button 
                   variant="outline" 
-                  className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-6 sm:px-8 h-14 text-sm font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1 max-w-[250px]" 
+                  className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-8 h-16 text-base font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1" 
                   onClick={() => {
                     const data = getShareData();
                     handleShare(data.title, data.text, data.url);
@@ -341,10 +322,10 @@ function buildUberLink(ev: Event): string {
                 </Button>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-3 w-full">
+              <div className="flex flex-wrap justify-center gap-6 w-full opacity-80 hover:opacity-100 transition-opacity">
                 <Button 
                   variant="ghost" 
-                  className="rounded-full h-11 px-6 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-all active:scale-95" 
+                  className="rounded-full h-11 px-6 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
                   onClick={() => handleCopyLink(getShareUrl())}
                   aria-label="Copiar link da agenda"
                 >
@@ -353,7 +334,7 @@ function buildUberLink(ev: Event): string {
 
                 <Button 
                   variant="ghost" 
-                  className="rounded-full h-11 px-6 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-all active:scale-95" 
+                  className="rounded-full h-11 px-6 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
                   onClick={() => {
                     exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
                     toast.success("PDF da agenda gerado!");
@@ -367,7 +348,7 @@ function buildUberLink(ev: Event): string {
         </div>
 
         {/* Filtros Públicos */}
-        <div className="mb-12 bg-card border border-border rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="mb-12 bg-card border border-border rounded-2xl p-6 shadow-card space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -391,12 +372,7 @@ function buildUberLink(ev: Event): string {
                 }}
                 aria-label={`Ordenar eventos: atual ${sortOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}. Clique para inverter.`}
                 aria-pressed={sortOrder === "desc"}
-                className={cn(
-                  "h-12 px-5 rounded-xl border-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none font-bold flex items-center gap-2",
-                  sortOrder === "asc" 
-                    ? "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20" 
-                    : "bg-secondary/10 border-secondary/20 text-secondary hover:bg-secondary/20"
-                )}
+                className="h-12 px-5 rounded-xl border-2 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary outline-none font-bold flex items-center gap-2 bg-muted/30 border-border/50 text-foreground hover:bg-muted"
               >
                 <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
                 <span className="text-xs uppercase tracking-wider">
@@ -560,7 +536,7 @@ function buildUberLink(ev: Event): string {
                     return (
                       <Card 
                         key={ev.id} 
-                        className="overflow-hidden border-border/60 dark:border-border/20 bg-card/50 dark:bg-card/30 hover:shadow-elevated dark:hover:bg-card/40 transition-all group cursor-pointer rounded-[2.5rem]"
+                        className="overflow-hidden border-border/60 bg-card/50 hover:shadow-elevated transition-all group cursor-pointer rounded-[2.5rem]"
                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
                       >
                         <CardContent className="p-0">
