@@ -95,12 +95,43 @@ export default function Header() {
   const currentDate = useCurrentDate();
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
-   const isHome = pathname === "/";
+   const isHome = pathname === "/" || pathname === "/lp";
    const isAgenda = pathname === "/agenda";
    const isSubmit = pathname === "/enviar-evento";
    const isAdminArea = pathname.startsWith("/admin");
  
-   // Public view for agenda - minimal and without admin context
+   // Home / Landing - Transparent floating style
+   if (isHome) {
+     const [scrolled, setScrolled] = useState(false);
+     useEffect(() => {
+       const onScroll = () => setScrolled(window.scrollY > 12);
+       window.addEventListener("scroll", onScroll, { passive: true });
+       onScroll();
+       return () => window.removeEventListener("scroll", onScroll);
+     }, []);
+ 
+     return (
+       <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? "glass border-b border-white/40" : "bg-transparent border-b border-transparent"}`}>
+         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+           <Link to="/" className="flex items-center gap-2.5 group">
+             <span className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">
+               AgendIlha <span className="text-secondary/60 font-medium">| Coé a Boa?</span>
+             </span>
+           </Link>
+           <div className="flex items-center gap-4">
+             <Link to="/agenda" className="hidden xs:block">
+               <Button variant="ghost" size="sm" className="rounded-full text-foreground/75 hover:text-foreground">Ver agenda</Button>
+             </Link>
+             <Link to="/enviar-evento">
+               <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90">Enviar Evento</Button>
+             </Link>
+           </div>
+         </div>
+       </header>
+     );
+   }
+ 
+   // Public view for agenda - clean and minimal
    if (isAgenda) {
      return (
        <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
