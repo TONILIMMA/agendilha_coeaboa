@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog, Crown, Trophy } from "lucide-react";
+ import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog, Crown, Trophy, Megaphone } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
