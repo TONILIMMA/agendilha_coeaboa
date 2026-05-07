@@ -158,10 +158,11 @@ export default function Header() {
    }
   const showEventos = isAdmin || (perms.loaded && perms.isCollaborator);
   const showCollaborators = isAdmin || (perms.loaded && perms.canApprove);
-  const hasAdminLinks = showEventos || isAdmin || showCollaborators;
-
-  return (
-    <TooltipProvider delayDuration={200}>
+   const hasAdminLinks = showEventos || isAdmin || showCollaborators;
+ 
+   // Final fallback header (Admin Area / Protected pages)
+   return (
+     <TooltipProvider delayDuration={200}>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
         <div className="mx-auto flex h-auto max-w-5xl items-center justify-between px-4 py-2 gap-2">
           {/* Left: Brand + date */}
