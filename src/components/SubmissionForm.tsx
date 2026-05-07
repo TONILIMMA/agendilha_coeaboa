@@ -820,7 +820,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <button 
                         type="button"
-                        onClick={() => setImageSource("upload")}
+                        onClick={() => { setImageSource("upload"); setEventImage(null); }}
                         className={cn(
                           "flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-3",
                           imageSource === "upload" ? "border-primary bg-primary/5 shadow-md" : "border-muted hover:border-primary/30"
@@ -837,29 +837,17 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                       
                       <button 
                         type="button"
-                        onClick={() => {
-                          setImageSource("ai");
-                          handleGenerateAIImage();
-                        }}
-                        disabled={isGeneratingImage}
+                        onClick={() => { setImageSource("ai"); setEventImage(null); }}
                         className={cn(
                           "flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all gap-3 relative overflow-hidden group",
                           imageSource === "ai" ? "border-secondary bg-secondary/5 shadow-md" : "border-muted hover:border-secondary/30"
                         )}
                       >
-                        {isGeneratingImage && (
-                          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-10">
-                            <div className="flex flex-col items-center gap-2">
-                              <Loader2 className="h-6 w-6 animate-spin text-secondary" />
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-secondary">Criando...</span>
-                            </div>
-                          </div>
-                        )}
                         <div className="h-12 w-12 rounded-full bg-secondary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                           <Wand2 className="h-6 w-6 text-secondary" />
                         </div>
                         <div className="text-center">
-                          <p className="font-bold">Criar arte com IA</p>
+                          <p className="font-bold">Criar flyer com IA</p>
                           <p className="text-xs text-muted-foreground mt-1">Gere um flyer automaticamente</p>
                         </div>
                         <Sparkles className="absolute top-2 right-2 h-4 w-4 text-secondary opacity-40" />
@@ -877,15 +865,130 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                       </div>
                     )}
 
-                    {eventImage && (
+                    {imageSource === "ai" && !eventImage && !isGeneratingImage && (
+                      <div className="space-y-6 animate-in slide-in-from-top-4 duration-500">
+                        <div className="bg-secondary/5 p-4 rounded-xl border border-secondary/10">
+                          <h3 className="text-sm font-bold text-secondary mb-3 flex items-center gap-2">
+                            <Sparkles className="h-4 w-4" />
+                            Escolha um Template
+                          </h3>
+                          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-3">
+                            {aiTemplates.map((t) => (
+                              <button
+                                key={t.id}
+                                type="button"
+                                onClick={() => setSelectedTemplate(t.id)}
+                                className={cn(
+                                  "flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all",
+                                  selectedTemplate === t.id ? "border-secondary bg-secondary/10 shadow-sm" : "border-muted hover:border-secondary/30"
+                                )}
+                              >
+                                <span className="text-xl">{t.icon}</span>
+                                <span className="text-[10px] font-bold text-center leading-tight uppercase tracking-tighter">{t.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          type="button"
+                          onClick={handleGenerateAIImage}
+                          disabled={!selectedTemplate}
+                          className="w-full h-12 rounded-xl gradient-sunset font-black uppercase tracking-widest shadow-lg"
+                        >
+                          <Wand2 className="mr-2 h-5 w-5" />
+                          Gerar Minha Arte
+                        </Button>
+                      </div>
+                    )}
+
+                    {isGeneratingImage && (
+                      <div className="py-12 flex flex-col items-center justify-center gap-4 animate-in fade-in">
+                        <div className="relative">
+                          <div className="h-20 w-20 rounded-full border-4 border-secondary/20 border-t-secondary animate-spin" />
+                          <Sparkles className="absolute inset-0 m-auto h-8 w-8 text-secondary animate-pulse" />
+                        </div>
+                        <div className="text-center">
+                          <p className="font-black text-secondary uppercase tracking-widest">Criando flyer mágico...</p>
+                          <p className="text-xs text-muted-foreground mt-1">Montando layout e selecionando cores</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {eventImage && imageSource === "ai" && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in zoom-in-95 duration-500">
+                        <div className="relative group rounded-2xl overflow-hidden border-4 border-white shadow-2xl bg-muted aspect-[4/5]">
+                          <img 
+                            src={typeof eventImage === 'string' ? eventImage : URL.createObjectURL(eventImage)} 
+                            alt="Flyer gerado" 
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute top-2 left-2 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md">
+                            Resultado IA
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-5">
+                          <div className="bg-card border border-border p-4 rounded-xl space-y-4">
+                            <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Personalizar</h3>
+                            <div className="space-y-3">
+                              <div className="space-y-1.5">
+                                <Label className="text-[10px] font-bold uppercase">Título Principal</Label>
+                                <Input 
+                                  value={aiStyles.title} 
+                                  onChange={(e) => setAiStyles(p => ({ ...p, title: e.target.value }))}
+                                  className="h-10 text-sm"
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <Label className="text-[10px] font-bold uppercase">Variação de Estilo</Label>
+                                <div className="flex gap-2">
+                                  {(["modern", "vibrant", "elegant"] as const).map((v) => (
+                                    <button
+                                      key={v}
+                                      type="button"
+                                      onClick={() => setAiStyles(p => ({ ...p, variant: v }))}
+                                      className={cn(
+                                        "flex-1 py-2 text-[10px] font-black uppercase rounded-md border transition-all",
+                                        aiStyles.variant === v ? "bg-secondary text-white border-secondary" : "bg-muted text-muted-foreground border-border hover:border-secondary/30"
+                                      )}
+                                    >
+                                      {v}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col gap-2">
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={handleGenerateAIImage}
+                              className="w-full h-11 rounded-xl font-bold text-xs uppercase border-2"
+                            >
+                              <RotateCcw className="mr-2 h-4 w-4" /> Regenerar Arte
+                            </Button>
+                            <Button 
+                              type="button" 
+                              onClick={() => { setEventImage(null); setImageSource(null); }}
+                              variant="ghost"
+                              className="w-full h-11 text-xs font-bold text-muted-foreground"
+                            >
+                              <X className="mr-2 h-4 w-4" /> Remover e Recomeçar
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {eventImage && imageSource === "upload" && (
                       <div className="relative mt-4 group rounded-2xl overflow-hidden border-2 border-border shadow-inner bg-muted">
-                        <p className="absolute top-2 left-2 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md">
-                          Pré-visualização
-                        </p>
                         <img 
                           src={typeof eventImage === 'string' ? eventImage : URL.createObjectURL(eventImage)} 
                           alt="Pré-visualização" 
-                          className="w-full h-auto max-h-64 object-contain mx-auto"
+                          className="w-full h-auto max-h-96 object-contain mx-auto"
                         />
                         <button 
                           type="button"
