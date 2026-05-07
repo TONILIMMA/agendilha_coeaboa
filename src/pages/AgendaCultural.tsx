@@ -154,14 +154,16 @@ function buildUberLink(ev: Event): string {
      return (saved === "desc" ? "desc" : "asc");
    });
 
-   useEffect(() => {
-     localStorage.setItem("agendilha_high_contrast", String(highContrast));
-     if (highContrast) {
-       document.documentElement.classList.add("high-contrast");
-     } else {
-       document.documentElement.classList.remove("high-contrast");
-     }
-   }, [highContrast]);
+    useEffect(() => {
+      localStorage.setItem("agendilha_high_contrast", String(highContrast));
+      if (highContrast) {
+        document.documentElement.classList.add("dark");
+        document.documentElement.style.colorScheme = "dark";
+      } else {
+        document.documentElement.classList.remove("dark");
+        document.documentElement.style.colorScheme = "light";
+      }
+    }, [highContrast]);
 
    useEffect(() => {
      localStorage.setItem("agendilha_sort_order", sortOrder);
@@ -274,10 +276,7 @@ function buildUberLink(ev: Event): string {
    , [grouped, sortOrder]);
 
   return (
-    <div className={cn(
-      "min-h-screen bg-background transition-colors duration-300",
-      highContrast && "dark bg-slate-950"
-    )}>
+    <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Botão flutuante de Alto Contraste */}
       <Button
         variant="outline"
@@ -533,121 +532,121 @@ function buildUberLink(ev: Event): string {
 
             {/* Lista de Eventos Organizada */}
             {sortedDays.map((dayKey) => (
-              <section key={dayKey} className="space-y-6">
-                <div className="flex items-center gap-3 sticky top-0 bg-background/80 backdrop-blur-md py-3 z-10 border-b border-border/50">
-                  <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                    <CalendarDays className="h-5 w-5 text-primary" />
+              <section key={dayKey} className="space-y-8">
+                <div className="flex items-center gap-4 sticky top-16 bg-background/80 dark:bg-background/90 backdrop-blur-md py-4 z-10 border-b border-border/50 dark:border-border/10">
+                  <div className="h-12 w-12 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center shrink-0 shadow-sm">
+                    <CalendarDays className="h-6 w-6 text-primary dark:text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold text-foreground">
+                  <h2 className="text-2xl font-black text-foreground dark:text-foreground tracking-tight">
                     {grouped[dayKey].label}
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 gap-8">
                   {grouped[dayKey].items.map((ev) => {
                     const icon = categoryIcons[ev.category || ""] || "📌";
                     return (
-                       <Card 
-                         key={ev.id} 
-                         className="overflow-hidden border-border hover:shadow-md transition-all group cursor-pointer"
-                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
-                       >
+                      <Card 
+                        key={ev.id} 
+                        className="overflow-hidden border-border/60 dark:border-border/20 bg-card/50 dark:bg-card/30 hover:shadow-elevated dark:hover:bg-card/40 transition-all group cursor-pointer rounded-[2.5rem]"
+                        onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
+                      >
                         <CardContent className="p-0">
-                         <div className="flex flex-col md:flex-row">
-                           {/* Image or Icon strip */}
-                           {(ev as any).image_url ? (
-                             <div className="w-full md:w-48 h-48 md:h-auto shrink-0 relative overflow-hidden">
-                               <img 
-                                 src={(ev as any).image_url} 
-                                 alt={ev.event_title}
-                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                               />
-                             </div>
-                           ) : (
-                             <div className="w-full md:w-1 bg-primary/20 group-hover:bg-primary transition-colors h-1 md:h-auto" />
-                           )}
+                        <div className="flex flex-col md:flex-row">
+                          {/* Image or Icon strip */}
+                          {(ev as any).image_url ? (
+                            <div className="w-full md:w-64 h-64 md:h-auto shrink-0 relative overflow-hidden">
+                              <img 
+                                src={(ev as any).image_url} 
+                                alt={ev.event_title}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent md:hidden" />
+                            </div>
+                          ) : (
+                            <div className="w-full md:w-3 bg-primary/20 dark:bg-primary/40 group-hover:bg-primary transition-colors h-3 md:h-auto" />
+                          )}
 
-                           <div className="flex-1 p-5 sm:p-7 md:p-8 space-y-5 sm:space-y-6">
-                              <div className="flex flex-wrap items-start justify-between gap-4">
-                                <div className="space-y-2 flex-1 min-w-0">
-                                  <div className="flex flex-wrap items-center gap-2.5">
-                                     <span className="text-2xl drop-shadow-sm">{icon}</span>
-                                     <Badge variant="secondary" className="bg-secondary/10 text-secondary-foreground text-[11px] font-black uppercase tracking-widest border-secondary/20 px-2.5 py-0.5">
+                          <div className="flex-1 p-6 sm:p-10 space-y-8">
+                              <div className="flex flex-wrap items-start justify-between gap-6">
+                                <div className="space-y-4 flex-1 min-w-0">
+                                  <div className="flex flex-wrap items-center gap-3">
+                                    <span className="text-4xl drop-shadow-sm">{icon}</span>
+                                    <Badge variant="secondary" className="bg-secondary/10 dark:bg-secondary/20 text-secondary-foreground dark:text-secondary text-xs font-black uppercase tracking-widest border-secondary/20 px-4 py-1.5 rounded-full">
                                       {categoryLabels[ev.category!] || ev.category}
                                     </Badge>
                                   </div>
-                                   <h3 className="text-2xl sm:text-4xl font-black text-foreground leading-[1.1] tracking-tightest group-hover:text-primary transition-colors">
+                                  <h3 className="text-3xl sm:text-5xl font-black text-foreground dark:text-foreground leading-[1.1] tracking-tightest group-hover:text-primary transition-colors">
                                     {ev.event_title}
                                   </h3>
                                 </div>
-                                <div className="flex flex-col items-start sm:items-end sm:text-right shrink-0">
-                                  <div className="flex items-center gap-2 text-primary font-black bg-primary/5 px-3 py-1.5 rounded-xl border border-primary/10 shadow-sm ring-1 ring-primary/5">
-                                    <Clock className="h-4 w-4" />
-                                    <span className="text-xl sm:text-2xl tracking-tighter">{ev.start_time || "--:--"}</span>
+                                <div className="flex flex-col items-start sm:items-end sm:text-right shrink-0 gap-3">
+                                  <div className="flex items-center gap-3 text-primary dark:text-primary font-black bg-primary/5 dark:bg-primary/15 px-5 py-2.5 rounded-2xl border border-primary/10 shadow-sm">
+                                    <Clock className="h-6 w-6" />
+                                    <span className="text-2xl sm:text-3xl tracking-tighter">{ev.start_time || "--:--"}</span>
                                   </div>
-                                  <div className="text-xs sm:text-sm font-bold text-muted-foreground/80 mt-1.5 uppercase tracking-wider">
+                                  <div className="text-sm sm:text-base font-bold text-muted-foreground/80 dark:text-muted-foreground/60 uppercase tracking-[0.2em]">
                                     {ev.address_neighborhood || "Ilha do Governador"}
                                   </div>
                                 </div>
-                               </div>
- 
-                               <div className="flex items-start gap-2.5 text-sm sm:text-base text-muted-foreground/90 bg-muted/30 p-3 rounded-xl border border-border/40">
-                                 <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary/70 shrink-0 mt-0.5" />
-                                 <span className="font-semibold leading-tight">{buildFullAddress(ev)}</span>
-                               </div>
+                              </div>
+
+                              <div className="flex items-start gap-4 text-base sm:text-lg text-muted-foreground dark:text-muted-foreground/80 bg-muted/30 dark:bg-muted/10 p-5 rounded-2xl border border-border/40 dark:border-border/10">
+                                <MapPin className="h-6 w-6 text-primary/70 dark:text-primary/60 shrink-0 mt-0.5" />
+                                <span className="font-semibold leading-snug">{buildFullAddress(ev)}</span>
+                              </div>
 
                               {ev.description && (
-                                 <p className="text-muted-foreground line-clamp-2 leading-relaxed text-[15px]">
+                                <p className="text-muted-foreground dark:text-muted-foreground/70 line-clamp-3 leading-relaxed text-lg font-medium max-w-2xl">
                                   {ev.description}
                                 </p>
                               )}
 
-                               <div className="pt-2 flex flex-wrap items-center gap-3 sm:gap-4">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="rounded-full h-11 sm:h-10 px-5 border-2 border-green-600/60 text-green-800 font-bold bg-green-50/50 hover:bg-green-600 hover:text-white active:scale-95 transition-all shadow-sm focus-visible:ring-4 focus-visible:ring-green-600/40 outline-none" 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      trackShare(ev.id);
-                                      window.open(buildWhatsAppShare(ev), "_blank");
-                                    }}
-                                  >
-                                    <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
-                                  </Button>
+                              <div className="pt-6 flex flex-wrap items-center gap-4 sm:gap-6">
+                                <Button 
+                                  size="lg" 
+                                  className="rounded-full h-14 sm:h-16 px-10 font-black uppercase tracking-widest gradient-sunset text-white shadow-xl hover:scale-105 active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    trackShare(ev.id);
+                                    window.open(buildWhatsAppShare(ev), "_blank");
+                                  }}
+                                >
+                                  <MessageCircle className="h-5 w-5 mr-3" /> WhatsApp
+                                </Button>
 
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="rounded-full h-11 sm:h-10 px-5 font-bold text-primary border-2 border-primary/20 hover:bg-primary hover:text-white active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                           handleShare(
-                             `Evento: ${ev.event_title}`,
-                             `Confira a programação do AgendIlha!`,
-                             window.location.origin + "/agenda",
-                             ev.id
-                           );
-                                    }}
-                                  >
-                                    <Share2 className="h-4 w-4 mr-2" /> Compartilhar
-                                  </Button>
-                                  
-                                  <Button 
-                                    size="sm" 
-                                    variant="ghost" 
-                                    className="rounded-full h-11 sm:h-10 px-6 font-bold text-primary border-2 border-primary/20 hover:bg-primary hover:text-white active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none" 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const addr = buildFullAddress(ev);
-                                      window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
-                                    }}
-                                  >
-                                    <ExternalLink className="h-4 w-4 mr-2" /> Ver no Mapa
-                                  </Button>
-                              </div>
+                                <Button 
+                                  size="lg" 
+                                  variant="outline" 
+                                  className="rounded-full h-14 sm:h-16 px-8 font-bold text-primary dark:text-primary border-2 border-primary/20 dark:border-primary/30 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-foreground active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 outline-none uppercase text-sm tracking-widest" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleShare(
+                                      `Evento: ${ev.event_title}`,
+                                      `Confira a programação do AgendIlha!`,
+                                      `${window.location.origin}/agenda?event=${ev.id}`,
+                                      ev.id
+                                    );
+                                  }}
+                                >
+                                  <Share2 className="h-5 w-5 mr-3" /> Compartilhar
+                                </Button>
+                                
+                                <Button 
+                                  size="lg" 
+                                  variant="ghost" 
+                                  className="rounded-full h-14 sm:h-16 px-8 font-bold text-muted-foreground/60 dark:text-muted-foreground/40 hover:text-primary transition-all active:scale-95 uppercase text-sm tracking-widest" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const addr = buildFullAddress(ev);
+                                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
+                                  }}
+                                >
+                                  <MapPin className="h-5 w-5 mr-3" /> Ver Mapa
+                                </Button>
                             </div>
                           </div>
+                        </div>
                         </CardContent>
                       </Card>
                     );
@@ -659,20 +658,21 @@ function buildUberLink(ev: Event): string {
         )}
       </main>
 
-        <footer className="mt-20 py-16 border-t border-border/50 text-center space-y-6">
-          <div className="flex flex-col items-center gap-6">
-            <div className="inline-flex items-center gap-3 px-6 py-4 rounded-[2rem] bg-card/50 border border-border/60 shadow-sm hover:shadow-md transition-all group backdrop-blur-sm">
-              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-10 w-10 sm:h-12 sm:w-12 rounded-full ring-2 ring-primary/10 shadow-sm group-hover:scale-110 transition-transform" />
-              <div className="flex flex-col items-start leading-none gap-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-display text-xl sm:text-2xl font-black text-primary tracking-tight">AgendIlha</span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-secondary/30" />
-                  <span className="font-display text-base sm:text-lg font-bold text-secondary tracking-tight">Coé a Boa?</span>
+        <footer className="mt-32 py-24 border-t border-border/40 dark:border-border/10 text-center bg-card/30 dark:bg-card/20 backdrop-blur-sm space-y-8 rounded-t-[3rem]">
+          <div className="flex flex-col items-center gap-8">
+            <div className="inline-flex items-center gap-4 px-8 py-5 rounded-[2.5rem] glass dark:bg-card/60 border border-white/20 dark:border-white/5 shadow-glass group transition-all hover:scale-105">
+              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-12 w-12 sm:h-14 sm:w-14 rounded-full ring-2 ring-primary/20 shadow-sm group-hover:rotate-12 transition-transform" />
+              <div className="flex flex-col items-start leading-none gap-1">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-display text-2xl sm:text-3xl font-black text-primary dark:text-foreground tracking-tight">AgendIlha</span>
+                  <span className="h-2 w-2 rounded-full bg-secondary/40" />
+                  <span className="font-display text-lg sm:text-xl font-bold text-secondary tracking-tight">Coé a Boa?</span>
                 </div>
+                <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/60 dark:text-muted-foreground/40">Curadoria & Tecnologia Local</p>
               </div>
             </div>
             
-            <div className="text-[10px] text-muted-foreground/40 font-mono uppercase tracking-[0.4em]">
+            <div className="text-[10px] sm:text-[11px] text-muted-foreground/50 dark:text-muted-foreground/30 font-mono uppercase tracking-[0.5em] py-4 border-y border-border/30 dark:border-border/10 inline-block px-10">
               © {new Date().getFullYear()} — Ilha do Governador, RJ
             </div>
           </div>
@@ -769,63 +769,63 @@ function buildUberLink(ev: Event): string {
                 </div>
 
                 {/* Footer - Fixed at bottom */}
-                <div className="p-6 sm:p-8 bg-card/60 backdrop-blur-md border-t border-border/50 shrink-0">
-                  <div className="flex flex-col gap-5">
-                    <div className="flex flex-col gap-3">
-                      <div className="flex flex-col sm:flex-row gap-3 w-full">
+                <div className="p-8 sm:p-12 bg-card/70 dark:bg-card/90 backdrop-blur-xl border-t border-border/50 dark:border-border/10 shrink-0">
+                  <div className="flex flex-col gap-8">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col sm:flex-row gap-4 w-full">
                         <Button 
-                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
+                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider gradient-sunset text-primary-foreground shadow-xl hover:scale-[1.05] active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
                           onClick={() => {
                             window.open(buildWhatsAppShare(selectedEvent), "_blank");
                             trackShare(selectedEvent.id);
                           }}
                           aria-label="Compartilhar evento no WhatsApp"
                         >
-                          <MessageCircle className="h-5 w-5 mr-2.5" /> WhatsApp
+                          <MessageCircle className="h-6 w-6 mr-3" /> WhatsApp
                         </Button>
 
                         <Button 
                           variant="outline"
-                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white shadow-md active:scale-95 transition-all text-sm focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
+                          className="flex-1 h-16 rounded-full font-black uppercase tracking-wider border-2 border-primary text-primary dark:text-primary dark:border-primary bg-background hover:bg-primary hover:text-white shadow-lg active:scale-95 transition-all text-base focus-visible:ring-4 focus-visible:ring-primary/40 outline-none" 
                           onClick={() => handleShare(
-                            selectedEvent.event_title,
-                            `Confira este evento: ${selectedEvent.event_title}`,
-                            window.location.origin + "/agenda",
+                            `Evento: ${selectedEvent.event_title}`,
+                            `Confira este evento e a agenda completa no AgendIlha!`,
+                            `${window.location.origin}/agenda?event=${selectedEvent.id}`,
                             selectedEvent.id
                           )}
                         >
-                          <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
+                          <Share2 className="h-6 w-6 mr-3" /> Compartilhar
                         </Button>
                       </div>
 
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-3">
                         <Button 
                           variant="ghost"
-                          className="flex-1 h-12 rounded-full font-bold text-xs uppercase tracking-wider text-muted-foreground hover:text-primary active:scale-95 transition-all" 
-                          onClick={() => handleCopyLink(window.location.origin + "/agenda")}
+                          className="flex-1 h-14 rounded-full font-bold text-sm uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 active:scale-95 transition-all" 
+                          onClick={() => handleCopyLink(`${window.location.origin}/agenda?event=${selectedEvent.id}`)}
                         >
-                          <Copy className="h-4 w-4 mr-2" /> Copiar link
+                          <Copy className="h-5 w-5 mr-2.5" /> Copiar link
                         </Button>
 
                         <Button 
                           variant="outline" 
-                          className="flex-1 h-12 rounded-full font-black uppercase tracking-wider border-2 border-primary/40 text-primary bg-background hover:bg-primary hover:text-white active:scale-95 transition-all text-[11px] shadow-sm" 
+                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-primary/20 dark:border-primary/30 text-primary bg-background hover:bg-primary hover:text-white active:scale-95 transition-all text-xs shadow-sm" 
                           onClick={() => {
                             const addr = buildFullAddress(selectedEvent);
                             window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
                           }}
                         >
-                          <MapPin className="h-4 w-4 mr-2" /> Mapa
+                          <MapPin className="h-5 w-5 mr-2.5" /> Mapa
                         </Button>
                         
                         <Button 
                           variant="outline" 
-                          className="flex-1 h-12 rounded-full font-black uppercase tracking-wider border-2 border-black/40 text-black bg-white hover:bg-black hover:text-white active:scale-95 transition-all text-[11px] shadow-sm" 
+                          className="flex-1 h-14 rounded-full font-black uppercase tracking-wider border-2 border-black/20 dark:border-white/20 text-foreground bg-background hover:bg-foreground hover:text-background active:scale-95 transition-all text-xs shadow-sm" 
                           onClick={() => {
                             window.open(buildUberLink(selectedEvent), "_blank");
                           }}
                         >
-                          <Car className="h-4 w-4 mr-2" /> Uber
+                          <Car className="h-5 w-5 mr-2.5" /> Ir de Uber
                         </Button>
                       </div>
                     </div>
