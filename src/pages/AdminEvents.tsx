@@ -514,13 +514,13 @@ export default function AdminEvents() {
                             <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}><MessageCircle className="h-4 w-4 mr-2" /> Gerar Texto WhatsApp</Button>
                           </div>
                         </div>
-                        <div className="md:col-span-2 space-y-6">
-                          <div>
-                            <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-3">Conteúdo do Evento</h4>
-                            <div className="bg-white border border-border/60 p-4 rounded-lg shadow-inner">
-                              <p className="text-sm leading-relaxed whitespace-pre-wrap">{sub.description || "Sem descrição disponível."}</p>
-                            </div>
+                      <div className="md:col-span-2 space-y-6">
+                        <div>
+                          <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-3">Conteúdo do Evento</h4>
+                          <div className="bg-background dark:bg-slate-900 border border-border/60 dark:border-border/30 p-5 rounded-xl shadow-inner">
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap dark:text-slate-300">{sub.description || "Sem descrição disponível."}</p>
                           </div>
+                        </div>
                           {sub.additional_details && (
                             <div>
                               <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-3">Detalhes Complementares</h4>
