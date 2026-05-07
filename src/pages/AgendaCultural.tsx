@@ -82,14 +82,17 @@ function buildFullAddress(ev: Event): string {
   return parts.join(" – ");
 }
 
- function buildWhatsAppShare(ev: Event, isAgenda = false) {
-   if (isAgenda) {
-     const msg = `🌴 *Confira a Agenda Cultural da Ilha do Governador!* 🌴\n\nVeja a programação completa e atualizada em:\nhttps://agendilha-divulgacao.lovable.app/agenda`;
-     return `https://wa.me/?text=${encodeURIComponent(msg)}`;
-   }
+function buildWhatsAppShare(ev: Event, isAgenda = false) {
+  const agendaUrl = `${window.location.origin}/agenda`;
+  
+  if (isAgenda) {
+    const msg = `🌴 *Confira a Agenda Cultural da Ilha do Governador!* 🌴\n\nVeja a programação completa e atualizada em:\n${agendaUrl}`;
+    return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  }
+  
   const time = ev.start_time ? `${ev.start_time}` : "";
   const addr = buildFullAddress(ev);
-   const msg = `🗓️ *${ev.event_title}*\n${time ? `⏰ ${time}\n` : ""}${addr ? `📍 ${addr}\n` : ""}\n🌴 Veja os detalhes e a agenda completa: https://agendilha-divulgacao.lovable.app/agenda`;
+  const msg = `🗓️ *${ev.event_title}*\n${time ? `⏰ ${time}\n` : ""}${addr ? `📍 ${addr}\n` : ""}\n🌴 Veja os detalhes no AgendIlha:\n${agendaUrl}?event=${ev.id}`;
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
