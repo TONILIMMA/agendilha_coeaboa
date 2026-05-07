@@ -23,6 +23,7 @@ import { toast } from "sonner";
   company_name: string | null;
    is_highlight: boolean;
    status?: string;
+   image_url?: string | null;
 }
 
 const categoryLabels: Record<string, string> = {
