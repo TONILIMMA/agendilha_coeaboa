@@ -191,31 +191,31 @@ export default function AgendaCultural() {
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-4xl px-4 py-8">
         {/* Topo da Página */}
-        <div className="mb-10 text-center space-y-3">
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex items-center gap-3 mb-2">
-                <img src={logoCoeABoa} alt="" className="h-12 w-12 sm:h-16 sm:w-16 rounded-full ring-4 ring-primary/10 shadow-md" />
-                <div className="flex flex-col items-start leading-none text-left">
-                  <span className="text-[10px] sm:text-sm font-bold uppercase tracking-[0.2em] text-secondary">Coé a Boa? apresenta:</span>
-                  <h1 className="text-3xl sm:text-6xl font-black font-display text-primary tracking-tightest">AgendIlha</h1>
-                </div>
+        <div className="mb-12 text-center space-y-6">
+            <div className="flex flex-col items-center gap-4">
+              <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-secondary/10 border border-secondary/20 mb-2">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-secondary-foreground">Coé a Boa? apresenta:</span>
               </div>
-              <p className="text-muted-foreground text-base sm:text-xl font-medium max-w-lg mx-auto">Eventos curados e divulgados na Ilha do Governador</p>
+              <h1 className="text-4xl sm:text-7xl font-black font-display text-primary tracking-tightest leading-none drop-shadow-sm">AgendIlha</h1>
+              <p className="text-muted-foreground text-base sm:text-xl font-medium max-w-2xl mx-auto leading-relaxed px-4">
+                A agenda cultural curada da Ilha do Governador.
+                <span className="hidden sm:inline"> Descubra o que há de melhor no nosso bairro.</span>
+              </p>
             </div>
-           <p className="text-muted-foreground text-lg font-medium">Eventos curados e divulgados na Ilha do Governador</p>
-            <div className="flex flex-wrap justify-center gap-2.5 sm:gap-4 mt-10">
-              <Button variant="outline" className="rounded-full shadow-sm border-2 border-primary/30 text-primary font-black hover:bg-primary/5 hover:border-primary/50 transition-all px-4 sm:px-6 h-11 sm:h-12 text-sm" onClick={() => {
+
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8">
+              <Button variant="outline" className="rounded-full shadow-sm border-2 border-primary/40 text-primary-foreground bg-primary/5 hover:bg-primary/10 hover:border-primary transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider" onClick={() => {
                 navigator.clipboard.writeText(window.location.href);
                 toast.success("Link da agenda copiado!");
               }}>
                 <Copy className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Copiar Link</span><span className="sm:hidden">Link</span>
               </Button>
-              <Button variant="outline" className="rounded-full shadow-sm border-2 border-green-600/30 text-green-700 font-black hover:bg-green-50 hover:border-green-600/50 transition-all px-4 sm:px-6 h-11 sm:h-12 text-sm" onClick={() => {
+              <Button variant="outline" className="rounded-full shadow-sm border-2 border-green-600/40 text-green-700 bg-green-50/50 hover:bg-green-50 hover:border-green-600 transition-all px-5 sm:px-7 h-11 sm:h-12 text-xs sm:text-sm font-black uppercase tracking-wider" onClick={() => {
                 window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
               }}>
                 <Share2 className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Compartilhar</span><span className="sm:hidden">Zap</span>
               </Button>
-              <Button variant="default" className="rounded-full shadow-lg bg-primary hover:bg-primary/90 font-black px-6 sm:px-8 h-11 sm:h-12 text-sm border-2 border-primary transform hover:scale-105 transition-all" onClick={() => {
+              <Button variant="default" className="rounded-full shadow-xl bg-primary hover:bg-primary/90 font-black px-6 sm:px-10 h-11 sm:h-12 text-xs sm:text-sm border-2 border-primary transform hover:scale-105 transition-all uppercase tracking-widest" onClick={() => {
                 exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
                 toast.success("PDF da agenda gerado!");
               }}>
@@ -348,50 +348,50 @@ export default function AgendaCultural() {
                            ) : (
                              <div className="w-full md:w-1 bg-primary/20 group-hover:bg-primary transition-colors h-1 md:h-auto" />
                            )}
-                           
-                           <div className="flex-1 p-6 md:p-8 space-y-4">
+
+                           <div className="flex-1 p-6 md:p-7 space-y-5">
                               <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div className="space-y-1 flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-2xl">{icon}</span>
-                                    <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs uppercase tracking-wider">
+                                     <span className="text-2xl drop-shadow-sm">{icon}</span>
+                                     <Badge variant="secondary" className="bg-secondary/10 text-secondary-foreground text-[10px] font-bold uppercase tracking-widest border-secondary/20">
                                       {categoryLabels[ev.category!] || ev.category}
                                     </Badge>
                                   </div>
-                                  <h3 className="text-2xl font-bold text-foreground leading-tight">
+                                   <h3 className="text-2xl sm:text-3xl font-black text-foreground leading-[1.15] tracking-tight">
                                     {ev.event_title}
                                   </h3>
                                 </div>
-                                <div className="flex flex-col items-end text-right">
-                                  <div className="flex items-center gap-2 text-primary font-bold">
-                                    <Clock className="h-4 w-4" />
-                                    <span>{ev.start_time || "--:--"}</span>
+                                <div className="flex flex-col items-end text-right shrink-0">
+                                  <div className="flex items-center gap-1.5 text-primary font-black bg-primary/5 px-2.5 py-1 rounded-lg border border-primary/10">
+                                    <Clock className="h-3.5 w-3.5" />
+                                    <span className="text-lg">{ev.start_time || "--:--"}</span>
                                   </div>
                                   <div className="text-xs text-muted-foreground mt-1">
                                     {ev.address_neighborhood || "Ilha do Governador"}
                                   </div>
                                 </div>
-                              </div>
-
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <MapPin className="h-4 w-4 text-primary/60 shrink-0" />
-                                <span className="font-medium">{buildFullAddress(ev)}</span>
+                               </div>
+ 
+                               <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                                 <MapPin className="h-4 w-4 text-primary/70 shrink-0 mt-0.5" />
+                                 <span className="font-semibold leading-relaxed">{buildFullAddress(ev)}</span>
                               </div>
 
                               {ev.description && (
-                                <p className="text-muted-foreground line-clamp-2 leading-relaxed">
+                                 <p className="text-muted-foreground line-clamp-2 leading-relaxed text-[15px]">
                                   {ev.description}
                                 </p>
                               )}
 
-                              <div className="pt-4 flex flex-wrap items-center gap-3">
-                                <Button size="sm" variant="outline" className="rounded-full h-10 px-5 border-2 border-primary/20 text-primary font-bold hover:bg-primary/5 transition-all" onClick={() => {
+                               <div className="pt-2 flex flex-wrap items-center gap-3">
+                                 <Button size="sm" variant="outline" className="rounded-full h-10 px-6 border-2 border-green-600/30 text-green-700 font-bold hover:bg-green-50 hover:border-green-600 transition-all shadow-sm" onClick={() => {
                                   trackShare(ev.id);
                                   window.open(buildWhatsAppShare(ev), "_blank");
                                 }}>
-                                  <Share2 className="h-4 w-4 mr-2 text-green-600" /> WhatsApp
+                                   <Share2 className="h-4 w-4 mr-2" /> WhatsApp
                                 </Button>
-                                <Button size="sm" variant="ghost" className="rounded-full h-10 px-5 font-bold text-muted-foreground hover:text-primary transition-colors" onClick={() => {
+                                 <Button size="sm" variant="ghost" className="rounded-full h-10 px-6 font-bold text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all" onClick={() => {
                                   const addr = buildFullAddress(ev);
                                   window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
                                 }}>
