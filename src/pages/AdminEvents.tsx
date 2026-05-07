@@ -322,13 +322,13 @@ export default function AdminEvents() {
                          </Badge>
                          <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">ID: {sub.id.slice(0, 8)}</span>
                        </div>
-                       <div className="flex flex-col gap-1 mt-2">
-                         <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Data de Cadastro</span>
-                         <p className="text-[11px] text-foreground font-medium flex items-center gap-1.5">
-                           <History className="h-3 w-3 text-muted-foreground" />
-                           {formatSubmissionDate(sub.created_at)}
-                         </p>
-                       </div>
+                        <div className="flex flex-col gap-1 mt-3 p-2 bg-muted/20 dark:bg-muted/10 rounded-lg border border-border/30 dark:border-border/10">
+                          <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-0.5">Data de Cadastro</span>
+                          <p className="text-[11px] text-foreground dark:text-slate-200 font-bold flex items-center gap-1.5">
+                            <History className="h-3 w-3 text-primary/70" />
+                            {formatSubmissionDate(sub.created_at)}
+                          </p>
+                        </div>
                      </div>
  
                      {/* Cronograma */}
