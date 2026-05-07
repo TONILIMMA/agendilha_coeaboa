@@ -90,8 +90,10 @@ export default function Auth() {
           <h1 className="font-display text-2xl font-bold text-foreground">
             📌 AgendIlha
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {mode === "login" ? "Entre na sua conta" : "Crie sua conta"}
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-[280px] mx-auto">
+            {mode === "login" 
+              ? "Use seu WhatsApp como identificador principal da sua conta." 
+              : "Cadastre-se para divulgar seus eventos e acompanhar o status."}
           </p>
         </div>
 
@@ -110,19 +112,20 @@ export default function Auth() {
             </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="phone">WhatsApp (com DDD)</Label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={handlePhoneChange}
-                required
-                placeholder="(21) 98765-4321"
-                className="pl-10"
-              />
-            </div>
+            <Label htmlFor="phone" className="flex items-center gap-2">
+              <Phone className="h-3.5 w-3.5 text-primary" />
+              WhatsApp (Identificador da Conta)
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={handlePhoneChange}
+              required
+              placeholder="(21) 98765-4321"
+              className="h-11 sm:h-12 bg-muted/30 focus-visible:ring-primary/20"
+            />
+            <p className="text-[10px] text-muted-foreground">O DDD é obrigatório. Ex: 21 para o Rio.</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Senha</Label>
@@ -140,9 +143,9 @@ export default function Auth() {
             <div className="text-right">
               <a
                 href="/forgot-password"
-                className="text-xs text-primary hover:underline"
+                className="text-[11px] font-bold text-primary hover:text-primary/80 transition-colors flex items-center justify-end gap-1"
               >
-                Esqueci minha senha
+                Recuperar acesso pelo WhatsApp
               </a>
             </div>
           )}
