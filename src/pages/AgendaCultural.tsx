@@ -325,9 +325,7 @@ function buildUberLink(ev: Event): string {
               <div className="flex flex-wrap justify-center gap-4 w-full">
                 <Button 
                   className="rounded-full shadow-xl gradient-sunset text-primary-foreground font-black px-8 sm:px-12 h-14 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-105 active:scale-95 flex-1 max-w-[300px]" 
-                  onClick={() => {
-                    window.open(buildWhatsAppShare({} as any, true), "_blank");
-                  }}
+                  onClick={() => window.open(buildWhatsAppShare(), "_blank")}
                   aria-label="Compartilhar agenda no WhatsApp"
                 >
                   <MessageCircle className="h-5 w-5 mr-2.5" /> WhatsApp
@@ -336,11 +334,10 @@ function buildUberLink(ev: Event): string {
                 <Button 
                   variant="outline" 
                   className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-6 sm:px-8 h-14 text-sm font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1 max-w-[250px]" 
-                  onClick={() => handleShare(
-                    "Agenda Cultural da Ilha",
-                    "Confira a programação completa da Ilha do Governador!",
-                    window.location.href
-                  )}
+                  onClick={() => {
+                    const data = getShareData();
+                    handleShare(data.title, data.text, data.url);
+                  }}
                   aria-label="Abrir compartilhamento do sistema"
                 >
                   <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
@@ -351,7 +348,7 @@ function buildUberLink(ev: Event): string {
                 <Button 
                   variant="ghost" 
                   className="rounded-full h-11 px-6 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-all active:scale-95" 
-                  onClick={() => handleCopyLink(window.location.href)}
+                  onClick={() => handleCopyLink(getShareUrl())}
                   aria-label="Copiar link da agenda"
                 >
                   <Copy className="h-4 w-4 mr-2" /> Copiar link
