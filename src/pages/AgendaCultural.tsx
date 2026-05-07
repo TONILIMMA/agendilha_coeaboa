@@ -1,4 +1,3 @@
-import { useEffect, useState, useMemo } from "react";
  import { useState, useMemo, useEffect } from "react";
  import { supabase } from "@/integrations/supabase/client";
  import { Card, CardContent } from "@/components/ui/card";
@@ -6,136 +5,83 @@ import { useEffect, useState, useMemo } from "react";
  import { Button } from "@/components/ui/button";
  import { Input } from "@/components/ui/input";
  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
- import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, ArrowRight, Copy } from "lucide-react";
+ import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink } from "lucide-react";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
  import { toast } from "sonner";
-
-const categoryIcons: Record<string, string> = {
-  musica: "🎸",
-  gastronomia: "🍻",
-  cultura: "🎭",
-  esporte: "🚗",
-  promocoes: "🏷️",
-  outros: "📌",
-};
-
-const categoryLabels: Record<string, string> = {
-  musica: "Música / Show",
-  gastronomia: "Gastronomia",
-  cultura: "Cultura / Arte",
-  esporte: "Esporte",
-  promocoes: "Promoções",
-  outros: "Outros",
-};
-
-const weekdayOrder = [
-  "segunda-feira",
-  "terça-feira",
-  "quarta-feira",
-  "quinta-feira",
-  "sexta-feira",
-  "sábado",
-  "domingo",
-];
-
-const weekdayLabels: Record<string, string> = {
-  "segunda-feira": "Segunda-feira",
-  "terça-feira": "Terça-feira",
-  "quarta-feira": "Quarta-feira",
-  "quinta-feira": "Quinta-feira",
-  "sexta-feira": "Sexta-feira",
-  "sábado": "Sábado",
-  "domingo": "Domingo",
-};
-
- import { Input } from "@/components/ui/input";
- import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-interface Event {
-  id: string;
-  event_title: string;
-  date: string | null;
-  start_time: string | null;
-  end_time: string | null;
-  location: string | null;
-  address_neighborhood: string | null;
-  address_street: string | null;
-  address_number: string | null;
-  address_city: string | null;
-  description: string | null;
-  category: string | null;
-  company_name: string | null;
-  phone: string | null;
+ 
+ interface Event {
+   id: string;
+   event_title: string;
+   date: string | null;
+   start_time: string | null;
+   end_time: string | null;
+   location: string | null;
+   address_neighborhood: string | null;
+   address_street: string | null;
+   address_number: string | null;
+   address_city: string | null;
+   description: string | null;
+   category: string | null;
+   company_name: string | null;
+   phone: string | null;
    is_highlight: boolean;
-}
-
-function parseDateToObj(dateStr: string | null): Date | null {
-  if (!dateStr) return null;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-    const [y, m, d] = dateStr.split("-").map(Number);
-    return new Date(y, m - 1, d);
-  }
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
-    const [d, m, y] = dateStr.split("/").map(Number);
-    return new Date(y, m - 1, d);
-  }
-  return null;
-}
-
-function getWeekday(dateStr: string | null): string {
-  const d = parseDateToObj(dateStr);
-  if (!d || isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("pt-BR", { weekday: "long" });
-}
-
-function formatDateShort(dateStr: string | null): string {
-  const d = parseDateToObj(dateStr);
-  if (!d || isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
-}
-
-function buildFullAddress(ev: Event): string {
-  const parts = [
-    ev.location,
-    ev.address_street && ev.address_number
-      ? `${ev.address_street}, ${ev.address_number}`
-      : ev.address_street,
-    ev.address_neighborhood,
-    ev.address_city,
-  ].filter(Boolean);
-  return parts.join(" – ");
-}
-
-function buildGoogleMapsUrl(ev: Event): string {
-  const addr = buildFullAddress(ev);
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
-}
-
-function buildWhatsAppShare(ev: Event) {
-  const time = ev.start_time
-    ? `${ev.start_time}${ev.end_time ? ` às ${ev.end_time}` : ""}`
-    : "";
-  const addr = buildFullAddress(ev);
-  const msg = `🗓️ *${ev.event_title}*\n${time ? `⏰ ${time}\n` : ""}${addr ? `📍 ${addr}\n` : ""}${ev.description ? `\n${ev.description}\n` : ""}\n🌴 Veja mais: https://agendilha-divulgacao.lovable.app/agenda`;
-  return `https://wa.me/?text=${encodeURIComponent(msg)}`;
-}
-
-function isUpcoming(dateStr: string | null): boolean {
-  const d = parseDateToObj(dateStr);
-  if (!d) return true; // sem data → mostra mesmo assim
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return d >= today;
-}
-
-function formatDayLabel(dateStr: string | null): string {
-  const d = parseDateToObj(dateStr);
-  if (!d || isNaN(d.getTime())) return "Sem data definida";
-  const wd = d.toLocaleDateString("pt-BR", { weekday: "long" });
-  const dayMonth = d.toLocaleDateString("pt-BR", { day: "numeric", month: "long" });
-  return `${wd.charAt(0).toUpperCase()}${wd.slice(1)} · ${dayMonth}`;
-}
-
+ }
+ 
+ const categoryLabels: Record<string, string> = {
+   musica: "Música / Show",
+   gastronomia: "Gastronomia",
+   cultura: "Cultura / Arte",
+   esporte: "Esporte",
+   promocoes: "Promoções",
+   outros: "Outros",
+ };
+ 
+ const categoryIcons: Record<string, string> = {
+   musica: "🎸",
+   gastronomia: "🍻",
+   cultura: "🎭",
+   esporte: "⚽",
+   promocoes: "🏷️",
+   outros: "📌",
+ };
+ 
+ function parseDateToObj(dateStr: string | null): Date | null {
+   if (!dateStr) return null;
+   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+     const [y, m, d] = dateStr.split("-").map(Number);
+     return new Date(y, m - 1, d);
+   }
+   if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+     const [d, m, y] = dateStr.split("/").map(Number);
+     return new Date(y, m - 1, d);
+   }
+   return null;
+ }
+ 
+ function formatDayLabel(dateStr: string | null): string {
+   const d = parseDateToObj(dateStr);
+   if (!d || isNaN(d.getTime())) return "Sem data definida";
+   const wd = d.toLocaleDateString("pt-BR", { weekday: "long" });
+   const dayMonth = d.toLocaleDateString("pt-BR", { day: "numeric", month: "long" });
+   return `${wd.charAt(0).toUpperCase()}${wd.slice(1)} · ${dayMonth}`;
+ }
+ 
+ function buildFullAddress(ev: Event): string {
+   const parts = [
+     ev.location,
+     ev.address_street,
+     ev.address_neighborhood,
+   ].filter(Boolean);
+   return parts.join(" – ");
+ }
+ 
+ function buildWhatsAppShare(ev: Event) {
+   const time = ev.start_time ? `${ev.start_time}` : "";
+   const addr = buildFullAddress(ev);
+   const msg = `🗓️ *${ev.event_title}*\n${time ? `⏰ ${time}\n` : ""}${addr ? `📍 ${addr}\n` : ""}\n🌴 Veja a agenda completa: https://agendilha-divulgacao.lovable.app/agenda`;
+   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+ }
+ 
  export default function AgendaCultural() {
    const [events, setEvents] = useState<Event[]>([]);
    const [loading, setLoading] = useState(true);
@@ -146,40 +92,65 @@ function formatDayLabel(dateStr: string | null): string {
    useEffect(() => {
      async function load() {
        const { data } = await supabase
-          .from("submissions")
-          .select("*")
-          .eq("status", "approved")
-          .order("date", { ascending: true, nullsFirst: false });
-        setEvents((data as any[]) || []);
+         .from("submissions")
+         .select("*")
+         .eq("status", "approved")
+         .order("date", { ascending: true, nullsFirst: false });
+       setEvents((data as any[]) || []);
        setLoading(false);
      }
      load();
    }, []);
-
-  const upcomingEvents = useMemo(
-    () => events.filter((e) => isUpcoming(e.date)),
-    [events]
-  );
-
-   async function trackView(id: string) {
-     try {
-       await supabase.rpc('increment_views', { event_id: id });
-     } catch (e) {
-       console.error("Error tracking view:", e);
-     }
-   }
  
-   async function trackShare(id: string) {
-     try {
-       await supabase.rpc('increment_shares', { event_id: id });
-     } catch (e) {
-       console.error("Error tracking share:", e);
+   const neighborhoods = useMemo(() => {
+     const set = new Set<string>();
+     events.forEach(e => { if (e.address_neighborhood) set.add(e.address_neighborhood); });
+     return Array.from(set).sort();
+   }, [events]);
+ 
+   const upcomingEvents = useMemo(() => {
+     const today = new Date();
+     today.setHours(0, 0, 0, 0);
+     return events.filter(e => {
+       const d = parseDateToObj(e.date);
+       return !d || d >= today;
+     });
+   }, [events]);
+ 
+   const filteredEvents = useMemo(() => {
+     return upcomingEvents.filter(ev => {
+       const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
+                           (ev.description || "").toLowerCase().includes(search.toLowerCase());
+       const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
+       const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
+       return matchSearch && matchCat && matchNeigh;
+     });
+   }, [upcomingEvents, search, categoryFilter, neighborhoodFilter]);
+ 
+   const grouped = useMemo(() => {
+     const map: Record<string, { label: string; sortKey: string; items: Event[] }> = {};
+     for (const ev of filteredEvents) {
+       const d = parseDateToObj(ev.date);
+       const key = d
+         ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+         : "sem-data";
+       if (!map[key]) {
+         map[key] = {
+           label: formatDayLabel(ev.date),
+           sortKey: key === "sem-data" ? "9999-99-99" : key,
+           items: [],
+         };
+       }
+       map[key].items.push(ev);
      }
-   }
-
-   const [search, setSearch] = useState("");
-   const [categoryFilter, setCategoryFilter] = useState("all");
-   const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+     return map;
+   }, [filteredEvents]);
+ 
+   const sortedDays = useMemo(() =>
+     Object.entries(grouped)
+       .sort(([, a], [, b]) => a.sortKey.localeCompare(b.sortKey))
+       .map(([key]) => key)
+   , [grouped]);
 
    const neighborhoods = useMemo(() => {
      const set = new Set<string>();
