@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
  import { CalendarDays, ClipboardList, LogOut, Users, Menu, X, ArrowLeft, CheckCircle, Shield, Settings, ChevronDown, UserCog, Crown, Trophy, Megaphone } from "lucide-react";
  import { useNavigate, useLocation, Link } from "react-router-dom";
+ import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -111,51 +112,56 @@ export default function Header() {
      return () => window.removeEventListener("scroll", onScroll);
    }, [isHome]);
  
-   if (isHome) {
-     return (
-       <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? "glass border-b border-white/40" : "bg-transparent border-b border-transparent"}`}>
-         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
-           <Link to="/" className="flex items-center gap-2.5 group">
-             <span className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">
-               AgendIlha <span className="text-secondary/60 font-medium">| Coé a Boa?</span>
-             </span>
-           </Link>
-           <div className="flex items-center gap-4">
-             <Link to="/agenda" className="hidden xs:block">
-               <Button variant="ghost" size="sm" className="rounded-full text-foreground/75 hover:text-foreground">Ver agenda</Button>
-             </Link>
-             <Link to="/enviar-evento">
-               <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90">Enviar Evento</Button>
-             </Link>
-              <HeaderUserMenu variant="desktop" hideContext={true} />
-           </div>
-         </div>
-       </header>
-     );
-   }
+    if (isHome) {
+      return (
+        <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? "glass border-b border-white/40" : "bg-transparent border-b border-transparent"}`}>
+          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <div className="flex items-center gap-2">
+                <img src={logoCoeABoa} alt="Coé a Boa?" className="h-8 w-8 rounded-full ring-1 ring-foreground/10" />
+                <span className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">
+                  AgendIlha <span className="text-secondary/70 font-medium text-sm hidden sm:inline">| Coé a Boa?</span>
+                </span>
+              </div>
+            </Link>
+            <div className="flex items-center gap-4">
+              <Link to="/agenda" className="hidden xs:block">
+                <Button variant="ghost" size="sm" className="rounded-full text-foreground/80 hover:text-foreground font-semibold">Ver agenda</Button>
+              </Link>
+              <Link to="/enviar-evento">
+                <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-sm px-5">Enviar Evento</Button>
+              </Link>
+               <HeaderUserMenu variant="desktop" hideContext={true} />
+            </div>
+          </div>
+        </header>
+      );
+    }
  
-   // Public view for agenda - clean and minimal
-   if (isAgenda) {
-     return (
-       <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
-         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-           <Link to="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-             <span className="font-display text-lg font-black text-primary tracking-tight">AgendIlha</span>
-           </Link>
-           <div className="flex items-center gap-2">
-             <Button size="sm" variant="ghost" className="text-xs font-bold" onClick={() => navigate("/")}>
-               Início
-             </Button>
-             <Button size="sm" variant="outline" className="rounded-full text-xs font-bold border-primary text-primary" onClick={() => navigate("/enviar-evento")}>
-               Divulgar Evento
-             </Button>
-             <HeaderUserMenu variant="desktop" hideContext={true} />
-           </div>
-         </div>
-         <div className="h-1 w-full gradient-pumpkin-strip" />
-       </header>
-     );
-   }
+    // Public view for agenda - clean and minimal
+    if (isAgenda) {
+      return (
+        <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
+          <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity group">
+              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-7 w-7 rounded-full ring-1 ring-primary/20" />
+              <span className="font-display text-lg font-black text-primary tracking-tight">AgendIlha</span>
+              <span className="text-xs text-muted-foreground font-medium hidden xs:inline">| Coé a Boa?</span>
+            </Link>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="ghost" className="text-xs font-bold hover:bg-primary/5 text-foreground/80" onClick={() => navigate("/")}>
+                Início
+              </Button>
+              <Button size="sm" variant="outline" className="rounded-full text-xs font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all shadow-sm" onClick={() => navigate("/enviar-evento")}>
+                Divulgar Evento
+              </Button>
+              <HeaderUserMenu variant="desktop" hideContext={true} />
+            </div>
+          </div>
+          <div className="h-1 w-full gradient-pumpkin-strip" />
+        </header>
+      );
+    }
   const showEventos = isAdmin || (perms.loaded && perms.isCollaborator);
   const showCollaborators = isAdmin || (perms.loaded && perms.canApprove);
    const hasAdminLinks = showEventos || isAdmin || showCollaborators;
@@ -178,10 +184,13 @@ export default function Header() {
                   <TooltipContent>Voltar à página inicial</TooltipContent>
                 </Tooltip>
               )}
-               <Link to="/" className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-1.5 hover:opacity-80 transition-opacity">
-                 <span className="font-display text-base sm:text-xl font-black text-primary whitespace-nowrap tracking-tight">AgendIlha</span>
-                 <span className="text-[10px] sm:text-sm text-muted-foreground font-medium opacity-70">Coé a Boa?</span>
-               </Link>
+                 <Link to="/" className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-1.5 hover:opacity-80 transition-opacity">
+                  <div className="flex items-center gap-1.5">
+                    <img src={logoCoeABoa} alt="Coé a Boa?" className="h-5 w-5 rounded-full" />
+                    <span className="font-display text-base sm:text-xl font-black text-primary whitespace-nowrap tracking-tight">AgendIlha</span>
+                  </div>
+                  <span className="text-[10px] sm:text-sm text-muted-foreground font-medium opacity-70">Coé a Boa?</span>
+                </Link>
                 {isAdmin && isAdminArea && <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />}
             </div>
             <span className="text-[10px] sm:text-[11px] text-muted-foreground capitalize block">{currentDate}</span>

@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink } from "lucide-react";
-import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
-import { toast } from "sonner";
+ import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink } from "lucide-react";
+ import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
+ import { toast } from "sonner";
+ import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 
  interface Event {
   id: string;
@@ -191,26 +192,29 @@ export default function AgendaCultural() {
       <main className="mx-auto max-w-4xl px-4 py-8">
         {/* Topo da Página */}
         <div className="mb-10 text-center space-y-3">
-          <h1 className="text-3xl sm:text-5xl font-bold font-display text-primary">Agenda Cultural da Ilha</h1>
-          <p className="text-muted-foreground text-lg">Eventos aprovados e divulgados na Ilha do Governador</p>
-          <div className="flex flex-wrap justify-center gap-3 mt-6">
-            <Button variant="outline" className="rounded-full shadow-sm" onClick={() => {
+           <h1 className="text-3xl sm:text-5xl font-bold font-display text-primary flex flex-col sm:flex-row items-center justify-center gap-3">
+             <img src={logoCoeABoa} alt="" className="h-10 w-10 sm:h-14 sm:w-14 rounded-full ring-2 ring-primary/10 shadow-sm" />
+             Agenda Cultural da Ilha
+           </h1>
+           <p className="text-muted-foreground text-lg font-medium">Eventos curados e divulgados na Ilha do Governador</p>
+           <div className="flex flex-wrap justify-center gap-3 mt-8">
+             <Button variant="outline" className="rounded-full shadow-sm border-2 font-bold hover:bg-primary/5 transition-colors" onClick={() => {
               navigator.clipboard.writeText(window.location.href);
               toast.success("Link da agenda copiado!");
             }}>
               <Copy className="h-4 w-4 mr-2" /> Copiar Link
             </Button>
-            <Button variant="outline" className="rounded-full shadow-sm" onClick={() => {
-              window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
-            }}>
-              <Share2 className="h-4 w-4 mr-2" /> Compartilhar Agenda
-            </Button>
-            <Button variant="default" className="rounded-full shadow-md bg-primary hover:bg-primary/90" onClick={() => {
-              exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
-              toast.success("PDF da agenda gerado!");
-            }}>
-              <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
-            </Button>
+             <Button variant="outline" className="rounded-full shadow-sm border-2 font-bold hover:bg-primary/5 transition-colors" onClick={() => {
+               window.open(`https://wa.me/?text=${encodeURIComponent("Confira a Agenda Cultural da Ilha: " + window.location.href)}`, "_blank");
+             }}>
+               <Share2 className="h-4 w-4 mr-2 text-green-600" /> Compartilhar Agenda
+             </Button>
+             <Button variant="default" className="rounded-full shadow-md bg-primary hover:bg-primary/90 font-bold px-6 border-2 border-primary" onClick={() => {
+               exportEditorialAgendaPdf(upcomingEvents as any, "Agenda Cultural da Ilha");
+               toast.success("PDF da agenda gerado!");
+             }}>
+               <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
+             </Button>
           </div>
         </div>
 
@@ -413,15 +417,16 @@ export default function AgendaCultural() {
         )}
       </main>
 
-      <footer className="bg-muted/30 border-t border-border mt-20">
-        <div className="mx-auto max-w-4xl px-4 py-12 text-center space-y-4">
-          <div className="flex justify-center items-center gap-2 font-display text-lg font-bold text-primary">
-            <span>📌</span> AgendIlha
-          </div>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Sua agenda cultural hiperlocal. Os melhores eventos da Ilha do Governador reunidos num só lugar.
-          </p>
-          <div className="pt-6 text-[11px] uppercase tracking-[0.2em] text-muted-foreground/50">
+       <footer className="bg-muted/40 border-t border-border mt-20">
+         <div className="mx-auto max-w-4xl px-4 py-16 text-center space-y-6">
+           <div className="flex justify-center items-center gap-3 font-display text-xl font-bold text-primary">
+             <img src={logoCoeABoa} alt="" className="h-8 w-8 rounded-full" />
+             AgendIlha <span className="text-muted-foreground/60 font-medium">| Coé a Boa?</span>
+           </div>
+           <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+             Sua agenda cultural hiperlocal. Os melhores eventos da Ilha do Governador reunidos e curados em um só lugar.
+           </p>
+           <div className="pt-8 text-[11px] uppercase tracking-[0.2em] text-muted-foreground/40 font-bold">
             © {new Date().getFullYear()} AgendIlha do Governador
           </div>
         </div>
