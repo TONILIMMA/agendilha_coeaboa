@@ -385,29 +385,17 @@ export default function AgendaCultural() {
                               )}
 
                               <div className="pt-4 flex flex-wrap items-center gap-3">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="rounded-full h-10 px-5"
-                                  onClick={() => {
-                                    trackShare(ev.id);
-                                    window.open(buildWhatsAppShare(ev), "_blank");
-                                  }}
-                                >
-                                  <Share2 className="h-4 w-4 mr-2 text-green-500" />
-                                  WhatsApp
+                                <Button size="sm" variant="outline" className="rounded-full h-10 px-5 border-2 border-primary/20 text-primary font-bold hover:bg-primary/5 transition-all" onClick={() => {
+                                  trackShare(ev.id);
+                                  window.open(buildWhatsAppShare(ev), "_blank");
+                                }}>
+                                  <Share2 className="h-4 w-4 mr-2 text-green-600" /> WhatsApp
                                 </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="rounded-full h-10 px-5"
-                                  onClick={() => {
-                                    const addr = buildFullAddress(ev);
-                                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
-                                  }}
-                                >
-                                  <ExternalLink className="h-4 w-4 mr-2" />
-                                  Ver no Mapa
+                                <Button size="sm" variant="ghost" className="rounded-full h-10 px-5 font-bold text-muted-foreground hover:text-primary transition-colors" onClick={() => {
+                                  const addr = buildFullAddress(ev);
+                                  window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
+                                }}>
+                                  <ExternalLink className="h-4 w-4 mr-2" /> Ver no Mapa
                                 </Button>
                               </div>
                             </div>
