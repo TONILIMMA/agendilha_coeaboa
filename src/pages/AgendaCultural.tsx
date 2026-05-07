@@ -511,27 +511,28 @@ function buildWhatsAppShare(ev: Event) {
                                   <Button 
                                     size="sm" 
                                     variant="outline" 
-                                    className="rounded-full h-11 sm:h-10 px-6 border-2 border-green-600/40 text-green-900 font-bold hover:bg-green-100 hover:border-green-600 hover:text-green-950 active:scale-95 transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 ring-offset-background outline-none" 
+                                    className="rounded-full h-11 sm:h-10 px-6 border-2 border-green-600/60 text-green-800 font-bold bg-green-50/50 hover:bg-green-600 hover:text-white active:scale-95 transition-all shadow-sm focus-visible:ring-4 focus-visible:ring-green-600/40 focus-visible:ring-offset-2 ring-offset-background outline-none" 
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       trackShare(ev.id);
                                       window.open(buildWhatsAppShare(ev), "_blank");
                                     }}
                                   >
-                                   <Share2 className="h-4 w-4 mr-2" /> WhatsApp
-                                </Button>
+                                    <Share2 className="h-4 w-4 mr-2" /> WhatsApp
+                                  </Button>
+                                  
                                   <Button 
                                     size="sm" 
                                     variant="ghost" 
-                                    className="rounded-full h-11 sm:h-10 px-6 font-bold text-foreground/80 hover:text-primary hover:bg-primary/10 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background outline-none" 
+                                    className="rounded-full h-11 sm:h-10 px-6 font-bold text-primary border-2 border-primary/20 hover:bg-primary hover:text-white active:scale-95 transition-all focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ring-offset-background outline-none" 
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const addr = buildFullAddress(ev);
                                       window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`, "_blank");
                                     }}
                                   >
-                                  <ExternalLink className="h-4 w-4 mr-2" /> Ver no Mapa
-                                </Button>
+                                    <ExternalLink className="h-4 w-4 mr-2" /> Ver no Mapa
+                                  </Button>
                               </div>
                             </div>
                           </div>
