@@ -495,7 +495,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      event_ratings_summary: {
+        Row: {
+          average_rating: number | null
+          event_id: string | null
+          total_reviews: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reviews_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
