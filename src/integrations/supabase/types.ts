@@ -122,7 +122,9 @@ export type Database = {
           created_at: string
           event_id: string
           id: string
+          is_flagged: boolean | null
           rating: number
+          status: string | null
           user_name: string | null
         }
         Insert: {
@@ -130,7 +132,9 @@ export type Database = {
           created_at?: string
           event_id: string
           id?: string
+          is_flagged?: boolean | null
           rating: number
+          status?: string | null
           user_name?: string | null
         }
         Update: {
@@ -138,7 +142,9 @@ export type Database = {
           created_at?: string
           event_id?: string
           id?: string
+          is_flagged?: boolean | null
           rating?: number
+          status?: string | null
           user_name?: string | null
         }
         Relationships: [
