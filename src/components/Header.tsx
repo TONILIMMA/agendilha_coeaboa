@@ -153,9 +153,6 @@ export default function Header() {
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-3">
-              <Link to="/agenda">
-                <Button variant="ghost" size="sm" className="rounded-full text-foreground/70 hover:text-primary font-bold h-10 px-5 transition-colors">Ver agenda</Button>
-              </Link>
               <Link to="/enviar-evento">
                 <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-lg px-6 h-10 border-2 border-primary transition-transform active:scale-95">Divulgar</Button>
               </Link>
