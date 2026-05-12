@@ -121,9 +121,11 @@
     const eventName = params.get('evento') || 'Evento';
     let currentPage = 0;
     const pageSize = 5;
-    let allReviews = [];
-    
-    document.getElementById('tituloEvento').innerText = `Avaliações de ${eventName}`;
+      let allReviews = [];
+      let lastPostTime = 0;
+      const cooldownTime = 60000; // 1 minute cooldown
+      
+      document.getElementById('tituloEvento').innerText = `Avaliações de ${eventName}`;
 
     const supabaseUrl = 'https://xwuyzqahfoyhdbmtspwf.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3dXl6cWFoZm95aGRibXRzcHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDk0NjksImV4cCI6MjA5MTkyNTQ2OX0.QyGVMftXH7haMUPTct459-EQoFeKZ-dA3BoEE4-ZV-0';
@@ -220,22 +222,36 @@
         return;
       }
 
+      const now = Date.now();
+      if (now - lastPostTime < cooldownTime) {
+        const remaining = Math.ceil((cooldownTime - (now - lastPostTime)) / 1000);
+        alert(`Aguarde ${remaining} segundos para postar novamente.`);
+        return;
+      }
+
       btn.disabled = true;
       btn.innerText = 'Enviando...';
 
-      const { error } = await supabase.from('event_reviews').insert([{
+      const { data, error } = await supabase.from('event_reviews').insert([{
         event_id: eventId,
         rating: parseInt(nota),
         comment: comentario,
         user_name: nome || 'Anônimo'
-      }]);
+      }]).select();
 
       if (error) {
         alert('Erro ao enviar: ' + error.message);
       } else {
+        const review = data[0];
+        if (review.status === 'pending') {
+          alert('Avaliação enviada! Por conter termos que exigem atenção ou por ser uma nova postagem, ela passará por uma breve moderação antes de aparecer publicamente.');
+        } else {
+          alert('Avaliação publicada com sucesso!');
+        }
         document.getElementById('comentario').value = '';
         document.getElementById('nome').value = '';
-        loadReviews();
+        lastPostTime = now;
+        loadReviews(true);
       }
       
       btn.disabled = false;
