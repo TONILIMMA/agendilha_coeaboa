@@ -158,7 +158,8 @@ function buildUberLink(ev: Event): string {
 
     const { user } = useAuth();
     const { toggleTheme } = useTheme();
-   const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [ratings, setRatings] = useState<Record<string, { average: number; total: number }>>({});
    const [loading, setLoading] = useState(true);
    const [search, setSearch] = useState("");
    const [categoryFilter, setCategoryFilter] = useState("all");
@@ -187,6 +188,19 @@ function buildUberLink(ev: Event): string {
           
           const publishedEvents = (data as any[])?.filter(e => e.status === 'published') || [];
           setEvents(publishedEvents);
+
+          // Load ratings summary
+          const { data: ratingsData } = await supabase
+            .from("event_ratings_summary")
+            .select("*");
+          
+          if (ratingsData) {
+            const ratingsMap: Record<string, { average: number; total: number }> = {};
+            ratingsData.forEach((r: any) => {
+              ratingsMap[r.event_id] = { average: r.average_rating, total: r.total_reviews };
+            });
+            setRatings(ratingsMap);
+          }
 
           // Verificar se há um evento específico na URL para abrir o modal
           const params = new URLSearchParams(window.location.search);
