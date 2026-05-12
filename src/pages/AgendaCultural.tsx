@@ -783,11 +783,16 @@ function buildUberLink(ev: Event): string {
                       </div>
                     )}
 
-                    {/* Reviews System */}
-                    <EventReviews 
-                      eventId={selectedEvent.id} 
-                      eventTitle={selectedEvent.event_title} 
-                    />
+                    {/* Reviews System - Modular Iframe */}
+                    <div className="space-y-4 pt-8 border-t border-border/50">
+                      <iframe 
+                        src={`/avaliacoes.html?id=${selectedEvent.id}&evento=${encodeURIComponent(selectedEvent.event_title)}`}
+                        width="100%" 
+                        height="650" 
+                        style={{ border: 'none', borderRadius: '12px' }}
+                        title="Avaliações"
+                      />
+                    </div>
                   </div>
                 </div>
 
