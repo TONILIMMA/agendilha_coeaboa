@@ -8,13 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-    import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter } from "lucide-react";
+  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
  import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
   import { toast } from "sonner";
   import { cn } from "@/lib/utils";
  import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
+  import EventReviews from "@/components/EventReviews";
 
  interface Event {
   id: string;
@@ -766,6 +767,12 @@ function buildUberLink(ev: Event): string {
                         </p>
                       </div>
                     )}
+
+                    {/* Reviews System */}
+                    <EventReviews 
+                      eventId={selectedEvent.id} 
+                      eventTitle={selectedEvent.event_title} 
+                    />
                   </div>
                 </div>
 
