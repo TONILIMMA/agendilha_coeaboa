@@ -32,6 +32,23 @@
       padding: 12px;
       margin-bottom: 10px;
       border: 1px solid #eee;
+      position: relative;
+    }
+    .flag-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 5px;
+      width: auto;
+      margin: 0;
+    }
+    .flag-btn:hover {
+      color: #d9534f;
     }
     .avaliacao strong {
       color: #ffb400;
@@ -63,8 +80,14 @@
       box-sizing: border-box;
     }
     #avaliacoes {
-      max-height: 300px;
+      max-height: 400px;
       overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    .pagination-btn {
+      background: #f0f0f0;
+      color: #666;
+      font-size: 0.8rem;
       margin-bottom: 20px;
     }
   </style>
@@ -96,6 +119,9 @@
     const params = new URLSearchParams(window.location.search);
     const eventId = params.get('id');
     const eventName = params.get('evento') || 'Evento';
+    let currentPage = 0;
+    const pageSize = 5;
+    let allReviews = [];
     
     document.getElementById('tituloEvento').innerText = `Avaliações de ${eventName}`;
 
@@ -103,12 +129,33 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3dXl6cWFoZm95aGRibXRzcHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDk0NjksImV4cCI6MjA5MTkyNTQ2OX0.QyGVMftXH7haMUPTct459-EQoFeKZ-dA3BoEE4-ZV-0';
     const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
 
-    async function loadReviews() {
+    async function flagReview(id) {
+      if (!confirm('Deseja denunciar este comentário como impróprio?')) return;
+      const { error } = await supabase
+        .from('event_reviews')
+        .update({ is_flagged: true, status: 'pending' })
+        .eq('id', id);
+      
+      if (error) alert('Erro ao denunciar: ' + error.message);
+      else {
+        alert('Comentário denunciado e enviado para moderação.');
+        loadReviews(true);
+      }
+    }
+
+    async function loadReviews(reset = false) {
+      if (reset) {
+        currentPage = 0;
+        allReviews = [];
+      }
+
       const { data: reviews, error } = await supabase
         .from('event_reviews')
         .select('*')
         .eq('event_id', eventId)
-        .order('created_at', { ascending: false });
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false })
+        .range(currentPage * pageSize, (currentPage + 1) * pageSize - 1);
 
       if (error) {
         console.error('Erro ao carregar:', error);
@@ -118,23 +165,47 @@
       const lista = document.getElementById('avaliacoes');
       const mediaEl = document.getElementById('mediaEstrelas');
       
-      lista.innerHTML = '';
-      let soma = 0;
+      if (currentPage === 0) lista.innerHTML = '';
       
       reviews.forEach(a => {
-        soma += Number(a.rating);
         const div = document.createElement('div');
         div.className = 'avaliacao';
-        div.innerHTML = `<strong>${a.rating}⭐</strong> — ${a.comment} <br><small style="color:#999">— ${a.user_name || 'Anônimo'}</small>`;
+        div.innerHTML = `
+          <button class="flag-btn" onclick="flagReview('${a.id}')" title="Denunciar">🚩</button>
+          <strong>${a.rating}⭐</strong> — ${a.comment} 
+          <br><small style="color:#999">— ${a.user_name || 'Anônimo'}</small>
+        `;
         lista.appendChild(div);
       });
 
-      const media = reviews.length ? (soma / reviews.length).toFixed(1) : 0;
-      mediaEl.innerHTML = media > 0 ? `Média: ${media}⭐` : 'Ainda não há avaliações';
+      // Update media (only on first load or reset)
+      if (currentPage === 0) {
+        const { data: summary } = await supabase
+          .from('event_ratings_summary')
+          .select('*')
+          .eq('event_id', eventId)
+          .single();
+        
+        const media = summary ? summary.average_rating : 0;
+        mediaEl.innerHTML = media > 0 ? `Média: ${media}⭐` : 'Ainda não há avaliações';
+        localStorage.setItem(`media_${eventName}`, media);
+      }
+
+      // Pagination button
+      const existingBtn = document.getElementById('loadMoreBtn');
+      if (existingBtn) existingBtn.remove();
       
-      // Salva no localStorage como solicitado pelo usuário para o script da listagem
-      localStorage.setItem(`media_${eventName}`, media);
-      if (eventId) localStorage.setItem(`media_id_${eventId}`, media);
+      if (reviews.length === pageSize) {
+        const btn = document.createElement('button');
+        btn.id = 'loadMoreBtn';
+        btn.className = 'pagination-btn';
+        btn.innerText = 'Carregar mais comentários...';
+        btn.onclick = () => {
+          currentPage++;
+          loadReviews();
+        };
+        lista.after(btn);
+      }
     }
 
     document.getElementById('novoComentario').addEventListener('submit', async e => {
