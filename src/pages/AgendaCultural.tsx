@@ -510,7 +510,8 @@ function buildUberLink(ev: Event): string {
                    {filteredEvents.filter(e => e.is_highlight).map(ev => (
                      <Card 
                        key={ev.id} 
-                       className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group" 
+                        className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group"
+                        data-nome={ev.event_title}
                        onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
                      >
                        <CardContent className="p-6 space-y-4">
