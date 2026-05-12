@@ -520,6 +520,7 @@ export type Database = {
     }
     Functions: {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
+      contains_bad_words: { Args: { text_to_check: string }; Returns: boolean }
       has_permission: {
         Args: { _permission: string; _user_id: string }
         Returns: boolean
