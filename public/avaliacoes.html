@@ -10,41 +10,177 @@
       background: #fff;
       color: #333;
       margin: 0;
-      padding: 30px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      text-align: center;
+      padding: 20px;
     }
-    .card {
+    section {
       max-width: 600px;
-      padding: 40px;
-      background: #f9f9f9;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      margin: auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 20px;
     }
-    h2 { color: #006633; }
-    p { color: #666; line-height: 1.6; }
-    .btn {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 24px;
+    h2 {
+      color: #006633;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    .avaliacao {
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #eee;
+    }
+    .avaliacao strong {
+      color: #ffb400;
+    }
+    button {
       background: #006633;
       color: #fff;
-      text-decoration: none;
-      border-radius: 50px;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
       font-weight: bold;
+      margin-top: 10px;
+      transition: opacity 0.2s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    button:disabled {
+      background: #ccc;
+    }
+    textarea, select, input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-top: 8px;
+      box-sizing: border-box;
+    }
+    #avaliacoes {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>Sistema de Avaliações Agendilha</h2>
-    <p>O sistema de avaliações agora está integrado nativamente ao aplicativo Agendilha para oferecer uma melhor experiência, maior segurança e sincronização em tempo real.</p>
-    <p>Você pode acessar as avaliações diretamente dentro de cada evento na agenda oficial.</p>
-    <a href="/agenda" class="btn">Ver Agenda Cultural</a>
-  </div>
+  <section>
+    <h2 id="tituloEvento">Carregando...</h2>
+    <div id="mediaEstrelas" style="text-align:center;font-size:18px;color:#ffb400;margin-bottom:15px;font-weight:bold;"></div>
+    <div id="avaliacoes"></div>
+
+    <form id="novoComentario">
+      <label style="font-weight: bold; font-size: 0.9rem;">Sua avaliação:</label>
+      <select id="nota">
+        <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+        <option value="4">⭐⭐⭐⭐ Muito bom</option>
+        <option value="3">⭐⭐⭐ Regular</option>
+        <option value="2">⭐⭐ Ruim</option>
+        <option value="1">⭐ Péssimo</option>
+      </select>
+      <input type="text" id="nome" placeholder="Seu nome (opcional)" />
+      <textarea id="comentario" rows="3" placeholder="Escreva seu comentário..."></textarea>
+      <button type="submit" id="btnEnviar">Enviar Avaliação</button>
+    </form>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const eventId = params.get('id');
+    const eventName = params.get('evento') || 'Evento';
+    
+    document.getElementById('tituloEvento').innerText = `Avaliações de ${eventName}`;
+
+    const supabaseUrl = 'https://xwuyzqahfoyhdbmtspwf.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3dXl6cWFoZm95aGRibXRzcHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDk0NjksImV4cCI6MjA5MTkyNTQ2OX0.QyGVMftXH7haMUPTct459-EQoFeKZ-dA3BoEE4-ZV-0';
+    const supabase = supabasejs.createClient(supabaseUrl, supabaseKey);
+
+    async function loadReviews() {
+      const { data: reviews, error } = await supabase
+        .from('event_reviews')
+        .select('*')
+        .eq('event_id', eventId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Erro ao carregar:', error);
+        return;
+      }
+
+      const lista = document.getElementById('avaliacoes');
+      const mediaEl = document.getElementById('mediaEstrelas');
+      
+      lista.innerHTML = '';
+      let soma = 0;
+      
+      reviews.forEach(a => {
+        soma += Number(a.rating);
+        const div = document.createElement('div');
+        div.className = 'avaliacao';
+        div.innerHTML = `<strong>${a.rating}⭐</strong> — ${a.comment} <br><small style="color:#999">— ${a.user_name || 'Anônimo'}</small>`;
+        lista.appendChild(div);
+      });
+
+      const media = reviews.length ? (soma / reviews.length).toFixed(1) : 0;
+      mediaEl.innerHTML = media > 0 ? `Média: ${media}⭐` : 'Ainda não há avaliações';
+      
+      // Salva no localStorage como solicitado pelo usuário para o script da listagem
+      localStorage.setItem(`media_${eventName}`, media);
+      if (eventId) localStorage.setItem(`media_id_${eventId}`, media);
+    }
+
+    document.getElementById('novoComentario').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = document.getElementById('btnEnviar');
+      const nota = document.getElementById('nota').value;
+      const comentario = document.getElementById('comentario').value;
+      const nome = document.getElementById('nome').value;
+
+      if (!comentario.trim()) {
+        alert('Por favor, escreva um comentário.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Enviando...';
+
+      const { error } = await supabase.from('event_reviews').insert([{
+        event_id: eventId,
+        rating: parseInt(nota),
+        comment: comentario,
+        user_name: nome || 'Anônimo'
+      }]);
+
+      if (error) {
+        alert('Erro ao enviar: ' + error.message);
+      } else {
+        document.getElementById('comentario').value = '';
+        document.getElementById('nome').value = '';
+        loadReviews();
+      }
+      
+      btn.disabled = false;
+      btn.innerText = 'Enviar Avaliação';
+    });
+
+    if (eventId) {
+      loadReviews();
+      // Real-time subscription
+      supabase
+        .channel('schema-db-changes')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'event_reviews', filter: `event_id=eq.${eventId}` }, loadReviews)
+        .subscribe();
+    } else {
+      document.getElementById('avaliacoes').innerHTML = '<p style="text-align:center; color:red;">ID do evento não fornecido.</p>';
+    }
+  </script>
 </body>
 </html>
