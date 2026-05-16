@@ -23,7 +23,9 @@ import {
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
- import Header from "@/components/Header";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.jpg";
 
 const sitelinks = [
@@ -99,9 +101,11 @@ export default function Landing() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-
-      {/* ── Nova Hero & Discovery ── */}
+  return (
+    <div className="min-h-screen bg-background text-foreground antialiased font-body selection:bg-primary/15 selection:text-primary">
+      <Header />
+      
+      {/* ── Hero Discovery ── */}
       <section className="pt-24 pb-12 px-4 max-w-6xl mx-auto">
         <h1 className="text-4xl font-black mb-8 font-display">Descubra a Ilha 🌴</h1>
         <div className="relative mb-10">
