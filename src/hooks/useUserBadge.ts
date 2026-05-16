@@ -3,7 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 
-export type UserStatus = "master" | "admin" | "collaborator" | "user" | null;
+ export type UserStatus = "master" | "admin" | "collaborator" | "artist" | "user" | null;
+       // Check if artist
+       if (profile?.role === 'artist') {
+         setStatus("artist");
+         setStatusLoaded(true);
+         return;
+       }
+ 
 
 export interface UserBadge {
   name: string;
@@ -127,9 +134,10 @@ export function useUserBadge(): UserBadge {
   const labelMap: Record<NonNullable<UserStatus>, string> = {
     master: "Admin Master",
     admin: "Admin",
-    collaborator: "Divulgador",
-    user: "Público",
-  };
+     collaborator: "Divulgador",
+     artist: "Músico / Banda",
+     user: "Público",
+   };
   const label = status ? labelMap[status] : "";
 
   return {
