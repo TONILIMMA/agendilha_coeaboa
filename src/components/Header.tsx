@@ -255,7 +255,7 @@ export default function Header() {
                          rel="noopener noreferrer"
                          className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/40 hover:text-primary transition-colors"
                        >
-                         ©2026 TONI LIMA - Veo SIstemas
+                         ©2026 criado por TONI LIMA - Veo SIstemas
                        </a>
                     </div>
                   </div>
