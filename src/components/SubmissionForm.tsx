@@ -508,7 +508,6 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       if (imageUrlWhatsapp?.startsWith('data:image')) {
         imageUrlWhatsapp = await uploadDataUrl(imageUrlWhatsapp, 'whatsapp');
       }
-     }
 
     const submissionData = {
       company_name: data.companyName,
