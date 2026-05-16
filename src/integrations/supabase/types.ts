@@ -606,6 +606,8 @@ export type Database = {
           event_title: string
           id: string
           image_url: string | null
+          image_url_story: string | null
+          image_url_whatsapp: string | null
           is_highlight: boolean | null
           is_suitable_for_minors: boolean | null
           latitude: number | null
@@ -666,6 +668,8 @@ export type Database = {
           event_title: string
           id?: string
           image_url?: string | null
+          image_url_story?: string | null
+          image_url_whatsapp?: string | null
           is_highlight?: boolean | null
           is_suitable_for_minors?: boolean | null
           latitude?: number | null
@@ -726,6 +730,8 @@ export type Database = {
           event_title?: string
           id?: string
           image_url?: string | null
+          image_url_story?: string | null
+          image_url_whatsapp?: string | null
           is_highlight?: boolean | null
           is_suitable_for_minors?: boolean | null
           latitude?: number | null
