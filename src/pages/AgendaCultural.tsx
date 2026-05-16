@@ -1,3 +1,29 @@
+import { useState, useMemo, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/hooks/useTheme";
+import { useProfile } from "@/hooks/useProfile";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Instagram } from "lucide-react";
+import { Onboarding } from "@/components/Onboarding";
+import { PersonalizationDialog } from "@/components/PersonalizationDialog";
+import { ShareDialog } from "@/components/ShareDialog";
+import ArtistCard from "@/components/ArtistCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
+import EventReviews from "@/components/EventReviews";
+import { getShareData, getShareUrl, buildFullAddress } from "@/lib/sharing";
 
 function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: string }) {
   const [open, setOpen] = useState(false);
@@ -98,35 +124,7 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
     </>
   );
 }
-  import { useState, useMemo, useEffect } from "react";
-  import { useQuery } from "@tanstack/react-query";
- import { useNavigate } from "react-router-dom";
- import { supabase } from "@/integrations/supabase/client";
-  import { useAuth } from "@/contexts/AuthContext";
-  import { useTheme } from "@/hooks/useTheme";
-  import { useProfile } from "@/hooks/useProfile";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
- import { Input } from "@/components/ui/input";
- import { Textarea } from "@/components/ui/textarea";
- 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Instagram } from "lucide-react";
-import { Onboarding } from "@/components/Onboarding";
-  import { PersonalizationDialog } from "@/components/PersonalizationDialog";
-  import { ShareDialog } from "@/components/ShareDialog";
- import ArtistCard from "@/components/ArtistCard";
- import { Skeleton } from "@/components/ui/skeleton";
-  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
- import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
-  import { toast } from "sonner";
-  import { cn } from "@/lib/utils";
- import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
-  import EventReviews from "@/components/EventReviews";
-  import { getShareData, getShareUrl, buildFullAddress } from "@/lib/sharing";
-
- interface Event {
+interface Event {
   id: string;
   event_title: string;
   date: string | null;
