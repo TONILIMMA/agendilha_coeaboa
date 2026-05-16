@@ -6,7 +6,8 @@
  import { Input } from "@/components/ui/input";
  import { Label } from "@/components/ui/label";
  import { Textarea } from "@/components/ui/textarea";
- import { toast } from "sonner";
+  import { handleError } from "@/lib/error-handler";
+  import { toast } from "sonner";
  import { 
    Music, 
    Users, 
@@ -21,6 +22,21 @@
     Image as ImageIcon,
     X
   } from "lucide-react";
+ import {
+   Select,
+   SelectContent,
+   SelectItem,
+   SelectTrigger,
+   SelectValue,
+ } from "@/components/ui/select";
+ 
+ const NEIGHBORHOODS = [
+   "Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia",
+   "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras",
+   "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"
+ ].sort();
+ 
+  export default function ArtistSetup() {
     const [mediaFiles, setMediaFiles] = useState<{ file: File; type: 'image' | 'video'; preview: string }[]>([]);
     const [uploadingMedia, setUploadingMedia] = useState(false);
 
@@ -43,21 +59,6 @@
       });
     };
 
- import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
- } from "@/components/ui/select";
- 
- const NEIGHBORHOODS = [
-   "Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia",
-   "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras",
-   "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"
- ].sort();
- 
- export default function ArtistSetup() {
    const { user } = useAuth();
    const navigate = useNavigate();
    const [loading, setLoading] = useState(false);
@@ -128,11 +129,9 @@
           description: "Avisaremos assim que tudo for aprovado."
         });
         navigate("/agenda");
-     } catch (error: any) {
-       toast.error("Erro ao salvar perfil", {
-         description: error.message
-       });
-     } finally {
+      } catch (error) {
+        handleError(error, "Erro ao salvar perfil");
+      } finally {
        setLoading(false);
      }
    }

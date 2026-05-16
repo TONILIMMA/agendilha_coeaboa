@@ -18,8 +18,9 @@ import { ShareDialog } from "@/components/ShareDialog";
 import ArtistCard from "@/components/ArtistCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
-import { toast } from "sonner";
+ import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
+ import { handleError } from "@/lib/error-handler";
+ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 import EventReviews from "@/components/EventReviews";
@@ -362,10 +363,9 @@ function buildUberLink(ev: Event): string {
               trackView(ev.id);
             }
           }
-        } catch (error) {
-          console.error("Error loading events:", error);
-          toast.error("Erro ao carregar a agenda. Tente novamente mais tarde.");
-        } finally {
+       } catch (error) {
+         handleError(error, "Erro ao carregar a agenda. Tente novamente mais tarde.");
+       } finally {
           setLoading(false);
         }
       }

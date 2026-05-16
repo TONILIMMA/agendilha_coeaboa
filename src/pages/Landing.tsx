@@ -26,7 +26,8 @@ import {
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+ import { handleError } from "@/lib/error-handler";
+ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -135,10 +136,9 @@ export default function Landing() {
         setSubscriberEmail("");
         setSubscriberName("");
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao realizar inscrição.");
-    } finally {
+     } catch (err) {
+       handleError(err, "Erro ao realizar inscrição.");
+     } finally {
       setIsSubmitting(false);
     }
   };
