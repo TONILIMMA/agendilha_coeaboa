@@ -349,6 +349,13 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
     }
   };
 
+  const isSuspicious = useMemo(() => {
+    const title = form.watch("eventTitle") || "";
+    const desc = form.watch("description") || "";
+    const words = ['porra', 'caralho', 'fuder', 'sexo', 'porn', 'putaria'];
+    return words.some(w => title.toLowerCase().includes(w) || desc.toLowerCase().includes(w));
+  }, [form.watch("eventTitle"), form.watch("description")]);
+
   const saveDraft = async () => {
     setIsSavingDraft(true);
     const currentValues = form.getValues();
