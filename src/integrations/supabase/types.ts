@@ -455,14 +455,19 @@ export type Database = {
           contact_social: string | null
           created_at: string
           email: string | null
+          email_notifications_enabled: boolean | null
           event_type_preferences: string[] | null
+          followed_neighborhoods: string[] | null
+          followed_styles: string[] | null
           home_location: string | null
           id: string
           musical_preferences: string[] | null
           nick_name: string | null
+          notification_frequency: string | null
           onboarding_completed: boolean | null
           phone: string | null
           pin_code: string | null
+          push_notifications_enabled: boolean | null
           responsible_name: string | null
           role: string | null
           updated_at: string
@@ -481,14 +486,19 @@ export type Database = {
           contact_social?: string | null
           created_at?: string
           email?: string | null
+          email_notifications_enabled?: boolean | null
           event_type_preferences?: string[] | null
+          followed_neighborhoods?: string[] | null
+          followed_styles?: string[] | null
           home_location?: string | null
           id?: string
           musical_preferences?: string[] | null
           nick_name?: string | null
+          notification_frequency?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
           pin_code?: string | null
+          push_notifications_enabled?: boolean | null
           responsible_name?: string | null
           role?: string | null
           updated_at?: string
@@ -507,14 +517,19 @@ export type Database = {
           contact_social?: string | null
           created_at?: string
           email?: string | null
+          email_notifications_enabled?: boolean | null
           event_type_preferences?: string[] | null
+          followed_neighborhoods?: string[] | null
+          followed_styles?: string[] | null
           home_location?: string | null
           id?: string
           musical_preferences?: string[] | null
           nick_name?: string | null
+          notification_frequency?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
           pin_code?: string | null
+          push_notifications_enabled?: boolean | null
           responsible_name?: string | null
           role?: string | null
           updated_at?: string
