@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
- import { MessageCircle, Facebook, Twitter, Globe, Copy, Share2 } from "lucide-react";
+  import { MessageCircle, Globe, Copy, Share2, Send } from "lucide-react";
 import { toast } from "sonner";
 
 interface ShareDialogProps {
