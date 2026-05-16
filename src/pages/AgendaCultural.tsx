@@ -178,6 +178,14 @@ function buildUberLink(ev: Event): string {
    const [search, setSearch] = useState("");
    const [categoryFilter, setCategoryFilter] = useState("all");
    const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+   useEffect(() => {
+     const params = new URLSearchParams(window.location.search);
+     if (params.get('view') === 'favorites') {
+       setShowFavoritesOnly(true);
+     }
+   }, []);
    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
      const saved = localStorage.getItem("agendilha_sort_order");
@@ -269,14 +277,16 @@ function buildUberLink(ev: Event): string {
    }, [events]);
 
   const filteredEvents = useMemo(() => {
+    const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
     return upcomingEvents.filter(ev => {
       const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
                           (ev.description || "").toLowerCase().includes(search.toLowerCase());
       const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
       const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
-      return matchSearch && matchCat && matchNeigh;
+      const matchFav = !showFavoritesOnly || favs.includes(ev.id);
+      return matchSearch && matchCat && matchNeigh && matchFav;
     });
-  }, [upcomingEvents, search, categoryFilter, neighborhoodFilter]);
+  }, [upcomingEvents, search, categoryFilter, neighborhoodFilter, showFavoritesOnly]);
 
   const grouped = useMemo(() => {
     const map: Record<string, { label: string; sortKey: string; items: Event[] }> = {};
