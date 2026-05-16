@@ -3,14 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 
- export type UserStatus = "master" | "admin" | "collaborator" | "artist" | "user" | null;
-       // Check if artist
-       if (profile?.role === 'artist') {
-         setStatus("artist");
-         setStatusLoaded(true);
-         return;
-       }
- 
+  export type UserStatus = "master" | "admin" | "collaborator" | "artist" | "user" | null;
 
 export interface UserBadge {
   name: string;
@@ -69,11 +62,18 @@ export function useUserBadge(): UserBadge {
         return;
       }
 
-      if (isAdmin) {
-        setStatus("admin");
-        setStatusLoaded(true);
-        return;
-      }
+       if (isAdmin) {
+         setStatus("admin");
+         setStatusLoaded(true);
+         return;
+       }
+ 
+       // Check if artist
+       if (profile?.role === 'artist') {
+         setStatus("artist");
+         setStatusLoaded(true);
+         return;
+       }
 
       if (collab && collab.is_active !== false) {
         setStatus("collaborator");
