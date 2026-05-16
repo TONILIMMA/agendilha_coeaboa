@@ -261,12 +261,12 @@ export default function Landing() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold font-display flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-primary" />
-                  Eventos perto de você
+                  {user ? "No seu radar" : "Eventos perto de você"}
                 </h2>
                 <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
               </div>
               <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-                {events.slice(0, 5).map(ev => (
+                {recommendedEvents.map(ev => (
                   <DiscoveryEventCard 
                     key={ev.id} 
                     event={ev} 
