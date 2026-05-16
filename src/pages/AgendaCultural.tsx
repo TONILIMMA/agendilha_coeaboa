@@ -423,7 +423,21 @@ function buildUberLink(ev: Event): string {
                 </div>
               </div>
 
-              {/* Dropdowns de Filtro */}
+              {/* Filtros e Favoritos */}
+              <div className="flex flex-col sm:flex-row gap-4 items-center">
+                <Button
+                  variant={showFavoritesOnly ? "default" : "outline"}
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                  className={cn(
+                    "w-full sm:w-auto rounded-full h-12 px-6 gap-2 font-bold transition-all active:scale-95",
+                    showFavoritesOnly ? "bg-primary text-white" : "border-2 border-primary/10 text-primary hover:bg-primary/5"
+                  )}
+                >
+                  <Heart className={cn("h-4 w-4", showFavoritesOnly && "fill-current")} />
+                  {showFavoritesOnly ? "Mostrando Favoritos" : "Meus Favoritos"}
+                </Button>
+                
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 flex-1 w-full">
               <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger className="h-12 sm:h-13 border-2 border-primary/10 bg-white hover:bg-primary/5 transition-colors focus:ring-2 focus:ring-primary/20 rounded-xl sm:rounded-2xl font-semibold text-sm">
