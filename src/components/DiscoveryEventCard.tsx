@@ -1,8 +1,10 @@
-import { Card, CardContent } from "@/components/ui/card";
+ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, Star, Clock, Heart, Share2, Music, Utensils, Theater, Trophy, Tag, MoreHorizontal } from "lucide-react";
+ import { MapPin, Calendar, Star, Heart, Share2, Music, Utensils, Theater, Trophy, Tag, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+ import { motion, AnimatePresence } from "framer-motion";
+ import { useState } from "react";
 
 interface Event {
   id: string;
@@ -44,25 +46,48 @@ export function DiscoveryEventCard({
 }) {
   const isLarge = variant === "large";
   const isHorizontal = variant === "horizontal";
+   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <Card 
-      onClick={onClick}
-      className={cn(
-        "group cursor-pointer overflow-hidden border-none bg-transparent transition-all hover:scale-[1.02] active:scale-95",
-         isLarge ? "w-[260px] xs:w-[280px] sm:w-[320px]" : isHorizontal ? "w-full" : "w-[160px] xs:w-[200px]"
-      )}
-    >
-      <div className={cn(
-        "relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] shadow-xl",
-        isHorizontal && "aspect-[16/9]"
-      )}>
-        <img 
-          src={event.image_url || "/placeholder.svg"} 
-          alt={event.event_title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+     <motion.div
+       initial={{ opacity: 0, y: 20 }}
+       animate={{ opacity: 1, y: 0 }}
+       transition={{ duration: 0.4 }}
+     >
+       <Card 
+         onClick={onClick}
+         className={cn(
+           "group cursor-pointer overflow-hidden border-none bg-transparent transition-all hover:scale-[1.02] active:scale-95 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2",
+            isLarge ? "w-[260px] xs:w-[280px] sm:w-[320px]" : isHorizontal ? "w-full" : "w-[160px] xs:w-[200px]"
+         )}
+       >
+         <div className={cn(
+           "relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] shadow-xl bg-muted/20",
+           isHorizontal && "aspect-[16/9]"
+         )}>
+           <AnimatePresence>
+             {!isLoaded && (
+               <motion.div 
+                 initial={{ opacity: 1 }}
+                 exit={{ opacity: 0 }}
+                 className="absolute inset-0 bg-muted/20 animate-pulse flex items-center justify-center"
+               >
+                 <Music className="h-10 w-10 text-muted-foreground/20 animate-bounce" />
+               </motion.div>
+             )}
+           </AnimatePresence>
+           
+           <img 
+             src={event.image_url || "/placeholder.svg"} 
+             alt={event.event_title}
+             loading="lazy"
+             onLoad={() => setIsLoaded(true)}
+             className={cn(
+               "h-full w-full object-cover transition-all duration-700 group-hover:scale-110",
+               !isLoaded ? "opacity-0 scale-105 blur-sm" : "opacity-100 scale-100 blur-0"
+             )}
+           />
+           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
         
          {/* Top Badges Left */}
          <div className="absolute left-4 top-4 flex flex-wrap gap-2 z-20">
