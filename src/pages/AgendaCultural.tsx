@@ -264,6 +264,7 @@ function buildUberLink(ev: Event): string {
     const { user } = useAuth();
     const { toggleTheme } = useTheme();
   const [events, setEvents] = useState<Event[]>([]);
+  const [profile, setProfile] = useState<any>(null);
   const [ratings, setRatings] = useState<Record<string, { average: number; total: number }>>({});
 
   const loadRatings = async () => {
@@ -320,7 +321,16 @@ function buildUberLink(ev: Event): string {
           
           const publishedEvents = (data as any[])?.filter(e => e.status === 'published') || [];
           setEvents(publishedEvents);
-          loadRatings();
+    loadRatings();
+
+          if (user) {
+            const { data: prof } = await supabase
+              .from("profiles")
+              .select("home_location, work_neighborhood")
+              .eq("user_id", user.id)
+              .maybeSingle();
+            if (prof) setProfile(prof);
+          }
 
           // Verificar se há um evento específico na URL para abrir o modal
           const params = new URLSearchParams(window.location.search);
