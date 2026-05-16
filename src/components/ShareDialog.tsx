@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Facebook, Twitter, Instagram, Copy, Share2 } from "lucide-react";
+  import { MessageCircle, Globe, Copy, Share2, Send } from "lucide-react";
 import { toast } from "sonner";
 
 interface ShareDialogProps {
@@ -61,20 +61,20 @@ export function ShareDialog({ open, onOpenChange, title, text, url, onShare }: S
             <MessageCircle className="h-8 w-8" />
             <span className="font-bold text-xs">WhatsApp</span>
           </Button>
-          <Button 
-            variant="outline" 
-            className="flex-col h-24 rounded-3xl gap-2 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-200"
-            onClick={() => handleShare('instagram')}
-          >
-            <Instagram className="h-8 w-8" />
-            <span className="font-bold text-xs">Instagram</span>
-          </Button>
+           <Button 
+             variant="outline" 
+             className="flex-col h-24 rounded-3xl gap-2 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-200"
+             onClick={() => handleShare('instagram')}
+           >
+             <Globe className="h-8 w-8" />
+             <span className="font-bold text-xs">Instagram</span>
+           </Button>
           <Button 
             variant="outline" 
             className="flex-col h-24 rounded-3xl gap-2 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
             onClick={() => handleShare('facebook')}
           >
-            <Facebook className="h-8 w-8" />
+             <Globe className="h-8 w-8" />
             <span className="font-bold text-xs">Facebook</span>
           </Button>
           <Button 
@@ -82,7 +82,7 @@ export function ShareDialog({ open, onOpenChange, title, text, url, onShare }: S
             className="flex-col h-24 rounded-3xl gap-2 hover:bg-sky-50 hover:text-sky-600 hover:border-sky-200"
             onClick={() => handleShare('twitter')}
           >
-            <Twitter className="h-8 w-8" />
+             <Send className="h-8 w-8" />
             <span className="font-bold text-xs">Twitter / X</span>
           </Button>
         </div>

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
- import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Instagram, Megaphone, Trophy } from "lucide-react";
+  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Megaphone, Trophy } from "lucide-react";
 import { Onboarding } from "@/components/Onboarding";
 import { PersonalizationDialog } from "@/components/PersonalizationDialog";
 import { ShareDialog } from "@/components/ShareDialog";
@@ -1315,30 +1315,70 @@ function buildUberLink(ev: Event): string {
                             window.open(buildUberLink(selectedEvent), "_blank");
                           }}
                         >
-                          <Car className="h-5 w-5 mr-2.5" /> Ir de Uber
+                           <MapPin className="h-5 w-5 mr-2.5" /> Ir de Uber
                         </Button>
                       </div>
                     </div>
                     
                     <div className="flex flex-col gap-2">
-                      {selectedEvent.image_url && (
-                        <Button 
-                          variant="ghost" 
-                          className="w-full h-10 text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            const link = document.createElement('a');
-                            link.href = selectedEvent.image_url!;
-                            link.download = `flyer-${selectedEvent.event_title}.jpg`;
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            toast.success("Iniciando download do flyer...");
-                          }}
-                        >
-                          <Download className="h-4 w-4 mr-2" /> Baixar Flyer do Evento
-                        </Button>
-                      )}
+                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                         {selectedEvent.image_url && (
+                           <Button 
+                             variant="ghost" 
+                             className="h-10 text-[10px] font-bold text-muted-foreground hover:text-primary transition-colors border border-dashed border-border rounded-xl"
+                             onClick={async (e) => {
+                               e.stopPropagation();
+                               const link = document.createElement('a');
+                               link.href = selectedEvent.image_url!;
+                               link.download = `flyer-feed-${selectedEvent.event_title}.jpg`;
+                               document.body.appendChild(link);
+                               link.click();
+                               document.body.removeChild(link);
+                               toast.success("Iniciando download (Feed)...");
+                             }}
+                           >
+                             <Download className="h-3 w-3 mr-1" /> Feed
+                           </Button>
+                         )}
+                         
+                         {(selectedEvent as any).image_url_story && (
+                           <Button 
+                             variant="ghost" 
+                             className="h-10 text-[10px] font-bold text-muted-foreground hover:text-primary transition-colors border border-dashed border-border rounded-xl"
+                             onClick={async (e) => {
+                               e.stopPropagation();
+                               const link = document.createElement('a');
+                               link.href = (selectedEvent as any).image_url_story!;
+                               link.download = `flyer-story-${selectedEvent.event_title}.jpg`;
+                               document.body.appendChild(link);
+                               link.click();
+                               document.body.removeChild(link);
+                               toast.success("Iniciando download (Story)...");
+                             }}
+                           >
+                             <Download className="h-3 w-3 mr-1" /> Story
+                           </Button>
+                         )}
+                         
+                         {(selectedEvent as any).image_url_whatsapp && (
+                           <Button 
+                             variant="ghost" 
+                             className="h-10 text-[10px] font-bold text-muted-foreground hover:text-primary transition-colors border border-dashed border-border rounded-xl"
+                             onClick={async (e) => {
+                               e.stopPropagation();
+                               const link = document.createElement('a');
+                               link.href = (selectedEvent as any).image_url_whatsapp!;
+                               link.download = `flyer-whatsapp-${selectedEvent.event_title}.jpg`;
+                               document.body.appendChild(link);
+                               link.click();
+                               document.body.removeChild(link);
+                               toast.success("Iniciando download (WhatsApp)...");
+                             }}
+                           >
+                             <Download className="h-3 w-3 mr-1" /> WhatsApp
+                           </Button>
+                         )}
+                       </div>
 
                       <ReportButton eventId={selectedEvent.id} eventTitle={selectedEvent.event_title} />
                       

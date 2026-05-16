@@ -40,16 +40,19 @@ interface SubmissionEntry {
    deleted_at: string | null;
    status: string;
    rejection_reason: string | null;
-   predicted_duration?: string | null;
-   atrativo_name?: string | null;
-   atrativo_type?: string | null;
-   atrativo_style?: string | null;
-   atrativo_contact?: string | null;
-   location_type?: string | null;
-   location_contact?: string | null;
-   legal_acceptance?: boolean | null;
-   legal_acceptance_date?: string | null;
- }
+    predicted_duration?: string | null;
+    atrativo_name?: string | null;
+    atrativo_type?: string | null;
+    atrativo_style?: string | null;
+    atrativo_contact?: string | null;
+    location_type?: string | null;
+    location_contact?: string | null;
+    legal_acceptance?: boolean | null;
+    legal_acceptance_date?: string | null;
+    image_url?: string | null;
+    image_url_story?: string | null;
+    image_url_whatsapp?: string | null;
+  }
  interface SubmissionContextType {
    submissions: SubmissionEntry[];
    loading: boolean;

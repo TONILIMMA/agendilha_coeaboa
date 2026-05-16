@@ -12,8 +12,7 @@
    Music, 
    Users, 
    MapPin, 
-   Instagram, 
-   Youtube, 
+    Globe, 
     Plus, 
     Loader2,
     CheckCircle2,
@@ -224,7 +223,7 @@
              </h3>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                <div className="space-y-2">
-                 <Label className="flex items-center gap-2 text-xs"><Instagram className="h-3 w-3" /> Instagram</Label>
+                  <Label className="flex items-center gap-2 text-xs"><Globe className="h-3 w-3" /> Instagram</Label>
                  <Input 
                    placeholder="@usuario" 
                    value={formData.instagram} 
@@ -232,7 +231,7 @@
                  />
                </div>
                <div className="space-y-2">
-                 <Label className="flex items-center gap-2 text-xs"><Youtube className="h-3 w-3" /> YouTube</Label>
+                  <Label className="flex items-center gap-2 text-xs"><Video className="h-3 w-3" /> YouTube</Label>
                  <Input 
                    placeholder="Link do canal ou vídeo" 
                    value={formData.youtube} 

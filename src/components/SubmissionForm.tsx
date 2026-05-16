@@ -45,6 +45,8 @@ import {
     aiSubtitle: z.string().optional(),
     aiVariant: z.enum(["modern", "vibrant", "elegant"]).optional(),
     eventImageUrl: z.string().optional(),
+    eventImageUrlStory: z.string().optional(),
+    eventImageUrlWhatsapp: z.string().optional(),
     // 1. Identificação do Divulgador
     nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
     basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
@@ -231,6 +233,8 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
  export default function SubmissionForm() {
     const [eventImage, setEventImage] = useState<File | string | null>(null);
+    const [eventImageStory, setEventImageStory] = useState<string | null>(null);
+    const [eventImageWhatsapp, setEventImageWhatsapp] = useState<string | null>(null);
     const [imageSource, setImageSource] = useState<"upload" | "ai" | null>(null);
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -397,7 +401,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
              variant: parsed.aiVariant || "modern"
            });
          }
-         if (parsed.eventImageUrl) setEventImage(parsed.eventImageUrl);
+        if (parsed.eventImageUrl) setEventImage(parsed.eventImageUrl);
+        if (parsed.eventImageUrlStory) setEventImageStory(parsed.eventImageUrlStory);
+        if (parsed.eventImageUrlWhatsapp) setEventImageWhatsapp(parsed.eventImageUrlWhatsapp);
          
          if (savedStep) {
            const stepNum = parseInt(savedStep);
@@ -454,11 +460,11 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
    async function onSubmit(data: FormData) {
      setSubmitting(true);
      
-     let imageUrl = null;
-     if (eventImage) {
-       if (typeof eventImage === 'string') {
-         imageUrl = eventImage;
-       } else {
+      let imageUrl = typeof eventImage === 'string' ? eventImage : null;
+      let imageUrlStory = eventImageStory;
+      let imageUrlWhatsapp = eventImageWhatsapp;
+
+      if (eventImage && typeof eventImage !== 'string') {
          const fileExt = eventImage.name.split('.').pop();
          const fileName = `${user?.id || 'anon'}/${crypto.randomUUID()}.${fileExt}`;
          const { data: uploadData, error: uploadError } = await supabaseClient.storage
@@ -473,10 +479,35 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
            const { data: { publicUrl } } = supabaseClient.storage
              .from('event-flyers')
              .getPublicUrl(fileName);
-           imageUrl = publicUrl;
+          imageUrl = publicUrl;
          }
        }
-     }
+
+      // Helper to upload dataURLs from IA generator
+      const uploadDataUrl = async (dataUrl: string, suffix: string) => {
+        if (!dataUrl.startsWith('data:image')) return dataUrl;
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const fileName = `${user?.id || 'anon'}/${crypto.randomUUID()}-${suffix}.png`;
+        const { error: uploadError } = await supabaseClient.storage
+          .from('event-flyers')
+          .upload(fileName, blob);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabaseClient.storage
+          .from('event-flyers')
+          .getPublicUrl(fileName);
+        return publicUrl;
+      };
+
+      if (imageUrl?.startsWith('data:image')) {
+        imageUrl = await uploadDataUrl(imageUrl, 'feed');
+      }
+      if (imageUrlStory?.startsWith('data:image')) {
+        imageUrlStory = await uploadDataUrl(imageUrlStory, 'story');
+      }
+      if (imageUrlWhatsapp?.startsWith('data:image')) {
+        imageUrlWhatsapp = await uploadDataUrl(imageUrlWhatsapp, 'whatsapp');
+      }
 
     const submissionData = {
       company_name: data.companyName,
@@ -508,7 +539,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       stage: data.stage || "development",
        responsible_person: data.responsiblePerson || "Toni",
        status: "pending",
-       image_url: imageUrl,
+      image_url: imageUrl,
+      image_url_story: imageUrlStory,
+      image_url_whatsapp: imageUrlWhatsapp,
        age_rating: data.ageRating,
        is_suitable_for_minors: data.isSuitableForMinors
     };
@@ -952,9 +985,11 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                               neighborhood: form.getValues("addressNeighborhood") || "",
                               category: form.getValues("category") || "musica"
                             }}
-                            onFlyerGenerated={(url) => {
-                              setEventImage(url);
-                            }}
+                             onFlyerGenerated={(urls) => {
+                               setEventImage(urls.feed);
+                               setEventImageStory(urls.story);
+                               setEventImageWhatsapp(urls.whatsapp);
+                             }}
                          />
                        </div>
                      )}

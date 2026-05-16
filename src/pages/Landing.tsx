@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+ import { useEffect, useRef, useState, useCallback } from "react";
+ import { useInfiniteQuery } from "@tanstack/react-query";
+ import { useInView } from "react-intersection-observer";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -21,8 +23,9 @@ import {
   Heart,
   Share2,
   Mail,
-  ArrowRightCircle,
-} from "lucide-react";
+   ArrowRightCircle,
+   Loader2
+ } from "lucide-react";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -87,9 +90,43 @@ export default function Landing() {
   const { user } = useAuth();
   const { profile, loaded: profileLoaded } = useProfile();
   const navigate = useNavigate();
-  const [events, setEvents] = useState<any[]>([]);
-  const [todayEvents, setTodayEvents] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+   const { ref: loadMoreRef, inView: loadMoreInView } = useInView();
+ 
+   const { 
+     data: eventsData, 
+     fetchNextPage, 
+     hasNextPage, 
+     isFetchingNextPage,
+     isLoading: eventsLoading 
+   } = useInfiniteQuery({
+     queryKey: ["all-events"],
+     queryFn: async ({ pageParam = 0 }) => {
+       const { data, error } = await supabase
+         .from("submissions")
+         .select("*")
+         .eq('status', 'published')
+         .order('date', { ascending: true })
+         .range(pageParam, pageParam + 9);
+       
+       if (error) throw error;
+       return {
+         items: data,
+         nextPage: data.length === 10 ? pageParam + 10 : undefined
+       };
+     },
+     initialPageParam: 0,
+     getNextPageParam: (lastPage) => lastPage.nextPage,
+   });
+ 
+   const allEvents = eventsData?.pages.flatMap(page => page.items) || [];
+   const todayStr = new Date().toISOString().split('T')[0];
+   const todayEvents = allEvents.filter(e => e.date === todayStr);
+ 
+   useEffect(() => {
+     if (loadMoreInView && hasNextPage && !isFetchingNextPage) {
+       fetchNextPage();
+     }
+   }, [loadMoreInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem("agendilha_favorites");
@@ -143,45 +180,28 @@ export default function Landing() {
     }
   };
 
-  const [recommendedEvents, setRecommendedEvents] = useState<any[]>([]);
-
-  useEffect(() => {
-    async function loadEventsData() {
-      const today = new Date().toISOString().split('T')[0];
-      
-      let query = supabase
-        .from("submissions")
-        .select("*")
-        .eq('status', 'published')
-        .order('date', { ascending: true });
-
-      const { data: allPublished } = await query;
-
-      if (allPublished) {
-        setEvents(allPublished.slice(0, 10));
-        setTodayEvents(allPublished.filter(e => e.date === today));
-        
-        // Simple IA recommendation logic
-        if (profileLoaded && user) {
-          const prefs = profile.musical_preferences || [];
-          const home = profile.home_location;
-          const work = profile.work_neighborhood;
-          
-          const recs = allPublished.filter(ev => {
-            const matchStyle = prefs.some(p => ev.atrativo_style?.toLowerCase().includes(p.toLowerCase()));
-            const matchNeighborhood = ev.address_neighborhood === home || ev.address_neighborhood === work;
-            return matchStyle || matchNeighborhood;
-          }).slice(0, 5);
-          
-          setRecommendedEvents(recs.length > 0 ? recs : allPublished.slice(0, 5));
-        } else {
-          setRecommendedEvents(allPublished.slice(0, 5));
-        }
-      }
-      setLoading(false);
-    }
-    loadEventsData();
-  }, [profileLoaded, user, profile.musical_preferences, profile.home_location, profile.work_neighborhood]);
+   const [recommendedEvents, setRecommendedEvents] = useState<any[]>([]);
+   
+   useEffect(() => {
+     if (allEvents.length > 0) {
+       // Simple IA recommendation logic
+       if (profileLoaded && user) {
+         const prefs = profile.musical_preferences || [];
+         const home = profile.home_location;
+         const work = profile.work_neighborhood;
+         
+         const recs = allEvents.filter(ev => {
+           const matchStyle = prefs.some(p => ev.atrativo_style?.toLowerCase().includes(p.toLowerCase()));
+           const matchNeighborhood = ev.address_neighborhood === home || ev.address_neighborhood === work;
+           return matchStyle || matchNeighborhood;
+         }).slice(0, 5);
+         
+         setRecommendedEvents(recs.length > 0 ? recs : allEvents.slice(0, 5));
+       } else {
+         setRecommendedEvents(allEvents.slice(0, 5));
+       }
+     }
+   }, [allEvents, profileLoaded, user, profile.musical_preferences, profile.home_location, profile.work_neighborhood]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -297,25 +317,30 @@ export default function Landing() {
             <h2 className="text-2xl font-bold font-display">Eventos em alta</h2>
             <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
           </div>
-          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-            {events.map(ev => (
-              <DiscoveryEventCard 
-                key={ev.id} 
-                event={ev} 
-                onClick={() => navigate(`/agenda?event=${ev.id}`)}
-                isFavorite={favorites.includes(ev.id)}
-                 onFavoriteToggle={() => toggleFavorite(ev.id)}
-                 onShare={() => {
-                   const data = getShareData(ev);
-                   setShareData({ ...data, eventId: ev.id });
-                 }}
-               />
-             ))}
-          </div>
+           <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
+             {allEvents.map(ev => (
+               <DiscoveryEventCard 
+                 key={ev.id} 
+                 event={ev} 
+                 onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                 isFavorite={favorites.includes(ev.id)}
+                  onFavoriteToggle={() => toggleFavorite(ev.id)}
+                  onShare={() => {
+                    const data = getShareData(ev);
+                    setShareData({ ...data, eventId: ev.id });
+                  }}
+                />
+              ))}
+           </div>
+           {hasNextPage && (
+             <div ref={loadMoreRef} className="w-full py-10 flex justify-center">
+               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+             </div>
+           )}
         </section>
 
-        {/* Recommendations AI Sections */}
-        {events.length > 0 && (
+         {/* Recommendations AI Sections */}
+         {allEvents.length > 0 && (
           <>
             <section className="mb-12">
               <div className="flex items-center justify-between mb-6">
