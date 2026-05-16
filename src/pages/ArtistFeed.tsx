@@ -5,6 +5,7 @@
  import { Button } from "@/components/ui/button";
  import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
  import { cn } from "@/lib/utils";
+ import { handleError } from "@/lib/error-handler";
  import { toast } from "sonner";
  import { Link } from "react-router-dom";
  
@@ -146,9 +147,13 @@
          .eq("media_type", "video")
          .order("created_at", { ascending: false });
        
-       if (error) throw error;
+       if (error) {
+         handleError(error, "Erro ao carregar o feed de artistas.");
+         throw error;
+       }
        return data as any as MediaItem[];
-     }
+     },
+     retry: 1
    });
  
    const handleScroll = () => {
