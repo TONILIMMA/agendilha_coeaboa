@@ -19,6 +19,8 @@ import {
   ChevronRight,
   Heart,
   Share2,
+  Mail,
+  ArrowRightCircle,
 } from "lucide-react";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,6 +85,9 @@ export default function Landing() {
     const saved = localStorage.getItem("agendilha_favorites");
     return saved ? JSON.parse(saved) : [];
   });
+  const [subscriberEmail, setSubscriberEmail] = useState("");
+  const [subscriberName, setSubscriberName] = useState("");
+  const [isSubscribing, setIsSubmitting] = useState(false);
 
   const toggleFavorite = (id: string) => {
     setFavorites(prev => {
@@ -91,6 +96,36 @@ export default function Landing() {
       localStorage.setItem("agendilha_favorites", JSON.stringify(next));
       return next;
     });
+  };
+
+  const handleNewsletterSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subscriberEmail) return;
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("newsletter_subscribers")
+        .insert({ email: subscriberEmail, name: subscriberName });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast.info("Você já está cadastrado!");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Inscrição realizada com sucesso!", {
+          description: "Você receberá as novidades de shows e eventos."
+        });
+        setSubscriberEmail("");
+        setSubscriberName("");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao realizar inscrição.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -195,13 +230,86 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* Personalized Recommendations Section */}
+        {user && (
+          <section className="mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            <div className="bg-primary/5 rounded-[2.5rem] p-8 sm:p-12 border border-primary/10">
+              <div className="flex flex-col md:flex-row gap-8 items-center">
+                <div className="flex-1 space-y-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
+                    <Sparkles className="h-3 w-3" /> Recomendação IA
+                  </div>
+                  <h2 className="text-3xl font-black font-display leading-tight">Eventos pensados para você</h2>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Analisamos eventos próximos de onde você mora ou trabalha para oferecer as melhores experiências na Ilha.
+                  </p>
+                  <Button variant="outline" className="rounded-full h-12 px-6 font-bold border-2 border-primary/20 text-primary hover:bg-primary/5">
+                    Ajustar localização <ArrowRightCircle className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="w-full md:w-auto flex gap-4 overflow-x-auto pb-2 scrollbar-none">
+                  {/* Simulating localized recommendations based on neighborhood */}
+                  {events.slice(0, 2).map(ev => (
+                    <DiscoveryEventCard 
+                      key={ev.id} 
+                      event={ev} 
+                      variant="small"
+                      onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                      isFavorite={favorites.includes(ev.id)}
+                      onFavoriteToggle={() => toggleFavorite(ev.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Newsletter / Public Registration */}
+        <section className="mb-12">
+          <div className="bg-secondary/10 rounded-[2.5rem] p-8 sm:p-12 overflow-hidden relative">
+            <div className="absolute -right-20 -top-20 h-64 w-64 bg-secondary/20 rounded-full blur-3xl" />
+            <div className="relative z-10 max-w-2xl">
+              <h2 className="text-3xl font-black font-display mb-4">Fique por dentro da Ilha 🎸</h2>
+              <p className="text-muted-foreground mb-8 text-lg">
+                Não perca nenhum show ou evento cultural. Cadastre-se para receber as novidades semanalmente.
+              </p>
+              <form onSubmit={handleNewsletterSubscribe} className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 space-y-2">
+                   <Input 
+                    placeholder="Seu nome" 
+                    value={subscriberName}
+                    onChange={(e) => setSubscriberName(e.target.value)}
+                    className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm"
+                  />
+                  <Input 
+                    type="email" 
+                    placeholder="Seu melhor e-mail" 
+                    value={subscriberEmail}
+                    onChange={(e) => setSubscriberEmail(e.target.value)}
+                    required
+                    className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm"
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  disabled={isSubscribing}
+                  className="h-14 px-10 rounded-2xl font-black text-lg gradient-sunset shadow-lg"
+                >
+                  {isSubscribing ? "Salvando..." : "Cadastrar"}
+                </Button>
+              </form>
+            </div>
+          </div>
+        </section>
+
         {/* Map Placeholder */}
-        <section className="rounded-3xl bg-secondary/10 p-8 flex items-center justify-between mb-12">
+        <section className="rounded-3xl bg-muted/30 p-8 flex items-center justify-between mb-12 border border-border/50">
           <div>
             <h3 className="text-xl font-bold mb-2">Explore no Mapa</h3>
             <p className="text-muted-foreground">Veja o que está acontecendo perto de você</p>
           </div>
-          <Button variant="secondary" className="rounded-full h-12 px-6 shadow-sm"><MapIcon className="mr-2 h-4 w-4"/> Abrir Mapa</Button>
+          <Button variant="secondary" className="rounded-full h-12 px-6 shadow-sm border border-border/40"><MapIcon className="mr-2 h-4 w-4"/> Abrir Mapa</Button>
         </section>
       </section>
 
