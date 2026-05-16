@@ -249,7 +249,14 @@ export default function Header() {
                     </div>
 
                     <div className="mt-auto pt-10 text-center">
-                      <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/40">© {new Date().getFullYear()} Coé a Boa?</p>
+                       <a 
+                         href="https://vexo-sistemas.lovable.app" 
+                         target="_blank" 
+                         rel="noopener noreferrer"
+                         className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/40 hover:text-primary transition-colors"
+                       >
+                         ©2026 criado por TONI LIMA - Veo SIstemas
+                       </a>
                     </div>
                   </div>
                 </SheetContent>
