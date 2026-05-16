@@ -701,6 +701,16 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                           </FormItem>
                         )}
                       />
+                      
+                      {isSuspicious && (
+                        <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                          <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-sm font-bold text-amber-800">Linguagem Detectada</p>
+                            <p className="text-xs text-amber-700">Detectamos termos que podem precisar de revisão. Evite linguagem ofensiva para garantir aprovação rápida.</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                   
