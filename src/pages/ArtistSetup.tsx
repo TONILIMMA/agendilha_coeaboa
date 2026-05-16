@@ -12,7 +12,7 @@
    Music, 
    Users, 
    MapPin, 
-   Instagram, 
+   Globe, 
    Youtube, 
     Plus, 
     Loader2,
@@ -224,7 +224,7 @@
              </h3>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                <div className="space-y-2">
-                 <Label className="flex items-center gap-2 text-xs"><Instagram className="h-3 w-3" /> Instagram</Label>
+                  <Label className="flex items-center gap-2 text-xs"><Globe className="h-3 w-3" /> Instagram</Label>
                  <Input 
                    placeholder="@usuario" 
                    value={formData.instagram} 
