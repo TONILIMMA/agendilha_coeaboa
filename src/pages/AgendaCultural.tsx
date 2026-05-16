@@ -1,3 +1,103 @@
+
+function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: string }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleReport = async () => {
+    if (!reason) {
+      toast.error("Por favor, selecione um motivo.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.rpc('report_event', {
+        target_event_id: eventId,
+        report_reason: reason,
+        report_description: description
+      });
+
+      if (error) throw error;
+
+      toast.success("Denúncia enviada com sucesso.", {
+        description: "Nossa equipe de moderação irá analisar o evento em breve."
+      });
+      setOpen(false);
+    } catch (err) {
+      console.error("Error reporting event:", err);
+      toast.error("Erro ao enviar denúncia. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Button 
+        variant="ghost" 
+        className="w-full h-10 text-xs font-bold text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+        onClick={() => setOpen(true)}
+      >
+        🚩 Denunciar Evento Inadequado
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md rounded-[2rem]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="h-5 w-5" />
+              Denunciar Evento
+            </DialogTitle>
+            <DialogDescription>
+              Ajude-nos a manter o AgendIlha seguro. Por que você está denunciando "{eventTitle}"?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <p className="text-sm font-bold">Motivo</p>
+              <Select onValueChange={setReason}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o motivo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Inadequado para menores">Conteúdo inadequado para menores</SelectItem>
+                  <SelectItem value="Spam ou Falso">Spam ou Informação falsa</SelectItem>
+                  <SelectItem value="Ofensivo ou Ódio">Conteúdo ofensivo ou discurso de ódio</SelectItem>
+                  <SelectItem value="Drogas ou Violência">Drogas ou Violência explícita</SelectItem>
+                  <SelectItem value="Outro">Outro motivo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-bold">Descrição Adicional (Opcional)</p>
+              <Textarea 
+                placeholder="Conte-nos mais detalhes..." 
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="min-h-[100px] rounded-xl"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={() => setOpen(false)} className="rounded-full">Cancelar</Button>
+            <Button 
+              onClick={handleReport} 
+              disabled={loading} 
+              className="rounded-full bg-red-600 hover:bg-red-700 text-white font-bold px-8"
+            >
+              {loading ? "Enviando..." : "Enviar Denúncia"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
  import { useState, useMemo, useEffect } from "react";
  import { useNavigate } from "react-router-dom";
  import { supabase } from "@/integrations/supabase/client";
@@ -6,11 +106,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+ import { Input } from "@/components/ui/input";
+ import { Textarea } from "@/components/ui/textarea";
+ 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart } from "lucide-react";
+   import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
- import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
   import { toast } from "sonner";
   import { cn } from "@/lib/utils";
@@ -34,6 +136,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
    image_url?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  age_rating?: string;
+  is_suitable_for_minors?: boolean;
+  moderation_status?: string;
 }
 
 const categoryLabels: Record<string, string> = {
@@ -208,7 +313,8 @@ function buildUberLink(ev: Event): string {
           const { data, error } = await supabase
             .from("submissions")
             .select("*")
-            .in('status', ['published', 'approved']);
+            .in('status', ['published', 'approved'])
+            .neq('moderation_status', 'blocked');
           
           if (error) throw error;
           
@@ -781,9 +887,20 @@ function buildUberLink(ev: Event): string {
                     </Button>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                    <Badge className="mb-3 bg-[#F6EEEA] text-[#2F5D46] border-[#E6D6CF] border px-3 py-1.5 font-semibold text-[10px] tracking-[0.15em] uppercase rounded-full shadow-sm">
-                      {categoryLabels[selectedEvent.category || ""] || "Evento"}
-                    </Badge>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <Badge className="bg-[#F6EEEA] text-[#2F5D46] border-[#E6D6CF] border px-3 py-1.5 font-semibold text-[10px] tracking-[0.15em] uppercase rounded-full shadow-sm">
+                        {categoryIcons[selectedEvent.category || ""] || "📌"} {categoryLabels[selectedEvent.category || ""] || "Evento"}
+                      </Badge>
+                      
+                      {selectedEvent.age_rating && (
+                        <Badge className={cn(
+                          "backdrop-blur-md text-white border-white/20 border px-3 py-1.5 font-black text-[10px] tracking-[0.15em] uppercase rounded-full shadow-sm",
+                          selectedEvent.age_rating === '18+' ? "bg-red-500/80" : "bg-green-600/80"
+                        )}>
+                          {selectedEvent.age_rating}
+                        </Badge>
+                      )}
+                    </div>
                     <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-[1.1]">
                       {selectedEvent.event_title}
                     </h2>
@@ -918,32 +1035,36 @@ function buildUberLink(ev: Event): string {
                       </div>
                     </div>
                     
-                    {selectedEvent.image_url && (
+                    <div className="flex flex-col gap-2">
+                      {selectedEvent.image_url && (
+                        <Button 
+                          variant="ghost" 
+                          className="w-full h-10 text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const link = document.createElement('a');
+                            link.href = selectedEvent.image_url!;
+                            link.download = `flyer-${selectedEvent.event_title}.jpg`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            toast.success("Iniciando download do flyer...");
+                          }}
+                        >
+                          <Download className="h-4 w-4 mr-2" /> Baixar Flyer do Evento
+                        </Button>
+                      )}
+
+                      <ReportButton eventId={selectedEvent.id} eventTitle={selectedEvent.event_title} />
+                      
                       <Button 
                         variant="ghost" 
-                        className="w-full h-10 text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          const link = document.createElement('a');
-                          link.href = selectedEvent.image_url!;
-                          link.download = `flyer-${selectedEvent.event_title}.jpg`;
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                          toast.success("Iniciando download do flyer...");
-                        }}
+                        className="h-14 rounded-full font-bold text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-muted-foreground/30 active:scale-95 transition-all"
+                        onClick={() => setSelectedEvent(null)}
                       >
-                        <Download className="h-4 w-4 mr-2" /> Baixar Flyer do Evento
+                        Fechar Detalhes
                       </Button>
-                    )}
-                    
-                    <Button 
-                      variant="ghost" 
-                      className="h-14 rounded-full font-bold text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-muted-foreground/30 active:scale-95 transition-all"
-                      onClick={() => setSelectedEvent(null)}
-                    >
-                      Fechar Detalhes
-                    </Button>
+                    </div>
                   </div>
                 </div>
               </>

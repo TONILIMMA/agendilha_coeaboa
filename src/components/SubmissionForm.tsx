@@ -99,6 +99,8 @@ import {
     commission: z.string().optional(),
     conceptDescription: z.string().optional(),
     authorization: z.boolean().optional(),
+    ageRating: z.enum(["Livre", "14+", "16+", "18+"]).default("Livre"),
+    isSuitableForMinors: z.boolean().default(true),
   }).refine((data) => {
    if (data.locationType === "commercial" && !data.locationContact) {
      return false;
@@ -270,6 +272,8 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       eventTitle: "", 
       date: "", 
       startTime: "",
+      ageRating: "Livre",
+      isSuitableForMinors: true,
       atrativoName: "", 
       atrativoType: "",
       locationName: "", 
@@ -336,7 +340,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
     switch (step) {
       case 1: return ["nickName", "basicPhone"];
       case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
-      case 3: return ["category", "eventTitle", "date", "startTime", "predictedDuration", "endTime"];
+      case 3: return ["category", "eventTitle", "date", "startTime", "predictedDuration", "endTime", "ageRating", "isSuitableForMinors"];
       case 4: return ["atrativoName", "atrativoType", "atrativoStyle", "atrativoDescription", "atrativoContact"];
        case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
        case 6: return []; // Step 6 is image, handled via state
@@ -344,6 +348,13 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
        default: return [];
     }
   };
+
+  const isSuspicious = useMemo(() => {
+    const title = form.watch("eventTitle") || "";
+    const desc = form.watch("description") || "";
+    const words = ['porra', 'caralho', 'fuder', 'sexo', 'porn', 'putaria'];
+    return words.some(w => title.toLowerCase().includes(w) || desc.toLowerCase().includes(w));
+  }, [form.watch("eventTitle"), form.watch("description")]);
 
   const saveDraft = async () => {
     setIsSavingDraft(true);
@@ -550,7 +561,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       stage: data.stage || "development",
        responsible_person: data.responsiblePerson || "Toni",
        status: "pending",
-       image_url: imageUrl
+       image_url: imageUrl,
+       age_rating: data.ageRating,
+       is_suitable_for_minors: data.isSuitableForMinors
     };
 
     const success = await addSubmission(submissionData as any);
@@ -695,6 +708,16 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                           </FormItem>
                         )}
                       />
+                      
+                      {isSuspicious && (
+                        <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                          <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-sm font-bold text-amber-800">Linguagem Detectada</p>
+                            <p className="text-xs text-amber-700">Detectamos termos que podem precisar de revisão. Evite linguagem ofensiva para garantir aprovação rápida.</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                   
@@ -716,10 +739,59 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
                {currentStep === 3 && (
                  <div className="space-y-6 animate-in fade-in duration-500">
-                   <h2 className="text-xl font-bold flex items-center gap-2">
-                     <PartyPopper className="h-5 w-5 text-primary" />
-                     3. Informações do Evento
-                   </h2>
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                      <PartyPopper className="h-5 w-5 text-primary" />
+                      3. Informações do Evento
+                    </h2>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                      <FormField
+                        control={form.control}
+                        name="ageRating"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Classificação Etária</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger className="h-12">
+                                  <SelectValue placeholder="Selecione" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Livre">Livre</SelectItem>
+                                <SelectItem value="14+">14+</SelectItem>
+                                <SelectItem value="16+">16+</SelectItem>
+                                <SelectItem value="18+">18+</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="isSuitableForMinors"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm bg-card">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel className="text-sm font-bold">
+                                Adequado para menores?
+                              </FormLabel>
+                              <p className="text-[10px] text-muted-foreground leading-tight">
+                                Assinale se o conteúdo é seguro para todos.
+                              </p>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                    
                    <div className="grid gap-4 sm:grid-cols-2">
                      <FormField

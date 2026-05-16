@@ -116,6 +116,44 @@ export type Database = {
         }
         Relationships: []
       }
+      event_reports: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          event_id: string
+          id: string
+          reason: string
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          event_id: string
+          id?: string
+          reason: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          event_id?: string
+          id?: string
+          reason?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reports_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_reviews: {
         Row: {
           comment: string | null
@@ -325,6 +363,7 @@ export type Database = {
           address_state: string | null
           address_street: string | null
           address_zip: string | null
+          age_rating: string | null
           atrativo_contact: string | null
           atrativo_name: string | null
           atrativo_style: string | null
@@ -344,6 +383,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_highlight: boolean | null
+          is_suitable_for_minors: boolean | null
           latitude: number | null
           legal_acceptance: boolean | null
           legal_acceptance_date: string | null
@@ -352,11 +392,13 @@ export type Database = {
           location_type: string | null
           longitude: number | null
           maintenance_cost: string | null
+          moderation_status: string | null
           phone: string | null
           predicted_duration: string | null
           promotion_rules: string | null
           promotion_type: string | null
           rejection_reason: string | null
+          report_count: number | null
           responsible_name: string | null
           responsible_person: string | null
           sale_price: string | null
@@ -378,6 +420,7 @@ export type Database = {
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          age_rating?: string | null
           atrativo_contact?: string | null
           atrativo_name?: string | null
           atrativo_style?: string | null
@@ -397,6 +440,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_highlight?: boolean | null
+          is_suitable_for_minors?: boolean | null
           latitude?: number | null
           legal_acceptance?: boolean | null
           legal_acceptance_date?: string | null
@@ -405,11 +449,13 @@ export type Database = {
           location_type?: string | null
           longitude?: number | null
           maintenance_cost?: string | null
+          moderation_status?: string | null
           phone?: string | null
           predicted_duration?: string | null
           promotion_rules?: string | null
           promotion_type?: string | null
           rejection_reason?: string | null
+          report_count?: number | null
           responsible_name?: string | null
           responsible_person?: string | null
           sale_price?: string | null
@@ -431,6 +477,7 @@ export type Database = {
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          age_rating?: string | null
           atrativo_contact?: string | null
           atrativo_name?: string | null
           atrativo_style?: string | null
@@ -450,6 +497,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_highlight?: boolean | null
+          is_suitable_for_minors?: boolean | null
           latitude?: number | null
           legal_acceptance?: boolean | null
           legal_acceptance_date?: string | null
@@ -458,11 +506,13 @@ export type Database = {
           location_type?: string | null
           longitude?: number | null
           maintenance_cost?: string | null
+          moderation_status?: string | null
           phone?: string | null
           predicted_duration?: string | null
           promotion_rules?: string | null
           promotion_type?: string | null
           rejection_reason?: string | null
+          report_count?: number | null
           responsible_name?: string | null
           responsible_person?: string | null
           sale_price?: string | null
@@ -535,6 +585,14 @@ export type Database = {
       increment_shares: { Args: { event_id: string }; Returns: undefined }
       increment_views: { Args: { event_id: string }; Returns: undefined }
       is_master: { Args: { _user_id: string }; Returns: boolean }
+      report_event: {
+        Args: {
+          report_description?: string
+          report_reason: string
+          target_event_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user" | "master"

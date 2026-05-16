@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import {
   CalendarDays, Loader2, MessageCircle, Trash2, Search,
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
-  CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp,
+   CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp, AlertCircle, ShieldAlert,
   Phone, Mail, Globe, Info, Send, Star, TrendingUp, BarChart3,
   RotateCcw, LayoutDashboard, Edit, ExternalLink, Eye, History
 } from "lucide-react";
@@ -57,6 +57,10 @@ interface Submission {
   is_highlight?: boolean;
   views_count?: number;
   shares_count?: number;
+  age_rating?: string;
+  is_suitable_for_minors?: boolean;
+  report_count?: number;
+  moderation_status?: string;
 }
 
  const categoryLabels: Record<string, string> = {
@@ -74,8 +78,10 @@ interface Submission {
       analysis: { label: "Em análise", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", icon: Search },
       approved: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
       rejected: { label: "Rejeitado", color: "text-rose-700", bg: "bg-rose-100", border: "border-rose-200", icon: XCircle },
-      published: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
-    };
+       published: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
+       flagged: { label: "Sinalizado", color: "text-orange-700", bg: "bg-orange-100", border: "border-orange-300", icon: AlertCircle },
+       blocked: { label: "Bloqueado", color: "text-red-700", bg: "bg-red-100", border: "border-red-300", icon: ShieldAlert },
+     };
  
  function formatSubmissionDate(iso: string) {
    if (!iso) return "—";
@@ -146,6 +152,16 @@ export default function AdminEvents() {
     } else {
       toast.success(`Status atualizado para ${newStatus}`);
       setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
+    }
+  }
+
+  async function handleModerationChange(id: string, newModerationStatus: string) {
+    const { error } = await supabase.from("submissions").update({ moderation_status: newModerationStatus }).eq("id", id);
+    if (error) {
+      toast.error("Erro ao atualizar moderação");
+    } else {
+      toast.success(`Moderação atualizada: ${newModerationStatus}`);
+      setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, moderation_status: newModerationStatus } : s));
     }
   }
 
@@ -326,9 +342,21 @@ export default function AdminEvents() {
                           <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-0.5">Data de Cadastro</span>
                            <p className="text-[11px] text-foreground font-bold flex items-center gap-1.5">
                             <History className="h-3 w-3 text-primary/70" />
-                            {formatSubmissionDate(sub.created_at)}
-                          </p>
-                        </div>
+                             {formatSubmissionDate(sub.created_at)}
+                           </p>
+                         </div>
+                         <div className="flex flex-wrap gap-2 mt-2">
+                           {sub.moderation_status === 'flagged' && (
+                             <Badge variant="destructive" className="animate-pulse flex items-center gap-1 text-[9px] font-black uppercase">
+                               <ShieldAlert className="h-3 w-3" /> Conteúdo Suspeito
+                             </Badge>
+                           )}
+                           {(sub.report_count ?? 0) > 0 && (
+                             <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 flex items-center gap-1 text-[9px] font-black uppercase">
+                               🚩 {sub.report_count} Denúncias
+                             </Badge>
+                           )}
+                         </div>
                      </div>
  
                      {/* Cronograma */}
@@ -474,17 +502,31 @@ export default function AdminEvents() {
                             </DropdownMenuItem>
                             
                             <DropdownMenuSeparator />
-                            <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Moderação</div>
-                            {sub.status !== 'analysis' && (
-                              <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'analysis')} className="cursor-pointer">
-                                <Search className="h-4 w-4 mr-2" /> Colocar em Análise
-                              </DropdownMenuItem>
-                            )}
-                            {sub.status === 'published' && (
-                              <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'approved')} className="cursor-pointer text-indigo-600 focus:text-indigo-600 focus:bg-indigo-50">
-                                <Globe className="h-4 w-4 mr-2" /> Remover da Agenda
-                              </DropdownMenuItem>
-                            )}
+                             <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Moderação</div>
+                             {sub.moderation_status === 'flagged' && (
+                               <DropdownMenuItem onClick={() => handleModerationChange(sub.id, 'approved')} className="cursor-pointer text-emerald-600 font-bold">
+                                 <CheckCircle className="h-4 w-4 mr-2" /> Limpar Sinalização
+                               </DropdownMenuItem>
+                             )}
+                             {sub.moderation_status !== 'blocked' ? (
+                               <DropdownMenuItem onClick={() => handleModerationChange(sub.id, 'blocked')} className="cursor-pointer text-red-600 font-bold">
+                                 <ShieldAlert className="h-4 w-4 mr-2" /> Bloquear Evento
+                               </DropdownMenuItem>
+                             ) : (
+                               <DropdownMenuItem onClick={() => handleModerationChange(sub.id, 'approved')} className="cursor-pointer text-emerald-600 font-bold">
+                                 <RotateCcw className="h-4 w-4 mr-2" /> Desbloquear
+                               </DropdownMenuItem>
+                             )}
+                             {sub.status !== 'analysis' && (
+                               <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'analysis')} className="cursor-pointer">
+                                 <Search className="h-4 w-4 mr-2" /> Colocar em Análise
+                               </DropdownMenuItem>
+                             )}
+                             {sub.status === 'published' && (
+                               <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'approved')} className="cursor-pointer text-indigo-600 focus:text-indigo-600 focus:bg-indigo-50">
+                                 <Globe className="h-4 w-4 mr-2" /> Remover da Agenda
+                               </DropdownMenuItem>
+                             )}
                             
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleDelete(sub.id)} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer font-bold">
@@ -501,6 +543,24 @@ export default function AdminEvents() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div className="space-y-4">
                           <div>
+                            <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-3">Classificação e Segurança</h4>
+                            <div className="space-y-3 text-sm mb-6">
+                              <div className="flex items-center gap-2">
+                                <Badge className={cn("rounded-full px-3 py-1 font-black", sub.age_rating === '18+' ? "bg-red-500" : "bg-green-500")}>
+                                  {sub.age_rating || 'Livre'}
+                                </Badge>
+                                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">Classificação Etária</span>
+                              </div>
+                              <p className="flex items-center gap-2 font-bold text-xs">
+                                {sub.is_suitable_for_minors ? (
+                                  <CheckCircle className="h-4 w-4 text-emerald-500" />
+                                ) : (
+                                  <XCircle className="h-4 w-4 text-red-500" />
+                                )}
+                                Adequado para menores: {sub.is_suitable_for_minors ? 'SIM' : 'NÃO'}
+                              </p>
+                            </div>
+
                             <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-3">Localização e Contato</h4>
                             <div className="space-y-3 text-sm">
                               <p className="flex items-start gap-2 font-medium"><MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" /> {sub.location}</p>
