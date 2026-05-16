@@ -104,6 +104,7 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
  import { supabase } from "@/integrations/supabase/client";
   import { useAuth } from "@/contexts/AuthContext";
   import { useTheme } from "@/hooks/useTheme";
+  import { useProfile } from "@/hooks/useProfile";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -293,7 +294,7 @@ function buildUberLink(ev: Event): string {
     const { user } = useAuth();
     const { toggleTheme } = useTheme();
     const [events, setEvents] = useState<Event[]>([]);
-    const { profile: userProfile, loaded: profileLoaded } = useProfile();
+    const { profile, loaded: profileLoaded } = useProfile();
     const [personalizationOpen, setPersonalizationOpen] = useState(false);
   const [ratings, setRatings] = useState<Record<string, { average: number; total: number }>>({});
 
@@ -394,14 +395,6 @@ function buildUberLink(ev: Event): string {
           setEvents(publishedEvents);
     loadRatings();
 
-          if (user) {
-            const { data: prof } = await supabase
-              .from("profiles")
-              .select("home_location, work_neighborhood")
-              .eq("user_id", user.id)
-              .maybeSingle();
-            if (prof) setProfile(prof);
-          }
 
           // Verificar se há um evento específico na URL para abrir o modal
           const params = new URLSearchParams(window.location.search);
