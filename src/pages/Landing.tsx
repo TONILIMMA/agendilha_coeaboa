@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+ import { useEffect, useRef, useState, useCallback } from "react";
+ import { useInfiniteQuery } from "@tanstack/react-query";
+ import { useInView } from "react-intersection-observer";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -21,8 +23,9 @@ import {
   Heart,
   Share2,
   Mail,
-  ArrowRightCircle,
-} from "lucide-react";
+   ArrowRightCircle,
+   Loader2
+ } from "lucide-react";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
