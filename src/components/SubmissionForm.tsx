@@ -952,9 +952,11 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                               neighborhood: form.getValues("addressNeighborhood") || "",
                               category: form.getValues("category") || "musica"
                             }}
-                            onFlyerGenerated={(url) => {
-                              setEventImage(url);
-                            }}
+                             onFlyerGenerated={(urls) => {
+                               setEventImage(urls.feed);
+                               setEventImageStory(urls.story);
+                               setEventImageWhatsapp(urls.whatsapp);
+                             }}
                          />
                        </div>
                      )}
