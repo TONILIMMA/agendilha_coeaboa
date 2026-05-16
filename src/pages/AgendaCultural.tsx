@@ -691,8 +691,8 @@ function buildUberLink(ev: Event): string {
              </div>
            )}
  
-          {activeTab === "events" && (
-            <>
+           {activeTab === "events" && (
+             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
           {/* Bloco de Busca e Filtros - Mobile-First */}
          <div className="mb-12 space-y-4 sm:space-y-6">
           <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
@@ -1018,9 +1018,9 @@ function buildUberLink(ev: Event): string {
                 </div>
               </section>
             ))}
-          </div>
-        )}
-      </main>
+             </div>
+           )}
+         </main>
 
         <footer className="mt-32 py-24 border-t border-border/40 text-center bg-card/30 backdrop-blur-sm space-y-8 rounded-t-[3rem]">
           <div className="flex flex-col items-center gap-8">
