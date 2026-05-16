@@ -4,7 +4,16 @@
  import { cn } from "@/lib/utils";
  
  interface ArtistCardProps {
-   artist: any;
+   artist: {
+     id: string;
+     name: string;
+     cover_url?: string;
+     avatar_url?: string;
+     genre?: string;
+     neighborhood?: string;
+     artist_type?: string;
+     is_approved?: boolean;
+   };
    className?: string;
  }
  

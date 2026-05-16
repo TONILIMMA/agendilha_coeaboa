@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -383,13 +383,13 @@ function buildUberLink(ev: Event): string {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  async function trackView(id: string) {
-    try {
-      await supabase.rpc('increment_views', { event_id: id });
-    } catch (e) {
-      console.error("Error tracking view:", e);
-    }
-  }
+   const trackView = useCallback(async (id: string) => {
+     try {
+       await supabase.rpc('increment_views', { event_id: id });
+     } catch (e) {
+       // Silent fail for analytics
+     }
+   }, []);
 
   async function trackShare(id: string) {
     try {
