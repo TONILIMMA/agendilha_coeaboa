@@ -647,10 +647,10 @@ function buildUberLink(ev: Event): string {
           <div className="space-y-12">
             {[1, 2].map((i) => (
               <div key={i} className="space-y-6">
-                <div className="flex items-center gap-3 py-3 border-b border-border/50">
-                  <Skeleton className="h-10 w-10 rounded-2xl" />
-                  <Skeleton className="h-7 w-48" />
-                </div>
+                   <div className="flex items-center gap-3 py-3 border-b border-border/50">
+                   <Skeleton className="h-10 w-10 rounded-2xl" />
+                   <Skeleton className="h-7 w-48" />
+                 </div>
                 <div className="grid grid-cols-1 gap-6">
                   {[1, 2].map((j) => (
                     <Card key={j} className="overflow-hidden">
@@ -716,10 +716,10 @@ function buildUberLink(ev: Event): string {
             {/* Bloco de Destaques */}
             {filteredEvents.some(e => e.is_highlight) && (
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="h-3 w-3 rounded-full bg-orange-500 animate-pulse" />
-                  <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
-                </div>
+                   <div className="flex items-center gap-3 mb-6">
+                   <div className="h-3 w-3 rounded-full bg-orange-500 animate-pulse" />
+                   <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
+                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
                    {filteredEvents.filter(e => e.is_highlight).map(ev => (
                      <Card 
