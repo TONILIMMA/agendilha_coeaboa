@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, Star, Clock } from "lucide-react";
+import { MapPin, Calendar, Star, Clock, Heart, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Event {
@@ -24,7 +24,19 @@ const categoryIcons: Record<string, string> = {
   outros: "📌",
 };
 
-export function DiscoveryEventCard({ event, onClick, variant = "large" }: { event: Event; onClick: () => void; variant?: "large" | "small" | "horizontal" }) {
+export function DiscoveryEventCard({ 
+  event, 
+  onClick, 
+  variant = "large",
+  isFavorite = false,
+  onFavoriteToggle
+}: { 
+  event: Event; 
+  onClick: () => void; 
+  variant?: "large" | "small" | "horizontal";
+  isFavorite?: boolean;
+  onFavoriteToggle?: (e: React.MouseEvent) => void;
+}) {
   const isLarge = variant === "large";
   const isHorizontal = variant === "horizontal";
 
@@ -54,7 +66,30 @@ export function DiscoveryEventCard({ event, onClick, variant = "large" }: { even
           </Badge>
         </div>
 
-        {/* Rating if available */}
+        {/* Quick Actions */}
+        <div className="absolute right-4 top-4 flex flex-col gap-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className={cn(
+              "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90",
+              isFavorite ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              onFavoriteToggle?.(e);
+            }}
+          >
+            <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
+          </Button>
+          
+          {event.rating && event.rating.total > 0 && (
+            <Badge className="bg-yellow-400/90 text-black font-black py-1 px-3 rounded-full flex items-center gap-1 h-10">
+              <Star className="h-3 w-3 fill-current" />
+              {event.rating.average.toFixed(1)}
+            </Badge>
+          )}
+        </div>
         {event.rating && event.rating.total > 0 && (
           <div className="absolute right-4 top-4">
             <Badge className="bg-yellow-400/90 text-black font-black py-1 px-3 rounded-full flex items-center gap-1">
