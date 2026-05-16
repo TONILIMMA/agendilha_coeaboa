@@ -50,7 +50,7 @@ export function DiscoveryEventCard({
       onClick={onClick}
       className={cn(
         "group cursor-pointer overflow-hidden border-none bg-transparent transition-all hover:scale-[1.02] active:scale-95",
-        isLarge ? "w-[280px] sm:w-[320px]" : isHorizontal ? "w-full" : "w-[200px]"
+         isLarge ? "w-[260px] xs:w-[280px] sm:w-[320px]" : isHorizontal ? "w-full" : "w-[160px] xs:w-[200px]"
       )}
     >
       <div className={cn(

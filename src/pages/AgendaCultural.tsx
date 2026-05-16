@@ -599,10 +599,10 @@ function buildUberLink(ev: Event): string {
                </div>
              )}
 
-            <div className="flex flex-col items-center gap-6 sm:gap-8 mt-8 sm:mt-12 px-2" role="group" aria-label="Ações da agenda">
+             <div className="flex flex-col items-center gap-4 sm:gap-8 mt-6 sm:mt-12 px-1 sm:px-2" role="group" aria-label="Ações da agenda">
                <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full max-w-2xl">
                  <Button
-                   className="rounded-full shadow-lg sm:shadow-xl bg-primary text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest outline-none hover:scale-[1.02] active:scale-95 flex-1"
+                   className="rounded-full shadow-lg sm:shadow-xl bg-primary text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest outline-none hover:scale-[1.02] active:scale-95 w-full sm:flex-1"
                    onClick={() => {
                      if (user) {
                        navigate("/enviar-evento");
@@ -614,26 +614,14 @@ function buildUberLink(ev: Event): string {
                    <Megaphone className="h-5 w-5 mr-2.5" /> Divulgar Evento
                  </Button>
 
-                <Button
-                  className="rounded-full shadow-lg sm:shadow-xl gradient-sunset text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-[1.02] active:scale-95 flex-1"
-                  onClick={() => window.open(buildWhatsAppShare(), "_blank")}
-                  aria-label="Compartilhar agenda no WhatsApp"
-                >
-                  <MessageCircle className="h-5 w-5 mr-2.5" /> WhatsApp
-                </Button>
-
-                <Button 
-                  variant="outline" 
-                  className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1" 
-                  onClick={() => {
-                    const data = getShareData();
-                    handleShare(data.title, data.text, data.url);
-                  }}
-                  aria-label="Abrir compartilhamento do sistema"
-                >
-                  <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
-                </Button>
-              </div>
+                 <Button
+                   className="rounded-full shadow-lg sm:shadow-xl gradient-sunset text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-[1.02] active:scale-95 w-full sm:flex-1"
+                   onClick={() => window.open(buildWhatsAppShare(), "_blank")}
+                   aria-label="Compartilhar agenda no WhatsApp"
+                 >
+                   <MessageCircle className="h-5 w-5 mr-2.5" /> WhatsApp
+                 </Button>
+               </div>
 
               <div className="flex flex-wrap justify-center gap-4 sm:gap-6 w-full mt-2">
                 <Button
