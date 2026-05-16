@@ -419,28 +419,28 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
      fetchPortalLocations();
    }, []);
  
-  useEffect(() => {
-    if (!loaded) return;
-    
-    // Check if we already have data in form or localStorage draft
-    const currentValues = form.getValues();
-    const hasDraft = !!localStorage.getItem("agendilha_draft");
-    const isDefault = !currentValues.nickName && !currentValues.companyName && !hasDraft;
-    
-    if (isDefault) {
-      form.reset({
-        ...currentValues,
-        nickName: profile.nick_name || "",
-        basicPhone: profile.phone || "",
-        companyName: profile.company_name || "",
-        email: profile.email || "",
-        addressStreet: profile.address_street || "",
-        addressNumber: profile.address_number || "",
-        addressZip: profile.address_zip || "",
-        contactSocial: profile.contact_social || "",
-      } as any);
-    }
-  }, [loaded, profile, form]);
+   useEffect(() => {
+     if (!loaded || !user) return;
+     
+     // Check if we already have data in form or localStorage draft
+     const currentValues = form.getValues();
+     const hasDraft = !!localStorage.getItem("agendilha_draft");
+     const isDefault = !currentValues.nickName && !currentValues.companyName && !hasDraft;
+     
+     if (isDefault) {
+       form.reset({
+         ...currentValues,
+         nickName: profile.nick_name || "",
+         basicPhone: profile.phone || "",
+         companyName: profile.company_name || "",
+         email: profile.email || "",
+         addressStreet: profile.address_street || "",
+         addressNumber: profile.address_number || "",
+         addressZip: profile.address_zip || "",
+         contactSocial: profile.contact_social || "",
+       } as any);
+     }
+   }, [loaded, profile, form, user]);
 
   const toggleSection = (key: string) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
@@ -568,24 +568,26 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
     const success = await addSubmission(submissionData as any);
 
-    if (success) {
-      localStorage.removeItem("agendilha_draft");
-      localStorage.removeItem("agendilha_step");
-      
-      saveProfile({
-        nick_name: data.nickName,
-        phone: data.basicPhone.startsWith('+55') ? data.basicPhone : `+55${data.basicPhone.replace(/\D/g, '')}`,
-        company_name: data.companyName,
-        email: data.email || "",
-        address_street: data.addressStreet || "",
-        address_number: data.addressNumber || "",
-        address_zip: data.addressZip || "",
-        contact_social: data.contactSocial || "",
-      } as any);
-      
-      setSubmitted(true);
-      window.scrollTo(0, 0);
-    }
+     if (success) {
+       localStorage.removeItem("agendilha_draft");
+       localStorage.removeItem("agendilha_step");
+       
+       if (user) {
+         saveProfile({
+           nick_name: data.nickName,
+           phone: data.basicPhone.startsWith('+55') ? data.basicPhone : `+55${data.basicPhone.replace(/\D/g, '')}`,
+           company_name: data.companyName,
+           email: data.email || "",
+           address_street: data.addressStreet || "",
+           address_number: data.addressNumber || "",
+           address_zip: data.addressZip || "",
+           contact_social: data.contactSocial || "",
+         } as any);
+       }
+       
+       setSubmitted(true);
+       window.scrollTo({ top: 0, behavior: 'smooth' });
+     }
     setSubmitting(false);
    }
 
