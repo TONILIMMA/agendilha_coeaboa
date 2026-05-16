@@ -542,8 +542,6 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       image_url: imageUrl,
       image_url_story: imageUrlStory,
       image_url_whatsapp: imageUrlWhatsapp,
-          image_url_story: imageUrlStory,
-          image_url_whatsapp: imageUrlWhatsapp,
        age_rating: data.ageRating,
        is_suitable_for_minors: data.isSuitableForMinors
     };
