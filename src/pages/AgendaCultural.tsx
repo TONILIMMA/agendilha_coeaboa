@@ -621,76 +621,39 @@ function buildUberLink(ev: Event): string {
              </button>
            </div>
  
-           {activeTab === "artists" && (
-             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-               {/* Short Videos Section */}
-               {shortVideos.length > 0 && (
-                 <section className="space-y-6">
-                   <div className="flex items-center justify-between px-2">
-                     <h2 className="text-2xl font-display font-black text-primary flex items-center gap-2">
-                       <Video className="h-6 w-6" /> DESCUBRA NOVOS SONS
-                     </h2>
-                   </div>
-                   <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-                     {shortVideos.map((video) => (
-                       <div 
-                         key={video.id} 
-                         className="relative min-w-[200px] sm:min-w-[240px] aspect-[9/16] rounded-3xl overflow-hidden bg-muted snap-start shadow-xl group cursor-pointer"
-                         onClick={() => navigate(`/artista/${video.artist.id}`)}
-                       >
-                         <img src={video.thumbnail_url || 'https://images.unsplash.com/photo-1514525253361-bee8a187499b?auto=format&fit=crop&q=80'} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Video thumbnail" />
-                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                           <Play className="h-12 w-12 text-white fill-current" />
-                         </div>
-                         <div className="absolute bottom-4 left-4 right-4 text-white">
-                           <p className="font-bold text-sm mb-1">{video.artist.name}</p>
-                           <Badge variant="secondary" className="bg-white/20 backdrop-blur-md text-[10px] text-white border-none">
-                             {video.artist.genre}
-                           </Badge>
-                         </div>
-                       </div>
-                     ))}
-                   </div>
-                 </section>
-               )}
- 
-               {/* Artists Grid */}
-               <section className="space-y-8">
-                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-2">
-                   <h2 className="text-2xl font-display font-black text-primary flex items-center gap-2">
-                     <MusicIcon className="h-6 w-6" /> ARTISTAS NA ILHA
-                   </h2>
-                   <div className="flex items-center gap-3">
-                     <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
-                       <SelectTrigger className="w-full sm:w-[180px] rounded-full border-primary/20 bg-background/50">
-                         <SelectValue placeholder="Bairro" />
-                       </SelectTrigger>
-                       <SelectContent>
-                         <SelectItem value="all">Todos os bairros</SelectItem>
-                         {neighborhoods.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-                       </SelectContent>
-                     </Select>
-                   </div>
-                 </div>
- 
-                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-                   {artists?.filter(a => neighborhoodFilter === 'all' || a.neighborhood === neighborhoodFilter).map(artist => (
-                     <ArtistCard key={artist.id} artist={artist} />
-                   ))}
-                 </div>
- 
-                 {artistsLoading && (
-                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                     {[1, 2, 3, 4].map(i => (
-                       <div key={i} className="h-64 bg-muted animate-pulse rounded-2xl" />
-                     ))}
-                   </div>
-                 )}
-               </section>
-             </div>
+            {activeTab === "artists" && (
+              <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                {shortVideos.length > 0 && (
+                  <section className="space-y-6">
+                    <h2 className="text-2xl font-display font-black text-primary flex items-center gap-2 px-2">
+                      <Video className="h-6 w-6" /> DESCUBRA NOVOS SONS
+                    </h2>
+                    <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+                      {shortVideos.map((video) => (
+                        <div key={video.id} className="relative min-w-[200px] sm:min-w-[240px] aspect-[9/16] rounded-3xl overflow-hidden bg-muted snap-start shadow-xl group cursor-pointer" onClick={() => navigate(`/artista/${video.artist.id}`)}>
+                          <img src={video.thumbnail_url} className="w-full h-full object-cover" alt="" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                          <div className="absolute bottom-4 left-4 right-4 text-white">
+                            <p className="font-bold text-sm">{video.artist.name}</p>
+                            <Badge variant="secondary" className="bg-white/20 text-[10px] text-white border-none">{video.artist.genre}</Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+                <section className="space-y-8">
+                  <h2 className="text-2xl font-display font-black text-primary flex items-center gap-2 px-2">
+                    <MusicIcon className="h-6 w-6" /> ARTISTAS NA ILHA
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+                    {artists?.filter(a => neighborhoodFilter === 'all' || a.neighborhood === neighborhoodFilter).map(artist => (
+                      <ArtistCard key={artist.id} artist={artist} />
+                    ))}
+                  </div>
+                </section>
+              </div>
             )}
- 
             {activeTab === "events" && (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                 {/* Bloco de Busca e Filtros - Mobile-First */}
