@@ -379,8 +379,9 @@ function buildUberLink(ev: Event): string {
                 >
                   <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
                 </Button>
-              </div>
-            </div>
+             </div>
+           </div>
+         </div>
          </div>
 
         {/* Bloco de Busca e Filtros - Mobile-First */}
