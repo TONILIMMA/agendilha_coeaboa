@@ -498,32 +498,80 @@ function buildUberLink(ev: Event): string {
                </p>
              </div>
 
-             {/* AI Recommendations Section */}
-             {user && (nearYouEvents.length > 0 || recommendedEvents.length > 0) && (
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                 {nearYouEvents.length > 0 && (
-                   <div className="space-y-4">
-                     <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
-                       <MapPin className="h-5 w-5 text-secondary" />
-                       Hoje perto de você
-                     </h3>
-                     <div className="grid grid-cols-1 gap-3">
-                       {nearYouEvents.map(ev => (
-                         <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
-                           <CardContent className="p-3 flex items-center gap-4">
-                             <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                               <CalendarDays className="h-6 w-6 text-primary" />
-                             </div>
-                             <div className="min-w-0">
-                               <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                               <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
-                             </div>
-                           </CardContent>
-                         </Card>
-                       ))}
-                     </div>
-                   </div>
-                 )}
+              {/* AI Recommendations Section */}
+              {user && (nearYouEvents.length > 0 || recommendedEvents.length > 0 || trendingEvents.length > 0) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                  {nearYouEvents.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
+                        <MapPin className="h-5 w-5 text-secondary" />
+                        Hoje perto de você
+                      </h3>
+                      <div className="grid grid-cols-1 gap-3">
+                        {nearYouEvents.map(ev => (
+                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                            <CardContent className="p-3 flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                <CalendarDays className="h-6 w-6 text-primary" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {recommendedEvents.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
+                        <Sparkles className="h-5 w-5 text-secondary" />
+                        Você pode gostar
+                      </h3>
+                      <div className="grid grid-cols-1 gap-3">
+                        {recommendedEvents.map(ev => (
+                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                            <CardContent className="p-3 flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                                <MusicIcon className="h-6 w-6 text-accent" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {trendingEvents.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
+                        <Trophy className="h-5 w-5 text-secondary" />
+                        Bombando agora
+                      </h3>
+                      <div className="grid grid-cols-1 gap-3">
+                        {trendingEvents.map(ev => (
+                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                            <CardContent className="p-3 flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
+                                <Play className="h-6 w-6 text-orange-600" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                <p className="text-xs text-muted-foreground">{ev.views_count || 0} visualizações</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                  {recommendedEvents.length > 0 && (
                    <div className="space-y-4">
