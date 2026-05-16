@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User, Trash2, Pencil, Check, X, Crown } from "lucide-react";
+import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User, Trash2, Pencil, Check, X, Crown, MapPin, Music } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
@@ -31,6 +31,8 @@ interface UserWithRole {
   status?: UserStatus;
   responsible_name: string | null;
   phone: string | null;
+  address_neighborhood?: string | null;
+  musical_preferences?: string[] | null;
 }
 
 const statusLabel: Record<UserStatus, string> = {
