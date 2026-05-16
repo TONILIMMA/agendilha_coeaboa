@@ -40,36 +40,43 @@ interface Props {
   const { name, initials, status, label, loaded } = useUserBadge();
   const navigate = useNavigate();
 
-  if (!user) {
-    return (
-      <div className={variant === "mobile" ? "flex flex-col gap-2.5" : "flex items-center gap-1.5"}>
-        <Link to="/auth" onClick={onNavigate}>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="rounded-full h-10 w-10 p-0 hover:bg-primary/10 transition-colors"
-            title="Entrar ou Cadastrar"
-          >
-            <div className="bg-muted h-8 w-8 rounded-full flex items-center justify-center border border-border/50 shadow-inner">
-              <UserIcon className="h-4 w-4 text-muted-foreground" />
-            </div>
-          </Button>
-        </Link>
-         <Link to="/agenda" onClick={onNavigate}>
-          <Button
-            size={variant === "mobile" ? "lg" : "sm"}
-            className={
-              variant === "mobile"
-                ? "w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-                : "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-4"
-            }
-          >
-            Ver agenda
-          </Button>
-        </Link>
-      </div>
-    );
-  }
+   const { pathname } = window.location;
+   const isAgenda = pathname === "/agenda";
+ 
+   if (!user) {
+     return (
+       <div className={variant === "mobile" ? "flex flex-col gap-2.5" : "flex items-center gap-2"}>
+         {!isAgenda && (
+           <Link to="/agenda" onClick={onNavigate}>
+             <Button
+               size={variant === "mobile" ? "lg" : "sm"}
+               className={
+                 variant === "mobile"
+                   ? "w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold"
+                   : "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-6 font-bold shadow-sm"
+               }
+             >
+               Ver agenda
+             </Button>
+           </Link>
+         )}
+         <Link to="/auth" onClick={onNavigate}>
+           <Button
+             size="sm"
+             variant="ghost"
+             className={cn(
+               "rounded-full transition-all duration-300",
+               variant === "mobile" ? "w-full h-12 bg-muted/50 justify-start px-6 gap-3" : "h-10 px-4 hover:bg-primary/10 text-muted-foreground hover:text-primary"
+             )}
+             title="Entrar ou Cadastrar"
+           >
+             <UserIcon className="h-4 w-4" />
+             <span className="text-sm font-bold">Entrar</span>
+           </Button>
+         </Link>
+       </div>
+     );
+   }
 
   const Icon = status ? statusIcon[status] : UserIcon;
   const badgeStyle = status ? statusStyles[status] : statusStyles.user;
