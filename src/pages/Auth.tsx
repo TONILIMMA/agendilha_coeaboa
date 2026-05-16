@@ -1,11 +1,12 @@
-import { useState } from "react";
+ import { useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+ import { handleError } from "@/lib/error-handler";
+ import { toast } from "sonner";
 import { LogIn, UserPlus, Loader2, Phone, MapPin, Sparkles } from "lucide-react";
 import {
   Select,
@@ -151,11 +152,9 @@ export default function Auth() {
 
     setSubmitting(false);
 
-    if (error) {
-      toast.error(mode === "login" ? "Erro ao entrar" : "Erro ao criar conta", {
-        description: error.message,
-      });
-    } else if (mode === "signup") {
+     if (error) {
+       handleError(error, mode === "login" ? "Erro ao entrar" : "Erro ao criar conta");
+     } else if (mode === "signup") {
       toast.success("Conta criada!", {
         description: "Você já pode fazer login com seu WhatsApp.",
       });
