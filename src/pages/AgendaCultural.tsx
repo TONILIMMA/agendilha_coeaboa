@@ -509,7 +509,7 @@ function buildUberLink(ev: Event): string {
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
                         {nearYouEvents.map(ev => (
-                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                           <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer active:scale-95 transition-transform" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
                               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                                 <CalendarDays className="h-6 w-6 text-primary" />
@@ -533,7 +533,7 @@ function buildUberLink(ev: Event): string {
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
                         {recommendedEvents.map(ev => (
-                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                           <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer active:scale-95 transition-transform" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
                               <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                                 <MusicIcon className="h-6 w-6 text-accent" />
@@ -599,10 +599,10 @@ function buildUberLink(ev: Event): string {
                </div>
              )}
 
-            <div className="flex flex-col items-center gap-6 sm:gap-8 mt-8 sm:mt-12 px-2" role="group" aria-label="Ações da agenda">
+             <div className="flex flex-col items-center gap-4 sm:gap-8 mt-6 sm:mt-12 px-1 sm:px-2" role="group" aria-label="Ações da agenda">
                <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full max-w-2xl">
                  <Button
-                   className="rounded-full shadow-lg sm:shadow-xl bg-primary text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest outline-none hover:scale-[1.02] active:scale-95 flex-1"
+                   className="rounded-full shadow-lg sm:shadow-xl bg-primary text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest outline-none hover:scale-[1.02] active:scale-95 w-full sm:flex-1"
                    onClick={() => {
                      if (user) {
                        navigate("/enviar-evento");
@@ -614,26 +614,14 @@ function buildUberLink(ev: Event): string {
                    <Megaphone className="h-5 w-5 mr-2.5" /> Divulgar Evento
                  </Button>
 
-                <Button
-                  className="rounded-full shadow-lg sm:shadow-xl gradient-sunset text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-[1.02] active:scale-95 flex-1"
-                  onClick={() => window.open(buildWhatsAppShare(), "_blank")}
-                  aria-label="Compartilhar agenda no WhatsApp"
-                >
-                  <MessageCircle className="h-5 w-5 mr-2.5" /> WhatsApp
-                </Button>
-
-                <Button 
-                  variant="outline" 
-                  className="rounded-full shadow-md border-2 border-primary text-primary bg-background hover:bg-primary hover:text-white transition-all px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base font-bold uppercase tracking-wider focus-visible:ring-4 focus-visible:ring-primary/30 outline-none active:scale-95 flex-1" 
-                  onClick={() => {
-                    const data = getShareData();
-                    handleShare(data.title, data.text, data.url);
-                  }}
-                  aria-label="Abrir compartilhamento do sistema"
-                >
-                  <Share2 className="h-5 w-5 mr-2.5" /> Compartilhar
-                </Button>
-              </div>
+                 <Button
+                   className="rounded-full shadow-lg sm:shadow-xl gradient-sunset text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-[1.02] active:scale-95 w-full sm:flex-1"
+                   onClick={() => window.open(buildWhatsAppShare(), "_blank")}
+                   aria-label="Compartilhar agenda no WhatsApp"
+                 >
+                   <MessageCircle className="h-5 w-5 mr-2.5" /> WhatsApp
+                 </Button>
+               </div>
 
               <div className="flex flex-wrap justify-center gap-4 sm:gap-6 w-full mt-2">
                 <Button
@@ -781,37 +769,33 @@ function buildUberLink(ev: Event): string {
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                 {/* Bloco de Busca e Filtros - Mobile-First */}
                 <div className="mb-12 space-y-4 sm:space-y-6">
-          <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
-            <div className="flex flex-col gap-5 sm:gap-6">
+           <div className="bg-card border border-border/60 rounded-[1.5rem] sm:rounded-[2rem] p-3 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
+             <div className="flex flex-col gap-3 sm:gap-6">
               {/* Barra de Busca e Ordenação */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <div className="relative flex-1 group">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                  <Input
-                    placeholder="O que você procura hoje?"
-                    className="pl-12 h-14 text-base sm:text-lg border-none bg-muted/40 focus-visible:ring-2 focus-visible:ring-primary/20 rounded-2xl sm:rounded-3xl"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
+                   <Input
+                     placeholder="Buscar shows..."
+                     className="pl-12 h-12 sm:h-14 text-base sm:text-lg border-none bg-muted/40 focus-visible:ring-2 focus-visible:ring-primary/20 rounded-xl sm:rounded-3xl"
+                     value={search}
+                     onChange={(e) => setSearch(e.target.value)}
+                   />
                 </div>
                 <div className="relative shrink-0">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      const newOrder = sortOrder === "asc" ? "desc" : "asc";
-                      setSortOrder(newOrder);
-                      toast.info(`Ordenado por: ${newOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}`, {
-                        duration: 2000,
-                        position: "bottom-center"
-                      });
-                    }}
-                    className="w-full sm:w-auto h-14 px-6 rounded-2xl sm:rounded-3xl border-2 border-primary/10 text-primary font-bold transition-all active:scale-95 bg-white hover:bg-primary/5 hover:border-primary/30 flex items-center justify-center gap-2"
-                  >
-                    <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
-                    <span className="text-[11px] sm:text-xs uppercase tracking-widest">
-                      {sortOrder === "asc" ? "Próximos" : "Distantes"}
-                    </span>
-                  </Button>
+                   <Button
+                     variant="outline"
+                     onClick={() => {
+                       const newOrder = sortOrder === "asc" ? "desc" : "asc";
+                       setSortOrder(newOrder);
+                     }}
+                     className="w-full sm:w-auto h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-3xl border-2 border-primary/10 text-primary font-bold transition-all active:scale-95 bg-white hover:bg-primary/5 hover:border-primary/30 flex items-center justify-center gap-2"
+                   >
+                     <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
+                     <span className="text-[10px] sm:text-xs uppercase tracking-widest">
+                       {sortOrder === "asc" ? "Próximos" : "Distantes"}
+                     </span>
+                   </Button>
                   <div className={cn(
                     "absolute -top-1.5 -right-1 h-3.5 w-3.5 rounded-full border-2 border-background shadow-sm",
                     sortOrder === "asc" ? "bg-primary" : "bg-secondary"
