@@ -92,4 +92,17 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['framer-motion', '@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-popover'],
+          'data-vendor': ['@supabase/supabase-js', '@tanstack/react-query'],
+          'utils-vendor': ['date-fns', 'zod', 'react-hook-form', '@hookform/resolvers'],
+        },
+      },
+    },
+  },
 }));
