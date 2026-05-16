@@ -128,7 +128,7 @@ export function useUserBadge(): UserBadge {
     master: "Admin Master",
     admin: "Admin",
     collaborator: "Divulgador",
-    user: "Divulgador",
+    user: "Público",
   };
   const label = status ? labelMap[status] : "";
 
