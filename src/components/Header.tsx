@@ -270,13 +270,7 @@ export default function Header() {
                 </Button>
               )}
               
-              {user ? (
-                <HeaderUserMenu variant="desktop" hideContext={true} />
-              ) : (
-                <Link to="/auth?redirect=/agenda" className="hidden xs:block">
-                  <Button variant="ghost" size="sm" className="rounded-full text-foreground/70 hover:text-primary font-bold h-9 px-4">Entrar</Button>
-                </Link>
-              )}
+              <HeaderUserMenu variant="desktop" hideContext={true} />
             </div>
           </div>
           <div className="h-1 w-full gradient-pumpkin-strip opacity-90" />
