@@ -12,8 +12,7 @@
    Music, 
    Users, 
    MapPin, 
-   Globe, 
-   Youtube, 
+    Globe, 
     Plus, 
     Loader2,
     CheckCircle2,
@@ -232,7 +231,7 @@
                  />
                </div>
                <div className="space-y-2">
-                 <Label className="flex items-center gap-2 text-xs"><Youtube className="h-3 w-3" /> YouTube</Label>
+                  <Label className="flex items-center gap-2 text-xs"><Video className="h-3 w-3" /> YouTube</Label>
                  <Input 
                    placeholder="Link do canal ou vídeo" 
                    value={formData.youtube} 
