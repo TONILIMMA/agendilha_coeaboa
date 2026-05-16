@@ -477,6 +477,12 @@ export default function Landing() {
             <div className="text-[10px] text-foreground/30 font-mono uppercase tracking-[0.4em]">
               © {new Date().getFullYear()} — Ilha do Governador, RJ
             </div>
+            <div className="mt-3 text-[11px] text-foreground/50 font-medium">
+              ©2026 criado por <span className="font-bold text-foreground/80">TONI LIMA</span> — Vexo Sistemas ·{" "}
+              <a href="https://vexo-sistemas.lovable.app" target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                vexo-sistemas.lovable.app
+              </a>
+            </div>
           </div>
         </div>
       </footer>

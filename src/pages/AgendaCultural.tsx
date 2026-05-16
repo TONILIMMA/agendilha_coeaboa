@@ -1110,6 +1110,12 @@ function buildUberLink(ev: Event): string {
             <div className="text-[10px] sm:text-[11px] text-muted-foreground/50 font-mono uppercase tracking-[0.5em] py-4 border-y border-border/30 inline-block px-10">
               © {new Date().getFullYear()} — Ilha do Governador, RJ
             </div>
+            <div className="mt-4 text-[11px] text-muted-foreground/70 font-medium">
+              ©2026 criado por <span className="font-bold text-foreground">TONI LIMA</span> — Vexo Sistemas ·{" "}
+              <a href="https://vexo-sistemas.lovable.app" target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                vexo-sistemas.lovable.app
+              </a>
+            </div>
           </div>
         </footer>
 
