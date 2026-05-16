@@ -415,17 +415,40 @@ function buildUberLink(ev: Event): string {
      });
    }, [events]);
 
-  const filteredEvents = useMemo(() => {
-    const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-    return upcomingEvents.filter(ev => {
-      const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
-                          (ev.description || "").toLowerCase().includes(search.toLowerCase());
-      const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
-      const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
-      const matchFav = !showFavoritesOnly || favs.includes(ev.id);
-      return matchSearch && matchCat && matchNeigh && matchFav;
-    });
-  }, [upcomingEvents, search, categoryFilter, neighborhoodFilter, showFavoritesOnly]);
+    const filteredEvents = useMemo(() => {
+      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+      return upcomingEvents.filter(ev => {
+        const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
+                            (ev.description || "").toLowerCase().includes(search.toLowerCase());
+        const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
+        const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
+        const matchFav = !showFavoritesOnly || favs.includes(ev.id);
+        return matchSearch && matchCat && matchNeigh && matchFav;
+      });
+    }, [upcomingEvents, search, categoryFilter, neighborhoodFilter, showFavoritesOnly]);
+
+    // AI Recommendation Logic
+    const nearYouEvents = useMemo(() => {
+      const userNeighborhood = profile?.home_location || profile?.address_neighborhood;
+      if (!userNeighborhood) return [];
+      return upcomingEvents
+        .filter(ev => ev.address_neighborhood === userNeighborhood)
+        .slice(0, 4);
+    }, [upcomingEvents, profile]);
+
+    const recommendedEvents = useMemo(() => {
+      const prefs = profile?.musical_preferences || [];
+      if (prefs.length === 0) return [];
+      return upcomingEvents
+        .filter(ev => prefs.some(p => ev.category?.toLowerCase().includes(p.toLowerCase()) || ev.description?.toLowerCase().includes(p.toLowerCase())))
+        .slice(0, 4);
+    }, [upcomingEvents, profile]);
+
+    const trendingEvents = useMemo(() => {
+      return [...upcomingEvents]
+        .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+        .slice(0, 4);
+    }, [upcomingEvents]);
 
   const grouped = useMemo(() => {
     const map: Record<string, { label: string; sortKey: string; items: Event[] }> = {};
@@ -472,7 +495,60 @@ function buildUberLink(ev: Event): string {
                <p className="text-foreground/80 text-lg sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-2 sm:px-4 text-balance contrast-125">
                  A agenda cultural da Ilha do Governador.
                </p>
-            </div>
+             </div>
+
+             {/* AI Recommendations Section */}
+             {user && (nearYouEvents.length > 0 || recommendedEvents.length > 0) && (
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                 {nearYouEvents.length > 0 && (
+                   <div className="space-y-4">
+                     <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
+                       <MapPin className="h-5 w-5 text-secondary" />
+                       Hoje perto de você
+                     </h3>
+                     <div className="grid grid-cols-1 gap-3">
+                       {nearYouEvents.map(ev => (
+                         <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                           <CardContent className="p-3 flex items-center gap-4">
+                             <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                               <CalendarDays className="h-6 w-6 text-primary" />
+                             </div>
+                             <div className="min-w-0">
+                               <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                               <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
+                             </div>
+                           </CardContent>
+                         </Card>
+                       ))}
+                     </div>
+                   </div>
+                 )}
+
+                 {recommendedEvents.length > 0 && (
+                   <div className="space-y-4">
+                     <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
+                       <Sparkles className="h-5 w-5 text-secondary" />
+                       Você pode gostar
+                     </h3>
+                     <div className="grid grid-cols-1 gap-3">
+                       {recommendedEvents.map(ev => (
+                         <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                           <CardContent className="p-3 flex items-center gap-4">
+                             <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                               <MusicIcon className="h-6 w-6 text-accent" />
+                             </div>
+                             <div className="min-w-0">
+                               <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                               <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
+                             </div>
+                           </CardContent>
+                         </Card>
+                       ))}
+                     </div>
+                   </div>
+                 )}
+               </div>
+             )}
 
             <div className="flex flex-col items-center gap-6 sm:gap-8 mt-8 sm:mt-12 px-2" role="group" aria-label="Ações da agenda">
               <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full max-w-2xl">
