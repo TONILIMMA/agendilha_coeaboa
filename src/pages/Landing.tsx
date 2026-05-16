@@ -36,11 +36,11 @@ const sitelinks = [
 ];
 
 const genres = [
-  { label: "Shows & Música", icon: Music, color: "bg-blue-500" },
-  { label: "Cultura & Arte", icon: Sparkles, color: "bg-purple-500" },
-  { label: "Gastronomia", icon: Globe2, color: "bg-orange-500" },
-  { label: "Festas & Noite", icon: Megaphone, color: "bg-pink-500" },
-  { label: "Esportes", icon: Calendar, color: "bg-green-500" },
+  { id: "musica", label: "Shows & Música", icon: Music, color: "bg-blue-500" },
+  { id: "cultura", label: "Cultura & Arte", icon: Sparkles, color: "bg-purple-500" },
+  { id: "gastronomia", label: "Gastronomia", icon: Globe2, color: "bg-orange-500" },
+  { id: "outros", label: "Outros", icon: Megaphone, color: "bg-pink-500" },
+  { id: "esporte", label: "Esportes", icon: Calendar, color: "bg-green-500" },
 ];
 
 const marqueeWords = ["Música", "Teatro", "Gastronomia", "Arte", "Workshops", "Feiras", "Cinema", "Literatura", "Dança", "Cultura local"];
@@ -138,7 +138,12 @@ export default function Landing() {
         {/* Categories */}
         <div className="flex gap-4 overflow-x-auto pb-6 mb-8 scrollbar-none">
           {genres.map((g) => (
-            <Button key={g.label} variant="outline" className="rounded-full gap-2 px-6 h-12 shadow-sm shrink-0 border-border/50">
+            <Button 
+              key={g.id} 
+              variant="outline" 
+              className="rounded-full gap-2 px-6 h-12 shadow-sm shrink-0 border-border/50"
+              onClick={() => navigate(`/agenda?category=${g.id}`)}
+            >
               <div className={cn("p-1.5 rounded-full text-white", g.color)}>
                 <g.icon className="h-3 w-3" />
               </div>
