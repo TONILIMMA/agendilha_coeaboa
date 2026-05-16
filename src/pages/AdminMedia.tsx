@@ -92,10 +92,10 @@
                  {item.media_type === 'video' ? (
                    <button 
                      className="w-full h-full relative"
-                     onClick={() => setSelectedVideo(item.media_url)}
+                     onClick={() => setSelectedVideo(item.url)}
                    >
                      <video 
-                       src={item.media_url} 
+                       src={item.url} 
                        className="w-full h-full object-cover opacity-60"
                        muted
                      />
@@ -104,7 +104,7 @@
                      </div>
                    </button>
                  ) : (
-                   <img src={item.media_url} className="w-full h-full object-cover" alt="Mídia do artista" />
+                   <img src={item.url} className="w-full h-full object-cover" alt="Mídia do artista" />
                  )}
                  <Badge className="absolute top-2 right-2 bg-black/50 backdrop-blur-md border-white/20 capitalize">
                    {item.media_type}

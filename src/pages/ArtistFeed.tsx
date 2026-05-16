@@ -10,7 +10,7 @@
  
  interface MediaItem {
    id: string;
-   media_url: string;
+   url: string;
    media_type: string;
    thumbnail_url: string | null;
    artist_id: string;
@@ -54,7 +54,7 @@
      <div className="relative h-screen w-full bg-black snap-start overflow-hidden flex flex-col items-center justify-center">
        <video
          ref={videoRef}
-         src={item.media_url}
+         src={item.url}
          className="h-full w-full object-cover sm:object-contain"
          loop
          muted={isMuted}

@@ -117,7 +117,7 @@
 
             await supabase.from('artist_media').insert({
               artist_id: profileData.id,
-              media_url: publicUrl,
+              url: publicUrl,
               media_type: item.type,
               moderation_status: 'pending'
             });
