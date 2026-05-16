@@ -76,23 +76,28 @@ export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [events, setEvents] = useState<any[]>([]);
+  const [todayEvents, setTodayEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
-    async function loadEvents() {
-      const { data } = await supabase
+    async function loadEventsData() {
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { data: allPublished } = await supabase
         .from("submissions")
         .select("*")
         .eq('status', 'published')
-        .order('date', { ascending: true })
-        .limit(10);
-      
-      if (data) setEvents(data);
+        .order('date', { ascending: true });
+
+      if (allPublished) {
+        setEvents(allPublished.slice(0, 10)); // Em alta / próximos
+        setTodayEvents(allPublished.filter(e => e.date === today));
+      }
       setLoading(false);
     }
-    loadEvents();
+    loadEventsData();
   }, []);
 
   useEffect(() => {
@@ -129,6 +134,22 @@ export default function Landing() {
             </Button>
           ))}
         </div>
+
+        {/* Today's Events */}
+        {todayEvents.length > 0 && (
+          <section className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold font-display flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Acontece hoje
+              </h2>
+              <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
+            </div>
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
+              {todayEvents.map(ev => <DiscoveryEventCard key={ev.id} event={ev} onClick={() => navigate(`/agenda?event=${ev.id}`)} />)}
+            </div>
+          </section>
+        )}
 
         {/* Featured Events */}
         <section className="mb-12">
