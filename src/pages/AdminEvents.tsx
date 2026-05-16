@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import {
   CalendarDays, Loader2, MessageCircle, Trash2, Search,
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
-  CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp,
+   CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp, AlertCircle, ShieldAlert,
   Phone, Mail, Globe, Info, Send, Star, TrendingUp, BarChart3,
   RotateCcw, LayoutDashboard, Edit, ExternalLink, Eye, History
 } from "lucide-react";
