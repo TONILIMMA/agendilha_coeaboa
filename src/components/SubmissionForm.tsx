@@ -11,7 +11,8 @@ import { z } from "zod";
 import { 
   Upload, Send, X, ChevronDown, ChevronUp, CalendarIcon, Search, 
   PlusCircle, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, Save,
-   Check, User, Info, MapPin, Scale, Eye, PartyPopper, Phone, Sparkles, Image as ImageIcon, Wand2, Loader2, RotateCcw, Download
+    Check, User, Info, MapPin, Scale, Eye, PartyPopper, Phone, Sparkles, Image as ImageIcon, Wand2, Loader2, RotateCcw, Download, Palette
+ import { AIFlyerGenerator } from "./AIFlyerGenerator";
 } from "lucide-react";
  import { IMaskInput } from "react-imask";
  import { supabase as supabaseClient } from "@/integrations/supabase/client";
