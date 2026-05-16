@@ -512,8 +512,8 @@ function buildUberLink(ev: Event): string {
          {/* Topo da Página - Hero Mobile-First */}
          <div className="mb-12 sm:mb-20 text-center space-y-8 relative animate-in fade-in slide-in-from-top-4 duration-700">
             <div className="flex flex-col items-center gap-4 sm:gap-6">
-              <div className="inline-flex items-center justify-center px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-secondary/10 border border-secondary/20 mb-2 shadow-sm">
-                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-secondary-foreground">Coé a Boa? apresenta:</span>
+              <div className="inline-flex items-center justify-center px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-secondary/20 border border-secondary/30 mb-2 shadow-sm">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary">Coé a Boa? apresenta:</span>
               </div>
               <h1 className="text-5xl xs:text-6xl sm:text-8xl font-black font-display text-primary tracking-tightest leading-[0.9] drop-shadow-sm">
                 AgendIlha
@@ -546,7 +546,16 @@ function buildUberLink(ev: Event): string {
                 </Button>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 w-full opacity-80 hover:opacity-100 transition-opacity">
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 w-full mt-2">
+                <Button
+                  variant="ghost"
+                  className="rounded-full h-12 px-6 font-bold text-sm text-secondary hover:text-secondary/80 hover:bg-secondary/5 flex items-center gap-2 transition-all"
+                  onClick={() => setPersonalizationOpen(true)}
+                >
+                  <Settings2 className="h-4 w-4" />
+                  Personalizar Minha Agenda
+                </Button>
+
                 <Button 
                   variant="ghost" 
                   className="rounded-full h-10 sm:h-11 px-4 sm:px-6 text-[11px] sm:text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
@@ -1022,7 +1031,6 @@ function buildUberLink(ev: Event): string {
                   <span className="h-2 w-2 rounded-full bg-secondary/40" />
                   <span className="font-display text-lg sm:text-xl font-bold text-secondary tracking-tight">Coé a Boa?</span>
                 </div>
-                <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/60">Curadoria & Tecnologia Local</p>
               </div>
             </div>
             
@@ -1031,6 +1039,10 @@ function buildUberLink(ev: Event): string {
             </div>
           </div>
         </footer>
+
+        {/* Personalização */}
+        <Onboarding />
+        <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
 
         <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEvent(null)}>
           <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-t-[2rem] sm:rounded-[2rem] border-none bg-background h-[95vh] sm:h-[90vh] flex flex-col focus:outline-none">
