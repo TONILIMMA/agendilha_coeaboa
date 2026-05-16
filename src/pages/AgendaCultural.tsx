@@ -34,6 +34,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
    image_url?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  age_rating?: string;
+  is_suitable_for_minors?: boolean;
+  moderation_status?: string;
 }
 
 const categoryLabels: Record<string, string> = {
@@ -208,7 +211,8 @@ function buildUberLink(ev: Event): string {
           const { data, error } = await supabase
             .from("submissions")
             .select("*")
-            .in('status', ['published', 'approved']);
+            .in('status', ['published', 'approved'])
+            .neq('moderation_status', 'blocked');
           
           if (error) throw error;
           
