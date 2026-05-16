@@ -180,8 +180,6 @@ export default function Landing() {
     }
   };
 
-  const [recommendedEvents, setRecommendedEvents] = useState<any[]>([]);
-
    const [recommendedEvents, setRecommendedEvents] = useState<any[]>([]);
    
    useEffect(() => {
@@ -319,25 +317,30 @@ export default function Landing() {
             <h2 className="text-2xl font-bold font-display">Eventos em alta</h2>
             <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
           </div>
-          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-            {events.map(ev => (
-              <DiscoveryEventCard 
-                key={ev.id} 
-                event={ev} 
-                onClick={() => navigate(`/agenda?event=${ev.id}`)}
-                isFavorite={favorites.includes(ev.id)}
-                 onFavoriteToggle={() => toggleFavorite(ev.id)}
-                 onShare={() => {
-                   const data = getShareData(ev);
-                   setShareData({ ...data, eventId: ev.id });
-                 }}
-               />
-             ))}
-          </div>
+           <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
+             {allEvents.map(ev => (
+               <DiscoveryEventCard 
+                 key={ev.id} 
+                 event={ev} 
+                 onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                 isFavorite={favorites.includes(ev.id)}
+                  onFavoriteToggle={() => toggleFavorite(ev.id)}
+                  onShare={() => {
+                    const data = getShareData(ev);
+                    setShareData({ ...data, eventId: ev.id });
+                  }}
+                />
+              ))}
+           </div>
+           {hasNextPage && (
+             <div ref={loadMoreRef} className="w-full py-10 flex justify-center">
+               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+             </div>
+           )}
         </section>
 
-        {/* Recommendations AI Sections */}
-        {events.length > 0 && (
+         {/* Recommendations AI Sections */}
+         {allEvents.length > 0 && (
           <>
             <section className="mb-12">
               <div className="flex items-center justify-between mb-6">
