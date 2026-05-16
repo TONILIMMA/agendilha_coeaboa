@@ -20,6 +20,7 @@ import { toast } from "sonner";
     work_neighborhood?: string;
     musical_preferences?: string[];
     event_type_preferences?: string[];
+    role?: string;
   }
  
  const emptyAddress: ProfileAddress = {
@@ -37,9 +38,10 @@ import { toast } from "sonner";
      nick_name: "",
      home_location: "",
      work_neighborhood: "",
-     musical_preferences: [],
-     event_type_preferences: [],
-   };
+      musical_preferences: [],
+      event_type_preferences: [],
+      role: "public",
+    };
 
 export function useProfile() {
   const { user } = useAuth();
@@ -55,12 +57,12 @@ export function useProfile() {
     loadProfile(user.id);
   }, [user]);
 
-   async function loadProfile(userId: string) {
-     const { data, error } = await supabase
-       .from("profiles")
-       .select("company_name, responsible_name, email, phone, address_street, address_number, address_neighborhood, address_city, address_state, address_zip, contact_social, nick_name, home_location, work_neighborhood, musical_preferences, event_type_preferences")
-       .eq("user_id", userId)
-       .maybeSingle();
+    async function loadProfile(userId: string) {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("company_name, responsible_name, email, phone, address_street, address_number, address_neighborhood, address_city, address_state, address_zip, contact_social, nick_name, home_location, work_neighborhood, musical_preferences, event_type_preferences, role")
+        .eq("user_id", userId)
+        .maybeSingle();
  
      if (data) {
        setProfile({
@@ -78,9 +80,10 @@ export function useProfile() {
            nick_name: data.nick_name || "",
            home_location: data.home_location || "",
            work_neighborhood: data.work_neighborhood || "",
-           musical_preferences: data.musical_preferences || [],
-           event_type_preferences: data.event_type_preferences || [],
-         });
+            musical_preferences: data.musical_preferences || [],
+            event_type_preferences: data.event_type_preferences || [],
+            role: data.role || "public",
+          });
      }
      setLoaded(true);
    }
