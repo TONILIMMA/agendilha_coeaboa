@@ -328,6 +328,7 @@ export type Database = {
           contact_social: string | null
           created_at: string
           email: string | null
+          event_type_preferences: string[] | null
           home_location: string | null
           id: string
           musical_preferences: string[] | null
@@ -352,6 +353,7 @@ export type Database = {
           contact_social?: string | null
           created_at?: string
           email?: string | null
+          event_type_preferences?: string[] | null
           home_location?: string | null
           id?: string
           musical_preferences?: string[] | null
@@ -376,6 +378,7 @@ export type Database = {
           contact_social?: string | null
           created_at?: string
           email?: string | null
+          event_type_preferences?: string[] | null
           home_location?: string | null
           id?: string
           musical_preferences?: string[] | null

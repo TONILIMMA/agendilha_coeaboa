@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserBadge } from "@/hooks/useUserBadge";
@@ -448,10 +448,15 @@ export default function AdminMaster() {
         {/* Newsletter Subscribers */}
         <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Mail className="h-5 w-5 text-orange-600" />
-              Inscritos na Newsletter
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Mail className="h-5 w-5 text-orange-600" />
+                Inscritos na Newsletter
+              </CardTitle>
+              <Link to="/admin/newsletter">
+                <Button variant="ghost" size="sm" className="text-xs text-primary font-bold">Ver Painel Completo</Button>
+              </Link>
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {loading ? (

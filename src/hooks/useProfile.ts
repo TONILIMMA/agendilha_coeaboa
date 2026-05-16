@@ -18,6 +18,8 @@ import { toast } from "sonner";
     nick_name?: string;
     home_location?: string;
     work_neighborhood?: string;
+    musical_preferences?: string[];
+    event_type_preferences?: string[];
   }
  
  const emptyAddress: ProfileAddress = {
@@ -32,10 +34,12 @@ import { toast } from "sonner";
    address_state: "",
    address_zip: "",
     contact_social: "",
-    nick_name: "",
-    home_location: "",
-    work_neighborhood: "",
-  };
+     nick_name: "",
+     home_location: "",
+     work_neighborhood: "",
+     musical_preferences: [],
+     event_type_preferences: [],
+   };
 
 export function useProfile() {
   const { user } = useAuth();
@@ -54,7 +58,7 @@ export function useProfile() {
    async function loadProfile(userId: string) {
      const { data, error } = await supabase
        .from("profiles")
-       .select("company_name, responsible_name, email, phone, address_street, address_number, address_neighborhood, address_city, address_state, address_zip, contact_social, nick_name, home_location, work_neighborhood")
+       .select("company_name, responsible_name, email, phone, address_street, address_number, address_neighborhood, address_city, address_state, address_zip, contact_social, nick_name, home_location, work_neighborhood, musical_preferences, event_type_preferences")
        .eq("user_id", userId)
        .maybeSingle();
  
@@ -71,10 +75,12 @@ export function useProfile() {
          address_state: data.address_state || "",
          address_zip: data.address_zip || "",
          contact_social: data.contact_social || "",
-          nick_name: data.nick_name || "",
-          home_location: data.home_location || "",
-          work_neighborhood: data.work_neighborhood || "",
-        });
+           nick_name: data.nick_name || "",
+           home_location: data.home_location || "",
+           work_neighborhood: data.work_neighborhood || "",
+           musical_preferences: data.musical_preferences || [],
+           event_type_preferences: data.event_type_preferences || [],
+         });
      }
      setLoaded(true);
    }

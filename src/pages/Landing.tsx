@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
 import {
   Calendar,
   Megaphone,
@@ -27,6 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.jpg";
@@ -77,6 +79,7 @@ export default function Landing() {
   useScrollReveal();
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
+  const { profile, loaded: profileLoaded } = useProfile();
   const navigate = useNavigate();
   const [events, setEvents] = useState<any[]>([]);
   const [todayEvents, setTodayEvents] = useState<any[]>([]);
@@ -106,7 +109,11 @@ export default function Landing() {
     try {
       const { error } = await supabase
         .from("newsletter_subscribers")
-        .insert({ email: subscriberEmail, name: subscriberName });
+        .insert({ 
+          email: subscriberEmail, 
+          name: subscriberName,
+          neighborhood: (window as any)._last_neighborhood || null
+        });
 
       if (error) {
         if (error.code === "23505") {
@@ -129,24 +136,45 @@ export default function Landing() {
     }
   };
 
+  const [recommendedEvents, setRecommendedEvents] = useState<any[]>([]);
+
   useEffect(() => {
     async function loadEventsData() {
       const today = new Date().toISOString().split('T')[0];
       
-      const { data: allPublished } = await supabase
+      let query = supabase
         .from("submissions")
         .select("*")
         .eq('status', 'published')
         .order('date', { ascending: true });
 
+      const { data: allPublished } = await query;
+
       if (allPublished) {
-        setEvents(allPublished.slice(0, 10)); // Em alta / próximos
+        setEvents(allPublished.slice(0, 10));
         setTodayEvents(allPublished.filter(e => e.date === today));
+        
+        // Simple IA recommendation logic
+        if (profileLoaded && user) {
+          const prefs = profile.musical_preferences || [];
+          const home = profile.home_location;
+          const work = profile.work_neighborhood;
+          
+          const recs = allPublished.filter(ev => {
+            const matchStyle = prefs.some(p => ev.atrativo_style?.toLowerCase().includes(p.toLowerCase()));
+            const matchNeighborhood = ev.address_neighborhood === home || ev.address_neighborhood === work;
+            return matchStyle || matchNeighborhood;
+          }).slice(0, 5);
+          
+          setRecommendedEvents(recs.length > 0 ? recs : allPublished.slice(0, 5));
+        } else {
+          setRecommendedEvents(allPublished.slice(0, 5));
+        }
       }
       setLoading(false);
     }
     loadEventsData();
-  }, []);
+  }, [profileLoaded, user, profile.musical_preferences, profile.home_location, profile.work_neighborhood]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -238,12 +266,12 @@ export default function Landing() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold font-display flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-primary" />
-                  Eventos perto de você
+                  {user ? "No seu radar" : "Eventos perto de você"}
                 </h2>
                 <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
               </div>
               <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-                {events.slice(0, 5).map(ev => (
+                {recommendedEvents.map(ev => (
                   <DiscoveryEventCard 
                     key={ev.id} 
                     event={ev} 
@@ -255,16 +283,16 @@ export default function Landing() {
               </div>
             </section>
 
-            {user && (
+            {user && recommendedEvents.length > 0 && (
               <section className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold font-display flex items-center gap-2">
                     <Sparkles className="h-5 w-5 text-primary" />
-                    Você pode gostar
+                    Recomendado para você
                   </h2>
                 </div>
                 <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-                  {events.slice(5, 10).map(ev => (
+                  {recommendedEvents.slice(0, 3).map(ev => (
                     <DiscoveryEventCard 
                       key={ev.id} 
                       event={ev} 
@@ -289,9 +317,9 @@ export default function Landing() {
               <p className="text-muted-foreground mb-8 text-lg">
                 Não perca nenhum show ou evento cultural. Cadastre-se para receber as novidades semanalmente.
               </p>
-              <form onSubmit={handleNewsletterSubscribe} className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-1 space-y-2">
-                   <Input 
+              <form onSubmit={handleNewsletterSubscribe} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Input 
                     placeholder="Seu nome" 
                     value={subscriberName}
                     onChange={(e) => setSubscriberName(e.target.value)}
@@ -299,20 +327,36 @@ export default function Landing() {
                   />
                   <Input 
                     type="email" 
-                    placeholder="Seu melhor e-mail" 
+                    placeholder="Seu e-mail" 
                     value={subscriberEmail}
                     onChange={(e) => setSubscriberEmail(e.target.value)}
                     required
                     className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm"
                   />
                 </div>
-                <Button 
-                  type="submit" 
-                  disabled={isSubscribing}
-                  className="h-14 px-10 rounded-2xl font-black text-lg gradient-sunset shadow-lg"
-                >
-                  {isSubscribing ? "Salvando..." : "Cadastrar"}
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <Select onValueChange={(val) => {
+                      (window as any)._last_neighborhood = val;
+                    }}>
+                      <SelectTrigger className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm">
+                        <SelectValue placeholder="Seu bairro (opcional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia", "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras", "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"].sort().map(n => (
+                          <SelectItem key={n} value={n}>{n}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    disabled={isSubscribing}
+                    className="h-14 px-10 rounded-2xl font-black text-lg gradient-sunset shadow-lg"
+                  >
+                    {isSubscribing ? "Salvando..." : "Cadastrar"}
+                  </Button>
+                </div>
               </form>
             </div>
           </div>
