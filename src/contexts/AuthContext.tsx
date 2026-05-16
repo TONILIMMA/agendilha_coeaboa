@@ -7,7 +7,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
-  signUp: (phone: string, password: string, name?: string, additionalData?: any) => Promise<{ error: Error | null }>;
+   signUp: (phone: string, password: string, name?: string, additionalData?: any, role?: string) => Promise<{ error: Error | null }>;
   signIn: (phone: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return `${fullNumber}@phone.agendilha.app`;
   };
 
-  const signUp = async (phone: string, password: string, name?: string, additionalData: any = {}) => {
+   const signUp = async (phone: string, password: string, name?: string, additionalData: any = {}, role: string = 'public') => {
     const cleanName = name?.trim();
     const digits = phone.replace(/\D/g, "");
     const fullPhone = digits.startsWith("55") ? `+${digits}` : `+55${digits}`;
@@ -100,11 +100,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: error as Error | null };
     }
 
-    const profilePayload = {
-      responsible_name: cleanName,
-      phone: fullPhone,
-      ...additionalData
-    };
+     const profilePayload = {
+       responsible_name: cleanName,
+       phone: fullPhone,
+       role,
+       ...additionalData
+     };
 
     const { data: existingProfile, error: profileLookupError } = await supabase
       .from("profiles")

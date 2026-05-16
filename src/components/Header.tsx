@@ -80,7 +80,7 @@ function RoleBadge({
   isAdmin,
   perms,
 }: {
-  status: "master" | "admin" | "collaborator" | "user" | null;
+   status: "master" | "admin" | "collaborator" | "artist" | "user" | null;
   isAdmin: boolean;
   perms: { loaded: boolean; canApprove: boolean; isCollaborator: boolean };
 }) {

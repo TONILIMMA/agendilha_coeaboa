@@ -98,7 +98,8 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
     </>
   );
 }
- import { useState, useMemo, useEffect } from "react";
+  import { useState, useMemo, useEffect } from "react";
+  import { useQuery } from "@tanstack/react-query";
  import { useNavigate } from "react-router-dom";
  import { supabase } from "@/integrations/supabase/client";
   import { useAuth } from "@/contexts/AuthContext";
@@ -110,7 +111,8 @@ import { Button } from "@/components/ui/button";
  import { Textarea } from "@/components/ui/textarea";
  
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles } from "lucide-react";
+  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play } from "lucide-react";
+ import ArtistCard from "@/components/ArtistCard";
  import { Skeleton } from "@/components/ui/skeleton";
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
@@ -282,9 +284,42 @@ function buildUberLink(ev: Event): string {
   };
    const [loading, setLoading] = useState(true);
    const [search, setSearch] = useState("");
+   const [activeTab, setActiveTab] = useState<"events" | "artists">("events");
    const [categoryFilter, setCategoryFilter] = useState("all");
    const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+   const { data: artists, isLoading: artistsLoading } = useQuery({
+     queryKey: ["artists-approved"],
+     queryFn: async () => {
+       const { data, error } = await supabase
+         .from("artist_profiles")
+         .select(`
+           *,
+           artist_media (*)
+         `)
+         .eq("is_approved", true)
+         .order("created_at", { ascending: false });
+       if (error) throw error;
+       return data;
+     },
+   });
+ 
+   const trendingArtists = useMemo(() => {
+     return artists?.slice(0, 5) || [];
+   }, [artists]);
+ 
+   const shortVideos = useMemo(() => {
+     const allVideos: any[] = [];
+     artists?.forEach(artist => {
+       artist.artist_media?.forEach((m: any) => {
+         if (m.media_type === 'video') {
+           allVideos.push({ ...m, artist });
+         }
+       });
+     });
+     return allVideos.sort(() => Math.random() - 0.5);
+   }, [artists]);
+ 
 
    useEffect(() => {
      const params = new URLSearchParams(window.location.search);
@@ -558,10 +593,71 @@ function buildUberLink(ev: Event): string {
                 )}
               </div>
             )}
-          </div>
-
-         {/* Bloco de Busca e Filtros - Mobile-First */}
-         <div className="mb-12 space-y-4 sm:space-y-6">
+           </div>
+ 
+           {/* Tabs de Navegação */}
+           <div className="flex p-1 bg-muted/50 rounded-2xl mb-12 max-w-sm mx-auto border border-border/50">
+             <button
+               onClick={() => setActiveTab("events")}
+               className={cn(
+                 "flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2",
+                 activeTab === "events" 
+                   ? "bg-background shadow-md text-primary" 
+                   : "text-muted-foreground hover:text-foreground"
+               )}
+             >
+               <CalendarDays className="h-4 w-4" /> EVENTOS
+             </button>
+             <button
+               onClick={() => setActiveTab("artists")}
+               className={cn(
+                 "flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2",
+                 activeTab === "artists" 
+                   ? "bg-background shadow-md text-primary" 
+                   : "text-muted-foreground hover:text-foreground"
+               )}
+             >
+               <Users className="h-4 w-4" /> ARTISTAS
+             </button>
+           </div>
+ 
+            {activeTab === "artists" && (
+              <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                {shortVideos.length > 0 && (
+                  <section className="space-y-6">
+                    <h2 className="text-2xl font-display font-black text-primary flex items-center gap-2 px-2">
+                      <Video className="h-6 w-6" /> DESCUBRA NOVOS SONS
+                    </h2>
+                    <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+                      {shortVideos.map((video) => (
+                        <div key={video.id} className="relative min-w-[200px] sm:min-w-[240px] aspect-[9/16] rounded-3xl overflow-hidden bg-muted snap-start shadow-xl group cursor-pointer" onClick={() => navigate(`/artista/${video.artist.id}`)}>
+                          <img src={video.thumbnail_url} className="w-full h-full object-cover" alt="" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                          <div className="absolute bottom-4 left-4 right-4 text-white">
+                            <p className="font-bold text-sm">{video.artist.name}</p>
+                            <Badge variant="secondary" className="bg-white/20 text-[10px] text-white border-none">{video.artist.genre}</Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+                <section className="space-y-8">
+                  <h2 className="text-2xl font-display font-black text-primary flex items-center gap-2 px-2">
+                    <MusicIcon className="h-6 w-6" /> ARTISTAS NA ILHA
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+                    {artists?.filter(a => neighborhoodFilter === 'all' || a.neighborhood === neighborhoodFilter).map(artist => (
+                      <ArtistCard key={artist.id} artist={artist} />
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
+            {activeTab === "events" && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                {/* Bloco de Busca e Filtros - Mobile-First */}
+                <div className="mb-12 space-y-4 sm:space-y-6">
           <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
             <div className="flex flex-col gap-5 sm:gap-6">
               {/* Barra de Busca e Ordenação */}
@@ -884,10 +980,12 @@ function buildUberLink(ev: Event): string {
                   })}
                 </div>
               </section>
-            ))}
-          </div>
-        )}
-      </main>
+             ))}
+             </div>
+           )}
+         </div>
+       )}
+     </main>
 
         <footer className="mt-32 py-24 border-t border-border/40 text-center bg-card/30 backdrop-blur-sm space-y-8 rounded-t-[3rem]">
           <div className="flex flex-col items-center gap-8">
