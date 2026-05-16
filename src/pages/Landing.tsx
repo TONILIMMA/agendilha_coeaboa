@@ -28,6 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.jpg";
@@ -108,7 +109,11 @@ export default function Landing() {
     try {
       const { error } = await supabase
         .from("newsletter_subscribers")
-        .insert({ email: subscriberEmail, name: subscriberName });
+        .insert({ 
+          email: subscriberEmail, 
+          name: subscriberName,
+          neighborhood: (window as any)._last_neighborhood || null
+        });
 
       if (error) {
         if (error.code === "23505") {
@@ -312,9 +317,9 @@ export default function Landing() {
               <p className="text-muted-foreground mb-8 text-lg">
                 Não perca nenhum show ou evento cultural. Cadastre-se para receber as novidades semanalmente.
               </p>
-              <form onSubmit={handleNewsletterSubscribe} className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-1 space-y-2">
-                   <Input 
+              <form onSubmit={handleNewsletterSubscribe} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Input 
                     placeholder="Seu nome" 
                     value={subscriberName}
                     onChange={(e) => setSubscriberName(e.target.value)}
@@ -322,20 +327,36 @@ export default function Landing() {
                   />
                   <Input 
                     type="email" 
-                    placeholder="Seu melhor e-mail" 
+                    placeholder="Seu e-mail" 
                     value={subscriberEmail}
                     onChange={(e) => setSubscriberEmail(e.target.value)}
                     required
                     className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm"
                   />
                 </div>
-                <Button 
-                  type="submit" 
-                  disabled={isSubscribing}
-                  className="h-14 px-10 rounded-2xl font-black text-lg gradient-sunset shadow-lg"
-                >
-                  {isSubscribing ? "Salvando..." : "Cadastrar"}
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <Select onValueChange={(val) => {
+                      (window as any)._last_neighborhood = val;
+                    }}>
+                      <SelectTrigger className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm">
+                        <SelectValue placeholder="Seu bairro (opcional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia", "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras", "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"].sort().map(n => (
+                          <SelectItem key={n} value={n}>{n}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    disabled={isSubscribing}
+                    className="h-14 px-10 rounded-2xl font-black text-lg gradient-sunset shadow-lg"
+                  >
+                    {isSubscribing ? "Salvando..." : "Cadastrar"}
+                  </Button>
+                </div>
               </form>
             </div>
           </div>
