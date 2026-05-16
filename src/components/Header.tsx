@@ -165,9 +165,10 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-4">
-              <Link to="/agenda" className="text-sm font-bold text-foreground/70 hover:text-primary transition-colors">Explorar</Link>
+             {/* Desktop Nav */}
+             <div className="hidden md:flex items-center gap-4">
+               <Link to="/agenda" className="text-sm font-bold text-foreground/70 hover:text-primary transition-colors">Eventos</Link>
+               <Link to="/artistas" className="text-sm font-bold text-foreground/70 hover:text-primary transition-colors">Artistas</Link>
               <Link to="/agenda?view=favorites" className="relative group">
                 <Heart className="h-5 w-5 text-foreground/70 group-hover:text-primary transition-colors" />
                 {favoritesCount > 0 && (
@@ -176,21 +177,37 @@ export default function Header() {
                   </span>
                 )}
               </Link>
-              {(isAdmin || perms.isCollaborator) && (
-                <Link to="/enviar-evento">
-                  <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-lg px-6 h-10 border-2 border-primary transition-transform active:scale-95">Divulgar</Button>
-                </Link>
-              )}
+               <Button 
+                 size="sm" 
+                 onClick={() => {
+                   if (user) {
+                     navigate("/enviar-evento");
+                   } else {
+                     navigate("/auth?redirect=/enviar-evento");
+                   }
+                 }}
+                 className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-lg px-6 h-10 border-2 border-primary transition-transform active:scale-95"
+               >
+                 Divulgar
+               </Button>
               <HeaderUserMenu variant="desktop" hideContext={true} />
             </div>
 
-            {/* Mobile Nav Trigger */}
-            <div className="flex md:hidden items-center gap-2">
-              {(isAdmin || perms.isCollaborator) && (
-                <Link to="/enviar-evento">
-                  <Button size="sm" className="rounded-full bg-primary text-primary-foreground font-black shadow-md px-4 h-9 text-[10px] uppercase tracking-widest">Divulgar</Button>
-                </Link>
-              )}
+             {/* Mobile Nav Trigger */}
+             <div className="flex md:hidden items-center gap-2">
+               <Button 
+                 size="sm" 
+                 onClick={() => {
+                   if (user) {
+                     navigate("/enviar-evento");
+                   } else {
+                     navigate("/auth?redirect=/enviar-evento");
+                   }
+                 }}
+                 className="rounded-full bg-primary text-primary-foreground font-black shadow-md px-4 h-9 text-[10px] uppercase tracking-widest"
+               >
+                 Divulgar
+               </Button>
               <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm">
@@ -205,22 +222,26 @@ export default function Header() {
                     </div>
                   </SheetHeader>
                   <div className="flex flex-col p-6 gap-6">
-                    <div className="flex flex-col gap-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-2">Navegação</p>
-                      <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors group">
-                        <Sun className="h-5 w-5 text-primary" />
-                        <span className="font-bold text-foreground">Página Inicial</span>
-                      </Link>
-                      <Link to="/agenda" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
-                        <CalendarDays className="h-5 w-5 text-primary" />
-                        <span className="font-bold text-foreground">Agenda Cultural</span>
-                      </Link>
-                      <Link to="/agenda?view=favorites" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
-                        <Heart className="h-5 w-5 text-primary" />
-                        <span className="font-bold text-foreground">Meus Favoritos</span>
-                        {favoritesCount > 0 && <Badge variant="secondary" className="ml-auto">{favoritesCount}</Badge>}
-                      </Link>
-                    </div>
+                     <div className="flex flex-col gap-2">
+                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-2">Navegação</p>
+                       <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors group">
+                         <Sun className="h-5 w-5 text-primary" />
+                         <span className="font-bold text-foreground">Página Inicial</span>
+                       </Link>
+                       <Link to="/agenda" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
+                         <CalendarDays className="h-5 w-5 text-primary" />
+                         <span className="font-bold text-foreground">Eventos</span>
+                       </Link>
+                       <Link to="/artistas" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
+                         <Users className="h-5 w-5 text-primary" />
+                         <span className="font-bold text-foreground">Artistas Locais</span>
+                       </Link>
+                       <Link to="/agenda?view=favorites" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
+                         <Heart className="h-5 w-5 text-primary" />
+                         <span className="font-bold text-foreground">Meus Favoritos</span>
+                         {favoritesCount > 0 && <Badge variant="secondary" className="ml-auto">{favoritesCount}</Badge>}
+                       </Link>
+                     </div>
                     
                     <div className="flex flex-col gap-2">
                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-2">Conta</p>

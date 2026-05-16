@@ -469,9 +469,9 @@ function buildUberLink(ev: Event): string {
               <h1 className="text-5xl xs:text-6xl sm:text-8xl font-black font-display text-primary tracking-tightest leading-[0.9] drop-shadow-sm">
                 AgendIlha
               </h1>
-              <p className="text-muted-foreground text-base sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-2 sm:px-4 text-balance">
-                A agenda cultural curada da Ilha do Governador.
-              </p>
+               <p className="text-foreground/80 text-lg sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-2 sm:px-4 text-balance contrast-125">
+                 A agenda cultural da Ilha do Governador.
+               </p>
             </div>
 
             <div className="flex flex-col items-center gap-6 sm:gap-8 mt-8 sm:mt-12 px-2" role="group" aria-label="Ações da agenda">
