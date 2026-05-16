@@ -769,37 +769,33 @@ function buildUberLink(ev: Event): string {
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                 {/* Bloco de Busca e Filtros - Mobile-First */}
                 <div className="mb-12 space-y-4 sm:space-y-6">
-          <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
-            <div className="flex flex-col gap-5 sm:gap-6">
+           <div className="bg-card border border-border/60 rounded-[1.5rem] sm:rounded-[2rem] p-3 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
+             <div className="flex flex-col gap-3 sm:gap-6">
               {/* Barra de Busca e Ordenação */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <div className="relative flex-1 group">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                  <Input
-                    placeholder="O que você procura hoje?"
-                    className="pl-12 h-14 text-base sm:text-lg border-none bg-muted/40 focus-visible:ring-2 focus-visible:ring-primary/20 rounded-2xl sm:rounded-3xl"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
+                   <Input
+                     placeholder="Buscar shows..."
+                     className="pl-12 h-12 sm:h-14 text-base sm:text-lg border-none bg-muted/40 focus-visible:ring-2 focus-visible:ring-primary/20 rounded-xl sm:rounded-3xl"
+                     value={search}
+                     onChange={(e) => setSearch(e.target.value)}
+                   />
                 </div>
                 <div className="relative shrink-0">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      const newOrder = sortOrder === "asc" ? "desc" : "asc";
-                      setSortOrder(newOrder);
-                      toast.info(`Ordenado por: ${newOrder === "asc" ? "Mais Próximos" : "Mais Distantes"}`, {
-                        duration: 2000,
-                        position: "bottom-center"
-                      });
-                    }}
-                    className="w-full sm:w-auto h-14 px-6 rounded-2xl sm:rounded-3xl border-2 border-primary/10 text-primary font-bold transition-all active:scale-95 bg-white hover:bg-primary/5 hover:border-primary/30 flex items-center justify-center gap-2"
-                  >
-                    <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
-                    <span className="text-[11px] sm:text-xs uppercase tracking-widest">
-                      {sortOrder === "asc" ? "Próximos" : "Distantes"}
-                    </span>
-                  </Button>
+                   <Button
+                     variant="outline"
+                     onClick={() => {
+                       const newOrder = sortOrder === "asc" ? "desc" : "asc";
+                       setSortOrder(newOrder);
+                     }}
+                     className="w-full sm:w-auto h-12 sm:h-14 px-4 sm:px-6 rounded-xl sm:rounded-3xl border-2 border-primary/10 text-primary font-bold transition-all active:scale-95 bg-white hover:bg-primary/5 hover:border-primary/30 flex items-center justify-center gap-2"
+                   >
+                     <ArrowUpDown className={cn("h-4 w-4 transition-transform duration-300", sortOrder === "desc" && "rotate-180")} />
+                     <span className="text-[10px] sm:text-xs uppercase tracking-widest">
+                       {sortOrder === "asc" ? "Próximos" : "Distantes"}
+                     </span>
+                   </Button>
                   <div className={cn(
                     "absolute -top-1.5 -right-1 h-3.5 w-3.5 rounded-full border-2 border-background shadow-sm",
                     sortOrder === "asc" ? "bg-primary" : "bg-secondary"
