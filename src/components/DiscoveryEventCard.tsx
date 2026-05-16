@@ -14,6 +14,8 @@ interface Event {
   category: string | null;
   image_url?: string | null;
   rating?: { average: number; total: number };
+  age_rating?: string;
+  is_suitable_for_minors?: boolean;
 }
 
 const categoryIcons: Record<string, string> = {
@@ -60,15 +62,24 @@ export function DiscoveryEventCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
-        {/* Category Badge */}
-        <div className="absolute left-4 top-4">
-          <Badge className="bg-white/20 backdrop-blur-md border-white/30 text-white font-bold py-1 px-3 rounded-full">
+        {/* Top Badges Left */}
+        <div className="absolute left-4 top-4 flex flex-wrap gap-2 z-20">
+          <Badge className="bg-white/20 backdrop-blur-md border-white/30 text-white font-bold py-1 px-3 rounded-full shadow-sm">
             {categoryIcons[event.category || "outros"]} {event.category}
           </Badge>
+          
+          {event.age_rating && (
+            <Badge className={cn(
+              "backdrop-blur-md text-white font-black py-1 px-3 rounded-full border border-white/30 shadow-sm",
+              event.age_rating === '18+' ? "bg-red-500/60" : "bg-green-500/60"
+            )}>
+              {event.age_rating}
+            </Badge>
+          )}
         </div>
 
-        {/* Quick Actions */}
-        <div className="absolute right-4 top-4 flex flex-col gap-2">
+        {/* Quick Actions Right */}
+        <div className="absolute right-4 top-4 flex flex-col gap-2 z-20">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -91,15 +102,6 @@ export function DiscoveryEventCard({
             </Badge>
           )}
         </div>
-        {event.rating && event.rating.total > 0 && (
-          <div className="absolute right-4 top-4">
-            <Badge className="bg-yellow-400/90 text-black font-black py-1 px-3 rounded-full flex items-center gap-1">
-              <Star className="h-3 w-3 fill-current" />
-              {event.rating.average.toFixed(1)}
-            </Badge>
-          </div>
-        )}
-
         <div className="absolute bottom-6 left-6 right-6 text-white">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-white/70 mb-2">
             <Calendar className="h-3 w-3" />
