@@ -185,6 +185,10 @@ function buildUberLink(ev: Event): string {
      if (params.get('view') === 'favorites') {
        setShowFavoritesOnly(true);
      }
+     const category = params.get('category');
+     if (category) {
+       setCategoryFilter(category);
+     }
    }, []);
    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
