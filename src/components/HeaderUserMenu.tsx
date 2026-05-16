@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, User as UserIcon, Settings, Shield, Crown } from "lucide-react";
+ import { LogOut, User as UserIcon, Settings, Shield, Crown } from "lucide-react";
+ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserBadge } from "@/hooks/useUserBadge";
 import {
