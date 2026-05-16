@@ -47,10 +47,12 @@ interface Props {
           <Button
             size="sm"
             variant="ghost"
-            className="rounded-full h-8 w-8 p-0 hover:bg-primary/10"
-            title="Entrar"
+            className="rounded-full h-10 w-10 p-0 hover:bg-primary/10 transition-colors"
+            title="Entrar ou Cadastrar"
           >
-            <UserIcon className="h-4 w-4 text-muted-foreground" />
+            <div className="bg-muted h-8 w-8 rounded-full flex items-center justify-center border border-border/50 shadow-inner">
+              <UserIcon className="h-4 w-4 text-muted-foreground" />
+            </div>
           </Button>
         </Link>
          <Link to="/agenda" onClick={onNavigate}>
