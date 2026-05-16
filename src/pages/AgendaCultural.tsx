@@ -552,7 +552,20 @@ function buildUberLink(ev: Event): string {
              )}
 
             <div className="flex flex-col items-center gap-6 sm:gap-8 mt-8 sm:mt-12 px-2" role="group" aria-label="Ações da agenda">
-              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full max-w-2xl">
+               <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full max-w-2xl">
+                 <Button
+                   className="rounded-full shadow-lg sm:shadow-xl bg-primary text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest outline-none hover:scale-[1.02] active:scale-95 flex-1"
+                   onClick={() => {
+                     if (user) {
+                       navigate("/enviar-evento");
+                     } else {
+                       navigate("/auth?redirect=/enviar-evento");
+                     }
+                   }}
+                 >
+                   <Megaphone className="h-5 w-5 mr-2.5" /> Divulgar Evento
+                 </Button>
+
                 <Button
                   className="rounded-full shadow-lg sm:shadow-xl gradient-sunset text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-[1.02] active:scale-95 flex-1"
                   onClick={() => window.open(buildWhatsAppShare(), "_blank")}

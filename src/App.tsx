@@ -83,14 +83,14 @@ const AppRoutes = () => (
            </ProtectedRoute>
          }
        />
-       <Route
-         path="/enviar-evento"
-         element={
-           <ProtectedRoute requiredRole="promoter">
-             <SubmitEvent />
-           </ProtectedRoute>
-         }
-       />
+        <Route
+          path="/enviar-evento"
+          element={
+            <ProtectedRoute>
+              <SubmitEvent />
+            </ProtectedRoute>
+          }
+        />
 
       {/* Administrativas */}
       <Route
