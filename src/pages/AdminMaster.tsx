@@ -23,6 +23,7 @@ import {
   Trophy,
   UserPlus,
   Pencil,
+  Mail,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -64,7 +65,7 @@ export default function AdminMaster() {
   const { user, loading: authLoading } = useAuth();
   const { status, loaded: badgeLoaded } = useUserBadge();
 
-  const [stats, setStats] = useState({ users: 0, admins: 0, approved: 0 });
+  const [stats, setStats] = useState({ users: 0, admins: 0, approved: 0, newsletter: 0 });
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [allUsers, setAllUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,6 +136,8 @@ export default function AdminMaster() {
     { value: "outros", label: "Outros" },
   ];
 
+  const [subscribers, setSubscribers] = useState<any[]>([]);
+
   async function loadAll() {
     setLoading(true);
     try {
@@ -199,10 +202,19 @@ export default function AdminMaster() {
         .select("*", { count: "exact", head: true })
         .eq("status", "approved");
 
+      // Newsletter subscribers
+      const { data: subs, count: subsCount } = await supabase
+        .from("newsletter_subscribers")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false });
+      
+      if (subs) setSubscribers(subs);
+
       setStats({
         users: usersList.length,
         admins: enriched.filter((u) => u.is_admin).length,
         approved: approvedCount ?? 0,
+        newsletter: subsCount ?? 0,
       });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao carregar dados");
@@ -404,11 +416,12 @@ export default function AdminMaster() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { icon: Users, label: "Usuários", value: stats.users, tone: "text-primary bg-primary/10 border-primary/20" },
             { icon: Shield, label: "Admins", value: stats.admins, tone: "text-secondary bg-secondary/10 border-secondary/20" },
-            { icon: CalendarCheck, label: "Eventos aprovados", value: stats.approved, tone: "text-emerald-700 bg-emerald-500/10 border-emerald-500/20" },
+            { icon: CalendarCheck, label: "Eventos", value: stats.approved, tone: "text-emerald-700 bg-emerald-500/10 border-emerald-500/20" },
+            { icon: Mail, label: "Newsletter", value: stats.newsletter, tone: "text-orange-700 bg-orange-500/10 border-orange-500/20" },
           ].map((s) => (
             <Card
               key={s.label}
@@ -432,6 +445,40 @@ export default function AdminMaster() {
         </div>
 
         {/* Admin management */}
+        {/* Newsletter Subscribers */}
+        <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Mail className="h-5 w-5 text-orange-600" />
+              Inscritos na Newsletter
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="max-h-[300px] overflow-y-auto space-y-2 pr-2 scrollbar-thin">
+                {subscribers.length === 0 && (
+                  <p className="text-sm text-muted-foreground">Nenhum inscrito ainda.</p>
+                )}
+                {subscribers.map((s) => (
+                  <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-white/50 border border-white/60">
+                    <div className="min-w-0">
+                      <div className="font-medium text-foreground truncate">{s.name || "Sem nome"}</div>
+                      <div className="text-xs text-muted-foreground truncate">{s.email}</div>
+                    </div>
+                    <div className="text-[10px] text-muted-foreground font-mono">
+                      {new Date(s.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
