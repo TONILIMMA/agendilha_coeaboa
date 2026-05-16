@@ -19,9 +19,30 @@ import AdminMaster from "./pages/AdminMaster";
 import Ranking from "./pages/Ranking";
 import AdminPinGate from "@/components/AdminPinGate";
 import NotFound from "./pages/NotFound";
-import Landing from "./pages/Landing";
-import SubmitEvent from "./pages/SubmitEvent";
-import AdminNewsletter from "./pages/AdminNewsletter";
+ import Landing from "./pages/Landing";
+ import SubmitEvent from "./pages/SubmitEvent";
+ import AdminNewsletter from "./pages/AdminNewsletter";
+ import ArtistProfile from "./pages/ArtistProfile";
+ import ArtistSetup from "./pages/ArtistSetup";
+ import AdminArtists from "./pages/AdminArtists";
+       <Route path="/artista/:id" element={<ArtistProfile />} />
+       <Route
+         path="/configurar-artista"
+         element={
+           <ProtectedRoute>
+             <ArtistSetup />
+           </ProtectedRoute>
+         }
+       />
+       <Route
+         path="/admin/artists"
+         element={
+           <ProtectedRoute>
+             <Header />
+             <AdminArtists />
+           </ProtectedRoute>
+         }
+       />
 
 import { Loader2 } from "lucide-react";
 
