@@ -449,63 +449,6 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
   const descriptionLength = form.watch("description")?.length || 0;
 
-   const aiTemplates = [
-     { id: "musica", label: "Música / Show", icon: "🎸", colors: ["#ea384c", "#000000", "#ffffff"] },
-     { id: "cultural", label: "Evento Cultural", icon: "🎭", colors: ["#8B5CF6", "#1e1b4b", "#f5f3ff"] },
-     { id: "familia", label: "Infantil / Família", icon: "🎈", colors: ["#F97316", "#ffffff", "#fff7ed"] },
-     { id: "religioso", label: "Religioso", icon: "🙏", colors: ["#3b82f6", "#ffffff", "#f0f9ff"] },
-     { id: "comercio", label: "Promoção / Comércio", icon: "🏷️", colors: ["#22c55e", "#000000", "#f0fdf4"] },
-     { id: "noite", label: "Festa / Noite", icon: "✨", colors: ["#D946EF", "#000000", "#2e1065"] },
-     { id: "praia", label: "Praia / Ilha", icon: "🌴", colors: ["#0EA5E9", "#ffffff", "#f0f9ff"] },
-     { id: "esportivo", label: "Esportivo", icon: "⚽", colors: ["#10B981", "#ffffff", "#ecfdf5"] },
-     { id: "gastronomico", label: "Gastronômico", icon: "🍻", colors: ["#F59E0B", "#1c1917", "#fffbeb"] },
-     { id: "institucional", label: "Institucional", icon: "🏛️", colors: ["#64748b", "#ffffff", "#f8fafc"] },
-   ];
-
-   const handleGenerateAIImage = async () => {
-     const eventData = form.getValues();
-     if (!eventData.eventTitle && !eventData.atrativoName) {
-       toast.error("Por favor, preencha o nome do evento antes.");
-       return;
-     }
-     
-     setIsGeneratingImage(true);
-     toast.info("A IA está criando sua arte...", { description: "Isso pode levar alguns segundos." });
-     
-     // Set initial editable fields from form
-     setAiStyles({
-       title: eventData.eventTitle || eventData.atrativoName || "",
-       subtitle: eventData.atrativoDescription || "",
-       color: selectedTemplate ? (aiTemplates.find(t => t.id === selectedTemplate)?.colors[0] || "primary") : "primary",
-       variant: "modern"
-     });
-
-     // Simulate AI Generation with template context
-     setTimeout(() => {
-       const category = selectedTemplate || eventData.category || "party";
-       const randomId = Math.floor(Math.random() * 1000);
-       
-       const keywords: Record<string, string> = {
-         musica: "concert,stage,live-music",
-         cultural: "theatre,art-gallery,exhibition",
-         familia: "kids-party,family-fun,balloons",
-         religioso: "church,spiritual,peaceful",
-         comercio: "shopping,sale,store-front",
-         noite: "night-club,neon-lights,party",
-         praia: "tropical-beach,ocean,island",
-         esportivo: "stadium,football-pitch,running",
-         gastronomico: "fine-dining,cocktails,beer",
-         institucional: "office,meeting,professional"
-       };
-       const kw = keywords[category] || "event";
-       const finalUrl = `https://source.unsplash.com/featured/800x1000?${kw}&sig=${randomId}`;
-       
-       setEventImage(finalUrl);
-       setImageSource("ai");
-       setIsGeneratingImage(false);
-       toast.success("Flyer gerado com sucesso!", { description: "Você pode personalizar os detalhes abaixo." });
-     }, 2500);
-   };
 
    async function onSubmit(data: FormData) {
      setSubmitting(true);
@@ -996,153 +939,58 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                       </div>
                     )}
 
-                    {imageSource === "ai" && !eventImage && !isGeneratingImage && (
-                      <div className="space-y-6 animate-in slide-in-from-top-4 duration-500">
-                        <div className="bg-secondary/5 p-4 rounded-xl border border-secondary/10">
-                          <h3 className="text-sm font-bold text-secondary mb-3 flex items-center gap-2">
-                            <Sparkles className="h-4 w-4" />
-                            Escolha um Template
-                          </h3>
-                          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-3">
-                            {aiTemplates.map((t) => (
-                              <button
-                                key={t.id}
-                                type="button"
-                                onClick={() => setSelectedTemplate(t.id)}
-                                className={cn(
-                                  "flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all",
-                                  selectedTemplate === t.id ? "border-secondary bg-secondary/10 shadow-sm" : "border-muted hover:border-secondary/30"
-                                )}
-                              >
-                                <span className="text-xl">{t.icon}</span>
-                                <span className="text-[10px] font-bold text-center leading-tight uppercase tracking-tighter">{t.label}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <Button 
-                          type="button"
-                          onClick={handleGenerateAIImage}
-                          disabled={!selectedTemplate}
-                          className="w-full h-12 rounded-xl gradient-sunset font-black uppercase tracking-widest shadow-lg"
-                        >
-                          <Wand2 className="mr-2 h-5 w-5" />
-                          Gerar Minha Arte
-                        </Button>
-                      </div>
-                    )}
+                     {imageSource === "ai" && !eventImage && (
+                       <div className="animate-in slide-in-from-top-4 duration-500">
+                         <AIFlyerGenerator 
+                            initialData={{
+                              title: form.getValues("eventTitle") || "",
+                              artist: form.getValues("atrativoName") || "",
+                              date: form.getValues("date") || "",
+                              time: form.getValues("startTime") || "",
+                              location: form.getValues("locationName") || "",
+                              neighborhood: form.getValues("addressNeighborhood") || "",
+                              category: form.getValues("category") || "musica"
+                            }}
+                            onFlyerGenerated={(url) => {
+                              setEventImage(url);
+                            }}
+                         />
+                       </div>
+                     )}
 
-                    {isGeneratingImage && (
-                      <div className="py-12 flex flex-col items-center justify-center gap-4 animate-in fade-in">
-                        <div className="relative">
-                          <div className="h-20 w-20 rounded-full border-4 border-secondary/20 border-t-secondary animate-spin" />
-                          <Sparkles className="absolute inset-0 m-auto h-8 w-8 text-secondary animate-pulse" />
-                        </div>
-                        <div className="text-center">
-                          <p className="font-black text-secondary uppercase tracking-widest">Criando flyer mágico...</p>
-                          <p className="text-xs text-muted-foreground mt-1">Montando layout e selecionando cores</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {eventImage && imageSource === "ai" && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in zoom-in-95 duration-500">
-                        <div className="relative group rounded-2xl overflow-hidden border-4 border-white shadow-2xl bg-muted aspect-[4/5]">
-                          <img 
-                            src={typeof eventImage === 'string' ? eventImage : URL.createObjectURL(eventImage)} 
-                            alt="Flyer gerado" 
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute top-2 left-2 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md">
-                            Resultado IA
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-5">
-                          <div className="bg-card border border-border p-4 rounded-xl space-y-4">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Personalizar</h3>
-                            <div className="space-y-3">
-                              <div className="space-y-1.5">
-                                <Label className="text-[10px] font-bold uppercase">Título Principal</Label>
-                                <Input 
-                                  value={aiStyles.title} 
-                                  onChange={(e) => setAiStyles(p => ({ ...p, title: e.target.value }))}
-                                  className="h-10 text-sm"
-                                />
-                              </div>
-                              <div className="space-y-1.5">
-                                <Label className="text-[10px] font-bold uppercase">Variação de Estilo</Label>
-                                <div className="flex gap-2">
-                                  {(["modern", "vibrant", "elegant"] as const).map((v) => (
-                                    <button
-                                      key={v}
-                                      type="button"
-                                      onClick={() => setAiStyles(p => ({ ...p, variant: v }))}
-                                      className={cn(
-                                        "flex-1 py-2 text-[10px] font-black uppercase rounded-md border transition-all",
-                                        aiStyles.variant === v ? "bg-secondary text-white border-secondary" : "bg-muted text-muted-foreground border-border hover:border-secondary/30"
-                                      )}
-                                    >
-                                      {v}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-col gap-2">
+                     {eventImage && imageSource === "ai" && (
+                       <div className="space-y-6 animate-in zoom-in-95 duration-500">
+                         <div className="relative group rounded-3xl overflow-hidden border-4 border-white shadow-2xl bg-muted max-w-sm mx-auto">
+                           <img 
+                             src={typeof eventImage === 'string' ? eventImage : URL.createObjectURL(eventImage)} 
+                             alt="Flyer gerado" 
+                             className="w-full h-auto"
+                           />
+                           <div className="absolute top-4 left-4 z-10 bg-secondary text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
+                             ✨ Flyer Finalizado
+                           </div>
+                         </div>
+                         
+                         <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                             <Button 
                               type="button" 
                               variant="outline" 
-                              onClick={handleGenerateAIImage}
-                              className="w-full h-11 rounded-xl font-bold text-xs uppercase border-2"
+                              onClick={() => { setEventImage(null); }}
+                              className="flex-1 h-12 rounded-xl font-bold uppercase tracking-widest border-2"
                             >
-                              <RotateCcw className="mr-2 h-4 w-4" /> Regenerar Arte
+                              <RotateCcw className="mr-2 h-4 w-4" /> Editar Novamente
                             </Button>
-                            
-                            <div className="flex gap-2">
-                              <Button 
-                                type="button" 
-                                variant="secondary" 
-                                onClick={async () => {
-                                  if (typeof eventImage === 'string') {
-                                    const link = document.createElement('a');
-                                    link.href = eventImage;
-                                    link.download = `flyer-${form.getValues("eventTitle") || "evento"}.jpg`;
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
-                                    toast.success("Iniciando download...");
-                                  }
-                                }}
-                                className="flex-1 h-11 rounded-xl font-bold text-xs uppercase"
-                              >
-                                <Download className="mr-2 h-4 w-4" /> Baixar
-                              </Button>
-                              <Button 
-                                type="button" 
-                                variant="outline" 
-                                onClick={() => { setImageSource("upload"); setEventImage(null); }}
-                                className="flex-1 h-11 rounded-xl font-bold text-xs uppercase border-2"
-                              >
-                                <Upload className="mr-2 h-4 w-4" /> Upload Manual
-                              </Button>
-                            </div>
-                            
                             <Button 
                               type="button" 
-                              onClick={() => { setEventImage(null); setImageSource(null); }}
-                              variant="ghost"
-                              className="w-full h-11 text-xs font-bold text-muted-foreground"
+                              variant="outline" 
+                              onClick={() => { setImageSource("upload"); setEventImage(null); }}
+                              className="flex-1 h-12 rounded-xl font-bold uppercase tracking-widest border-2"
                             >
-                              <X className="mr-2 h-4 w-4" /> Remover e Recomeçar
+                              <Upload className="mr-2 h-4 w-4" /> Upload Manual
                             </Button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                         </div>
+                       </div>
+                     )}
 
                     {eventImage && imageSource === "upload" && (
                       <div className="relative mt-4 group rounded-2xl overflow-hidden border-2 border-border shadow-inner bg-muted">
