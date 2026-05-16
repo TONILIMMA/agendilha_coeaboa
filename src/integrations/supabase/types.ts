@@ -295,32 +295,27 @@ export type Database = {
       }
       follows: {
         Row: {
-          artist_id: string
           created_at: string
-          follower_id: string
           id: string
+          target_id: string
+          target_type: string
+          user_id: string
         }
         Insert: {
-          artist_id: string
           created_at?: string
-          follower_id: string
           id?: string
+          target_id: string
+          target_type: string
+          user_id: string
         }
         Update: {
-          artist_id?: string
           created_at?: string
-          follower_id?: string
           id?: string
+          target_id?: string
+          target_type?: string
+          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "follows_artist_id_fkey"
-            columns: ["artist_id"]
-            isOneToOne: false
-            referencedRelation: "artist_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       location_requests: {
         Row: {
