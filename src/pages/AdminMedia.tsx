@@ -39,27 +39,27 @@
     retry: 1
   });
  
-   const moderateMutation = useMutation({
-     mutationFn: async ({ id, status }: { id: string, status: 'approved' | 'rejected' }) => {
-       const { error } = await supabase
-         .from("artist_media")
-         .update({ 
-           moderation_status: status,
-           is_approved: status === 'approved' 
-         })
-         .eq("id", id);
-       
-     onSuccess: (data) => {
-       queryClient.invalidateQueries({ queryKey: ["admin-pending-media"] });
-       toast.success(data.status === 'approved' ? "Mídia aprovada!" : "Mídia removida.");
-     },
-      if (error) throw error;
-      return { id, status };
-    },
-    onError: (error) => {
-      handleError(error, "Erro ao processar moderação.");
-    }
-   });
+    const moderateMutation = useMutation({
+      mutationFn: async ({ id, status }: { id: string, status: 'approved' | 'rejected' }) => {
+        const { error } = await supabase
+          .from("artist_media")
+          .update({ 
+            moderation_status: status,
+            is_approved: status === 'approved' 
+          })
+          .eq("id", id);
+        
+        if (error) throw error;
+        return { id, status };
+      },
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: ["admin-pending-media"] });
+        toast.success(data.status === 'approved' ? "Mídia aprovada!" : "Mídia removida.");
+      },
+      onError: (error) => {
+        handleError(error, "Erro ao processar moderação.");
+      }
+    });
  
    if (isLoading) {
      return (
