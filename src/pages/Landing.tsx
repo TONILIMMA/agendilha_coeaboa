@@ -34,6 +34,7 @@ import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.jpg";
 import { Onboarding } from "@/components/Onboarding";
 import { PersonalizationDialog } from "@/components/PersonalizationDialog";
+import { ShareDialog } from "@/components/ShareDialog";
 import { Settings2 } from "lucide-react";
 
 const sitelinks = [
@@ -96,6 +97,7 @@ export default function Landing() {
   const [subscriberName, setSubscriberName] = useState("");
   const [isSubscribing, setIsSubmitting] = useState(false);
   const [personalizationOpen, setPersonalizationOpen] = useState(false);
+  const [shareData, setShareData] = useState<{ title: string; text: string; url: string; eventId?: string } | null>(null);
 
   const toggleFavorite = (id: string) => {
     setFavorites(prev => {
@@ -439,6 +441,15 @@ export default function Landing() {
 
       <Onboarding />
       <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
+      {shareData && (
+        <ShareDialog 
+          open={!!shareData} 
+          onOpenChange={(open) => !open && setShareData(null)}
+          title={shareData.title}
+          text={shareData.text}
+          url={shareData.url}
+        />
+      )}
     </div>
   );
 }
