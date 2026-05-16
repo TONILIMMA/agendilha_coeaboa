@@ -437,8 +437,7 @@ function buildUberLink(ev: Event): string {
                   {showFavoritesOnly ? "Mostrando Favoritos" : "Meus Favoritos"}
                 </Button>
                 
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 flex-1 w-full">
-              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4 flex-1 w-full">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger className="h-12 sm:h-13 border-2 border-primary/10 bg-white hover:bg-primary/5 transition-colors focus:ring-2 focus:ring-primary/20 rounded-xl sm:rounded-2xl font-semibold text-sm">
                     <SelectValue placeholder="Categorias" />
