@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, Star, Clock, Heart, Share2 } from "lucide-react";
+ import { MapPin, Calendar, Star, Clock, Heart, Share2, Music, Utensils, Theater, Trophy, Tag, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Event {
@@ -18,14 +18,14 @@ interface Event {
   is_suitable_for_minors?: boolean;
 }
 
-const categoryIcons: Record<string, string> = {
-  musica: "🎸",
-  gastronomia: "🍻",
-  cultura: "🎭",
-  esporte: "⚽",
-  promocoes: "🏷️",
-  outros: "📌",
-};
+ const categoryLabels: Record<string, { label: string; icon: any; color: string; bg: string; border: string }> = {
+   musica: { label: "Música / Show", icon: Music, color: "#2F5D46", bg: "#F6EEEA", border: "#E6D6CF" },
+   gastronomia: { label: "Gastronomia", icon: Utensils, color: "#7C2D12", bg: "#FFF7ED", border: "#FFEDD5" },
+   cultura: { label: "Cultura / Arte", icon: Theater, color: "#4C1D95", bg: "#F5F3FF", border: "#EDE9FE" },
+   esporte: { label: "Esporte", icon: Trophy, color: "#1E3A8A", bg: "#EFF6FF", border: "#DBEAFE" },
+   promocoes: { label: "Promoções", icon: Tag, color: "#991B1B", bg: "#FEF2F2", border: "#FEE2E2" },
+   outros: { label: "Outros", icon: MoreHorizontal, color: "#374151", bg: "#F9FAFB", border: "#F3F4F6" },
+ };
 
 export function DiscoveryEventCard({ 
   event, 
@@ -62,21 +62,31 @@ export function DiscoveryEventCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
-        {/* Top Badges Left */}
-        <div className="absolute left-4 top-4 flex flex-wrap gap-2 z-20">
-          <Badge className="bg-white/20 backdrop-blur-md border-white/30 text-white font-bold py-1 px-3 rounded-full shadow-sm">
-            {categoryIcons[event.category || "outros"]} {event.category}
-          </Badge>
-          
-          {event.age_rating && (
-            <Badge className={cn(
-              "backdrop-blur-md text-white font-black py-1 px-3 rounded-full border border-white/30 shadow-sm",
-              event.age_rating === '18+' ? "bg-red-500/60" : "bg-green-500/60"
-            )}>
-              {event.age_rating}
-            </Badge>
-          )}
-        </div>
+         {/* Top Badges Left */}
+         <div className="absolute left-4 top-4 flex flex-wrap gap-2 z-20">
+           {(() => {
+             const cat = categoryLabels[event.category || "outros"] || categoryLabels.outros;
+             const Icon = cat.icon;
+             return (
+               <Badge 
+                 style={{ backgroundColor: cat.bg, color: cat.color, borderColor: cat.border }}
+                 className="border shadow-sm text-[10px] font-bold uppercase tracking-wider py-1.5 px-3.5 rounded-full flex items-center gap-1.5"
+               >
+                 <Icon className="h-3 w-3" strokeWidth={2.5} />
+                 {cat.label}
+               </Badge>
+             );
+           })()}
+           
+           {event.age_rating && (
+             <Badge className={cn(
+               "backdrop-blur-md text-white font-black text-[10px] py-1 px-3 rounded-full border border-white/30 shadow-sm",
+               event.age_rating === '18+' ? "bg-red-500/60" : "bg-green-500/60"
+             )}>
+               {event.age_rating}
+             </Badge>
+           )}
+         </div>
 
         {/* Quick Actions Right */}
         <div className="absolute right-4 top-4 flex flex-col gap-2 z-20">

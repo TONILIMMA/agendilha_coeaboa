@@ -295,6 +295,14 @@ function buildUberLink(ev: Event): string {
      if (category) {
        setCategoryFilter(category);
      }
+     
+     // Sincronizar favoritos do localStorage se não estiver logado
+     const updateFavs = () => {
+       const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+       // Forçar re-render se necessário
+     };
+     window.addEventListener("storage", updateFavs);
+     return () => window.removeEventListener("storage", updateFavs);
    }, []);
    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
@@ -503,33 +511,54 @@ function buildUberLink(ev: Event): string {
            </div>
           </div>
 
-         {/* Neighborhood AI Recommendation for Logged Users */}
-         {user && profile && (
-           <div className="mb-12 animate-in fade-in slide-in-from-top-2 duration-700">
-             <div className="bg-primary/5 border border-primary/10 rounded-[2rem] p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 shadow-sm">
-               <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
-                 <Sparkles className="h-8 w-8 text-primary animate-pulse" />
-               </div>
-               <div className="flex-1 text-center md:text-left">
-                 <h3 className="text-xl font-black font-display text-primary leading-tight mb-1">Destaques no seu bairro 🌴</h3>
-                 <p className="text-muted-foreground text-sm font-medium">
-                   {profile.home_location || profile.work_neighborhood 
-                     ? `Filtrando automaticamente eventos próximos a ${profile.home_location || profile.work_neighborhood}.`
-                     : "Configure seu bairro no perfil para receber recomendações personalizadas!"}
-                 </p>
-               </div>
-               {(profile.home_location || profile.work_neighborhood) && (
-                 <Button 
-                   variant="outline" 
-                   onClick={() => setNeighborhoodFilter(profile.home_location || profile.work_neighborhood)}
-                   className="rounded-full border-2 border-primary/20 text-primary font-bold px-6"
-                 >
-                   Ver todos no bairro
-                 </Button>
-               )}
-             </div>
-           </div>
-         )}
+          {/* Progressive Login / AI Recommendation */}
+          <div className="mb-12 animate-in fade-in slide-in-from-top-2 duration-700">
+            {!user ? (
+              <div className="bg-gradient-to-br from-secondary/5 to-primary/5 border border-primary/10 rounded-[2.5rem] p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <Sparkles className="h-24 w-24 text-primary" />
+                </div>
+                <div className="h-16 w-16 rounded-2xl bg-white shadow-md flex items-center justify-center shrink-0 border border-primary/10 z-10">
+                  <Info className="h-8 w-8 text-primary" />
+                </div>
+                <div className="flex-1 text-center md:text-left z-10">
+                  <h3 className="text-xl font-black font-display text-primary leading-tight mb-1.5 tracking-tight">Personalize sua experiência ✨</h3>
+                  <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-lg">
+                    Cadastre-se para receber recomendações da IA baseadas no seu bairro e interesses musicais. É rápido e gratuito!
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => navigate("/auth")}
+                  className="rounded-full gradient-sunset text-white font-black px-8 h-12 shadow-lg hover:scale-105 active:scale-95 transition-all z-10"
+                >
+                  Começar agora
+                </Button>
+              </div>
+            ) : profile && (
+              <div className="bg-primary/5 border border-primary/10 rounded-[2.5rem] p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+                <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                  <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-xl font-black font-display text-primary leading-tight mb-1">Destaques no seu bairro 🌴</h3>
+                  <p className="text-muted-foreground text-sm font-medium">
+                    {profile.home_location || profile.work_neighborhood 
+                      ? `Filtrando automaticamente eventos próximos a ${profile.home_location || profile.work_neighborhood}.`
+                      : "Configure seu bairro no perfil para receber recomendações personalizadas!"}
+                  </p>
+                </div>
+                {(profile.home_location || profile.work_neighborhood) && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setNeighborhoodFilter(profile.home_location || profile.work_neighborhood)}
+                    className="rounded-full border-2 border-primary/20 text-primary font-bold px-6 hover:bg-primary/5"
+                  >
+                    Ver todos no bairro
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
 
          {/* Bloco de Busca e Filtros - Mobile-First */}
          <div className="mb-12 space-y-4 sm:space-y-6">
@@ -618,10 +647,10 @@ function buildUberLink(ev: Event): string {
           <div className="space-y-12">
             {[1, 2].map((i) => (
               <div key={i} className="space-y-6">
-                <div className="flex items-center gap-3 py-3 border-b border-border/50">
-                  <Skeleton className="h-10 w-10 rounded-2xl" />
-                  <Skeleton className="h-7 w-48" />
-                </div>
+                   <div className="flex items-center gap-3 py-3 border-b border-border/50">
+                   <Skeleton className="h-10 w-10 rounded-2xl" />
+                   <Skeleton className="h-7 w-48" />
+                 </div>
                 <div className="grid grid-cols-1 gap-6">
                   {[1, 2].map((j) => (
                     <Card key={j} className="overflow-hidden">
@@ -687,10 +716,10 @@ function buildUberLink(ev: Event): string {
             {/* Bloco de Destaques */}
             {filteredEvents.some(e => e.is_highlight) && (
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="h-3 w-3 rounded-full bg-orange-500 animate-pulse" />
-                  <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
-                </div>
+                   <div className="flex items-center gap-3 mb-6">
+                   <div className="h-3 w-3 rounded-full bg-orange-500 animate-pulse" />
+                   <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
+                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
                    {filteredEvents.filter(e => e.is_highlight).map(ev => (
                      <Card 
@@ -727,7 +756,7 @@ function buildUberLink(ev: Event): string {
               <section key={dayKey} className="space-y-8">
                    <div className="flex items-center gap-4 sticky top-16 bg-background/80 backdrop-blur-md py-4 z-10 border-b border-border/50">
                    <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm">
-                    <CalendarDays className="h-6 w-6 text-primary dark:text-primary" />
+                   <CalendarDays className="h-6 w-6 text-primary" />
                   </div>
                    <h2 className="text-2xl font-black text-foreground tracking-tight">
                     {grouped[dayKey].label}
