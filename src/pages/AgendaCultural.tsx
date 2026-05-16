@@ -756,7 +756,7 @@ function buildUberLink(ev: Event): string {
               <section key={dayKey} className="space-y-8">
                    <div className="flex items-center gap-4 sticky top-16 bg-background/80 backdrop-blur-md py-4 z-10 border-b border-border/50">
                    <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-sm">
-                    <CalendarDays className="h-6 w-6 text-primary dark:text-primary" />
+                   <CalendarDays className="h-6 w-6 text-primary" />
                   </div>
                    <h2 className="text-2xl font-black text-foreground tracking-tight">
                     {grouped[dayKey].label}
