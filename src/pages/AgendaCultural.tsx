@@ -503,6 +503,34 @@ function buildUberLink(ev: Event): string {
            </div>
           </div>
 
+         {/* Neighborhood AI Recommendation for Logged Users */}
+         {user && profile && (
+           <div className="mb-12 animate-in fade-in slide-in-from-top-2 duration-700">
+             <div className="bg-primary/5 border border-primary/10 rounded-[2rem] p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+               <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                 <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+               </div>
+               <div className="flex-1 text-center md:text-left">
+                 <h3 className="text-xl font-black font-display text-primary leading-tight mb-1">Destaques no seu bairro 🌴</h3>
+                 <p className="text-muted-foreground text-sm font-medium">
+                   {profile.home_location || profile.work_neighborhood 
+                     ? `Filtrando automaticamente eventos próximos a ${profile.home_location || profile.work_neighborhood}.`
+                     : "Configure seu bairro no perfil para receber recomendações personalizadas!"}
+                 </p>
+               </div>
+               {(profile.home_location || profile.work_neighborhood) && (
+                 <Button 
+                   variant="outline" 
+                   onClick={() => setNeighborhoodFilter(profile.home_location || profile.work_neighborhood)}
+                   className="rounded-full border-2 border-primary/20 text-primary font-bold px-6"
+                 >
+                   Ver todos no bairro
+                 </Button>
+               )}
+             </div>
+           </div>
+         )}
+
          {/* Bloco de Busca e Filtros - Mobile-First */}
          <div className="mb-12 space-y-4 sm:space-y-6">
           <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
