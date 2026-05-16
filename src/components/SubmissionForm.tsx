@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
-import { toast } from "sonner";
+ import { handleError } from "@/lib/error-handler";
+ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -520,9 +521,11 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
            .from('event-flyers')
            .upload(fileName, eventImage);
          
-         if (uploadError) {
-           console.error("Error uploading image:", uploadError);
-         } else {
+          if (uploadError) {
+            handleError(uploadError, "Erro ao enviar a imagem. Tente novamente.");
+            setSubmitting(false);
+            return;
+          } else {
            const { data: { publicUrl } } = supabaseClient.storage
              .from('event-flyers')
              .getPublicUrl(fileName);
