@@ -79,7 +79,19 @@ export default function Landing() {
   const [todayEvents, setTodayEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    const saved = localStorage.getItem("agendilha_favorites");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const toggleFavorite = (id: string) => {
+    setFavorites(prev => {
+      const isFav = prev.includes(id);
+      const next = isFav ? prev.filter(f => f !== id) : [...prev, id];
+      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+      return next;
+    });
+  };
 
   useEffect(() => {
     async function loadEventsData() {
@@ -146,7 +158,15 @@ export default function Landing() {
               <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
             </div>
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-              {todayEvents.map(ev => <DiscoveryEventCard key={ev.id} event={ev} onClick={() => navigate(`/agenda?event=${ev.id}`)} />)}
+            {todayEvents.map(ev => (
+              <DiscoveryEventCard 
+                key={ev.id} 
+                event={ev} 
+                onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                isFavorite={favorites.includes(ev.id)}
+                onFavoriteToggle={() => toggleFavorite(ev.id)}
+              />
+            ))}
             </div>
           </section>
         )}
@@ -158,7 +178,15 @@ export default function Landing() {
             <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
           </div>
           <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-            {events.map(ev => <DiscoveryEventCard key={ev.id} event={ev} onClick={() => navigate(`/agenda?event=${ev.id}`)} />)}
+            {events.map(ev => (
+              <DiscoveryEventCard 
+                key={ev.id} 
+                event={ev} 
+                onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                isFavorite={favorites.includes(ev.id)}
+                onFavoriteToggle={() => toggleFavorite(ev.id)}
+              />
+            ))}
           </div>
         </section>
 
