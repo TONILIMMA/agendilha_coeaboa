@@ -5,7 +5,8 @@
  import { Button } from "@/components/ui/button";
  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
  import { Badge } from "@/components/ui/badge";
- import { toast } from "sonner";
+  import { handleError } from "@/lib/error-handler";
+  import { toast } from "sonner";
  import {
    Dialog,
    DialogContent,
@@ -29,10 +30,14 @@
          .eq("moderation_status", "pending")
          .order("created_at", { ascending: true });
        
-       if (error) throw error;
-       return data;
-     }
-   });
+      if (error) {
+        handleError(error, "Erro ao carregar mídias pendentes.");
+        throw error;
+      }
+      return data;
+    },
+    retry: 1
+  });
  
    const moderateMutation = useMutation({
      mutationFn: async ({ id, status }: { id: string, status: 'approved' | 'rejected' }) => {
@@ -44,16 +49,16 @@
          })
          .eq("id", id);
        
-       if (error) throw error;
-       return { id, status };
-     },
      onSuccess: (data) => {
        queryClient.invalidateQueries({ queryKey: ["admin-pending-media"] });
        toast.success(data.status === 'approved' ? "Mídia aprovada!" : "Mídia removida.");
      },
-     onError: (error: any) => {
-       toast.error("Erro ao moderar: " + error.message);
-     }
+      if (error) throw error;
+      return { id, status };
+    },
+    onError: (error) => {
+      handleError(error, "Erro ao processar moderação.");
+    }
    });
  
    if (isLoading) {
