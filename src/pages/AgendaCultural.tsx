@@ -1315,7 +1315,7 @@ function buildUberLink(ev: Event): string {
                             window.open(buildUberLink(selectedEvent), "_blank");
                           }}
                         >
-                          <Car className="h-5 w-5 mr-2.5" /> Ir de Uber
+                           <MapPin className="h-5 w-5 mr-2.5" /> Ir de Uber
                         </Button>
                       </div>
                     </div>
