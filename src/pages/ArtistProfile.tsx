@@ -4,7 +4,7 @@
  import { Button } from "@/components/ui/button";
  import { Badge } from "@/components/ui/badge";
  import { 
-   Instagram, 
+   Globe, 
    Play, 
    Video, 
    Calendar, 
@@ -158,13 +158,13 @@
              <h3 className="font-display font-bold text-lg">Contrate o Artista</h3>
              
              <div className="space-y-3">
-               {artist.instagram && (
-                 <a href={`https://instagram.com/${artist.instagram.replace('@', '')}`} target="_blank" rel="noreferrer">
-                   <Button variant="outline" className="w-full justify-start gap-3 rounded-xl border-pink-100 hover:bg-pink-50 hover:text-pink-600 transition-all">
-                     <Instagram className="h-4 w-4" /> Instagram
-                   </Button>
-                 </a>
-               )}
+                 {artist.instagram && (
+                   <a href={`https://instagram.com/${artist.instagram.replace('@', '')}`} target="_blank" rel="noreferrer">
+                     <Button variant="outline" className="w-full justify-start gap-3 rounded-xl border-pink-100 hover:bg-pink-50 hover:text-pink-600 transition-all">
+                       <Globe className="h-4 w-4" /> Instagram
+                     </Button>
+                   </a>
+                 )}
                {artist.whatsapp && (
                  <a href={`https://wa.me/55${artist.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">
                    <Button variant="outline" className="w-full justify-start gap-3 rounded-xl border-green-100 hover:bg-green-50 hover:text-green-600 transition-all">
