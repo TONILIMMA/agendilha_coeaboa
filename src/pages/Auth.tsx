@@ -48,7 +48,8 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
 
-  const [mode, setMode] = useState<"login" | "signup">("login");
+   const [mode, setMode] = useState<"login" | "signup">("login");
+   const [role, setRole] = useState<"public" | "artist">("public");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -108,14 +109,45 @@ export default function Auth() {
 
     setSubmitting(true);
 
-    const { error } = mode === "login"
-      ? await signIn(phone, password)
-      : await signUp(phone, password, name.trim(), {
-          home_location: homeLocation,
-          work_neighborhood: workNeighborhood,
-          musical_preferences: musicalInterests,
-          event_type_preferences: eventTypeInterests
-        });
+     const { error } = mode === "login"
+       ? await signIn(phone, password)
+       : await signUp(
+           phone, 
+           password, 
+           name.trim(), 
+           {
+             home_location: homeLocation,
+             work_neighborhood: workNeighborhood,
+             musical_preferences: musicalInterests,
+             event_type_preferences: eventTypeInterests
+           },
+           role
+         );
+         {mode === "signup" && (
+           <div className="flex p-1 bg-muted rounded-lg">
+             <button
+               type="button"
+               onClick={() => setRole("public")}
+               className={cn(
+                 "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
+                 role === "public" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
+               )}
+             >
+               Público Geral
+             </button>
+             <button
+               type="button"
+               onClick={() => setRole("artist")}
+               className={cn(
+                 "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
+                 role === "artist" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
+               )}
+             >
+               Músico / Banda
+             </button>
+           </div>
+         )}
+ 
 
     setSubmitting(false);
 
