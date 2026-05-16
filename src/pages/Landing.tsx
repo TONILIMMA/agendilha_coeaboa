@@ -279,9 +279,13 @@ export default function Landing() {
                 event={ev} 
                 onClick={() => navigate(`/agenda?event=${ev.id}`)}
                 isFavorite={favorites.includes(ev.id)}
-                onFavoriteToggle={() => toggleFavorite(ev.id)}
-              />
-            ))}
+                 onFavoriteToggle={() => toggleFavorite(ev.id)}
+                 onShare={() => {
+                   const data = getShareData(ev);
+                   setShareData({ ...data, eventId: ev.id });
+                 }}
+               />
+             ))}
             </div>
           </section>
         )}
@@ -299,9 +303,13 @@ export default function Landing() {
                 event={ev} 
                 onClick={() => navigate(`/agenda?event=${ev.id}`)}
                 isFavorite={favorites.includes(ev.id)}
-                onFavoriteToggle={() => toggleFavorite(ev.id)}
-              />
-            ))}
+                 onFavoriteToggle={() => toggleFavorite(ev.id)}
+                 onShare={() => {
+                   const data = getShareData(ev);
+                   setShareData({ ...data, eventId: ev.id });
+                 }}
+               />
+             ))}
           </div>
         </section>
 
@@ -323,9 +331,13 @@ export default function Landing() {
                     event={ev} 
                     onClick={() => navigate(`/agenda?event=${ev.id}`)}
                     isFavorite={favorites.includes(ev.id)}
-                    onFavoriteToggle={() => toggleFavorite(ev.id)}
-                  />
-                ))}
+                     onFavoriteToggle={() => toggleFavorite(ev.id)}
+                     onShare={() => {
+                       const data = getShareData(ev);
+                       setShareData({ ...data, eventId: ev.id });
+                     }}
+                   />
+                 ))}
               </div>
             </section>
 
@@ -345,9 +357,13 @@ export default function Landing() {
                       variant="small"
                       onClick={() => navigate(`/agenda?event=${ev.id}`)}
                       isFavorite={favorites.includes(ev.id)}
-                      onFavoriteToggle={() => toggleFavorite(ev.id)}
-                    />
-                  ))}
+                       onFavoriteToggle={() => toggleFavorite(ev.id)}
+                       onShare={() => {
+                         const data = getShareData(ev);
+                         setShareData({ ...data, eventId: ev.id });
+                       }}
+                     />
+                   ))}
                 </div>
               </section>
             )}
