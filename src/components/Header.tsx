@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { 
   CalendarDays, 
   ClipboardList, 
+  Heart,
   LogOut, 
   Users, 
   Menu, 
@@ -114,6 +115,19 @@ function RoleBadge({
 
 export default function Header() {
   const { savedCount } = useSubmissions();
+  const [favoritesCount, setFavoritesCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      const saved = localStorage.getItem("agendilha_favorites");
+      if (saved) {
+        setFavoritesCount(JSON.parse(saved).length);
+      }
+    };
+    updateCount();
+    window.addEventListener("storage", updateCount);
+    return () => window.removeEventListener("storage", updateCount);
+  }, []);
    const { user, signOut, isAdmin } = useAuth();
    const { theme, toggleTheme } = useTheme();
   const { profile } = useProfile();
@@ -152,7 +166,16 @@ export default function Header() {
             </Link>
 
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-4">
+              <Link to="/agenda" className="text-sm font-bold text-foreground/70 hover:text-primary transition-colors">Explorar</Link>
+              <Link to="/agenda?view=favorites" className="relative group">
+                <Heart className="h-5 w-5 text-foreground/70 group-hover:text-primary transition-colors" />
+                {favoritesCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-primary text-[10px] font-black text-white rounded-full flex items-center justify-center">
+                    {favoritesCount}
+                  </span>
+                )}
+              </Link>
               <Link to="/enviar-evento">
                 <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-lg px-6 h-10 border-2 border-primary transition-transform active:scale-95">Divulgar</Button>
               </Link>
@@ -187,6 +210,11 @@ export default function Header() {
                       <Link to="/agenda" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
                         <CalendarDays className="h-5 w-5 text-primary" />
                         <span className="font-bold text-foreground">Agenda Cultural</span>
+                      </Link>
+                      <Link to="/agenda?view=favorites" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
+                        <Heart className="h-5 w-5 text-primary" />
+                        <span className="font-bold text-foreground">Meus Favoritos</span>
+                        {favoritesCount > 0 && <Badge variant="secondary" className="ml-auto">{favoritesCount}</Badge>}
                       </Link>
                     </div>
                     

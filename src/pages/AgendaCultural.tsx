@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star } from "lucide-react";
+  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
  import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
@@ -178,6 +178,18 @@ function buildUberLink(ev: Event): string {
    const [search, setSearch] = useState("");
    const [categoryFilter, setCategoryFilter] = useState("all");
    const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+   useEffect(() => {
+     const params = new URLSearchParams(window.location.search);
+     if (params.get('view') === 'favorites') {
+       setShowFavoritesOnly(true);
+     }
+     const category = params.get('category');
+     if (category) {
+       setCategoryFilter(category);
+     }
+   }, []);
    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
      const saved = localStorage.getItem("agendilha_sort_order");
@@ -269,14 +281,16 @@ function buildUberLink(ev: Event): string {
    }, [events]);
 
   const filteredEvents = useMemo(() => {
+    const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
     return upcomingEvents.filter(ev => {
       const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
                           (ev.description || "").toLowerCase().includes(search.toLowerCase());
       const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
       const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
-      return matchSearch && matchCat && matchNeigh;
+      const matchFav = !showFavoritesOnly || favs.includes(ev.id);
+      return matchSearch && matchCat && matchNeigh && matchFav;
     });
-  }, [upcomingEvents, search, categoryFilter, neighborhoodFilter]);
+  }, [upcomingEvents, search, categoryFilter, neighborhoodFilter, showFavoritesOnly]);
 
   const grouped = useMemo(() => {
     const map: Record<string, { label: string; sortKey: string; items: Event[] }> = {};
@@ -369,12 +383,12 @@ function buildUberLink(ev: Event): string {
                 >
                   <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
                 </Button>
-              </div>
-            </div>
-         </div>
+             </div>
+           </div>
+          </div>
 
-        {/* Bloco de Busca e Filtros - Mobile-First */}
-        <div className="mb-12 space-y-4 sm:space-y-6">
+         {/* Bloco de Busca e Filtros - Mobile-First */}
+         <div className="mb-12 space-y-4 sm:space-y-6">
           <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
             <div className="flex flex-col gap-5 sm:gap-6">
               {/* Barra de Busca e Ordenação */}
@@ -413,8 +427,21 @@ function buildUberLink(ev: Event): string {
                 </div>
               </div>
 
-              {/* Dropdowns de Filtro */}
-              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+              {/* Filtros e Favoritos */}
+              <div className="flex flex-col sm:flex-row gap-4 items-center">
+                <Button
+                  variant={showFavoritesOnly ? "default" : "outline"}
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                  className={cn(
+                    "w-full sm:w-auto rounded-full h-12 px-6 gap-2 font-bold transition-all active:scale-95",
+                    showFavoritesOnly ? "bg-primary text-white" : "border-2 border-primary/10 text-primary hover:bg-primary/5"
+                  )}
+                >
+                  <Heart className={cn("h-4 w-4", showFavoritesOnly && "fill-current")} />
+                  {showFavoritesOnly ? "Mostrando Favoritos" : "Meus Favoritos"}
+                </Button>
+                
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4 flex-1 w-full">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger className="h-12 sm:h-13 border-2 border-primary/10 bg-white hover:bg-primary/5 transition-colors focus:ring-2 focus:ring-primary/20 rounded-xl sm:rounded-2xl font-semibold text-sm">
                     <SelectValue placeholder="Categorias" />
@@ -437,6 +464,7 @@ function buildUberLink(ev: Event): string {
                     ))}
                   </SelectContent>
                 </Select>
+                </div>
               </div>
             </div>
           </div>
@@ -721,7 +749,28 @@ function buildUberLink(ev: Event): string {
                       <CalendarDays className="h-20 w-20 text-primary/20" />
                     </div>
                   )}
-                  <div className="absolute top-4 right-4 z-20">
+                  <div className="absolute top-4 right-4 z-20 flex gap-2">
+                    <Button 
+                      variant="secondary" 
+                      size="icon" 
+                      className={cn(
+                        "rounded-full backdrop-blur-md border border-white/20 transition-all shadow-lg",
+                        JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(selectedEvent.id) 
+                          ? "bg-primary text-white hover:bg-primary/80" 
+                          : "bg-black/40 text-white hover:bg-black/60"
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                        const isFav = favs.includes(selectedEvent.id);
+                        const next = isFav ? favs.filter((f: string) => f !== selectedEvent.id) : [...favs, selectedEvent.id];
+                        localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                        window.dispatchEvent(new Event("storage"));
+                        toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                      }}
+                    >
+                      <Heart className={cn("h-5 w-5", JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(selectedEvent.id) && "fill-current")} />
+                    </Button>
                     <Button 
                       variant="secondary" 
                       size="icon" 

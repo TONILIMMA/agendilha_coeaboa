@@ -11,12 +11,21 @@ import {
   Globe2,
   MessageCircle,
   ArrowRight,
-  ArrowUpRight,
-  Menu,
-  X,
+  Search,
+  Map as MapIcon,
+  TrendingUp,
+  Music,
+  MapPin,
+  ChevronRight,
+  Heart,
+  Share2,
 } from "lucide-react";
+import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
- import Header from "@/components/Header";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.jpg";
 
 const sitelinks = [
@@ -26,20 +35,12 @@ const sitelinks = [
   { href: "#contato", label: "Contato" },
 ];
 
-const ecosystem = [
-  { icon: Calendar, title: "Agenda Cultural", desc: "Eventos da Ilha do Governador organizados por categoria, data e local." },
-  { icon: Megaphone, title: "Divulgação Inteligente", desc: "Compartilhe via WhatsApp, exporte PDFs prontos ou gere uma landing page." },
-  { icon: Users2, title: "Rede de Divulgadores", desc: "Espaço onde produtores, marcas e a comunidade somam forças." },
-  { icon: FileDown, title: "Relatórios em PDF", desc: "Material pronto para imprensa, parceiros e grupos de WhatsApp." },
-  { icon: Sparkles, title: "IA para Conteúdo", desc: "Geração assistida de descrições e landing pages com identidade local." },
-  { icon: ShieldCheck, title: "Curadoria Confiável", desc: "Eventos passam por análise antes de entrar na agenda pública." },
-];
-
-const differentials = [
-  { icon: Globe2, title: "Hiperlocal", desc: "Feito por e para a Ilha." },
-  { icon: ShieldCheck, title: "Curadoria", desc: "Conteúdo verificado." },
-  { icon: Sparkles, title: "Tecnologia", desc: "PDF, IA e WhatsApp integrados." },
-  { icon: Users2, title: "Comunidade", desc: "Conecta produtores e moradores." },
+const genres = [
+  { id: "musica", label: "Shows & Música", icon: Music, color: "bg-blue-500" },
+  { id: "cultura", label: "Cultura & Arte", icon: Sparkles, color: "bg-purple-500" },
+  { id: "gastronomia", label: "Gastronomia", icon: Globe2, color: "bg-orange-500" },
+  { id: "outros", label: "Outros", icon: Megaphone, color: "bg-pink-500" },
+  { id: "esporte", label: "Esportes", icon: Calendar, color: "bg-green-500" },
 ];
 
 const marqueeWords = ["Música", "Teatro", "Gastronomia", "Arte", "Workshops", "Feiras", "Cinema", "Literatura", "Dança", "Cultura local"];
@@ -71,10 +72,45 @@ function useScrollReveal() {
 
 export default function Landing() {
   useScrollReveal();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [events, setEvents] = useState<any[]>([]);
+  const [todayEvents, setTodayEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    const saved = localStorage.getItem("agendilha_favorites");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const toggleFavorite = (id: string) => {
+    setFavorites(prev => {
+      const isFav = prev.includes(id);
+      const next = isFav ? prev.filter(f => f !== id) : [...prev, id];
+      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    async function loadEventsData() {
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { data: allPublished } = await supabase
+        .from("submissions")
+        .select("*")
+        .eq('status', 'published')
+        .order('date', { ascending: true });
+
+      if (allPublished) {
+        setEvents(allPublished.slice(0, 10)); // Em alta / próximos
+        setTodayEvents(allPublished.filter(e => e.date === today));
+      }
+      setLoading(false);
+    }
+    loadEventsData();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -82,251 +118,91 @@ export default function Landing() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
   return (
     <div className="min-h-screen bg-background text-foreground antialiased font-body selection:bg-primary/15 selection:text-primary">
-      {/* ── Header ── */}
-       <Header />
-
-      {/* ── Hero ── */}
-      <section
-        id="top"
-        className="relative pt-24 pb-16 sm:pt-40 sm:pb-32 overflow-hidden gradient-eco gradient-mesh grain"
-      >
-        <div aria-hidden className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-        <div aria-hidden className="absolute top-20 right-[-100px] h-96 w-96 rounded-full bg-secondary/15 blur-3xl" />
-
-        <div className="relative mx-auto max-w-4xl px-4 sm:px-6 text-center animate-in fade-in slide-in-from-bottom-6 duration-1000">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass mb-8 sm:mb-10 shadow-sm border border-white/40 backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-secondary animate-pulse" />
-            <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-foreground/70">
-              Ilha do Governador · RJ
-            </span>
-          </div>
-
-          <div className="space-y-4 mb-6 sm:mb-8">
-            <h2 className="font-mono text-xs sm:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase text-secondary font-bold">AgendIlha</h2>
-            <h1 className="font-display text-[clamp(2.5rem,10vw,5.5rem)] font-black leading-[0.9] tracking-tightest text-foreground text-balance">
-              A cultura da Ilha,
-              <br />
-              <span className="font-serif italic font-normal text-primary">reunida</span>{" "}
-              num só lugar.
-            </h1>
-          </div>
-
-          <p className="mt-6 sm:mt-8 text-base sm:text-xl text-foreground/70 max-w-xl mx-auto leading-relaxed text-balance font-medium">
-            Eventos, divulgação inteligente e uma rede ativa de produtores
-            e moradores — com curadoria e <em className="font-serif text-foreground/90">alma local</em>.
-          </p>
-
-          <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-sm sm:max-w-none mx-auto">
-             <Link to="/agenda" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-10 sm:px-12 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl transition-all duration-300 hover:scale-[1.05] active:scale-95 text-lg sm:text-xl font-black border-2 border-primary">
-                Explorar agenda cultural <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-             <Button 
-               size="lg" 
-               variant="outline" 
-               onClick={() => {
-                 if (user) {
-                   navigate("/enviar-evento");
-                 } else {
-                   navigate("/auth?redirect=/enviar-evento");
-                 }
-               }}
-               className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-10 sm:px-12 text-foreground font-black border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5 transition-all duration-300 hover:scale-[1.05] active:scale-95 text-lg sm:text-xl bg-white/50 backdrop-blur-sm"
-             >
-               Divulgar evento
-             </Button>
-          </div>
-
-          {/* Branding Signature Chip */}
-          <div className="mt-16 inline-flex flex-col items-center gap-3 reveal">
-            <div className="flex items-center gap-3 px-5 py-3 rounded-full glass-strong shadow-glass border border-white/20">
-              <img src={logo} alt="Coé a Boa?" className="h-8 w-8 sm:h-10 sm:w-10 rounded-full ring-2 ring-primary/20 shadow-sm" />
-              <div className="flex flex-col items-start leading-none">
-                <span className="font-display text-sm sm:text-base font-bold text-foreground">Coé a Boa?</span>
-                <span className="font-mono text-[9px] sm:text-[10px] tracking-widest text-foreground/50 uppercase">Assinatura Visual</span>
-              </div>
-            </div>
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-foreground/40">Conectando a Ilha do Governador</p>
-          </div>
+      <Header />
+      
+      {/* ── Hero Discovery ── */}
+      <section className="pt-24 pb-12 px-4 max-w-6xl mx-auto">
+        <h1 className="text-4xl font-black mb-8 font-display">Descubra a Ilha 🌴</h1>
+        <div className="relative mb-10">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input 
+            placeholder="Shows, teatros, festas..." 
+            className="h-14 pl-12 rounded-full border-0 bg-secondary/10 text-lg shadow-sm"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
-      </section>
 
-      {/* ── Marquee de categorias ── */}
-      <section className="py-8 sm:py-10 border-y border-border/60 bg-card overflow-hidden">
-        <div className="flex marquee-track whitespace-nowrap">
-          {[...marqueeWords, ...marqueeWords].map((w, i) => (
-            <span key={i} className="flex items-center gap-6 px-6 font-display text-3xl sm:text-5xl font-medium text-foreground/30">
-              {w}
-              <span className="text-secondary">✦</span>
-            </span>
+        {/* Categories */}
+        <div className="flex gap-4 overflow-x-auto pb-6 mb-8 scrollbar-none">
+          {genres.map((g) => (
+            <Button 
+              key={g.id} 
+              variant="outline" 
+              className="rounded-full gap-2 px-6 h-12 shadow-sm shrink-0 border-border/50"
+              onClick={() => navigate(`/agenda?category=${g.id}`)}
+            >
+              <div className={cn("p-1.5 rounded-full text-white", g.color)}>
+                <g.icon className="h-3 w-3" />
+              </div>
+              {g.label}
+            </Button>
           ))}
         </div>
-      </section>
 
-      {/* ── O que oferecemos ── */}
-      <section id="oferecemos" className="py-24 sm:py-32 bg-background">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="max-w-2xl reveal">
-            <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-secondary">— O que oferecemos</p>
-            <h2 className="mt-6 font-display text-4xl sm:text-6xl font-medium tracking-tightest leading-[0.98] text-balance">
-              Uma plataforma feita para a{" "}
-              <span className="font-serif italic font-normal text-primary">cultura local</span>.
-            </h2>
-            <p className="mt-7 text-foreground/65 text-base sm:text-lg max-w-xl leading-relaxed">
-              Da curadoria à divulgação: tudo que você precisa para promover eventos
-              da Ilha do Governador com clareza, elegância e alcance real.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Ecossistema ── */}
-      <section id="ecossistema" className="relative py-24 sm:py-32 gradient-eco grain">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-14 sm:mb-20 reveal px-6 max-w-3xl">
-            <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-secondary">— Ecossistema</p>
-            <h2 className="mt-6 font-display text-4xl sm:text-6xl font-medium tracking-tightest leading-[0.98]">
-              Pessoas, eventos e tecnologia{" "}
-              <span className="font-serif italic font-normal text-primary">em harmonia</span>.
-            </h2>
-          </div>
-
-          <div
-            className="
-              flex sm:grid sm:grid-cols-2 lg:grid-cols-3
-              gap-4
-              overflow-x-auto sm:overflow-visible
-              snap-x snap-mandatory sm:snap-none
-              scroll-px-6 px-6
-              pb-4 sm:pb-0
-              scrollbar-none
-              [-webkit-overflow-scrolling:touch]
-            "
-          >
-            {ecosystem.map((c, i) => (
-              <div
-                key={c.title}
-                className="
-                  reveal group relative overflow-hidden
-                  rounded-3xl p-7 sm:p-8
-                  bg-card/80 backdrop-blur-xl border border-white/60
-                  shadow-card hover:shadow-elevated
-                  transition-all duration-700
-                  hover:-translate-y-1
-                  shrink-0 sm:shrink basis-[80%] xs:basis-[70%] sm:basis-auto
-                  snap-start
-                "
-                style={{ transitionDelay: `${i * 70}ms` }}
-              >
-                <div className="flex items-start justify-between mb-10">
-                  <div className="inline-flex items-center justify-center h-11 w-11 rounded-2xl bg-primary/[0.06] text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-500">
-                    <c.icon className="h-[18px] w-[18px]" strokeWidth={1.5} />
-                  </div>
-                  <span className="font-mono text-[10px] tabular-nums text-foreground/30 tracking-wider">
-                    {String(i + 1).padStart(2, "0")} / {String(ecosystem.length).padStart(2, "0")}
-                  </span>
-                </div>
-                <h3 className="font-display text-2xl font-medium text-foreground tracking-tight">{c.title}</h3>
-                <p className="mt-2.5 text-sm text-foreground/60 leading-relaxed">{c.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Diferenciais ── */}
-      <section id="diferenciais" className="py-24 sm:py-32 bg-background">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-16 reveal max-w-xl mx-auto">
-            <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-secondary">— Diferenciais</p>
-            <h2 className="mt-6 font-display text-4xl sm:text-6xl font-medium tracking-tightest">
-            Por que o{" "}
-            <span className="font-serif italic font-normal text-primary">AgendIlha?</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border/70 rounded-3xl overflow-hidden border border-border/70">
-            {differentials.map((d, i) => (
-              <div
-                key={d.title}
-                className="reveal text-center p-8 bg-card hover:bg-muted transition-colors duration-500"
-                style={{ transitionDelay: `${i * 80}ms` }}
-              >
-                <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/[0.06] text-primary mb-4">
-                  <d.icon className="h-5 w-5" strokeWidth={1.5} />
-                </div>
-                <h3 className="font-display text-lg font-medium text-foreground tracking-tight">{d.title}</h3>
-                <p className="mt-1.5 text-[13px] text-foreground/60">{d.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Agenda CTA ── */}
-      <section className="py-20 sm:py-28 bg-background">
-        <div className="mx-auto max-w-5xl px-6 reveal">
-          <div className="relative overflow-hidden rounded-[2rem] gradient-eco-deep text-primary-foreground p-10 sm:p-16 grain">
-            <div aria-hidden className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
-            <div aria-hidden className="absolute -bottom-20 -left-10 h-60 w-60 rounded-full bg-white/5 blur-3xl" />
-
-            <div className="relative flex flex-col lg:flex-row items-start lg:items-end gap-10 justify-between">
-              <div className="max-w-xl">
-                <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-primary-foreground/60">— Agenda Cultural</p>
-                <h3 className="mt-5 font-display text-4xl sm:text-6xl font-medium tracking-tightest leading-[0.95] text-balance">
-                  Exporte. Compartilhe.{" "}
-                  <span className="font-serif italic font-normal text-secondary">Divulgue.</span>
-                </h3>
-                <p className="mt-6 text-primary-foreground/70 text-base leading-relaxed max-w-md">
-                  Gere a Agenda Cultural em PDF ou crie uma landing page para divulgar
-                  via WhatsApp, redes sociais ou imprensa.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full lg:w-auto">
-                 <Link to="/agenda" className="w-full sm:w-auto">
-                  <Button className="w-full sm:w-auto rounded-full h-12 px-8 bg-white text-primary hover:bg-white/95 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-black shadow-lg border-2 border-white">
-                    Abrir agenda
-                  </Button>
-                </Link>
-                <Link to="/agenda" className="w-full sm:w-auto">
-                  <Button variant="outline" className="w-full sm:w-auto rounded-full h-12 px-8 bg-transparent border-white text-white hover:bg-white/10 transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] font-black border-2">
-                    <FileDown className="h-4 w-4 mr-2" /> Baixar PDF
-                  </Button>
-                </Link>
-              </div>
+        {/* Today's Events */}
+        {todayEvents.length > 0 && (
+          <section className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold font-display flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Acontece hoje
+              </h2>
+              <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
             </div>
-          </div>
-        </div>
-      </section>
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
+            {todayEvents.map(ev => (
+              <DiscoveryEventCard 
+                key={ev.id} 
+                event={ev} 
+                onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                isFavorite={favorites.includes(ev.id)}
+                onFavoriteToggle={() => toggleFavorite(ev.id)}
+              />
+            ))}
+            </div>
+          </section>
+        )}
 
-      {/* ── Contato ── */}
-      <section id="contato" className="py-24 sm:py-32 bg-background">
-        <div className="mx-auto max-w-2xl px-6 text-center reveal">
-          <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-secondary">— Contato</p>
-          <h3 className="mt-6 font-display text-4xl sm:text-6xl font-medium tracking-tightest leading-[0.98] text-balance">
-            Vamos{" "}
-            <span className="font-serif italic font-normal text-primary">conversar?</span>
-          </h3>
-          <p className="mt-7 text-foreground/65 text-base leading-relaxed max-w-md mx-auto">
-            Tem um evento, parceria ou ideia? Nossa equipe está pronta para te atender.
-          </p>
-          <div className="mt-12">
-            <a
-              href="https://wa.me/5521999999999?text=Ol%C3%A1%2C%20quero%20saber%20mais%20sobre%20o%20AgendIlha"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button size="lg" className="rounded-full h-14 px-10 bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated font-display font-black text-lg transition-transform hover:scale-105 active:scale-95 border-2 border-primary">
-                <MessageCircle className="h-5 w-5 mr-3" />
-                Falar no WhatsApp
-              </Button>
-            </a>
+        {/* Featured Events */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold font-display">Eventos em alta</h2>
+            <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
           </div>
-        </div>
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
+            {events.map(ev => (
+              <DiscoveryEventCard 
+                key={ev.id} 
+                event={ev} 
+                onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                isFavorite={favorites.includes(ev.id)}
+                onFavoriteToggle={() => toggleFavorite(ev.id)}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Map Placeholder */}
+        <section className="rounded-3xl bg-secondary/10 p-8 flex items-center justify-between mb-12">
+          <div>
+            <h3 className="text-xl font-bold mb-2">Explore no Mapa</h3>
+            <p className="text-muted-foreground">Veja o que está acontecendo perto de você</p>
+          </div>
+          <Button variant="secondary" className="rounded-full h-12 px-6 shadow-sm"><MapIcon className="mr-2 h-4 w-4"/> Abrir Mapa</Button>
+        </section>
       </section>
 
       <footer className="py-16 px-6 border-t border-border/40 bg-card/30">
