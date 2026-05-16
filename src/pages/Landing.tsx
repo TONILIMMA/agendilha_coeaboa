@@ -35,6 +35,7 @@ import logo from "@/assets/coeaboa-logo.jpg";
 import { Onboarding } from "@/components/Onboarding";
 import { PersonalizationDialog } from "@/components/PersonalizationDialog";
 import { ShareDialog } from "@/components/ShareDialog";
+import { getShareData } from "@/lib/sharing";
 import { Settings2 } from "lucide-react";
 
 const sitelinks = [
