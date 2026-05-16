@@ -22,29 +22,10 @@ import NotFound from "./pages/NotFound";
  import Landing from "./pages/Landing";
  import SubmitEvent from "./pages/SubmitEvent";
  import AdminNewsletter from "./pages/AdminNewsletter";
+ import { Loader2 } from "lucide-react";
  import ArtistProfile from "./pages/ArtistProfile";
  import ArtistSetup from "./pages/ArtistSetup";
  import AdminArtists from "./pages/AdminArtists";
-       <Route path="/artista/:id" element={<ArtistProfile />} />
-       <Route
-         path="/configurar-artista"
-         element={
-           <ProtectedRoute>
-             <ArtistSetup />
-           </ProtectedRoute>
-         }
-       />
-       <Route
-         path="/admin/artists"
-         element={
-           <ProtectedRoute>
-             <Header />
-             <AdminArtists />
-           </ProtectedRoute>
-         }
-       />
-
-import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -72,9 +53,18 @@ const AppRoutes = () => (
       <Route path="/" element={<Landing />} />
       <Route path="/agenda" element={<><Header /><AgendaCultural /></>} />
       <Route path="/auth" element={<><Header /><Auth /></>} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-
-      {/* Envio de Evento */}
+       <Route path="/forgot-password" element={<ForgotPassword />} />
+       <Route path="/artista/:id" element={<ArtistProfile />} />
+ 
+       {/* Envio de Evento / Artista */}
+       <Route
+         path="/configurar-artista"
+         element={
+           <ProtectedRoute>
+             <ArtistSetup />
+           </ProtectedRoute>
+         }
+       />
       <Route
         path="/enviar-evento"
         element={
@@ -133,15 +123,24 @@ const AppRoutes = () => (
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/ranking"
-        element={
-          <ProtectedRoute>
-            <Header />
-            <Ranking />
-          </ProtectedRoute>
-        }
-      />
+       <Route
+         path="/admin/artists"
+         element={
+           <ProtectedRoute>
+             <Header />
+             <AdminArtists />
+           </ProtectedRoute>
+         }
+       />
+       <Route
+         path="/ranking"
+         element={
+           <ProtectedRoute>
+             <Header />
+             <Ranking />
+           </ProtectedRoute>
+         }
+       />
 
       {/* Auxiliares / Legado */}
       <Route path="/coeaboa" element={<Navigate to="/agenda" replace />} />
