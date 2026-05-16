@@ -93,7 +93,7 @@ const AppRoutes = () => (
       <Route
         path="/admin/events"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="promoter">
             <Header />
             <AdminEvents />
           </ProtectedRoute>
@@ -102,7 +102,7 @@ const AppRoutes = () => (
       <Route
         path="/admin/users"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="admin">
             <AdminPinGate>
               <Header />
               <AdminUsers />
@@ -113,7 +113,7 @@ const AppRoutes = () => (
       <Route
         path="/admin/collaborators"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="admin">
             <Header />
             <AdminCollaborators />
           </ProtectedRoute>
@@ -122,7 +122,7 @@ const AppRoutes = () => (
       <Route
         path="/admin/master"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="admin">
             <AdminPinGate>
               <Header />
               <AdminMaster />
@@ -133,7 +133,7 @@ const AppRoutes = () => (
       <Route
         path="/admin/newsletter"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="admin">
             <AdminNewsletter />
           </ProtectedRoute>
         }
@@ -141,7 +141,7 @@ const AppRoutes = () => (
        <Route
          path="/admin/artists"
          element={
-           <ProtectedRoute>
+           <ProtectedRoute requiredRole="admin">
              <Header />
              <AdminArtists />
            </ProtectedRoute>
