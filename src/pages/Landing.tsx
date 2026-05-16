@@ -186,10 +186,39 @@ export default function Landing() {
     <div className="min-h-screen bg-background text-foreground antialiased font-body selection:bg-primary/15 selection:text-primary">
       <Header />
       
-      {/* ── Hero Discovery ── */}
-      <section className="pt-24 pb-12 px-4 max-w-6xl mx-auto">
-        <h1 className="text-4xl font-black mb-8 font-display">Descubra a Ilha 🌴</h1>
-        <div className="relative mb-10">
+       {/* ── Hero Discovery ── */}
+       <section className="pt-28 sm:pt-40 pb-16 px-4 max-w-6xl mx-auto">
+         <div className="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
+           <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 mb-6 shadow-sm">
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/70">Agenda Cultural da Ilha do Governador</span>
+           </div>
+           <h1 className="text-5xl sm:text-7xl font-black mb-6 font-display text-primary tracking-tightest leading-[0.9]">
+             O que tem pra<br /><span className="text-secondary">hoje na Ilha?</span> 🌴
+           </h1>
+           <p className="text-muted-foreground text-lg sm:text-xl font-medium max-w-xl mx-auto mb-10 text-balance leading-relaxed">
+             Shows, gastronomia e eventos. Tudo o que você precisa saber sobre a vida cultural da região.
+           </p>
+           
+           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-lg mx-auto">
+             <Button 
+               onClick={() => navigate("/agenda")}
+               className="w-full sm:flex-1 h-14 rounded-full font-black text-lg gradient-sunset shadow-xl hover:scale-105 active:scale-95 transition-all uppercase tracking-wider"
+             >
+               Explorar Agenda
+             </Button>
+             {!user && (
+               <Button 
+                 variant="outline"
+                 onClick={() => navigate("/auth")}
+                 className="w-full sm:flex-1 h-14 rounded-full font-bold text-lg border-2 border-primary/20 text-primary bg-white/50 hover:bg-primary/5 transition-all shadow-md"
+               >
+                 Criar conta
+               </Button>
+             )}
+           </div>
+         </div>
+ 
+         <div className="relative mb-16 max-w-3xl mx-auto reveal">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input 
             placeholder="Shows, teatros, festas..." 
