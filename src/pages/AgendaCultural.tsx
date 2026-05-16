@@ -140,10 +140,11 @@ interface Event {
    status?: string;
    image_url?: string | null;
   latitude?: number | null;
-  longitude?: number | null;
-  age_rating?: string;
-  is_suitable_for_minors?: boolean;
-  moderation_status?: string;
+   longitude?: number | null;
+   age_rating?: string;
+   is_suitable_for_minors?: boolean;
+   moderation_status?: string;
+   views_count?: number;
 }
 
 const categoryLabels: Record<string, string> = {
