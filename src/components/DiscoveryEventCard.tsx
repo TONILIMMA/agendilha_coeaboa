@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
- import { MapPin, Calendar, Star, Clock, Heart, Share2, Music, Utensils, Theater, Trophy, Tag, MoreHorizontal } from "lucide-react";
+import { MapPin, Calendar, Star, Clock, Heart, Share2, Music, Utensils, Theater, Trophy, Tag, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Event {
@@ -32,13 +32,15 @@ export function DiscoveryEventCard({
   onClick, 
   variant = "large",
   isFavorite = false,
-  onFavoriteToggle
+  onFavoriteToggle,
+  onShare
 }: { 
   event: Event; 
   onClick: () => void; 
   variant?: "large" | "small" | "horizontal";
   isFavorite?: boolean;
   onFavoriteToggle?: (e: React.MouseEvent) => void;
+  onShare?: (e: React.MouseEvent) => void;
 }) {
   const isLarge = variant === "large";
   const isHorizontal = variant === "horizontal";
@@ -104,7 +106,19 @@ export function DiscoveryEventCard({
           >
             <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
           </Button>
-          
+
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-10 w-10 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 transition-all active:scale-90"
+            onClick={(e) => {
+              e.stopPropagation();
+              onShare?.(e);
+            }}
+          >
+            <Share2 className="h-5 w-5" />
+          </Button>
+
           {event.rating && event.rating.total > 0 && (
             <Badge className="bg-yellow-400/90 text-black font-black py-1 px-3 rounded-full flex items-center gap-1 h-10">
               <Star className="h-3 w-3 fill-current" />
