@@ -983,7 +983,9 @@ function buildUberLink(ev: Event): string {
              ))}
              </div>
            )}
-          </main>
+         </div>
+       )}
+     </main>
 
         <footer className="mt-32 py-24 border-t border-border/40 text-center bg-card/30 backdrop-blur-sm space-y-8 rounded-t-[3rem]">
           <div className="flex flex-col items-center gap-8">
