@@ -45,6 +45,8 @@ import {
     aiSubtitle: z.string().optional(),
     aiVariant: z.enum(["modern", "vibrant", "elegant"]).optional(),
     eventImageUrl: z.string().optional(),
+    eventImageUrlStory: z.string().optional(),
+    eventImageUrlWhatsapp: z.string().optional(),
     // 1. Identificação do Divulgador
     nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
     basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
@@ -231,6 +233,8 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
  export default function SubmissionForm() {
     const [eventImage, setEventImage] = useState<File | string | null>(null);
+    const [eventImageStory, setEventImageStory] = useState<string | null>(null);
+    const [eventImageWhatsapp, setEventImageWhatsapp] = useState<string | null>(null);
     const [imageSource, setImageSource] = useState<"upload" | "ai" | null>(null);
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -397,7 +401,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
              variant: parsed.aiVariant || "modern"
            });
          }
-         if (parsed.eventImageUrl) setEventImage(parsed.eventImageUrl);
+        if (parsed.eventImageUrl) setEventImage(parsed.eventImageUrl);
+        if (parsed.eventImageUrlStory) setEventImageStory(parsed.eventImageUrlStory);
+        if (parsed.eventImageUrlWhatsapp) setEventImageWhatsapp(parsed.eventImageUrlWhatsapp);
          
          if (savedStep) {
            const stepNum = parseInt(savedStep);
