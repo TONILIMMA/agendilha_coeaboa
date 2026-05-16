@@ -34,24 +34,40 @@ export function usePermissions(): Permissions {
     }
 
     async function load() {
-      const { data } = await supabase
-        .from("collaborators")
-        .select("can_submit, can_approve, can_edit, can_delete, is_active")
-        .eq("user_id", user!.id)
-        .maybeSingle();
+      const [{ data: collabData }, { data: profileData }] = await Promise.all([
+        supabase
+          .from("collaborators")
+          .select("can_submit, can_approve, can_edit, can_delete, is_active")
+          .eq("user_id", user!.id)
+          .maybeSingle(),
+        supabase
+          .from("profiles")
+          .select("role")
+          .eq("user_id", user!.id)
+          .maybeSingle()
+      ]);
 
-      if (data && (data as any).is_active !== false) {
+      const isPromoter = profileData?.role === 'promoter';
+
+      if (collabData && (collabData as any).is_active !== false) {
         setPerms({
-          canSubmit: data.can_submit,
-          canApprove: data.can_approve,
-          canEdit: data.can_edit,
-          canDelete: data.can_delete,
+          canSubmit: collabData.can_submit || isPromoter,
+          canApprove: collabData.can_approve,
+          canEdit: collabData.can_edit || isPromoter,
+          canDelete: collabData.can_delete,
           isCollaborator: true,
           loaded: true,
         });
       } else {
-        // Regular user - can only submit
-        setPerms({ canSubmit: true, canApprove: false, canEdit: false, canDelete: false, isCollaborator: false, loaded: true });
+        // Regular public users cannot submit anymore
+        setPerms({ 
+          canSubmit: isPromoter, 
+          canApprove: false, 
+          canEdit: false, 
+          canDelete: false, 
+          isCollaborator: false, 
+          loaded: true 
+        });
       }
     }
 
