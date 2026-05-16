@@ -11,10 +11,17 @@ import {
   Globe2,
   MessageCircle,
   ArrowRight,
-  ArrowUpRight,
-  Menu,
-  X,
+  Search,
+  Map as MapIcon,
+  TrendingUp,
+  Music,
+  MapPin,
+  ChevronRight,
+  Heart,
+  Share2,
 } from "lucide-react";
+import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
  import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.jpg";
@@ -26,20 +33,12 @@ const sitelinks = [
   { href: "#contato", label: "Contato" },
 ];
 
-const ecosystem = [
-  { icon: Calendar, title: "Agenda Cultural", desc: "Eventos da Ilha do Governador organizados por categoria, data e local." },
-  { icon: Megaphone, title: "Divulgação Inteligente", desc: "Compartilhe via WhatsApp, exporte PDFs prontos ou gere uma landing page." },
-  { icon: Users2, title: "Rede de Divulgadores", desc: "Espaço onde produtores, marcas e a comunidade somam forças." },
-  { icon: FileDown, title: "Relatórios em PDF", desc: "Material pronto para imprensa, parceiros e grupos de WhatsApp." },
-  { icon: Sparkles, title: "IA para Conteúdo", desc: "Geração assistida de descrições e landing pages com identidade local." },
-  { icon: ShieldCheck, title: "Curadoria Confiável", desc: "Eventos passam por análise antes de entrar na agenda pública." },
-];
-
-const differentials = [
-  { icon: Globe2, title: "Hiperlocal", desc: "Feito por e para a Ilha." },
-  { icon: ShieldCheck, title: "Curadoria", desc: "Conteúdo verificado." },
-  { icon: Sparkles, title: "Tecnologia", desc: "PDF, IA e WhatsApp integrados." },
-  { icon: Users2, title: "Comunidade", desc: "Conecta produtores e moradores." },
+const genres = [
+  { label: "Shows & Música", icon: Music, color: "bg-blue-500" },
+  { label: "Cultura & Arte", icon: Sparkles, color: "bg-purple-500" },
+  { label: "Gastronomia", icon: Globe2, color: "bg-orange-500" },
+  { label: "Festas & Noite", icon: Megaphone, color: "bg-pink-500" },
+  { label: "Esportes", icon: Calendar, color: "bg-green-500" },
 ];
 
 const marqueeWords = ["Música", "Teatro", "Gastronomia", "Arte", "Workshops", "Feiras", "Cinema", "Literatura", "Dança", "Cultura local"];
@@ -71,10 +70,28 @@ function useScrollReveal() {
 
 export default function Landing() {
   useScrollReveal();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function loadEvents() {
+      const { data } = await supabase
+        .from("submissions")
+        .select("*")
+        .eq('status', 'published')
+        .order('date', { ascending: true })
+        .limit(10);
+      
+      if (data) setEvents(data);
+      setLoading(false);
+    }
+    loadEvents();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -83,77 +100,6 @@ export default function Landing() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  return (
-    <div className="min-h-screen bg-background text-foreground antialiased font-body selection:bg-primary/15 selection:text-primary">
-      {/* ── Header ── */}
-       <Header />
-
-      {/* ── Hero ── */}
-      <section
-        id="top"
-        className="relative pt-24 pb-16 sm:pt-40 sm:pb-32 overflow-hidden gradient-eco gradient-mesh grain"
-      >
-        <div aria-hidden className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-        <div aria-hidden className="absolute top-20 right-[-100px] h-96 w-96 rounded-full bg-secondary/15 blur-3xl" />
-
-        <div className="relative mx-auto max-w-4xl px-4 sm:px-6 text-center animate-in fade-in slide-in-from-bottom-6 duration-1000">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass mb-8 sm:mb-10 shadow-sm border border-white/40 backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-secondary animate-pulse" />
-            <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-foreground/70">
-              Ilha do Governador · RJ
-            </span>
-          </div>
-
-          <div className="space-y-4 mb-6 sm:mb-8">
-            <h2 className="font-mono text-xs sm:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase text-secondary font-bold">AgendIlha</h2>
-            <h1 className="font-display text-[clamp(2.5rem,10vw,5.5rem)] font-black leading-[0.9] tracking-tightest text-foreground text-balance">
-              A cultura da Ilha,
-              <br />
-              <span className="font-serif italic font-normal text-primary">reunida</span>{" "}
-              num só lugar.
-            </h1>
-          </div>
-
-          <p className="mt-6 sm:mt-8 text-base sm:text-xl text-foreground/70 max-w-xl mx-auto leading-relaxed text-balance font-medium">
-            Eventos, divulgação inteligente e uma rede ativa de produtores
-            e moradores — com curadoria e <em className="font-serif text-foreground/90">alma local</em>.
-          </p>
-
-          <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-sm sm:max-w-none mx-auto">
-             <Link to="/agenda" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-10 sm:px-12 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl transition-all duration-300 hover:scale-[1.05] active:scale-95 text-lg sm:text-xl font-black border-2 border-primary">
-                Explorar agenda cultural <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-             <Button 
-               size="lg" 
-               variant="outline" 
-               onClick={() => {
-                 if (user) {
-                   navigate("/enviar-evento");
-                 } else {
-                   navigate("/auth?redirect=/enviar-evento");
-                 }
-               }}
-               className="w-full sm:w-auto rounded-full h-14 sm:h-16 px-10 sm:px-12 text-foreground font-black border-2 border-primary/30 hover:border-primary/60 hover:bg-primary/5 transition-all duration-300 hover:scale-[1.05] active:scale-95 text-lg sm:text-xl bg-white/50 backdrop-blur-sm"
-             >
-               Divulgar evento
-             </Button>
-          </div>
-
-          {/* Branding Signature Chip */}
-          <div className="mt-16 inline-flex flex-col items-center gap-3 reveal">
-            <div className="flex items-center gap-3 px-5 py-3 rounded-full glass-strong shadow-glass border border-white/20">
-              <img src={logo} alt="Coé a Boa?" className="h-8 w-8 sm:h-10 sm:w-10 rounded-full ring-2 ring-primary/20 shadow-sm" />
-              <div className="flex flex-col items-start leading-none">
-                <span className="font-display text-sm sm:text-base font-bold text-foreground">Coé a Boa?</span>
-                <span className="font-mono text-[9px] sm:text-[10px] tracking-widest text-foreground/50 uppercase">Assinatura Visual</span>
-              </div>
-            </div>
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-foreground/40">Conectando a Ilha do Governador</p>
-          </div>
-        </div>
-      </section>
 
       {/* ── Marquee de categorias ── */}
       <section className="py-8 sm:py-10 border-y border-border/60 bg-card overflow-hidden">
