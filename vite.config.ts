@@ -90,19 +90,6 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
-   },
-   build: {
-     rollupOptions: {
-       output: {
-         manualChunks: {
-           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-           'vendor-ui': ['framer-motion', 'lucide-react', 'clsx', 'tailwind-merge'],
-           'vendor-query': ['@tanstack/react-query'],
-           'vendor-utils': ['date-fns', 'zod', 'react-hook-form'],
-         },
-       },
-     },
-     chunkSizeWarningLimit: 1000,
+    dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
 }));

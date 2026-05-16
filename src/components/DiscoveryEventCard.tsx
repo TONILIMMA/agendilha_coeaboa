@@ -3,8 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
  import { MapPin, Calendar, Star, Heart, Share2, Music, Utensils, Theater, Trophy, Tag, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
-  import { motion, AnimatePresence } from "framer-motion";
-  import { useState, memo } from "react";
+ import { motion, AnimatePresence } from "framer-motion";
+ import { useState } from "react";
 
 interface Event {
   id: string;
@@ -29,7 +29,7 @@ interface Event {
    outros: { label: "Outros", icon: MoreHorizontal, color: "#374151", bg: "#F9FAFB", border: "#F3F4F6" },
  };
 
- export const DiscoveryEventCard = memo(({ 
+export function DiscoveryEventCard({ 
   event, 
   onClick, 
   variant = "large",
@@ -43,7 +43,7 @@ interface Event {
   isFavorite?: boolean;
   onFavoriteToggle?: (e: React.MouseEvent) => void;
   onShare?: (e: React.MouseEvent) => void;
- }) => {
+}) {
   const isLarge = variant === "large";
   const isHorizontal = variant === "horizontal";
    const [isLoaded, setIsLoaded] = useState(false);
@@ -171,4 +171,4 @@ interface Event {
        </Card>
      </motion.div>
    );
- });
+}

@@ -474,14 +474,9 @@ export default function Landing() {
               </div>
             </div>
             
-             <a 
-               href="https://vexo-sistemas.lovable.app" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className="text-[10px] text-foreground/30 font-mono uppercase tracking-[0.3em] hover:text-primary transition-colors text-center"
-             >
-               ©2026 criado por TONI LIMA - Veo SIstemas
-             </a>
+            <div className="text-[10px] text-foreground/30 font-mono uppercase tracking-[0.4em]">
+              © {new Date().getFullYear()} — Ilha do Governador, RJ
+            </div>
           </div>
         </div>
       </footer>

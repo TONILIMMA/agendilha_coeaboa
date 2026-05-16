@@ -1,5 +1,4 @@
-  import { Link } from "react-router-dom";
-  import { memo } from "react";
+ import { Link } from "react-router-dom";
  import { Badge } from "@/components/ui/badge";
  import { MapPin, Music, CheckCircle2, Heart } from "lucide-react";
  import { cn } from "@/lib/utils";
@@ -18,7 +17,7 @@
    className?: string;
  }
  
- const ArtistCard = memo(({ artist, className }: ArtistCardProps) => {
+ export default function ArtistCard({ artist, className }: ArtistCardProps) {
    return (
      <Link 
        to={`/artista/${artist.id}`}
@@ -79,6 +78,4 @@
        </div>
      </Link>
    );
- });
- 
- export default ArtistCard;
+ }
