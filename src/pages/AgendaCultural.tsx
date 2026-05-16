@@ -509,7 +509,7 @@ function buildUberLink(ev: Event): string {
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
                         {nearYouEvents.map(ev => (
-                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                           <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer active:scale-95 transition-transform" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
                               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                                 <CalendarDays className="h-6 w-6 text-primary" />
@@ -533,7 +533,7 @@ function buildUberLink(ev: Event): string {
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
                         {recommendedEvents.map(ev => (
-                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                           <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer active:scale-95 transition-transform" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
                               <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                                 <MusicIcon className="h-6 w-6 text-accent" />
