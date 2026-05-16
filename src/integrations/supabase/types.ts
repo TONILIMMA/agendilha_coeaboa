@@ -323,13 +323,16 @@ export type Database = {
           address_state: string | null
           address_street: string | null
           address_zip: string | null
+          city: string | null
           company_name: string | null
           contact_social: string | null
           created_at: string
           email: string | null
           home_location: string | null
           id: string
+          musical_preferences: string[] | null
           nick_name: string | null
+          onboarding_completed: boolean | null
           phone: string | null
           pin_code: string | null
           responsible_name: string | null
@@ -344,13 +347,16 @@ export type Database = {
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          city?: string | null
           company_name?: string | null
           contact_social?: string | null
           created_at?: string
           email?: string | null
           home_location?: string | null
           id?: string
+          musical_preferences?: string[] | null
           nick_name?: string | null
+          onboarding_completed?: boolean | null
           phone?: string | null
           pin_code?: string | null
           responsible_name?: string | null
@@ -365,13 +371,16 @@ export type Database = {
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          city?: string | null
           company_name?: string | null
           contact_social?: string | null
           created_at?: string
           email?: string | null
           home_location?: string | null
           id?: string
+          musical_preferences?: string[] | null
           nick_name?: string | null
+          onboarding_completed?: boolean | null
           phone?: string | null
           pin_code?: string | null
           responsible_name?: string | null
@@ -552,6 +561,33 @@ export type Database = {
           user_id?: string
           video_link?: string | null
           views_count?: number | null
+        }
+        Relationships: []
+      }
+      user_activity_logs: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          entity_id: string | null
+          id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          entity_id?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          entity_id?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
         }
         Relationships: []
       }

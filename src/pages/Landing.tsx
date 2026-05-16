@@ -231,26 +231,40 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Personalized Recommendations Section */}
-        {user && (
-          <section className="mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            <div className="bg-primary/5 rounded-[2.5rem] p-8 sm:p-12 border border-primary/10">
-              <div className="flex flex-col md:flex-row gap-8 items-center">
-                <div className="flex-1 space-y-4">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
-                    <Sparkles className="h-3 w-3" /> Recomendação IA
-                  </div>
-                  <h2 className="text-3xl font-black font-display leading-tight">Eventos pensados para você</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Analisamos eventos próximos de onde você mora ou trabalha para oferecer as melhores experiências na Ilha.
-                  </p>
-                  <Button variant="outline" className="rounded-full h-12 px-6 font-bold border-2 border-primary/20 text-primary hover:bg-primary/5">
-                    Ajustar localização <ArrowRightCircle className="ml-2 h-4 w-4" />
-                  </Button>
+        {/* Recommendations AI Sections */}
+        {events.length > 0 && (
+          <>
+            <section className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold font-display flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  Eventos perto de você
+                </h2>
+                <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
+              </div>
+              <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
+                {events.slice(0, 5).map(ev => (
+                  <DiscoveryEventCard 
+                    key={ev.id} 
+                    event={ev} 
+                    onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                    isFavorite={favorites.includes(ev.id)}
+                    onFavoriteToggle={() => toggleFavorite(ev.id)}
+                  />
+                ))}
+              </div>
+            </section>
+
+            {user && (
+              <section className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold font-display flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    Você pode gostar
+                  </h2>
                 </div>
-                <div className="w-full md:w-auto flex gap-4 overflow-x-auto pb-2 scrollbar-none">
-                  {/* Simulating localized recommendations based on neighborhood */}
-                  {events.slice(0, 2).map(ev => (
+                <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
+                  {events.slice(5, 10).map(ev => (
                     <DiscoveryEventCard 
                       key={ev.id} 
                       event={ev} 
@@ -261,9 +275,9 @@ export default function Landing() {
                     />
                   ))}
                 </div>
-              </div>
-            </div>
-          </section>
+              </section>
+            )}
+          </>
         )}
 
         {/* Newsletter / Public Registration */}

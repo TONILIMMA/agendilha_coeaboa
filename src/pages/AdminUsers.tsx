@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User, Trash2, Pencil, Check, X, Crown } from "lucide-react";
+import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User, Trash2, Pencil, Check, X, Crown, MapPin, Music } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
@@ -31,6 +31,8 @@ interface UserWithRole {
   status?: UserStatus;
   responsible_name: string | null;
   phone: string | null;
+  address_neighborhood?: string | null;
+  musical_preferences?: string[] | null;
 }
 
 const statusLabel: Record<UserStatus, string> = {
@@ -377,9 +379,19 @@ export default function AdminUsers() {
                         {formatPhone(u.phone)}
                       </p>
                     </div>
-                    <p className="text-xs text-muted-foreground pl-6">
-                      Cadastro: {new Date(u.created_at).toLocaleDateString("pt-BR")}
-                    </p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 pl-6">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <MapPin className="h-3 w-3" /> {u.address_neighborhood || "Bairro não definido"}
+                      </p>
+                      {u.musical_preferences && u.musical_preferences.length > 0 && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Music className="h-3 w-3" /> {u.musical_preferences.join(", ")}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Cadastro: {new Date(u.created_at).toLocaleDateString("pt-BR")}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex gap-2 justify-end">
                     <Button
