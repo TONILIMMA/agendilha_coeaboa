@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
 import {
   Calendar,
   Megaphone,
@@ -77,6 +78,7 @@ export default function Landing() {
   useScrollReveal();
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
+  const { profile, loaded: profileLoaded } = useProfile();
   const navigate = useNavigate();
   const [events, setEvents] = useState<any[]>([]);
   const [todayEvents, setTodayEvents] = useState<any[]>([]);
@@ -129,24 +131,45 @@ export default function Landing() {
     }
   };
 
+  const [recommendedEvents, setRecommendedEvents] = useState<any[]>([]);
+
   useEffect(() => {
     async function loadEventsData() {
       const today = new Date().toISOString().split('T')[0];
       
-      const { data: allPublished } = await supabase
+      let query = supabase
         .from("submissions")
         .select("*")
         .eq('status', 'published')
         .order('date', { ascending: true });
 
+      const { data: allPublished } = await query;
+
       if (allPublished) {
-        setEvents(allPublished.slice(0, 10)); // Em alta / próximos
+        setEvents(allPublished.slice(0, 10));
         setTodayEvents(allPublished.filter(e => e.date === today));
+        
+        // Simple IA recommendation logic
+        if (profileLoaded && user) {
+          const prefs = profile.musical_preferences || [];
+          const home = profile.home_location;
+          const work = profile.work_neighborhood;
+          
+          const recs = allPublished.filter(ev => {
+            const matchStyle = prefs.some(p => ev.atrativo_style?.toLowerCase().includes(p.toLowerCase()));
+            const matchNeighborhood = ev.address_neighborhood === home || ev.address_neighborhood === work;
+            return matchStyle || matchNeighborhood;
+          }).slice(0, 5);
+          
+          setRecommendedEvents(recs.length > 0 ? recs : allPublished.slice(0, 5));
+        } else {
+          setRecommendedEvents(allPublished.slice(0, 5));
+        }
       }
       setLoading(false);
     }
     loadEventsData();
-  }, []);
+  }, [profileLoaded, user, profile.musical_preferences, profile.home_location, profile.work_neighborhood]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
