@@ -29,8 +29,17 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+import { usePermissions } from "@/hooks/usePermissions";
+
+function ProtectedRoute({ 
+  children, 
+  requiredRole 
+}: { 
+  children: React.ReactNode; 
+  requiredRole?: 'admin' | 'promoter' | 'artist' 
+}) {
+  const { user, loading, isAdmin } = useAuth();
+  const perms = usePermissions();
   const location = useLocation();
   
   if (loading) {
@@ -43,6 +52,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!user) {
     return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   }
+
+  if (requiredRole && perms.loaded) {
+    if (requiredRole === 'admin' && !isAdmin) return <Navigate to="/agenda" replace />;
+    if (requiredRole === 'promoter' && !perms.canSubmit) return <Navigate to="/agenda" replace />;
+  }
+
   return <>{children}</>;
 }
 
@@ -65,14 +80,14 @@ const AppRoutes = () => (
            </ProtectedRoute>
          }
        />
-      <Route
-        path="/enviar-evento"
-        element={
-          <ProtectedRoute>
-            <SubmitEvent />
-          </ProtectedRoute>
-        }
-      />
+       <Route
+         path="/enviar-evento"
+         element={
+           <ProtectedRoute requiredRole="promoter">
+             <SubmitEvent />
+           </ProtectedRoute>
+         }
+       />
 
       {/* Administrativas */}
       <Route
