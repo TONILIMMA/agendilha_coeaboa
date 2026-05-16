@@ -57,6 +57,10 @@ interface Submission {
   is_highlight?: boolean;
   views_count?: number;
   shares_count?: number;
+  age_rating?: string;
+  is_suitable_for_minors?: boolean;
+  report_count?: number;
+  moderation_status?: string;
 }
 
  const categoryLabels: Record<string, string> = {
@@ -74,8 +78,10 @@ interface Submission {
       analysis: { label: "Em análise", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", icon: Search },
       approved: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
       rejected: { label: "Rejeitado", color: "text-rose-700", bg: "bg-rose-100", border: "border-rose-200", icon: XCircle },
-      published: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
-    };
+       published: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
+       flagged: { label: "Sinalizado", color: "text-orange-700", bg: "bg-orange-100", border: "border-orange-300", icon: AlertCircle },
+       blocked: { label: "Bloqueado", color: "text-red-700", bg: "bg-red-100", border: "border-red-300", icon: ShieldAlert },
+     };
  
  function formatSubmissionDate(iso: string) {
    if (!iso) return "—";
@@ -326,9 +332,21 @@ export default function AdminEvents() {
                           <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-0.5">Data de Cadastro</span>
                            <p className="text-[11px] text-foreground font-bold flex items-center gap-1.5">
                             <History className="h-3 w-3 text-primary/70" />
-                            {formatSubmissionDate(sub.created_at)}
-                          </p>
-                        </div>
+                             {formatSubmissionDate(sub.created_at)}
+                           </p>
+                         </div>
+                         <div className="flex flex-wrap gap-2 mt-2">
+                           {sub.moderation_status === 'flagged' && (
+                             <Badge variant="destructive" className="animate-pulse flex items-center gap-1 text-[9px] font-black uppercase">
+                               <ShieldAlert className="h-3 w-3" /> Conteúdo Suspeito
+                             </Badge>
+                           )}
+                           {(sub.report_count ?? 0) > 0 && (
+                             <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 flex items-center gap-1 text-[9px] font-black uppercase">
+                               🚩 {sub.report_count} Denúncias
+                             </Badge>
+                           )}
+                         </div>
                      </div>
  
                      {/* Cronograma */}
