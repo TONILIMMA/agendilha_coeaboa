@@ -460,11 +460,11 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
    async function onSubmit(data: FormData) {
      setSubmitting(true);
      
-     let imageUrl = null;
-     if (eventImage) {
-       if (typeof eventImage === 'string') {
-         imageUrl = eventImage;
-       } else {
+      let imageUrl = typeof eventImage === 'string' ? eventImage : null;
+      let imageUrlStory = eventImageStory;
+      let imageUrlWhatsapp = eventImageWhatsapp;
+
+      if (eventImage && typeof eventImage !== 'string') {
          const fileExt = eventImage.name.split('.').pop();
          const fileName = `${user?.id || 'anon'}/${crypto.randomUUID()}.${fileExt}`;
          const { data: uploadData, error: uploadError } = await supabaseClient.storage
@@ -479,9 +479,35 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
            const { data: { publicUrl } } = supabaseClient.storage
              .from('event-flyers')
              .getPublicUrl(fileName);
-           imageUrl = publicUrl;
+          imageUrl = publicUrl;
          }
        }
+
+      // Helper to upload dataURLs from IA generator
+      const uploadDataUrl = async (dataUrl: string, suffix: string) => {
+        if (!dataUrl.startsWith('data:image')) return dataUrl;
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const fileName = `${user?.id || 'anon'}/${crypto.randomUUID()}-${suffix}.png`;
+        const { error: uploadError } = await supabaseClient.storage
+          .from('event-flyers')
+          .upload(fileName, blob);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabaseClient.storage
+          .from('event-flyers')
+          .getPublicUrl(fileName);
+        return publicUrl;
+      };
+
+      if (imageUrl?.startsWith('data:image')) {
+        imageUrl = await uploadDataUrl(imageUrl, 'feed');
+      }
+      if (imageUrlStory?.startsWith('data:image')) {
+        imageUrlStory = await uploadDataUrl(imageUrlStory, 'story');
+      }
+      if (imageUrlWhatsapp?.startsWith('data:image')) {
+        imageUrlWhatsapp = await uploadDataUrl(imageUrlWhatsapp, 'whatsapp');
+      }
      }
 
     const submissionData = {
@@ -514,7 +540,9 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       stage: data.stage || "development",
        responsible_person: data.responsiblePerson || "Toni",
        status: "pending",
-       image_url: imageUrl,
+          image_url: imageUrl,
+          image_url_story: imageUrlStory,
+          image_url_whatsapp: imageUrlWhatsapp,
        age_rating: data.ageRating,
        is_suitable_for_minors: data.isSuitableForMinors
     };
