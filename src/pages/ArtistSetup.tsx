@@ -6,7 +6,8 @@
  import { Input } from "@/components/ui/input";
  import { Label } from "@/components/ui/label";
  import { Textarea } from "@/components/ui/textarea";
- import { toast } from "sonner";
+  import { handleError } from "@/lib/error-handler";
+  import { toast } from "sonner";
  import { 
    Music, 
    Users, 
@@ -128,11 +129,9 @@
           description: "Avisaremos assim que tudo for aprovado."
         });
         navigate("/agenda");
-     } catch (error: any) {
-       toast.error("Erro ao salvar perfil", {
-         description: error.message
-       });
-     } finally {
+      } catch (error) {
+        handleError(error, "Erro ao salvar perfil");
+      } finally {
        setLoading(false);
      }
    }
