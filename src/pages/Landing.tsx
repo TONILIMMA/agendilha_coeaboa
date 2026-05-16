@@ -32,6 +32,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.jpg";
+import { Onboarding } from "@/components/Onboarding";
+import { PersonalizationDialog } from "@/components/PersonalizationDialog";
+import { Settings2 } from "lucide-react";
 
 const sitelinks = [
   { href: "#oferecemos", label: "O que oferecemos" },
@@ -92,6 +95,7 @@ export default function Landing() {
   const [subscriberEmail, setSubscriberEmail] = useState("");
   const [subscriberName, setSubscriberName] = useState("");
   const [isSubscribing, setIsSubmitting] = useState(false);
+  const [personalizationOpen, setPersonalizationOpen] = useState(false);
 
   const toggleFavorite = (id: string) => {
     setFavorites(prev => {
@@ -199,23 +203,34 @@ export default function Landing() {
              Shows, gastronomia e eventos. Tudo o que você precisa saber sobre a vida cultural da região.
            </p>
            
-           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-lg mx-auto">
-             <Button 
-               onClick={() => navigate("/agenda")}
-               className="w-full sm:flex-1 h-14 rounded-full font-black text-lg gradient-sunset shadow-xl hover:scale-105 active:scale-95 transition-all uppercase tracking-wider"
-             >
-               Explorar Agenda
-             </Button>
-             {!user && (
-               <Button 
-                 variant="outline"
-                 onClick={() => navigate("/auth")}
-                 className="w-full sm:flex-1 h-14 rounded-full font-bold text-lg border-2 border-primary/20 text-primary bg-white/50 hover:bg-primary/5 transition-all shadow-md"
-               >
-                 Criar conta
-               </Button>
-             )}
-           </div>
+            <div className="flex flex-col items-center gap-6 max-w-lg mx-auto">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
+                <Button 
+                  onClick={() => navigate("/agenda")}
+                  className="w-full sm:flex-1 h-14 rounded-full font-black text-lg gradient-sunset shadow-xl hover:scale-105 active:scale-95 transition-all uppercase tracking-wider"
+                >
+                  Explorar Agenda
+                </Button>
+                {!user && (
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate("/auth")}
+                    className="w-full sm:flex-1 h-14 rounded-full font-bold text-lg border-2 border-primary/20 text-primary bg-white/50 hover:bg-primary/5 transition-all shadow-md"
+                  >
+                    Criar conta
+                  </Button>
+                )}
+              </div>
+              
+              <Button
+                variant="ghost"
+                className="rounded-full h-12 px-6 font-bold text-sm text-secondary hover:text-secondary/80 hover:bg-secondary/5 flex items-center gap-2 transition-all"
+                onClick={() => setPersonalizationOpen(true)}
+              >
+                <Settings2 className="h-4 w-4" />
+                Personalizar Recomendações
+              </Button>
+            </div>
          </div>
  
          <div className="relative mb-16 max-w-3xl mx-auto reveal">
@@ -421,6 +436,9 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      <Onboarding />
+      <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
     </div>
   );
 }
