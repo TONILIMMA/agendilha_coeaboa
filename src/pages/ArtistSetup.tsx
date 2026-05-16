@@ -22,6 +22,21 @@
     Image as ImageIcon,
     X
   } from "lucide-react";
+ import {
+   Select,
+   SelectContent,
+   SelectItem,
+   SelectTrigger,
+   SelectValue,
+ } from "@/components/ui/select";
+ 
+ const NEIGHBORHOODS = [
+   "Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia",
+   "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras",
+   "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"
+ ].sort();
+ 
+  export default function ArtistSetup() {
     const [mediaFiles, setMediaFiles] = useState<{ file: File; type: 'image' | 'video'; preview: string }[]>([]);
     const [uploadingMedia, setUploadingMedia] = useState(false);
 
@@ -44,21 +59,6 @@
       });
     };
 
- import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
- } from "@/components/ui/select";
- 
- const NEIGHBORHOODS = [
-   "Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia",
-   "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras",
-   "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"
- ].sort();
- 
- export default function ArtistSetup() {
    const { user } = useAuth();
    const navigate = useNavigate();
    const [loading, setLoading] = useState(false);
