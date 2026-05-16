@@ -14,10 +14,11 @@ import { toast } from "sonner";
    address_city: string;
    address_state: string;
    address_zip: string;
-   contact_social: string;
-   nick_name?: string;
-   home_location?: string;
- }
+    contact_social: string;
+    nick_name?: string;
+    home_location?: string;
+    work_neighborhood?: string;
+  }
  
  const emptyAddress: ProfileAddress = {
    company_name: "",
@@ -30,10 +31,11 @@ import { toast } from "sonner";
    address_city: "",
    address_state: "",
    address_zip: "",
-   contact_social: "",
-   nick_name: "",
-   home_location: "",
- };
+    contact_social: "",
+    nick_name: "",
+    home_location: "",
+    work_neighborhood: "",
+  };
 
 export function useProfile() {
   const { user } = useAuth();
@@ -52,7 +54,7 @@ export function useProfile() {
    async function loadProfile(userId: string) {
      const { data, error } = await supabase
        .from("profiles")
-       .select("company_name, responsible_name, email, phone, address_street, address_number, address_neighborhood, address_city, address_state, address_zip, contact_social, nick_name, home_location")
+       .select("company_name, responsible_name, email, phone, address_street, address_number, address_neighborhood, address_city, address_state, address_zip, contact_social, nick_name, home_location, work_neighborhood")
        .eq("user_id", userId)
        .maybeSingle();
  
@@ -69,9 +71,10 @@ export function useProfile() {
          address_state: data.address_state || "",
          address_zip: data.address_zip || "",
          contact_social: data.contact_social || "",
-         nick_name: data.nick_name || "",
-         home_location: data.home_location || "",
-       });
+          nick_name: data.nick_name || "",
+          home_location: data.home_location || "",
+          work_neighborhood: data.work_neighborhood || "",
+        });
      }
      setLoaded(true);
    }

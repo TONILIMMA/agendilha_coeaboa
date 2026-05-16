@@ -216,6 +216,30 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string | null
+          neighborhood: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          name?: string | null
+          neighborhood?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string | null
+          neighborhood?: string | null
+        }
+        Relationships: []
+      }
       password_reset_codes: {
         Row: {
           attempts: number
@@ -311,6 +335,7 @@ export type Database = {
           responsible_name: string | null
           updated_at: string
           user_id: string
+          work_neighborhood: string | null
         }
         Insert: {
           address_city?: string | null
@@ -331,6 +356,7 @@ export type Database = {
           responsible_name?: string | null
           updated_at?: string
           user_id: string
+          work_neighborhood?: string | null
         }
         Update: {
           address_city?: string | null
@@ -351,6 +377,7 @@ export type Database = {
           responsible_name?: string | null
           updated_at?: string
           user_id?: string
+          work_neighborhood?: string | null
         }
         Relationships: []
       }

@@ -176,17 +176,21 @@ export default function Header() {
                   </span>
                 )}
               </Link>
-              <Link to="/enviar-evento">
-                <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-lg px-6 h-10 border-2 border-primary transition-transform active:scale-95">Divulgar</Button>
-              </Link>
+              {(isAdmin || perms.isCollaborator) && (
+                <Link to="/enviar-evento">
+                  <Button size="sm" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-lg px-6 h-10 border-2 border-primary transition-transform active:scale-95">Divulgar</Button>
+                </Link>
+              )}
               <HeaderUserMenu variant="desktop" hideContext={true} />
             </div>
 
             {/* Mobile Nav Trigger */}
             <div className="flex md:hidden items-center gap-2">
-              <Link to="/enviar-evento">
-                <Button size="sm" className="rounded-full bg-primary text-primary-foreground font-black shadow-md px-4 h-9 text-[10px] uppercase tracking-widest">Divulgar</Button>
-              </Link>
+              {(isAdmin || perms.isCollaborator) && (
+                <Link to="/enviar-evento">
+                  <Button size="sm" className="rounded-full bg-primary text-primary-foreground font-black shadow-md px-4 h-9 text-[10px] uppercase tracking-widest">Divulgar</Button>
+                </Link>
+              )}
               <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm">
@@ -249,28 +253,24 @@ export default function Header() {
             </Link>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={() => {
-                  if (user) {
-                    navigate("/enviar-evento");
-                  } else {
-                    navigate("/auth?redirect=/enviar-evento");
-                  }
-                }}
-                className="rounded-full text-[10px] sm:text-xs font-black border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all shadow-sm px-4 sm:px-6 h-9 sm:h-10 uppercase tracking-widest active:scale-95"
-              >
-                Divulgar
-              </Button>
-              
-              {user ? (
-                <HeaderUserMenu variant="desktop" hideContext={true} />
-              ) : (
-                <Link to="/auth?redirect=/agenda" className="hidden xs:block">
-                  <Button variant="ghost" size="sm" className="rounded-full text-foreground/70 hover:text-primary font-bold h-9 px-4">Entrar</Button>
-                </Link>
+              {(isAdmin || perms.isCollaborator) && (
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => {
+                    if (user) {
+                      navigate("/enviar-evento");
+                    } else {
+                      navigate("/auth?redirect=/enviar-evento");
+                    }
+                  }}
+                  className="rounded-full text-[10px] sm:text-xs font-black border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all shadow-sm px-4 sm:px-6 h-9 sm:h-10 uppercase tracking-widest active:scale-95"
+                >
+                  Divulgar
+                </Button>
               )}
+              
+              <HeaderUserMenu variant="desktop" hideContext={true} />
             </div>
           </div>
           <div className="h-1 w-full gradient-pumpkin-strip opacity-90" />
@@ -359,15 +359,17 @@ export default function Header() {
               </Tooltip>
 
                {/* Enviar Evento CTA */}
-               <Button 
-                 size="sm" 
-                 onClick={() => navigate("/enviar-evento")} 
-                 className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all text-xs sm:text-sm px-2 sm:px-3"
-               >
-                 <Megaphone className="h-4 w-4 mr-1.5" />
-                 <span className="hidden sm:inline">Enviar Evento</span>
-                 <span className="sm:hidden">Enviar</span>
-               </Button>
+               {(isAdmin || perms.isCollaborator) && (
+                 <Button 
+                   size="sm" 
+                   onClick={() => navigate("/enviar-evento")} 
+                   className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all text-xs sm:text-sm px-2 sm:px-3"
+                 >
+                   <Megaphone className="h-4 w-4 mr-1.5" />
+                   <span className="hidden sm:inline">Enviar Evento</span>
+                   <span className="sm:hidden">Enviar</span>
+                 </Button>
+               )}
 
               {/* User dropdown — moved to the far right */}
               <DropdownMenu>

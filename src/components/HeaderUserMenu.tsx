@@ -45,11 +45,14 @@ interface Props {
       <div className={variant === "mobile" ? "flex flex-col gap-2.5" : "flex items-center gap-1.5"}>
         <Link to="/auth" onClick={onNavigate}>
           <Button
-            size={variant === "mobile" ? "lg" : "sm"}
-            variant={variant === "mobile" ? "outline" : "ghost"}
-            className="w-full rounded-full bg-white/70 shadow-sm border-border/50 text-foreground"
+            size="sm"
+            variant="ghost"
+            className="rounded-full h-10 w-10 p-0 hover:bg-primary/10 transition-colors"
+            title="Entrar ou Cadastrar"
           >
-            Entrar
+            <div className="bg-muted h-8 w-8 rounded-full flex items-center justify-center border border-border/50 shadow-inner">
+              <UserIcon className="h-4 w-4 text-muted-foreground" />
+            </div>
           </Button>
         </Link>
          <Link to="/agenda" onClick={onNavigate}>
