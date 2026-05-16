@@ -19,8 +19,9 @@ import AdminMaster from "./pages/AdminMaster";
 import Ranking from "./pages/Ranking";
 import AdminPinGate from "@/components/AdminPinGate";
 import NotFound from "./pages/NotFound";
- import Landing from "./pages/Landing";
- import SubmitEvent from "./pages/SubmitEvent";
+import Landing from "./pages/Landing";
+import SubmitEvent from "./pages/SubmitEvent";
+import AdminNewsletter from "./pages/AdminNewsletter";
 
 import { Loader2 } from "lucide-react";
 
@@ -100,6 +101,14 @@ const AppRoutes = () => (
               <Header />
               <AdminMaster />
             </AdminPinGate>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/newsletter"
+        element={
+          <ProtectedRoute>
+            <AdminNewsletter />
           </ProtectedRoute>
         }
       />
