@@ -524,7 +524,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       company_name: data.companyName,
       responsible_name: data.nickName,
       email: data.email || null,
-      phone: data.basicPhone,
+      phone: data.basicPhone.startsWith('+55') ? data.basicPhone : `+55${data.basicPhone.replace(/\D/g, '')}`,
       event_title: data.eventTitle || data.atrativoName,
       date: data.date,
       start_time: data.startTime,
@@ -561,7 +561,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       
       saveProfile({
         nick_name: data.nickName,
-        phone: data.basicPhone,
+        phone: data.basicPhone.startsWith('+55') ? data.basicPhone : `+55${data.basicPhone.replace(/\D/g, '')}`,
         company_name: data.companyName,
         email: data.email || "",
         address_street: data.addressStreet || "",
@@ -672,7 +672,29 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                         Evento vinculado à conta: <strong>{profile.nick_name || profile.responsible_name || "Divulgador"}</strong>
                       </p>
                       <TextField control={form.control} name="nickName" label="Seu Nome" />
-                      <TextField control={form.control} name="basicPhone" label="WhatsApp de Contato" />
+                      <FormField
+                        control={form.control}
+                        name="basicPhone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm">WhatsApp de Contato <span className="text-accent">*</span></FormLabel>
+                            <FormControl>
+                              <IMaskInput
+                                mask="(00) 00000-0000"
+                                definitions={{
+                                  '0': /[0-9]/
+                                }}
+                                value={field.value}
+                                unmask={false}
+                                onAccept={(value) => field.onChange(value)}
+                                className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                placeholder="(99) 99999-9999"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
                   )}
                   
