@@ -1,10 +1,10 @@
- import { useState, useRef, useEffect } from "react";
- import { toPng } from "html-to-image";
+ import { useState, useRef, useEffect, useCallback } from "react";
+ import { toPng, toJpeg } from "html-to-image";
  import { toast } from "sonner";
  import { 
-   Wand2, Download, RotateCcw, Image as ImageIcon, 
+   Download, RotateCcw, 
    Type, Palette, Layout, Instagram, MessageCircle, Share2, 
-   Check, Loader2, Info
+   Check, Loader2, Info, ChevronRight, ChevronLeft, Save
  } from "lucide-react";
  import { Button } from "./ui/button";
  import { Input } from "./ui/input";
@@ -32,8 +32,16 @@
  
  interface AIFlyerGeneratorProps {
    initialData: FlyerData;
-   onFlyerGenerated: (imageUrl: string) => void;
+   onFlyerGenerated: (urls: { feed: string; story: string; whatsapp: string }) => void;
  }
+ 
+ type FlyerFormat = "feed" | "story" | "whatsapp";
+ 
+ const FLYER_FORMATS: Record<FlyerFormat, { label: string; ratio: string; width: string; icon: any }> = {
+   feed: { label: "Instagram Feed (1:1)", ratio: "aspect-square", width: "w-full", icon: Instagram },
+   story: { label: "Instagram Stories (9:16)", ratio: "aspect-[9/16]", width: "w-[65%]", icon: Share2 },
+   whatsapp: { label: "WhatsApp / Feed (4:5)", ratio: "aspect-[4/5]", width: "w-[80%]", icon: MessageCircle },
+ };
  
  const FLYER_TEMPLATES = {
    musica: {
@@ -41,53 +49,130 @@
      accent: "text-primary",
      gradient: "from-primary/20 via-zinc-950 to-zinc-950",
      font: "font-display",
-     style: "Modern Show"
+     style: "Modern Show",
+     colors: ["#ea384c", "#000000", "#ffffff"]
    },
    samba: {
      bg: "bg-orange-50",
      accent: "text-orange-600",
      gradient: "from-orange-500/10 via-orange-50 to-orange-50",
      font: "font-serif",
-     style: "Vibrant Samba"
+     style: "Vibrant Samba",
+     colors: ["#ea580c", "#fff7ed", "#000000"]
    },
    rock: {
      bg: "bg-zinc-900",
      accent: "text-red-600",
      gradient: "from-zinc-800 via-zinc-900 to-black",
      font: "font-display",
-     style: "Gritty Rock"
+     style: "Gritty Rock",
+     colors: ["#dc2626", "#18181b", "#ffffff"]
    },
    eletronico: {
      bg: "bg-indigo-950",
      accent: "text-cyan-400",
      gradient: "from-indigo-500/20 via-indigo-950 to-black",
      font: "font-mono",
-     style: "Cyber Electronic"
+     style: "Cyber Electronic",
+     colors: ["#22d3ee", "#1e1b4b", "#ffffff"]
    },
    jazz: {
      bg: "bg-stone-900",
      accent: "text-amber-500",
      gradient: "from-stone-800 via-stone-900 to-black",
      font: "font-serif",
-     style: "Elegant Jazz"
+     style: "Elegant Jazz",
+     colors: ["#f59e0b", "#1c1917", "#ffffff"]
    },
    funk: {
      bg: "bg-pink-900",
      accent: "text-yellow-400",
      gradient: "from-purple-600/30 via-pink-900 to-black",
      font: "font-black",
-     style: "Pop Funk"
+     style: "Pop Funk",
+     colors: ["#facc15", "#831843", "#ffffff"]
    },
    sertanejo: {
      bg: "bg-amber-900",
      accent: "text-amber-200",
      gradient: "from-amber-800/40 via-amber-900 to-stone-950",
      font: "font-sans",
-     style: "Modern Country"
+     style: "Modern Country",
+     colors: ["#fde68a", "#451a03", "#ffffff"]
    }
  };
  
+ const FLYER_LAYOUTS = [
+   { id: "center", label: "Centralizado", icon: Layout },
+   { id: "bottom", label: "Inferior", icon: ChevronDown },
+   { id: "split", label: "Dividido", icon: ArrowUpDown }
+ ];
+ 
  export function AIFlyerGenerator({ initialData, onFlyerGenerated }: AIFlyerGeneratorProps) {
+   const flyerRef = useRef<HTMLDivElement>(null);
+   const [data, setData] = useState<FlyerData>(initialData);
+   const [format, setFormat] = useState<FlyerFormat>("feed");
+   const [isGenerating, setIsGenerating] = useState(false);
+   const [template, setTemplate] = useState<string>(initialData.category || "musica");
+   const [layout, setLayout] = useState("center");
+   const [bgImage, setBgImage] = useState<string | null>(null);
+   const [customAccent, setCustomAccent] = useState<string | null>(null);
+ 
+   const currentTemplate = (FLYER_TEMPLATES as any)[template] || FLYER_TEMPLATES.musica;
+ 
+   const fetchNewBg = useCallback(async () => {
+     const randomId = Math.floor(Math.random() * 1000);
+     setBgImage(`https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80&sig=${randomId}`);
+   }, []);
+ 
+   useEffect(() => {
+     fetchNewBg();
+   }, [template, fetchNewBg]);
+ 
+   const generateAllFormats = async () => {
+     if (!flyerRef.current) return;
+     setIsGenerating(true);
+     try {
+       const formats: FlyerFormat[] = ["feed", "story", "whatsapp"];
+       const urls: any = {};
+ 
+       for (const f of formats) {
+         setFormat(f);
+         // Wait for re-render
+         await new Promise(resolve => setTimeout(resolve, 500));
+         
+         const dataUrl = await toPng(flyerRef.current, {
+           quality: 0.95,
+           pixelRatio: 2,
+         });
+         urls[f] = dataUrl;
+       }
+ 
+       onFlyerGenerated(urls);
+       toast.success("Versões otimizadas geradas!");
+     } catch (err) {
+       console.error("Export error:", err);
+       toast.error("Erro ao gerar versões.");
+     } finally {
+       setIsGenerating(false);
+     }
+   };
+ 
+   const handleDownload = async () => {
+     if (!flyerRef.current) return;
+     try {
+       const dataUrl = await toJpeg(flyerRef.current, { quality: 1.0, pixelRatio: 3 });
+       const link = document.createElement('a');
+       link.download = `flyer-${format}-${data.title.replace(/\s+/g, '-').toLowerCase()}.jpg`;
+       link.href = dataUrl;
+       link.click();
+       toast.success("Download iniciado!");
+     } catch (err) {
+       toast.error("Erro no download.");
+     }
+   };
+ 
+   const accentColor = customAccent || currentTemplate.colors[0];
    const flyerRef = useRef<HTMLDivElement>(null);
    const [data, setData] = useState<FlyerData>(initialData);
    const [format, setFormat] = useState<"feed" | "story">("feed");
