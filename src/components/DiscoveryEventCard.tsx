@@ -48,7 +48,7 @@ export function DiscoveryEventCard({
   const isHorizontal = variant === "horizontal";
    const [isLoaded, setIsLoaded] = useState(false);
 
-  return (
+   return (
      <motion.div
        initial={{ opacity: 0, y: 20 }}
        animate={{ opacity: 1, y: 0 }}
@@ -70,7 +70,7 @@ export function DiscoveryEventCard({
                <motion.div 
                  initial={{ opacity: 1 }}
                  exit={{ opacity: 0 }}
-                 className="absolute inset-0 bg-muted/20 animate-pulse flex items-center justify-center"
+                 className="absolute inset-0 bg-muted/20 animate-pulse flex items-center justify-center z-10"
                >
                  <Music className="h-10 w-10 text-muted-foreground/20 animate-bounce" />
                </motion.div>
@@ -89,32 +89,32 @@ export function DiscoveryEventCard({
            />
            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
            
-            {/* Top Badges Left */}
-            <div className="absolute left-4 top-4 flex flex-wrap gap-2 z-20">
-              {(() => {
-                const cat = categoryLabels[event.category || "outros"] || categoryLabels.outros;
-                const Icon = cat.icon;
-                return (
-                  <Badge 
-                    style={{ backgroundColor: cat.bg, color: cat.color, borderColor: cat.border }}
-                    className="border shadow-sm text-[10px] font-bold uppercase tracking-wider py-1.5 px-3.5 rounded-full flex items-center gap-1.5"
-                  >
-                    <Icon className="h-3 w-3" strokeWidth={2.5} />
-                    {cat.label}
-                  </Badge>
-                );
-              })()}
-              
-              {event.age_rating && (
-                <Badge className={cn(
-                  "backdrop-blur-md text-white font-black text-[10px] py-1 px-3 rounded-full border border-white/30 shadow-sm",
-                  event.age_rating === '18+' ? "bg-red-500/60" : "bg-green-500/60"
-                )}>
-                  {event.age_rating}
-                </Badge>
-              )}
-            </div>
-
+           {/* Top Badges Left */}
+           <div className="absolute left-4 top-4 flex flex-wrap gap-2 z-20">
+             {(() => {
+               const cat = categoryLabels[event.category || "outros"] || categoryLabels.outros;
+               const Icon = cat.icon;
+               return (
+                 <Badge 
+                   style={{ backgroundColor: cat.bg, color: cat.color, borderColor: cat.border }}
+                   className="border shadow-sm text-[10px] font-bold uppercase tracking-wider py-1.5 px-3.5 rounded-full flex items-center gap-1.5"
+                 >
+                   <Icon className="h-3 w-3" strokeWidth={2.5} />
+                   {cat.label}
+                 </Badge>
+               );
+             })()}
+             
+             {event.age_rating && (
+               <Badge className={cn(
+                 "backdrop-blur-md text-white font-black text-[10px] py-1 px-3 rounded-full border border-white/30 shadow-sm",
+                 event.age_rating === '18+' ? "bg-red-500/60" : "bg-green-500/60"
+               )}>
+                 {event.age_rating}
+               </Badge>
+             )}
+           </div>
+ 
            {/* Quick Actions Right */}
            <div className="absolute right-4 top-4 flex flex-col gap-2 z-20">
              <Button 
@@ -131,7 +131,7 @@ export function DiscoveryEventCard({
              >
                <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
              </Button>
-
+ 
              <Button 
                variant="ghost" 
                size="icon" 
@@ -143,7 +143,7 @@ export function DiscoveryEventCard({
              >
                <Share2 className="h-5 w-5" />
              </Button>
-
+ 
              {event.rating && event.rating.total > 0 && (
                <Badge className="bg-yellow-400/90 text-black font-black py-1 px-3 rounded-full flex items-center gap-1 h-10">
                  <Star className="h-3 w-3 fill-current" />
@@ -170,86 +170,5 @@ export function DiscoveryEventCard({
          </div>
        </Card>
      </motion.div>
-        
-         {/* Top Badges Left */}
-         <div className="absolute left-4 top-4 flex flex-wrap gap-2 z-20">
-           {(() => {
-             const cat = categoryLabels[event.category || "outros"] || categoryLabels.outros;
-             const Icon = cat.icon;
-             return (
-               <Badge 
-                 style={{ backgroundColor: cat.bg, color: cat.color, borderColor: cat.border }}
-                 className="border shadow-sm text-[10px] font-bold uppercase tracking-wider py-1.5 px-3.5 rounded-full flex items-center gap-1.5"
-               >
-                 <Icon className="h-3 w-3" strokeWidth={2.5} />
-                 {cat.label}
-               </Badge>
-             );
-           })()}
-           
-           {event.age_rating && (
-             <Badge className={cn(
-               "backdrop-blur-md text-white font-black text-[10px] py-1 px-3 rounded-full border border-white/30 shadow-sm",
-               event.age_rating === '18+' ? "bg-red-500/60" : "bg-green-500/60"
-             )}>
-               {event.age_rating}
-             </Badge>
-           )}
-         </div>
-
-        {/* Quick Actions Right */}
-        <div className="absolute right-4 top-4 flex flex-col gap-2 z-20">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className={cn(
-              "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90",
-              isFavorite ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
-            )}
-            onClick={(e) => {
-              e.stopPropagation();
-              onFavoriteToggle?.(e);
-            }}
-          >
-            <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
-          </Button>
-
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-10 w-10 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 transition-all active:scale-90"
-            onClick={(e) => {
-              e.stopPropagation();
-              onShare?.(e);
-            }}
-          >
-            <Share2 className="h-5 w-5" />
-          </Button>
-
-          {event.rating && event.rating.total > 0 && (
-            <Badge className="bg-yellow-400/90 text-black font-black py-1 px-3 rounded-full flex items-center gap-1 h-10">
-              <Star className="h-3 w-3 fill-current" />
-              {event.rating.average.toFixed(1)}
-            </Badge>
-          )}
-        </div>
-        <div className="absolute bottom-6 left-6 right-6 text-white">
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-white/70 mb-2">
-            <Calendar className="h-3 w-3" />
-            {event.date} {event.start_time && `• ${event.start_time}`}
-          </div>
-          <h3 className={cn(
-            "font-display font-black leading-tight mb-2 group-hover:text-primary transition-colors",
-            isLarge ? "text-2xl" : "text-lg"
-          )}>
-            {event.event_title}
-          </h3>
-          <div className="flex items-center gap-1.5 text-sm font-medium text-white/60">
-            <MapPin className="h-4 w-4 text-primary" />
-            <span className="truncate">{event.location} • {event.address_neighborhood}</span>
-          </div>
-        </div>
-      </div>
-    </Card>
-  );
+   );
 }
