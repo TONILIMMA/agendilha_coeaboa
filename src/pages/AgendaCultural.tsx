@@ -687,8 +687,9 @@ function buildUberLink(ev: Event): string {
                      ))}
                    </div>
                  )}
-               </div>
-             )}
+               </section>
+             </div>
+           )}
  
           {activeTab === "events" && (
             <>
