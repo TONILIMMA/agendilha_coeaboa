@@ -13,10 +13,36 @@
    MapPin, 
    Instagram, 
    Youtube, 
-   Plus, 
-   Loader2,
-   CheckCircle2
- } from "lucide-react";
+    Plus, 
+    Loader2,
+    CheckCircle2,
+    Upload,
+    Video,
+    Image as ImageIcon,
+    X
+  } from "lucide-react";
+    const [mediaFiles, setMediaFiles] = useState<{ file: File; type: 'image' | 'video'; preview: string }[]>([]);
+    const [uploadingMedia, setUploadingMedia] = useState(false);
+
+    const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
+      const files = Array.from(e.target.files || []);
+      const newFiles = files.map(file => ({
+        file,
+        type,
+        preview: URL.createObjectURL(file)
+      }));
+      setMediaFiles(prev => [...prev, ...newFiles]);
+    };
+
+    const removeMedia = (index: number) => {
+      setMediaFiles(prev => {
+        const updated = [...prev];
+        URL.revokeObjectURL(updated[index].preview);
+        updated.splice(index, 1);
+        return updated;
+      });
+    };
+
  import {
    Select,
    SelectContent,
@@ -57,23 +83,51 @@
      if (!user) return;
      
      setLoading(true);
-     try {
-       const { error } = await supabase
-         .from("artist_profiles")
-         .upsert({
-           user_id: user.id,
-           ...formData,
-           member_count: parseInt(formData.member_count),
-           artist_type: formData.artist_type as 'cover' | 'autoral' | 'both',
-           is_approved: false // Requires admin approval
-         });
- 
-       if (error) throw error;
- 
-       toast.success("Perfil enviado para análise!", {
-         description: "Avisaremos assim que seu perfil for aprovado."
-       });
-       navigate("/agenda");
+      try {
+        const { data: profileData, error: profileError } = await supabase
+          .from("artist_profiles")
+          .upsert({
+            user_id: user.id,
+            ...formData,
+            member_count: parseInt(formData.member_count),
+            artist_type: formData.artist_type as 'cover' | 'autoral' | 'both',
+            is_approved: false
+          })
+          .select()
+          .single();
+
+        if (profileError) throw profileError;
+
+        // Upload media files
+        if (mediaFiles.length > 0) {
+          setUploadingMedia(true);
+          for (const item of mediaFiles) {
+            const fileExt = item.file.name.split('.').pop();
+            const filePath = `${profileData.id}/${Math.random()}.${fileExt}`;
+            
+            const { error: uploadError } = await supabase.storage
+              .from('artist-media')
+              .upload(filePath, item.file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+              .from('artist-media')
+              .getPublicUrl(filePath);
+
+            await supabase.from('artist_media').insert({
+              artist_id: profileData.id,
+              url: publicUrl,
+              media_type: item.type,
+              moderation_status: 'pending'
+            });
+          }
+        }
+
+        toast.success("Perfil e mídias enviados para análise!", {
+          description: "Avisaremos assim que tudo for aprovado."
+        });
+        navigate("/agenda");
      } catch (error: any) {
        toast.error("Erro ao salvar perfil", {
          description: error.message
@@ -189,10 +243,67 @@
              </div>
            </div>
  
-           <Button type="submit" className="w-full rounded-xl" disabled={loading}>
-             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
-             Enviar para Aprovação
-           </Button>
+            <div className="space-y-4 pt-4 border-t border-border">
+              <h3 className="font-display font-semibold flex items-center gap-2 text-primary">
+                <Video className="h-5 w-5" /> Fotos e Vídeos (Opcional)
+              </h3>
+              <p className="text-xs text-muted-foreground">Adicione flyers, fotos de shows ou vídeos curtos (máx 30s) para seu feed.</p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative group">
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    multiple 
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                    onChange={(e) => handleMediaChange(e, 'image')}
+                  />
+                  <div className="border-2 border-dashed border-primary/20 rounded-xl p-4 flex flex-col items-center justify-center gap-2 group-hover:border-primary/40 transition-colors bg-primary/5">
+                    <ImageIcon className="h-6 w-6 text-primary" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Add Fotos</span>
+                  </div>
+                </div>
+                <div className="relative group">
+                  <input 
+                    type="file" 
+                    accept="video/*" 
+                    multiple 
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                    onChange={(e) => handleMediaChange(e, 'video')}
+                  />
+                  <div className="border-2 border-dashed border-primary/20 rounded-xl p-4 flex flex-col items-center justify-center gap-2 group-hover:border-primary/40 transition-colors bg-primary/5">
+                    <Video className="h-6 w-6 text-primary" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Add Vídeos</span>
+                  </div>
+                </div>
+              </div>
+
+              {mediaFiles.length > 0 && (
+                <div className="grid grid-cols-4 gap-2 mt-4">
+                  {mediaFiles.map((item, idx) => (
+                    <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-border">
+                      {item.type === 'image' ? (
+                        <img src={item.preview} className="w-full h-full object-cover" />
+                      ) : (
+                        <video src={item.preview} className="w-full h-full object-cover" />
+                      )}
+                      <button 
+                        type="button"
+                        onClick={() => removeMedia(idx)}
+                        className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-black/70"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Button type="submit" className="w-full rounded-xl" disabled={loading || uploadingMedia}>
+              {loading || uploadingMedia ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+              {uploadingMedia ? "Enviando mídias..." : "Enviar para Aprovação"}
+            </Button>
          </form>
        </div>
      </div>

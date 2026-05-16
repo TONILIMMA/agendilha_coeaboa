@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Instagram } from "lucide-react";
+ import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Instagram, Megaphone, Trophy } from "lucide-react";
 import { Onboarding } from "@/components/Onboarding";
 import { PersonalizationDialog } from "@/components/PersonalizationDialog";
 import { ShareDialog } from "@/components/ShareDialog";
@@ -140,10 +140,11 @@ interface Event {
    status?: string;
    image_url?: string | null;
   latitude?: number | null;
-  longitude?: number | null;
-  age_rating?: string;
-  is_suitable_for_minors?: boolean;
-  moderation_status?: string;
+   longitude?: number | null;
+   age_rating?: string;
+   is_suitable_for_minors?: boolean;
+   moderation_status?: string;
+   views_count?: number;
 }
 
 const categoryLabels: Record<string, string> = {
@@ -415,17 +416,40 @@ function buildUberLink(ev: Event): string {
      });
    }, [events]);
 
-  const filteredEvents = useMemo(() => {
-    const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-    return upcomingEvents.filter(ev => {
-      const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
-                          (ev.description || "").toLowerCase().includes(search.toLowerCase());
-      const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
-      const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
-      const matchFav = !showFavoritesOnly || favs.includes(ev.id);
-      return matchSearch && matchCat && matchNeigh && matchFav;
-    });
-  }, [upcomingEvents, search, categoryFilter, neighborhoodFilter, showFavoritesOnly]);
+    const filteredEvents = useMemo(() => {
+      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+      return upcomingEvents.filter(ev => {
+        const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
+                            (ev.description || "").toLowerCase().includes(search.toLowerCase());
+        const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
+        const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
+        const matchFav = !showFavoritesOnly || favs.includes(ev.id);
+        return matchSearch && matchCat && matchNeigh && matchFav;
+      });
+    }, [upcomingEvents, search, categoryFilter, neighborhoodFilter, showFavoritesOnly]);
+
+    // AI Recommendation Logic
+    const nearYouEvents = useMemo(() => {
+      const userNeighborhood = profile?.home_location || profile?.address_neighborhood;
+      if (!userNeighborhood) return [];
+      return upcomingEvents
+        .filter(ev => ev.address_neighborhood === userNeighborhood)
+        .slice(0, 4);
+    }, [upcomingEvents, profile]);
+
+    const recommendedEvents = useMemo(() => {
+      const prefs = profile?.musical_preferences || [];
+      if (prefs.length === 0) return [];
+      return upcomingEvents
+        .filter(ev => prefs.some(p => ev.category?.toLowerCase().includes(p.toLowerCase()) || ev.description?.toLowerCase().includes(p.toLowerCase())))
+        .slice(0, 4);
+    }, [upcomingEvents, profile]);
+
+    const trendingEvents = useMemo(() => {
+      return [...upcomingEvents]
+        .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+        .slice(0, 4);
+    }, [upcomingEvents]);
 
   const grouped = useMemo(() => {
     const map: Record<string, { label: string; sortKey: string; items: Event[] }> = {};
@@ -469,13 +493,127 @@ function buildUberLink(ev: Event): string {
               <h1 className="text-5xl xs:text-6xl sm:text-8xl font-black font-display text-primary tracking-tightest leading-[0.9] drop-shadow-sm">
                 AgendIlha
               </h1>
-              <p className="text-muted-foreground text-base sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-2 sm:px-4 text-balance">
-                A agenda cultural curada da Ilha do Governador.
-              </p>
-            </div>
+               <p className="text-foreground/80 text-lg sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-2 sm:px-4 text-balance contrast-125">
+                 A agenda cultural da Ilha do Governador.
+               </p>
+             </div>
+
+              {/* AI Recommendations Section */}
+              {user && (nearYouEvents.length > 0 || recommendedEvents.length > 0 || trendingEvents.length > 0) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                  {nearYouEvents.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
+                        <MapPin className="h-5 w-5 text-secondary" />
+                        Hoje perto de você
+                      </h3>
+                      <div className="grid grid-cols-1 gap-3">
+                        {nearYouEvents.map(ev => (
+                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                            <CardContent className="p-3 flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                <CalendarDays className="h-6 w-6 text-primary" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {recommendedEvents.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
+                        <Sparkles className="h-5 w-5 text-secondary" />
+                        Você pode gostar
+                      </h3>
+                      <div className="grid grid-cols-1 gap-3">
+                        {recommendedEvents.map(ev => (
+                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                            <CardContent className="p-3 flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                                <MusicIcon className="h-6 w-6 text-accent" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {trendingEvents.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
+                        <Trophy className="h-5 w-5 text-secondary" />
+                        Bombando agora
+                      </h3>
+                      <div className="grid grid-cols-1 gap-3">
+                        {trendingEvents.map(ev => (
+                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                            <CardContent className="p-3 flex items-center gap-4">
+                              <div className="h-12 w-12 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
+                                <Play className="h-6 w-6 text-orange-600" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                <p className="text-xs text-muted-foreground">{ev.views_count || 0} visualizações</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                 {recommendedEvents.length > 0 && (
+                   <div className="space-y-4">
+                     <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
+                       <Sparkles className="h-5 w-5 text-secondary" />
+                       Você pode gostar
+                     </h3>
+                     <div className="grid grid-cols-1 gap-3">
+                       {recommendedEvents.map(ev => (
+                         <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                           <CardContent className="p-3 flex items-center gap-4">
+                             <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                               <MusicIcon className="h-6 w-6 text-accent" />
+                             </div>
+                             <div className="min-w-0">
+                               <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                               <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
+                             </div>
+                           </CardContent>
+                         </Card>
+                       ))}
+                     </div>
+                   </div>
+                 )}
+               </div>
+             )}
 
             <div className="flex flex-col items-center gap-6 sm:gap-8 mt-8 sm:mt-12 px-2" role="group" aria-label="Ações da agenda">
-              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full max-w-2xl">
+               <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 w-full max-w-2xl">
+                 <Button
+                   className="rounded-full shadow-lg sm:shadow-xl bg-primary text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest outline-none hover:scale-[1.02] active:scale-95 flex-1"
+                   onClick={() => {
+                     if (user) {
+                       navigate("/enviar-evento");
+                     } else {
+                       navigate("/auth?redirect=/enviar-evento");
+                     }
+                   }}
+                 >
+                   <Megaphone className="h-5 w-5 mr-2.5" /> Divulgar Evento
+                 </Button>
+
                 <Button
                   className="rounded-full shadow-lg sm:shadow-xl gradient-sunset text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest focus-visible:ring-4 focus-visible:ring-primary/40 outline-none hover:scale-[1.02] active:scale-95 flex-1"
                   onClick={() => window.open(buildWhatsAppShare(), "_blank")}

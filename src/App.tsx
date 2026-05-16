@@ -25,7 +25,9 @@ import NotFound from "./pages/NotFound";
  import { Loader2 } from "lucide-react";
  import ArtistProfile from "./pages/ArtistProfile";
  import ArtistSetup from "./pages/ArtistSetup";
- import AdminArtists from "./pages/AdminArtists";
+  import AdminArtists from "./pages/AdminArtists";
+  import ArtistFeed from "./pages/ArtistFeed";
+  import AdminMedia from "./pages/AdminMedia";
 
 const queryClient = new QueryClient();
 
@@ -66,7 +68,8 @@ const AppRoutes = () => (
     <Routes>
       {/* Públicas */}
       <Route path="/" element={<Landing />} />
-      <Route path="/agenda" element={<><Header /><AgendaCultural /></>} />
+       <Route path="/agenda" element={<><Header /><AgendaCultural /></>} />
+       <Route path="/artistas" element={<><Header /><ArtistFeed /></>} />
       <Route path="/auth" element={<><Header /><Auth /></>} />
        <Route path="/forgot-password" element={<ForgotPassword />} />
        <Route path="/artista/:id" element={<ArtistProfile />} />
@@ -80,14 +83,14 @@ const AppRoutes = () => (
            </ProtectedRoute>
          }
        />
-       <Route
-         path="/enviar-evento"
-         element={
-           <ProtectedRoute requiredRole="promoter">
-             <SubmitEvent />
-           </ProtectedRoute>
-         }
-       />
+        <Route
+          path="/enviar-evento"
+          element={
+            <ProtectedRoute>
+              <SubmitEvent />
+            </ProtectedRoute>
+          }
+        />
 
       {/* Administrativas */}
       <Route
@@ -138,15 +141,24 @@ const AppRoutes = () => (
           </ProtectedRoute>
         }
       />
-       <Route
-         path="/admin/artists"
-         element={
-           <ProtectedRoute requiredRole="admin">
-             <Header />
-             <AdminArtists />
-           </ProtectedRoute>
-         }
-       />
+        <Route
+          path="/admin/artists"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Header />
+              <AdminArtists />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/media"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Header />
+              <AdminMedia />
+            </ProtectedRoute>
+          }
+        />
        <Route
          path="/ranking"
          element={

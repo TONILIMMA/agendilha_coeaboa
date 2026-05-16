@@ -16,26 +16,35 @@ export type Database = {
     Tables: {
       artist_media: {
         Row: {
+          ai_score: number | null
           artist_id: string
           created_at: string
           id: string
+          is_approved: boolean | null
           media_type: string | null
+          moderation_status: string | null
           thumbnail_url: string | null
           url: string
         }
         Insert: {
+          ai_score?: number | null
           artist_id: string
           created_at?: string
           id?: string
+          is_approved?: boolean | null
           media_type?: string | null
+          moderation_status?: string | null
           thumbnail_url?: string | null
           url: string
         }
         Update: {
+          ai_score?: number | null
           artist_id?: string
           created_at?: string
           id?: string
+          is_approved?: boolean | null
           media_type?: string | null
+          moderation_status?: string | null
           thumbnail_url?: string | null
           url?: string
         }
@@ -61,6 +70,7 @@ export type Database = {
           id: string
           instagram: string | null
           is_approved: boolean | null
+          is_verified: boolean | null
           member_count: number | null
           name: string
           neighborhood: string | null
@@ -81,6 +91,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           is_approved?: boolean | null
+          is_verified?: boolean | null
           member_count?: number | null
           name: string
           neighborhood?: string | null
@@ -101,6 +112,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           is_approved?: boolean | null
+          is_verified?: boolean | null
           member_count?: number | null
           name?: string
           neighborhood?: string | null
@@ -338,6 +350,36 @@ export type Database = {
         }
         Relationships: []
       }
+      moderation_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          moderator_id: string | null
+          reason: string | null
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          moderator_id?: string | null
+          reason?: string | null
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          moderator_id?: string | null
+          reason?: string | null
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           created_at: string | null
@@ -543,6 +585,8 @@ export type Database = {
           address_street: string | null
           address_zip: string | null
           age_rating: string | null
+          ai_moderation_labels: string[] | null
+          ai_moderation_score: number | null
           artist_id: string | null
           atrativo_contact: string | null
           atrativo_name: string | null
@@ -601,6 +645,8 @@ export type Database = {
           address_street?: string | null
           address_zip?: string | null
           age_rating?: string | null
+          ai_moderation_labels?: string[] | null
+          ai_moderation_score?: number | null
           artist_id?: string | null
           atrativo_contact?: string | null
           atrativo_name?: string | null
@@ -659,6 +705,8 @@ export type Database = {
           address_street?: string | null
           address_zip?: string | null
           age_rating?: string | null
+          ai_moderation_labels?: string[] | null
+          ai_moderation_score?: number | null
           artist_id?: string | null
           atrativo_contact?: string | null
           atrativo_name?: string | null
