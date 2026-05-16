@@ -114,7 +114,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Instagram } from "lucide-react";
 import { Onboarding } from "@/components/Onboarding";
-import { PersonalizationDialog } from "@/components/PersonalizationDialog";
+  import { PersonalizationDialog } from "@/components/PersonalizationDialog";
+  import { ShareDialog } from "@/components/ShareDialog";
  import ArtistCard from "@/components/ArtistCard";
  import { Skeleton } from "@/components/ui/skeleton";
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -272,18 +273,7 @@ function buildUberLink(ev: Event): string {
     const [shareData, setShareData] = useState<{ title: string; text: string; url: string; eventId?: string } | null>(null);
 
     const handleShare = async (title: string, text: string, url: string, eventId?: string) => {
-      if (navigator.share) {
-        try {
-          await navigator.share({ title, text, url });
-          if (eventId) trackShare(eventId);
-        } catch (err) {
-          if ((err as Error).name !== 'AbortError') {
-            setShareData({ title, text, url, eventId });
-          }
-        }
-      } else {
-        setShareData({ title, text, url, eventId });
-      }
+      setShareData({ title, text, url, eventId });
     };
 
     const handleCopyLink = (url: string) => {
@@ -1039,6 +1029,16 @@ function buildUberLink(ev: Event): string {
         {/* Personalização */}
         <Onboarding />
         <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
+        {shareData && (
+          <ShareDialog 
+            open={!!shareData} 
+            onOpenChange={(open) => !open && setShareData(null)}
+            title={shareData.title}
+            text={shareData.text}
+            url={shareData.url}
+            onShare={(platform) => shareData.eventId && trackShare(shareData.eventId)}
+          />
+        )}
 
         <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEvent(null)}>
           <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-t-[2rem] sm:rounded-[2rem] border-none bg-background h-[95vh] sm:h-[90vh] flex flex-col focus:outline-none">
