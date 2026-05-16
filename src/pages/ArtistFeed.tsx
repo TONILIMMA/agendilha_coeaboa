@@ -1,13 +1,14 @@
- import { useState, useRef, useEffect } from "react";
- import { useQuery } from "@tanstack/react-query";
+ import { useState, useRef, useEffect, useCallback } from "react";
+ import { useInfiniteQuery } from "@tanstack/react-query";
  import { supabase } from "@/integrations/supabase/client";
- import { Loader2, Music, Play, Pause, Volume2, VolumeX, User, ChevronUp, ChevronDown, Share2, Heart } from "lucide-react";
+ import { Loader2, Music, Play, Volume2, VolumeX, User, ChevronDown, Share2, Heart } from "lucide-react";
  import { Button } from "@/components/ui/button";
  import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
  import { cn } from "@/lib/utils";
  import { handleError } from "@/lib/error-handler";
  import { toast } from "sonner";
  import { Link } from "react-router-dom";
+ import { useInView } from "react-intersection-observer";
  
  interface MediaItem {
    id: string;
@@ -27,18 +28,20 @@
    const videoRef = useRef<HTMLVideoElement>(null);
    const [isPlaying, setIsPlaying] = useState(false);
    const [isMuted, setIsMuted] = useState(true);
+   const { ref, inView } = useInView({
+     threshold: 0.5,
+   });
  
    useEffect(() => {
-     if (videoRef.current) {
-       if (isActive) {
-         videoRef.current.play().catch(() => setIsPlaying(false));
-         setIsPlaying(true);
-       } else {
-         videoRef.current.pause();
-         setIsPlaying(false);
-       }
+     if (!videoRef.current) return;
+     
+     if (inView && isActive) {
+       videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+     } else {
+       videoRef.current.pause();
+       setIsPlaying(false);
      }
-   }, [isActive]);
+   }, [inView, isActive]);
  
    const togglePlay = () => {
      if (videoRef.current) {
@@ -52,7 +55,7 @@
    };
  
    return (
-     <div className="relative h-screen w-full bg-black snap-start overflow-hidden flex flex-col items-center justify-center">
+     <div ref={ref} className="relative h-[calc(100vh-64px)] w-full bg-black snap-start overflow-hidden flex flex-col items-center justify-center">
        <video
          ref={videoRef}
          src={item.url}
@@ -134,34 +137,57 @@
  export default function ArtistFeed() {
    const containerRef = useRef<HTMLDivElement>(null);
    const [activeIndex, setActiveIndex] = useState(0);
+   const { ref: loadMoreRef, inView: loadMoreInView } = useInView();
  
-   const { data: mediaItems, isLoading } = useQuery({
+   const { 
+     data, 
+     isLoading, 
+     fetchNextPage, 
+     hasNextPage, 
+     isFetchingNextPage 
+   } = useInfiniteQuery({
      queryKey: ["artist-feed"],
-     queryFn: async () => {
-       const { data, error } = await supabase
+     queryFn: async ({ pageParam = 0 }) => {
+       const { data, error, count } = await supabase
          .from("artist_media")
          .select(`
            *,
            artist:artist_profiles(id, name, genre, avatar_url)
-         `)
+         `, { count: 'exact' })
          .eq("media_type", "video")
-         .order("created_at", { ascending: false });
+         .order("created_at", { ascending: false })
+         .range(pageParam, pageParam + 4);
        
        if (error) {
          handleError(error, "Erro ao carregar o feed de artistas.");
          throw error;
        }
-       return data as any as MediaItem[];
+       return {
+         items: data as any as MediaItem[],
+         nextPage: data.length === 5 ? pageParam + 5 : undefined,
+         totalCount: count
+       };
      },
+     initialPageParam: 0,
+     getNextPageParam: (lastPage) => lastPage.nextPage,
      retry: 1
    });
  
-   const handleScroll = () => {
+   const mediaItems = data?.pages.flatMap(page => page.items) || [];
+ 
+   useEffect(() => {
+     if (loadMoreInView && hasNextPage && !isFetchingNextPage) {
+       fetchNextPage();
+     }
+   }, [loadMoreInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+ 
+   const handleScroll = useCallback(() => {
      if (containerRef.current) {
-       const index = Math.round(containerRef.current.scrollTop / window.innerHeight);
+       const itemHeight = containerRef.current.offsetHeight;
+       const index = Math.round(containerRef.current.scrollTop / itemHeight);
        setActiveIndex(index);
      }
-   };
+   }, []);
  
    if (isLoading) {
      return (
@@ -186,12 +212,18 @@
    return (
      <div 
        ref={containerRef}
-       className="h-[calc(100vh-64px)] overflow-y-scroll snap-y snap-mandatory bg-black scroll-smooth"
+         className="h-[calc(100vh-64px)] overflow-y-scroll snap-y snap-mandatory bg-black scroll-smooth scrollbar-none"
        onScroll={handleScroll}
      >
        {mediaItems.map((item, index) => (
          <VideoItem key={item.id} item={item} isActive={index === activeIndex} />
        ))}
+         
+         {hasNextPage && (
+           <div ref={loadMoreRef} className="h-20 flex items-center justify-center bg-black">
+             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+           </div>
+         )}
        
        {/* Help Overlay (visible on first load) */}
        {activeIndex === 0 && (
