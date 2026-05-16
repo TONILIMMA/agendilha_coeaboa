@@ -223,6 +223,31 @@ function buildWhatsAppShare(ev?: Event) {
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
+function handleSocialShare(platform: 'whatsapp' | 'instagram' | 'facebook' | 'twitter' | 'copy', ev?: Event) {
+  const { text, url } = getShareData(ev);
+  const fullText = `${text}\n${url}`;
+  
+  switch (platform) {
+    case 'whatsapp':
+      window.open(`https://wa.me/?text=${encodeURIComponent(fullText)}`, '_blank');
+      break;
+    case 'facebook':
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+      break;
+    case 'twitter':
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(fullText)}`, '_blank');
+      break;
+    case 'copy':
+      navigator.clipboard.writeText(url);
+      toast.success("Link copiado!");
+      break;
+    case 'instagram':
+      navigator.clipboard.writeText(url);
+      toast.success("Link copiado para os Stories!", { description: "Agora cole o link no sticker do Instagram." });
+      break;
+  }
+}
+
 function buildUberLink(ev: Event): string {
   const destinationName = encodeURIComponent(ev.location || "Evento");
   const address = buildFullAddress(ev);
