@@ -282,9 +282,42 @@ function buildUberLink(ev: Event): string {
   };
    const [loading, setLoading] = useState(true);
    const [search, setSearch] = useState("");
+   const [activeTab, setActiveTab] = useState<"events" | "artists">("events");
    const [categoryFilter, setCategoryFilter] = useState("all");
    const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+   const { data: artists, isLoading: artistsLoading } = useQuery({
+     queryKey: ["artists-approved"],
+     queryFn: async () => {
+       const { data, error } = await supabase
+         .from("artist_profiles")
+         .select(`
+           *,
+           artist_media (*)
+         `)
+         .eq("is_approved", true)
+         .order("created_at", { ascending: false });
+       if (error) throw error;
+       return data;
+     },
+   });
+ 
+   const trendingArtists = useMemo(() => {
+     return artists?.slice(0, 5) || [];
+   }, [artists]);
+ 
+   const shortVideos = useMemo(() => {
+     const allVideos: any[] = [];
+     artists?.forEach(artist => {
+       artist.artist_media?.forEach((m: any) => {
+         if (m.media_type === 'video') {
+           allVideos.push({ ...m, artist });
+         }
+       });
+     });
+     return allVideos.sort(() => Math.random() - 0.5);
+   }, [artists]);
+ 
 
    useEffect(() => {
      const params = new URLSearchParams(window.location.search);
