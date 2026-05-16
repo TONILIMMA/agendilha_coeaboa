@@ -278,16 +278,16 @@ export default function Landing() {
               </div>
             </section>
 
-            {user && (
+            {user && recommendedEvents.length > 0 && (
               <section className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold font-display flex items-center gap-2">
                     <Sparkles className="h-5 w-5 text-primary" />
-                    Você pode gostar
+                    Recomendado para você
                   </h2>
                 </div>
                 <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-                  {events.slice(5, 10).map(ev => (
+                  {recommendedEvents.slice(0, 3).map(ev => (
                     <DiscoveryEventCard 
                       key={ev.id} 
                       event={ev} 
