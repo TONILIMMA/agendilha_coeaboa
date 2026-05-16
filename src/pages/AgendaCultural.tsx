@@ -124,6 +124,7 @@ import { Onboarding } from "@/components/Onboarding";
   import { cn } from "@/lib/utils";
  import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
   import EventReviews from "@/components/EventReviews";
+  import { getShareData, getShareUrl, buildFullAddress } from "@/lib/sharing";
 
  interface Event {
   id: string;
@@ -186,40 +187,6 @@ function formatDayLabel(dateStr: string | null): string {
   return `${wd.charAt(0).toUpperCase()}${wd.slice(1)} · ${dayMonth}`;
 }
 
-function buildFullAddress(ev: Event): string {
-  const parts = [
-    ev.location,
-    ev.address_street,
-    ev.address_neighborhood,
-  ].filter(Boolean);
-  return parts.join(" – ");
-}
-
-const getShareUrl = (eventId?: string) => {
-  const base = `${window.location.origin}/agenda`;
-  return eventId ? `${base}?event=${eventId}` : base;
-};
-
-const getShareData = (ev?: Event) => {
-  const isAgenda = !ev;
-  const title = isAgenda ? "Agenda Cultural da Ilha" : `Evento: ${ev.event_title}`;
-  const url = getShareUrl(ev?.id);
-  
-  let text = isAgenda 
-    ? "Confira a programação completa da Ilha do Governador!" 
-    : `Confira este evento e a agenda completa no AgendIlha!`;
-
-  if (ev) {
-    const time = ev.start_time ? `${ev.start_time}` : "";
-    const addr = buildFullAddress(ev);
-    const eventDetails = `🗓️ *${ev.event_title}*${time ? `\n⏰ ${time}` : ""}${addr ? `\n📍 ${addr}` : ""}`;
-    text = `${eventDetails}\n\n🌴 Veja os detalhes no AgendIlha:`;
-  } else {
-    text = `🌴 *Confira a Agenda Cultural da Ilha do Governador!* 🌴\n\nVeja a programação completa e atualizada em:`;
-  }
-
-  return { title, text, url };
-};
 
 function buildWhatsAppShare(ev?: Event) {
   const { text, url } = getShareData(ev);
