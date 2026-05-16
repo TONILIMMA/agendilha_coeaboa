@@ -383,13 +383,13 @@ function buildUberLink(ev: Event): string {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  async function trackView(id: string) {
-    try {
-      await supabase.rpc('increment_views', { event_id: id });
-    } catch (e) {
-      console.error("Error tracking view:", e);
-    }
-  }
+   const trackView = useCallback(async (id: string) => {
+     try {
+       await supabase.rpc('increment_views', { event_id: id });
+     } catch (e) {
+       // Silent fail for analytics
+     }
+   }, []);
 
   async function trackShare(id: string) {
     try {
