@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      artist_media: {
+        Row: {
+          artist_id: string
+          created_at: string
+          id: string
+          media_type: string | null
+          thumbnail_url: string | null
+          url: string
+        }
+        Insert: {
+          artist_id: string
+          created_at?: string
+          id?: string
+          media_type?: string | null
+          thumbnail_url?: string | null
+          url: string
+        }
+        Update: {
+          artist_id?: string
+          created_at?: string
+          id?: string
+          media_type?: string | null
+          thumbnail_url?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artist_media_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      artist_profiles: {
+        Row: {
+          artist_type: string | null
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          cover_url: string | null
+          created_at: string
+          genre: string | null
+          id: string
+          instagram: string | null
+          is_approved: boolean | null
+          member_count: number | null
+          name: string
+          neighborhood: string | null
+          spotify: string | null
+          updated_at: string
+          user_id: string
+          whatsapp: string | null
+          youtube: string | null
+        }
+        Insert: {
+          artist_type?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string
+          genre?: string | null
+          id?: string
+          instagram?: string | null
+          is_approved?: boolean | null
+          member_count?: number | null
+          name: string
+          neighborhood?: string | null
+          spotify?: string | null
+          updated_at?: string
+          user_id: string
+          whatsapp?: string | null
+          youtube?: string | null
+        }
+        Update: {
+          artist_type?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string
+          genre?: string | null
+          id?: string
+          instagram?: string | null
+          is_approved?: boolean | null
+          member_count?: number | null
+          name?: string
+          neighborhood?: string | null
+          spotify?: string | null
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string | null
+          youtube?: string | null
+        }
+        Relationships: []
+      }
       atrativos: {
         Row: {
           contact_whatsapp: string | null
@@ -195,6 +293,35 @@ export type Database = {
           },
         ]
       }
+      follows: {
+        Row: {
+          artist_id: string
+          created_at: string
+          follower_id: string
+          id: string
+        }
+        Insert: {
+          artist_id: string
+          created_at?: string
+          follower_id: string
+          id?: string
+        }
+        Update: {
+          artist_id?: string
+          created_at?: string
+          follower_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follows_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       location_requests: {
         Row: {
           created_at: string | null
@@ -337,6 +464,7 @@ export type Database = {
           phone: string | null
           pin_code: string | null
           responsible_name: string | null
+          role: string | null
           updated_at: string
           user_id: string
           work_neighborhood: string | null
@@ -362,6 +490,7 @@ export type Database = {
           phone?: string | null
           pin_code?: string | null
           responsible_name?: string | null
+          role?: string | null
           updated_at?: string
           user_id: string
           work_neighborhood?: string | null
@@ -387,6 +516,7 @@ export type Database = {
           phone?: string | null
           pin_code?: string | null
           responsible_name?: string | null
+          role?: string | null
           updated_at?: string
           user_id?: string
           work_neighborhood?: string | null
@@ -403,6 +533,7 @@ export type Database = {
           address_street: string | null
           address_zip: string | null
           age_rating: string | null
+          artist_id: string | null
           atrativo_contact: string | null
           atrativo_name: string | null
           atrativo_style: string | null
@@ -460,6 +591,7 @@ export type Database = {
           address_street?: string | null
           address_zip?: string | null
           age_rating?: string | null
+          artist_id?: string | null
           atrativo_contact?: string | null
           atrativo_name?: string | null
           atrativo_style?: string | null
@@ -517,6 +649,7 @@ export type Database = {
           address_street?: string | null
           address_zip?: string | null
           age_rating?: string | null
+          artist_id?: string | null
           atrativo_contact?: string | null
           atrativo_name?: string | null
           atrativo_style?: string | null
@@ -565,7 +698,15 @@ export type Database = {
           video_link?: string | null
           views_count?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "submissions_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_activity_logs: {
         Row: {
