@@ -95,8 +95,8 @@ export default function Auth() {
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-[280px] mx-auto">
             {mode === "login" 
-              ? "Use seu WhatsApp como identificador principal da sua conta." 
-              : "Cadastre-se para divulgar seus eventos e acompanhar o status."}
+              ? "Use seu WhatsApp para entrar na sua conta." 
+              : "Cadastre-se para receber novidades de shows e eventos da Ilha."}
           </p>
         </div>
 
@@ -164,7 +164,7 @@ export default function Auth() {
             ) : (
               <UserPlus className="mr-2 h-4 w-4" />
             )}
-            {mode === "login" ? "Entrar" : "Criar conta"}
+            {mode === "login" ? "Entrar" : "Cadastrar Agora"}
           </Button>
         </form>
 
