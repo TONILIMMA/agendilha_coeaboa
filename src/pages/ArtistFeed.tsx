@@ -14,12 +14,12 @@
    media_type: string;
    thumbnail_url: string | null;
    artist_id: string;
-   artist: {
+   artist?: {
      id: string;
      name: string;
      genre: string;
      avatar_url: string | null;
-   };
+   } | null;
  }
  
  function VideoItem({ item, isActive }: { item: MediaItem, isActive: boolean }) {
@@ -67,16 +67,28 @@
        
        {/* Artist Info Overlay */}
        <div className="absolute bottom-24 left-4 right-16 p-4 text-white z-10 pointer-events-auto">
-         <Link to={`/artista/${item.artist_id}`} className="flex items-center gap-3 mb-3 group">
-           <Avatar className="h-12 w-12 border-2 border-primary group-hover:scale-110 transition-transform">
-             <AvatarImage src={item.artist.avatar_url || ""} />
-             <AvatarFallback className="bg-primary/20"><User className="h-6 w-6" /></AvatarFallback>
-           </Avatar>
-           <div>
-             <h3 className="font-display font-black text-xl leading-none">{item.artist.name}</h3>
-             <p className="text-sm text-white/70 font-medium">#{item.artist.genre}</p>
+         {item.artist ? (
+           <Link to={`/artista/${item.artist_id}`} className="flex items-center gap-3 mb-3 group">
+             <Avatar className="h-12 w-12 border-2 border-primary group-hover:scale-110 transition-transform">
+               <AvatarImage src={item.artist.avatar_url || ""} />
+               <AvatarFallback className="bg-primary/20"><User className="h-6 w-6" /></AvatarFallback>
+             </Avatar>
+             <div>
+               <h3 className="font-display font-black text-xl leading-none">{item.artist.name}</h3>
+               <p className="text-sm text-white/70 font-medium">#{item.artist.genre}</p>
+             </div>
+           </Link>
+         ) : (
+           <div className="flex items-center gap-3 mb-3 group opacity-50">
+             <Avatar className="h-12 w-12 border-2 border-muted">
+               <AvatarFallback className="bg-muted-foreground/20"><User className="h-6 w-6" /></AvatarFallback>
+             </Avatar>
+             <div>
+               <h3 className="font-display font-black text-xl leading-none italic">Artista Removido</h3>
+               <p className="text-sm text-white/70 font-medium">Desconhecido</p>
+             </div>
            </div>
-         </Link>
+         )}
          <p className="text-sm line-clamp-2 text-white/90">Descubra novos sons locais no AgendIlha! 🎸✨</p>
        </div>
  

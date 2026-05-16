@@ -568,24 +568,26 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
 
     const success = await addSubmission(submissionData as any);
 
-    if (success) {
-      localStorage.removeItem("agendilha_draft");
-      localStorage.removeItem("agendilha_step");
-      
-      saveProfile({
-        nick_name: data.nickName,
-        phone: data.basicPhone.startsWith('+55') ? data.basicPhone : `+55${data.basicPhone.replace(/\D/g, '')}`,
-        company_name: data.companyName,
-        email: data.email || "",
-        address_street: data.addressStreet || "",
-        address_number: data.addressNumber || "",
-        address_zip: data.addressZip || "",
-        contact_social: data.contactSocial || "",
-      } as any);
-      
-      setSubmitted(true);
-      window.scrollTo(0, 0);
-    }
+     if (success) {
+       localStorage.removeItem("agendilha_draft");
+       localStorage.removeItem("agendilha_step");
+       
+       if (user) {
+         saveProfile({
+           nick_name: data.nickName,
+           phone: data.basicPhone.startsWith('+55') ? data.basicPhone : `+55${data.basicPhone.replace(/\D/g, '')}`,
+           company_name: data.companyName,
+           email: data.email || "",
+           address_street: data.addressStreet || "",
+           address_number: data.addressNumber || "",
+           address_zip: data.addressZip || "",
+           contact_social: data.contactSocial || "",
+         } as any);
+       }
+       
+       setSubmitted(true);
+       window.scrollTo({ top: 0, behavior: 'smooth' });
+     }
     setSubmitting(false);
    }
 
