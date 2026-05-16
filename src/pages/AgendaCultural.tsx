@@ -745,7 +745,28 @@ function buildUberLink(ev: Event): string {
                       <CalendarDays className="h-20 w-20 text-primary/20" />
                     </div>
                   )}
-                  <div className="absolute top-4 right-4 z-20">
+                  <div className="absolute top-4 right-4 z-20 flex gap-2">
+                    <Button 
+                      variant="secondary" 
+                      size="icon" 
+                      className={cn(
+                        "rounded-full backdrop-blur-md border border-white/20 transition-all shadow-lg",
+                        JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(selectedEvent.id) 
+                          ? "bg-primary text-white hover:bg-primary/80" 
+                          : "bg-black/40 text-white hover:bg-black/60"
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                        const isFav = favs.includes(selectedEvent.id);
+                        const next = isFav ? favs.filter((f: string) => f !== selectedEvent.id) : [...favs, selectedEvent.id];
+                        localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                        window.dispatchEvent(new Event("storage"));
+                        toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                      }}
+                    >
+                      <Heart className={cn("h-5 w-5", JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(selectedEvent.id) && "fill-current")} />
+                    </Button>
                     <Button 
                       variant="secondary" 
                       size="icon" 
