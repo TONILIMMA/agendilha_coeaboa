@@ -111,7 +111,9 @@ import { Button } from "@/components/ui/button";
  import { Textarea } from "@/components/ui/textarea";
  
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play } from "lucide-react";
+import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Instagram } from "lucide-react";
+import { Onboarding } from "@/components/Onboarding";
+import { PersonalizationDialog } from "@/components/PersonalizationDialog";
  import ArtistCard from "@/components/ArtistCard";
  import { Skeleton } from "@/components/ui/skeleton";
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -290,8 +292,9 @@ function buildUberLink(ev: Event): string {
 
     const { user } = useAuth();
     const { toggleTheme } = useTheme();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [profile, setProfile] = useState<any>(null);
+    const [events, setEvents] = useState<Event[]>([]);
+    const { profile: userProfile, loaded: profileLoaded } = useProfile();
+    const [personalizationOpen, setPersonalizationOpen] = useState(false);
   const [ratings, setRatings] = useState<Record<string, { average: number; total: number }>>({});
 
   const loadRatings = async () => {
