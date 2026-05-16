@@ -381,11 +381,10 @@ function buildUberLink(ev: Event): string {
                 </Button>
              </div>
            </div>
-         </div>
-         </div>
+          </div>
 
-        {/* Bloco de Busca e Filtros - Mobile-First */}
-        <div className="mb-12 space-y-4 sm:space-y-6">
+         {/* Bloco de Busca e Filtros - Mobile-First */}
+         <div className="mb-12 space-y-4 sm:space-y-6">
           <div className="bg-card border border-border/60 rounded-[2rem] p-5 sm:p-8 shadow-card ring-1 ring-black/[0.02]">
             <div className="flex flex-col gap-5 sm:gap-6">
               {/* Barra de Busca e Ordenação */}
@@ -926,6 +925,7 @@ function buildUberLink(ev: Event): string {
           </DialogContent>
         </main>
         </Dialog>
-    </div>
-  );
-}
+       </main>
+     </div>
+   );
+ }
