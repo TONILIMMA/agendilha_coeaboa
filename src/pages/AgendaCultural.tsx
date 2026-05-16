@@ -104,6 +104,7 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
  import { supabase } from "@/integrations/supabase/client";
   import { useAuth } from "@/contexts/AuthContext";
   import { useTheme } from "@/hooks/useTheme";
+  import { useProfile } from "@/hooks/useProfile";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -111,7 +112,10 @@ import { Button } from "@/components/ui/button";
  import { Textarea } from "@/components/ui/textarea";
  
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play } from "lucide-react";
+import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Instagram } from "lucide-react";
+import { Onboarding } from "@/components/Onboarding";
+  import { PersonalizationDialog } from "@/components/PersonalizationDialog";
+  import { ShareDialog } from "@/components/ShareDialog";
  import ArtistCard from "@/components/ArtistCard";
  import { Skeleton } from "@/components/ui/skeleton";
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -120,6 +124,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
   import { cn } from "@/lib/utils";
  import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
   import EventReviews from "@/components/EventReviews";
+  import { getShareData, getShareUrl, buildFullAddress } from "@/lib/sharing";
 
  interface Event {
   id: string;
@@ -182,45 +187,36 @@ function formatDayLabel(dateStr: string | null): string {
   return `${wd.charAt(0).toUpperCase()}${wd.slice(1)} · ${dayMonth}`;
 }
 
-function buildFullAddress(ev: Event): string {
-  const parts = [
-    ev.location,
-    ev.address_street,
-    ev.address_neighborhood,
-  ].filter(Boolean);
-  return parts.join(" – ");
-}
-
-const getShareUrl = (eventId?: string) => {
-  const base = `${window.location.origin}/agenda`;
-  return eventId ? `${base}?event=${eventId}` : base;
-};
-
-const getShareData = (ev?: Event) => {
-  const isAgenda = !ev;
-  const title = isAgenda ? "Agenda Cultural da Ilha" : `Evento: ${ev.event_title}`;
-  const url = getShareUrl(ev?.id);
-  
-  let text = isAgenda 
-    ? "Confira a programação completa da Ilha do Governador!" 
-    : `Confira este evento e a agenda completa no AgendIlha!`;
-
-  if (ev) {
-    const time = ev.start_time ? `${ev.start_time}` : "";
-    const addr = buildFullAddress(ev);
-    const eventDetails = `🗓️ *${ev.event_title}*${time ? `\n⏰ ${time}` : ""}${addr ? `\n📍 ${addr}` : ""}`;
-    text = `${eventDetails}\n\n🌴 Veja os detalhes no AgendIlha:`;
-  } else {
-    text = `🌴 *Confira a Agenda Cultural da Ilha do Governador!* 🌴\n\nVeja a programação completa e atualizada em:`;
-  }
-
-  return { title, text, url };
-};
 
 function buildWhatsAppShare(ev?: Event) {
   const { text, url } = getShareData(ev);
   const msg = `${text}\n${url}`;
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+}
+
+function handleSocialShare(platform: 'whatsapp' | 'instagram' | 'facebook' | 'twitter' | 'copy', ev?: Event) {
+  const { text, url } = getShareData(ev);
+  const fullText = `${text}\n${url}`;
+  
+  switch (platform) {
+    case 'whatsapp':
+      window.open(`https://wa.me/?text=${encodeURIComponent(fullText)}`, '_blank');
+      break;
+    case 'facebook':
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+      break;
+    case 'twitter':
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(fullText)}`, '_blank');
+      break;
+    case 'copy':
+      navigator.clipboard.writeText(url);
+      toast.success("Link copiado!");
+      break;
+    case 'instagram':
+      navigator.clipboard.writeText(url);
+      toast.success("Link copiado para os Stories!", { description: "Agora cole o link no sticker do Instagram." });
+      break;
+  }
 }
 
 function buildUberLink(ev: Event): string {
@@ -244,18 +240,7 @@ function buildUberLink(ev: Event): string {
     const [shareData, setShareData] = useState<{ title: string; text: string; url: string; eventId?: string } | null>(null);
 
     const handleShare = async (title: string, text: string, url: string, eventId?: string) => {
-      if (navigator.share) {
-        try {
-          await navigator.share({ title, text, url });
-          if (eventId) trackShare(eventId);
-        } catch (err) {
-          if ((err as Error).name !== 'AbortError') {
-            setShareData({ title, text, url, eventId });
-          }
-        }
-      } else {
-        setShareData({ title, text, url, eventId });
-      }
+      setShareData({ title, text, url, eventId });
     };
 
     const handleCopyLink = (url: string) => {
@@ -265,8 +250,9 @@ function buildUberLink(ev: Event): string {
 
     const { user } = useAuth();
     const { toggleTheme } = useTheme();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [profile, setProfile] = useState<any>(null);
+    const [events, setEvents] = useState<Event[]>([]);
+    const { profile, loaded: profileLoaded } = useProfile();
+    const [personalizationOpen, setPersonalizationOpen] = useState(false);
   const [ratings, setRatings] = useState<Record<string, { average: number; total: number }>>({});
 
   const loadRatings = async () => {
@@ -366,14 +352,6 @@ function buildUberLink(ev: Event): string {
           setEvents(publishedEvents);
     loadRatings();
 
-          if (user) {
-            const { data: prof } = await supabase
-              .from("profiles")
-              .select("home_location, work_neighborhood")
-              .eq("user_id", user.id)
-              .maybeSingle();
-            if (prof) setProfile(prof);
-          }
 
           // Verificar se há um evento específico na URL para abrir o modal
           const params = new URLSearchParams(window.location.search);
@@ -487,8 +465,8 @@ function buildUberLink(ev: Event): string {
          {/* Topo da Página - Hero Mobile-First */}
          <div className="mb-12 sm:mb-20 text-center space-y-8 relative animate-in fade-in slide-in-from-top-4 duration-700">
             <div className="flex flex-col items-center gap-4 sm:gap-6">
-              <div className="inline-flex items-center justify-center px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-secondary/10 border border-secondary/20 mb-2 shadow-sm">
-                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-secondary-foreground">Coé a Boa? apresenta:</span>
+              <div className="inline-flex items-center justify-center px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-secondary/20 border border-secondary/30 mb-2 shadow-sm">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary">Coé a Boa? apresenta:</span>
               </div>
               <h1 className="text-5xl xs:text-6xl sm:text-8xl font-black font-display text-primary tracking-tightest leading-[0.9] drop-shadow-sm">
                 AgendIlha
@@ -521,7 +499,16 @@ function buildUberLink(ev: Event): string {
                 </Button>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 w-full opacity-80 hover:opacity-100 transition-opacity">
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 w-full mt-2">
+                <Button
+                  variant="ghost"
+                  className="rounded-full h-12 px-6 font-bold text-sm text-secondary hover:text-secondary/80 hover:bg-secondary/5 flex items-center gap-2 transition-all"
+                  onClick={() => setPersonalizationOpen(true)}
+                >
+                  <Settings2 className="h-4 w-4" />
+                  Personalizar Minha Agenda
+                </Button>
+
                 <Button 
                   variant="ghost" 
                   className="rounded-full h-10 sm:h-11 px-4 sm:px-6 text-[11px] sm:text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all active:scale-95" 
@@ -997,7 +984,6 @@ function buildUberLink(ev: Event): string {
                   <span className="h-2 w-2 rounded-full bg-secondary/40" />
                   <span className="font-display text-lg sm:text-xl font-bold text-secondary tracking-tight">Coé a Boa?</span>
                 </div>
-                <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground/60">Curadoria & Tecnologia Local</p>
               </div>
             </div>
             
@@ -1006,6 +992,20 @@ function buildUberLink(ev: Event): string {
             </div>
           </div>
         </footer>
+
+        {/* Personalização */}
+        <Onboarding />
+        <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
+        {shareData && (
+          <ShareDialog 
+            open={!!shareData} 
+            onOpenChange={(open) => !open && setShareData(null)}
+            title={shareData.title}
+            text={shareData.text}
+            url={shareData.url}
+            onShare={(platform) => shareData.eventId && trackShare(shareData.eventId)}
+          />
+        )}
 
         <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEvent(null)}>
           <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-t-[2rem] sm:rounded-[2rem] border-none bg-background h-[95vh] sm:h-[90vh] flex flex-col focus:outline-none">

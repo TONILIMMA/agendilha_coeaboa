@@ -295,32 +295,27 @@ export type Database = {
       }
       follows: {
         Row: {
-          artist_id: string
           created_at: string
-          follower_id: string
           id: string
+          target_id: string
+          target_type: string
+          user_id: string
         }
         Insert: {
-          artist_id: string
           created_at?: string
-          follower_id: string
           id?: string
+          target_id: string
+          target_type: string
+          user_id: string
         }
         Update: {
-          artist_id?: string
           created_at?: string
-          follower_id?: string
           id?: string
+          target_id?: string
+          target_type?: string
+          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "follows_artist_id_fkey"
-            columns: ["artist_id"]
-            isOneToOne: false
-            referencedRelation: "artist_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       location_requests: {
         Row: {
@@ -455,14 +450,19 @@ export type Database = {
           contact_social: string | null
           created_at: string
           email: string | null
+          email_notifications_enabled: boolean | null
           event_type_preferences: string[] | null
+          followed_neighborhoods: string[] | null
+          followed_styles: string[] | null
           home_location: string | null
           id: string
           musical_preferences: string[] | null
           nick_name: string | null
+          notification_frequency: string | null
           onboarding_completed: boolean | null
           phone: string | null
           pin_code: string | null
+          push_notifications_enabled: boolean | null
           responsible_name: string | null
           role: string | null
           updated_at: string
@@ -481,14 +481,19 @@ export type Database = {
           contact_social?: string | null
           created_at?: string
           email?: string | null
+          email_notifications_enabled?: boolean | null
           event_type_preferences?: string[] | null
+          followed_neighborhoods?: string[] | null
+          followed_styles?: string[] | null
           home_location?: string | null
           id?: string
           musical_preferences?: string[] | null
           nick_name?: string | null
+          notification_frequency?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
           pin_code?: string | null
+          push_notifications_enabled?: boolean | null
           responsible_name?: string | null
           role?: string | null
           updated_at?: string
@@ -507,14 +512,19 @@ export type Database = {
           contact_social?: string | null
           created_at?: string
           email?: string | null
+          email_notifications_enabled?: boolean | null
           event_type_preferences?: string[] | null
+          followed_neighborhoods?: string[] | null
+          followed_styles?: string[] | null
           home_location?: string | null
           id?: string
           musical_preferences?: string[] | null
           nick_name?: string | null
+          notification_frequency?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
           pin_code?: string | null
+          push_notifications_enabled?: boolean | null
           responsible_name?: string | null
           role?: string | null
           updated_at?: string
