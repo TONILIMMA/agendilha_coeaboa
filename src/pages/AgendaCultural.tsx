@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
   import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Car, Facebook, Twitter, Star, Heart } from "lucide-react";
  import { Skeleton } from "@/components/ui/skeleton";
- import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
   import { toast } from "sonner";
   import { cn } from "@/lib/utils";
@@ -785,9 +785,20 @@ function buildUberLink(ev: Event): string {
                     </Button>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                    <Badge className="mb-3 bg-[#F6EEEA] text-[#2F5D46] border-[#E6D6CF] border px-3 py-1.5 font-semibold text-[10px] tracking-[0.15em] uppercase rounded-full shadow-sm">
-                      {categoryLabels[selectedEvent.category || ""] || "Evento"}
-                    </Badge>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <Badge className="bg-[#F6EEEA] text-[#2F5D46] border-[#E6D6CF] border px-3 py-1.5 font-semibold text-[10px] tracking-[0.15em] uppercase rounded-full shadow-sm">
+                        {categoryIcons[selectedEvent.category || ""] || "📌"} {categoryLabels[selectedEvent.category || ""] || "Evento"}
+                      </Badge>
+                      
+                      {selectedEvent.age_rating && (
+                        <Badge className={cn(
+                          "backdrop-blur-md text-white border-white/20 border px-3 py-1.5 font-black text-[10px] tracking-[0.15em] uppercase rounded-full shadow-sm",
+                          selectedEvent.age_rating === '18+' ? "bg-red-500/80" : "bg-green-600/80"
+                        )}>
+                          {selectedEvent.age_rating}
+                        </Badge>
+                      )}
+                    </div>
                     <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-[1.1]">
                       {selectedEvent.event_title}
                     </h2>
@@ -922,32 +933,36 @@ function buildUberLink(ev: Event): string {
                       </div>
                     </div>
                     
-                    {selectedEvent.image_url && (
+                    <div className="flex flex-col gap-2">
+                      {selectedEvent.image_url && (
+                        <Button 
+                          variant="ghost" 
+                          className="w-full h-10 text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const link = document.createElement('a');
+                            link.href = selectedEvent.image_url!;
+                            link.download = `flyer-${selectedEvent.event_title}.jpg`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            toast.success("Iniciando download do flyer...");
+                          }}
+                        >
+                          <Download className="h-4 w-4 mr-2" /> Baixar Flyer do Evento
+                        </Button>
+                      )}
+
+                      <ReportButton eventId={selectedEvent.id} eventTitle={selectedEvent.event_title} />
+                      
                       <Button 
                         variant="ghost" 
-                        className="w-full h-10 text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          const link = document.createElement('a');
-                          link.href = selectedEvent.image_url!;
-                          link.download = `flyer-${selectedEvent.event_title}.jpg`;
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                          toast.success("Iniciando download do flyer...");
-                        }}
+                        className="h-14 rounded-full font-bold text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-muted-foreground/30 active:scale-95 transition-all"
+                        onClick={() => setSelectedEvent(null)}
                       >
-                        <Download className="h-4 w-4 mr-2" /> Baixar Flyer do Evento
+                        Fechar Detalhes
                       </Button>
-                    )}
-                    
-                    <Button 
-                      variant="ghost" 
-                      className="h-14 rounded-full font-bold text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-muted-foreground/30 active:scale-95 transition-all"
-                      onClick={() => setSelectedEvent(null)}
-                    >
-                      Fechar Detalhes
-                    </Button>
+                    </div>
                   </div>
                 </div>
               </>
