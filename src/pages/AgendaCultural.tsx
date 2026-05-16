@@ -924,9 +924,8 @@ function buildUberLink(ev: Event): string {
               </>
             )}
           </DialogContent>
-        </main>
         </Dialog>
-       </main>
-     </div>
-   );
- }
+      </main>
+    </div>
+  );
+}
