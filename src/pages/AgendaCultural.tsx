@@ -1160,36 +1160,62 @@ function buildUberLink(ev: Event): string {
                 </div>
 
                 <div className="grid grid-cols-1 gap-8">
-                  {grouped[dayKey].items.map((ev) => {
-                    const icon = categoryIcons[ev.category || ""] || "📌";
-                    return (
-                      <Card 
-                        key={ev.id} 
-                        className="overflow-hidden border-border/60 bg-card/50 hover:shadow-elevated transition-all group cursor-pointer rounded-[2.5rem]"
-                        onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
-                      >
-                        <CardContent className="p-0">
-                         <div className="flex flex-col lg:flex-row min-h-[320px]">
-                            <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
-                              <img 
-                                src={ev.image_url || getEventFallbackImage(ev.category)} 
-                                alt={ev.event_title}
-                                loading="lazy"
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
-                              {!ev.image_url && (
-                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-[2px]">
-                                  <span className="text-4xl sm:text-6xl opacity-40 drop-shadow-lg">{categoryIcons[ev.category || ""] || "📌"}</span>
-                                </div>
-                              )}
-                              {/* Badge flutuante na imagem para mobile */}
-                              <div className="absolute bottom-4 left-4 lg:hidden">
-                                <Badge className="bg-white/95 text-primary border-none font-black text-[10px] tracking-widest px-3 py-1 shadow-lg backdrop-blur-sm">
-                                  {categoryLabels[ev.category!]?.split(' ')[0] || ev.category}
-                                </Badge>
-                              </div>
-                            </div>
+                   {grouped[dayKey].items.map((ev) => {
+                     const icon = categoryIcons[ev.category || ""] || "📌";
+                     const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                     const IconComp = (ev.category === 'musica' ? MusicIcon : 
+                                     ev.category === 'gastronomia' ? Utensils : 
+                                     ev.category === 'esporte' ? Trophy : 
+                                     ev.category === 'promocoes' ? Tag : 
+                                     CalendarDays) as any;
+
+                     return (
+                       <Card 
+                         key={ev.id} 
+                         className="overflow-hidden border-border/60 bg-card/50 hover:shadow-elevated transition-all group cursor-pointer rounded-[2.5rem]"
+                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
+                       >
+                         <CardContent className="p-0">
+                          <div className="flex flex-col lg:flex-row min-h-[320px]">
+                             <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
+                               <EventImage 
+                                 src={ev.image_url} 
+                                 alt={ev.event_title} 
+                                 category={ev.category} 
+                                 className="absolute inset-0 w-full h-full"
+                                 icon={IconComp}
+                               />
+                               
+                               <div className="absolute top-4 right-4 z-30">
+                                 <Button 
+                                   variant="ghost" 
+                                   size="icon" 
+                                   className={cn(
+                                     "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90",
+                                     isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                                   )}
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                     const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                     localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                     window.dispatchEvent(new Event("storage"));
+                                     toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                   }}
+                                 >
+                                   <Heart className={cn("h-5 w-5", isFav && "fill-current")} />
+                                 </Button>
+                               </div>
+
+                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
+                               
+                               {/* Badge flutuante na imagem para mobile */}
+                               <div className="absolute bottom-4 left-4 lg:hidden">
+                                 <Badge className="bg-white/95 text-primary border-none font-black text-[10px] tracking-widest px-3 py-1 shadow-lg backdrop-blur-sm">
+                                   {categoryLabels[ev.category!]?.split(' ')[0] || ev.category}
+                                 </Badge>
+                               </div>
+                             </div>
 
                            <div className="flex-1 p-5 sm:p-8 lg:p-10 flex flex-col justify-between space-y-5 sm:space-y-6">
                               <div className="space-y-4 sm:space-y-6">
