@@ -376,20 +376,22 @@ export default function Landing() {
                   </h2>
                 </div>
                 <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-                  {recommendedEvents.slice(0, 3).map(ev => (
+                <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
+                  {recommendedEvents.slice(0, 5).map(ev => (
                     <DiscoveryEventCard 
                       key={ev.id} 
                       event={ev} 
-                      variant="small"
+                      variant="compact"
                       onClick={() => navigate(`/agenda?event=${ev.id}`)}
                       isFavorite={favorites.includes(ev.id)}
-                       onFavoriteToggle={() => toggleFavorite(ev.id)}
-                       onShare={() => {
-                         const data = getShareData(ev);
-                         setShareData({ ...data, eventId: ev.id });
-                       }}
-                     />
-                   ))}
+                      onFavoriteToggle={() => toggleFavorite(ev.id)}
+                      onShare={() => {
+                        const data = getShareData(ev);
+                        setShareData({ ...data, eventId: ev.id });
+                      }}
+                    />
+                  ))}
+                </div>
                 </div>
               </section>
             )}
