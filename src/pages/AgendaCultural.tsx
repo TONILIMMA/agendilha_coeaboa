@@ -599,23 +599,23 @@ function buildUberLink(ev: Event): string {
                         Hoje perto de você
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
-                        {nearYouEvents.map(ev => {
-                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                          return (
-                            <Card
-                              key={ev.id}
-                              className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer group event-card"
-                              data-event-id={ev.id}
-                              onClick={() => setSelectedEvent(ev)}
-                            >
-                              <CardContent className="p-3 flex items-center gap-4">
-                                <EventImage 
-                                  src={ev.image_url} 
-                                  alt={ev.event_title} 
-                                  category={ev.category} 
-                                  className="h-16 w-16 rounded-xl shrink-0"
-                                  icon={CalendarDays}
-                                />
+                         {nearYouEvents.map(ev => {
+                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                           return (
+                             <Card
+                               key={ev.id}
+                               className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer group event-card"
+                               data-event-id={ev.id}
+                               onClick={() => setSelectedEvent(ev)}
+                             >
+                               <CardContent className="p-3 flex items-center gap-4">
+                                 <EventImage 
+                                   src={ev.image_url} 
+                                   alt={ev.event_title} 
+                                   category={ev.category} 
+                                   className="h-16 w-16 rounded-xl shrink-0 event-image"
+                                   icon={CalendarDays}
+                                 />
                                 <div className="min-w-0 flex-1">
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
@@ -664,23 +664,23 @@ function buildUberLink(ev: Event): string {
                         Você pode gostar
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
-                        {recommendedEvents.map(ev => {
-                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                          return (
-                            <Card
-                              key={ev.id}
-                              className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group event-card"
-                              data-event-id={ev.id}
-                              onClick={() => setSelectedEvent(ev)}
-                            >
-                              <CardContent className="p-3 flex items-center gap-4">
-                                <EventImage 
-                                  src={ev.image_url} 
-                                  alt={ev.event_title} 
-                                  category={ev.category} 
-                                  className="h-16 w-16 rounded-xl shrink-0"
-                                  icon={MusicIcon}
-                                />
+                         {recommendedEvents.map(ev => {
+                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                           return (
+                             <Card
+                               key={ev.id}
+                               className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group event-card"
+                               data-event-id={ev.id}
+                               onClick={() => setSelectedEvent(ev)}
+                             >
+                               <CardContent className="p-3 flex items-center gap-4">
+                                 <EventImage 
+                                   src={ev.image_url} 
+                                   alt={ev.event_title} 
+                                   category={ev.category} 
+                                   className="h-16 w-16 rounded-xl shrink-0 event-image"
+                                   icon={MusicIcon}
+                                 />
                                 <div className="min-w-0 flex-1">
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
@@ -729,23 +729,23 @@ function buildUberLink(ev: Event): string {
                         Bombando agora
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
-                        {trendingEvents.map(ev => {
-                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                          return (
-                            <Card
-                              key={ev.id}
-                              className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer group event-card"
-                              data-event-id={ev.id}
-                              onClick={() => setSelectedEvent(ev)}
-                            >
-                              <CardContent className="p-3 flex items-center gap-4">
-                                <EventImage 
-                                  src={ev.image_url} 
-                                  alt={ev.event_title} 
-                                  category={ev.category} 
-                                  className="h-16 w-16 rounded-xl shrink-0"
-                                  icon={Play}
-                                />
+                         {trendingEvents.map(ev => {
+                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                           return (
+                             <Card
+                               key={ev.id}
+                               className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer group event-card"
+                               data-event-id={ev.id}
+                               onClick={() => setSelectedEvent(ev)}
+                             >
+                               <CardContent className="p-3 flex items-center gap-4">
+                                 <EventImage 
+                                   src={ev.image_url} 
+                                   alt={ev.event_title} 
+                                   category={ev.category} 
+                                   className="h-16 w-16 rounded-xl shrink-0 event-image"
+                                   icon={Play}
+                                 />
                                 <div className="min-w-0 flex-1">
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.views_count || 0} visualizações</p>
