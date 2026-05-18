@@ -593,18 +593,16 @@ function buildUberLink(ev: Event): string {
                         {trendingEvents.map(ev => (
                           <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
-                              <div className="h-16 w-16 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 overflow-hidden border border-orange-500/10">
-                                {ev.image_url ? (
-                                  <img 
-                                    src={ev.image_url} 
-                                    alt={ev.event_title} 
-                                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                                    loading="lazy"
-                                  />
-                                ) : (
-                                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-orange-500/20 to-yellow-500/20 relative">
-                                    <Play className="h-7 w-7 text-orange-600 relative z-10" />
-                                    <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=200')] bg-cover" />
+                              <div className="h-16 w-16 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 overflow-hidden border border-orange-500/10 relative">
+                                <img 
+                                  src={ev.image_url || getEventFallbackImage(ev.category)} 
+                                  alt={ev.event_title} 
+                                  className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                                  loading="lazy"
+                                />
+                                {!ev.image_url && (
+                                  <div className="absolute inset-0 bg-orange-500/20 flex items-center justify-center backdrop-blur-[1px]">
+                                    <Play className="h-6 w-6 text-white drop-shadow-md" />
                                   </div>
                                 )}
                               </div>
