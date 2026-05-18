@@ -663,7 +663,7 @@ function buildUberLink(ev: Event): string {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full text-secondary hover:bg-secondary/10"
+                                    className="h-8 w-8 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);
@@ -732,7 +732,7 @@ function buildUberLink(ev: Event): string {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full text-orange-500 hover:bg-orange-500/10"
+                                    className="h-8 w-8 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);
