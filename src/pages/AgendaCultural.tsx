@@ -416,13 +416,7 @@ function buildUberLink(ev: Event): string {
        setCategoryFilter(category);
      }
      
-     // Sincronizar favoritos do localStorage se não estiver logado
-     const updateFavs = () => {
-       const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-       // Forçar re-render se necessário
-     };
-     window.addEventListener("storage", updateFavs);
-     return () => window.removeEventListener("storage", updateFavs);
+      // Sincronização automática via useFavorites hook
    }, []);
    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
