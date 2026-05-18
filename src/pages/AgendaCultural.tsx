@@ -1256,7 +1256,7 @@ function buildUberLink(ev: Event): string {
                                  src={ev.image_url} 
                                  alt={ev.event_title} 
                                  category={ev.category} 
-                                 className="absolute inset-0 w-full h-full"
+                                 className="absolute inset-0 w-full h-full event-image"
                                  icon={IconComp}
                                />
                                
