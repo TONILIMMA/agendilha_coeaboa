@@ -590,7 +590,12 @@ function buildUberLink(ev: Event): string {
                         {nearYouEvents.map(ev => {
                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
                           return (
-                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer group" onClick={() => setSelectedEvent(ev)}>
+                            <Card
+                              key={ev.id}
+                              className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer group event-card"
+                              data-event-id={ev.id}
+                              onClick={() => setSelectedEvent(ev)}
+                            >
                               <CardContent className="p-3 flex items-center gap-4">
                                 <EventImage 
                                   src={ev.image_url} 
@@ -650,7 +655,12 @@ function buildUberLink(ev: Event): string {
                         {recommendedEvents.map(ev => {
                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
                           return (
-                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group" onClick={() => setSelectedEvent(ev)}>
+                            <Card
+                              key={ev.id}
+                              className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group event-card"
+                              data-event-id={ev.id}
+                              onClick={() => setSelectedEvent(ev)}
+                            >
                               <CardContent className="p-3 flex items-center gap-4">
                                 <EventImage 
                                   src={ev.image_url} 
@@ -710,7 +720,12 @@ function buildUberLink(ev: Event): string {
                         {trendingEvents.map(ev => {
                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
                           return (
-                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer group" onClick={() => setSelectedEvent(ev)}>
+                            <Card
+                              key={ev.id}
+                              className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer group event-card"
+                              data-event-id={ev.id}
+                              onClick={() => setSelectedEvent(ev)}
+                            >
                               <CardContent className="p-3 flex items-center gap-4">
                                 <EventImage 
                                   src={ev.image_url} 
@@ -1200,11 +1215,15 @@ function buildUberLink(ev: Event): string {
                                      CalendarDays) as any;
 
                      return (
-                       <Card 
-                         key={ev.id} 
-                         className="overflow-hidden border-border/60 bg-card/50 hover:shadow-elevated transition-all group cursor-pointer rounded-[2.5rem]"
-                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
-                       >
+                        <Card
+                          key={ev.id}
+                          className="overflow-hidden border-border/60 bg-card/50 hover:shadow-elevated transition-all group cursor-pointer rounded-[2.5rem] event-card"
+                          data-event-id={ev.id}
+                          onClick={() => {
+                            trackView(ev.id);
+                            setSelectedEvent(ev);
+                          }}
+                        >
                          <CardContent className="p-0">
                           <div className="flex flex-col lg:flex-row min-h-[320px]">
                              <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
