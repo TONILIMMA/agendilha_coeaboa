@@ -16,7 +16,8 @@ interface Event {
   location: string | null;
   address_neighborhood: string | null;
   category: string | null;
-  image_url?: string | null;
+   image_url?: string | null;
+   imageUrl?: string | null;
   rating?: { average: number; total: number };
   age_rating?: string;
   is_suitable_for_minors?: boolean;
@@ -53,8 +54,9 @@ export function DiscoveryEventCard({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  const fallbackImage = useMemo(() => getEventFallbackImage(event.category), [event.category]);
-  const finalImage = hasError ? fallbackImage : (event.image_url || fallbackImage);
+   const fallbackImage = useMemo(() => getEventFallbackImage(event.category), [event.category]);
+   const officialImage = event.image_url || event.imageUrl;
+   const finalImage = hasError ? fallbackImage : (officialImage || fallbackImage);
 
   return (
     <motion.div
@@ -72,11 +74,11 @@ export function DiscoveryEventCard({
                 isSmall ? "w-[160px] xs:w-[200px]" : "w-[160px] xs:w-[200px]"
         )}
       >
-        <div className={cn(
-          "relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] shadow-xl bg-muted/20",
-          isHorizontal && "aspect-[16/9]",
-          isCompact && "aspect-[16/9] h-[260px]"
-        )}>
+         <div className={cn(
+           "relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] shadow-xl bg-muted/20",
+           isHorizontal && "aspect-[16/9]",
+           isCompact && "aspect-[16/9] h-[240px] xs:h-[260px]"
+         )}>
           <AnimatePresence>
             {!isLoaded && (
               <motion.div
@@ -89,20 +91,23 @@ export function DiscoveryEventCard({
             )}
           </AnimatePresence>
 
-          <img
-            src={finalImage}
-            alt={event.event_title}
-            loading="lazy"
-            onLoad={() => setIsLoaded(true)}
-            onError={() => {
-              setHasError(true);
-              setIsLoaded(true);
-            }}
-            className={cn(
-              "h-full w-full object-cover transition-all duration-700 group-hover:scale-110",
-              !isLoaded ? "opacity-0 scale-105 blur-sm" : "opacity-100 scale-100 blur-0"
+            {officialImage && (
+              <link rel="prefetch" href={officialImage} as="image" />
             )}
-          />
+            <img
+              src={finalImage}
+              alt={event.event_title}
+              loading="eager"
+              onLoad={() => setIsLoaded(true)}
+              onError={() => {
+                setHasError(true);
+                setIsLoaded(true);
+              }}
+              className={cn(
+                "h-full w-full object-cover transition-all duration-700 group-hover:scale-110",
+                !isLoaded ? "opacity-0 scale-105 blur-sm" : "opacity-100 scale-100 blur-0"
+              )}
+            />
            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
            
            {/* Top Badges Left */}
@@ -167,22 +172,29 @@ export function DiscoveryEventCard({
                </Badge>
              )}
            </div>
-           <div className="absolute bottom-6 left-6 right-6 text-white">
-             <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-white/70 mb-2">
-               <Calendar className="h-3 w-3" />
-               {event.date} {event.start_time && `• ${event.start_time}`}
-             </div>
-             <h3 className={cn(
-               "font-display font-black leading-tight mb-2 group-hover:text-primary transition-colors",
-               isLarge ? "text-2xl" : "text-lg"
-             )}>
-               {event.event_title}
-             </h3>
-             <div className="flex items-center gap-1.5 text-sm font-medium text-white/60">
-               <MapPin className="h-4 w-4 text-primary" />
-               <span className="truncate">{event.location} • {event.address_neighborhood}</span>
-             </div>
-           </div>
+            <div className={cn(
+              "absolute bottom-0 left-0 right-0 p-4 xs:p-6 text-white bg-gradient-to-t from-black/90 via-black/40 to-transparent",
+              isCompact && "p-3 xs:p-4"
+            )}>
+              <div className={cn(
+                "flex items-center gap-2 text-[10px] xs:text-xs font-mono uppercase tracking-widest text-white/70 mb-1 xs:mb-2",
+                isCompact && "mb-1"
+              )}>
+                <Calendar className="h-3 w-3" />
+                {event.date} {event.start_time && `• ${event.start_time}`}
+              </div>
+              <h3 className={cn(
+                "font-display font-black leading-tight mb-1 xs:mb-2 group-hover:text-primary transition-colors line-clamp-2",
+                isLarge ? "text-xl xs:text-2xl" : "text-base xs:text-lg",
+                isCompact && "text-sm xs:text-base mb-1"
+              )}>
+                {event.event_title}
+              </h3>
+              <div className="flex items-center gap-1.5 text-[10px] xs:text-sm font-medium text-white/60">
+                <MapPin className="h-3 w-3 xs:h-4 xs:w-4 text-primary shrink-0" />
+                <span className="truncate">{event.location}</span>
+              </div>
+            </div>
          </div>
        </Card>
      </motion.div>
