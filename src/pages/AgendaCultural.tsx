@@ -1179,32 +1179,40 @@ function buildUberLink(ev: Event): string {
                    <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
                  </div>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
-                   {filteredEvents.filter(e => e.is_highlight).map(ev => (
-                     <Card 
-                       key={ev.id} 
-                        className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group"
+                    {filteredEvents.filter(e => e.is_highlight).map(ev => (
+                      <Card 
+                        key={ev.id} 
+                        className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group event-card"
+                        data-event-id={ev.id}
                         data-nome={ev.event_title}
-                       onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
-                     >
-                       <CardContent className="p-6 space-y-4">
-                         <div className="flex items-center justify-between">
-                           <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0">DESTAQUE 🔥</Badge>
-                           <span className="text-xs font-medium text-orange-600/70">{categoryLabels[ev.category!] || ev.category}</span>
-                         </div>
-                         <h3 className="font-display font-bold text-2xl leading-tight line-clamp-2 group-hover:text-primary transition-colors">{ev.event_title}</h3>
-                         <div className="space-y-2 text-sm text-muted-foreground font-medium">
-                           <div className="flex items-center gap-2">
-                             <CalendarDays className="h-4 w-4 text-orange-500" />
-                             <span>{ev.date} {ev.start_time ? `• ${ev.start_time}` : ""}</span>
-                           </div>
-                           <div className="flex items-center gap-2">
-                             <MapPin className="h-4 w-4 text-orange-500" />
-                             <span className="line-clamp-1">{ev.location}</span>
-                           </div>
-                         </div>
-                       </CardContent>
-                     </Card>
-                   ))}
+                        onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
+                      >
+                        <EventImage 
+                          src={ev.image_url} 
+                          alt={ev.event_title} 
+                          category={ev.category} 
+                          className="h-48 w-full event-image"
+                          icon={Sparkles}
+                        />
+                        <CardContent className="p-6 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0">DESTAQUE 🔥</Badge>
+                            <span className="text-xs font-medium text-orange-600/70">{categoryLabels[ev.category!] || ev.category}</span>
+                          </div>
+                          <h3 className="font-display font-bold text-2xl leading-tight line-clamp-2 group-hover:text-primary transition-colors">{ev.event_title}</h3>
+                          <div className="space-y-2 text-sm text-muted-foreground font-medium">
+                            <div className="flex items-center gap-2">
+                              <CalendarDays className="h-4 w-4 text-orange-500" />
+                              <span>{ev.date} {ev.start_time ? `• ${ev.start_time}` : ""}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-orange-500" />
+                              <span className="line-clamp-1">{ev.location}</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                 </div>
               </section>
             )}
