@@ -126,18 +126,29 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
   );
 }
 const categoryFallbacks: Record<string, string> = {
-  musica: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=800",
-  gastronomia: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=800",
-  cultura: "https://images.unsplash.com/photo-1514525253361-bee8a187499b?auto=format&fit=crop&q=80&w=800",
-  esporte: "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=800",
-  promocoes: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800",
-  outros: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800",
+  "MÚSICA / SHOW": "/assets/fallbacks/musica.jpg",
+  "OUTROS": "/assets/fallbacks/outros.jpg",
+  "TEATRO": "/assets/fallbacks/teatro.jpg",
+  "GASTRONOMIA": "/assets/fallbacks/gastronomia.jpg",
+  "ESPORTE": "/assets/fallbacks/esporte.jpg",
+  "MÚSICA": "/assets/fallbacks/musica.jpg",
+  "CULTURA / ARTE": "/assets/fallbacks/teatro.jpg",
+  "PROMOÇÕES": "/assets/fallbacks/outros.jpg",
 };
 
- function getEventFallbackImage(category: string | null) {
-   const cat = category?.toLowerCase() || 'outros';
-   return categoryFallbacks[cat] || categoryFallbacks['outros'];
- }
+function getEventFallbackImage(category: string | null) {
+  const normalized = category?.toUpperCase().trim() || "OUTROS";
+  
+  // Busca direta ou fallback por palavra-chave
+  if (categoryFallbacks[normalized]) return categoryFallbacks[normalized];
+  
+  if (normalized.includes("MÚSICA") || normalized.includes("SHOW")) return categoryFallbacks["MÚSICA / SHOW"];
+  if (normalized.includes("GASTRONOMIA") || normalized.includes("RESTAURANTE")) return categoryFallbacks["GASTRONOMIA"];
+  if (normalized.includes("TEATRO") || normalized.includes("CULTURA") || normalized.includes("ARTE")) return categoryFallbacks["TEATRO"];
+  if (normalized.includes("ESPORTE")) return categoryFallbacks["ESPORTE"];
+  
+  return categoryFallbacks["OUTROS"];
+}
  
  function EventImage({ src, alt, category, className, icon: Icon }: { src?: string | null; alt: string; category?: string | null; className?: string; icon?: any }) {
    const [isLoaded, setIsLoaded] = useState(false);
@@ -159,7 +170,26 @@ const categoryFallbacks: Record<string, string> = {
            !isLoaded ? "opacity-0 blur-sm scale-105" : "opacity-100 blur-0 scale-100"
          )}
          onLoad={() => setIsLoaded(true)}
-         onError={() => {
+         onError={(e) => {
+           // Se a imagem local também falhar (não existir), usa um fallback de Unsplash como última opção
+           const currentTarget = e.currentTarget;
+           if (!error && currentTarget.src.includes('/assets/fallbacks/')) {
+             const unsplashFallbacks: Record<string, string> = {
+               "MÚSICA / SHOW": "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=800",
+               "GASTRONOMIA": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=800",
+               "TEATRO": "https://images.unsplash.com/photo-1514525253361-bee8a187499b?auto=format&fit=crop&q=80&w=800",
+               "ESPORTE": "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=800",
+               "OUTROS": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800",
+             };
+             const normalized = category?.toUpperCase().trim() || "OUTROS";
+             let finalFallback = unsplashFallbacks["OUTROS"];
+             if (normalized.includes("MÚSICA")) finalFallback = unsplashFallbacks["MÚSICA / SHOW"];
+             else if (normalized.includes("GASTRONOMIA")) finalFallback = unsplashFallbacks["GASTRONOMIA"];
+             else if (normalized.includes("TEATRO") || normalized.includes("CULTURA")) finalFallback = unsplashFallbacks["TEATRO"];
+             else if (normalized.includes("ESPORTE")) finalFallback = unsplashFallbacks["ESPORTE"];
+             
+             currentTarget.src = finalFallback;
+           }
            setError(true);
            setIsLoaded(true);
          }}
@@ -1353,19 +1383,13 @@ function buildUberLink(ev: Event): string {
             {selectedEvent && (
               <>
                 {/* Header/Banner - Fixed at top */}
-                 <div className="relative aspect-[4/3] sm:aspect-video w-full bg-muted overflow-hidden shrink-0 group">
-                   <img 
-                     src={selectedEvent.image_url || getEventFallbackImage(selectedEvent.category)} 
-                     alt={selectedEvent.event_title} 
-                     className="w-full h-full object-cover" 
-                   />
-                   {!selectedEvent.image_url && (
-                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-[2px]">
-                       <span className="text-6xl sm:text-8xl opacity-40 drop-shadow-lg">
-                         {categoryIcons[selectedEvent.category || ""] || "📌"}
-                       </span>
-                     </div>
-                   )}
+                  <div className="relative aspect-[4/3] sm:aspect-video w-full bg-muted overflow-hidden shrink-0 group">
+                    <EventImage 
+                      src={selectedEvent.image_url} 
+                      alt={selectedEvent.event_title} 
+                      category={selectedEvent.category} 
+                      className="absolute inset-0 w-full h-full"
+                    />
                   <div className="absolute top-4 right-4 z-20 flex gap-2">
                     <Button 
                       variant="secondary" 
