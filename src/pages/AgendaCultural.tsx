@@ -1239,26 +1239,38 @@ function buildUberLink(ev: Event): string {
                                  icon={IconComp}
                                />
                                
-                               <div className="absolute top-4 right-4 z-30">
-                                 <Button 
-                                   variant="ghost" 
-                                   size="icon" 
-                                   className={cn(
-                                     "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90",
-                                     isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
-                                   )}
-                                   onClick={(e) => {
-                                     e.stopPropagation();
-                                     const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-                                     const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
-                                     localStorage.setItem("agendilha_favorites", JSON.stringify(next));
-                                     window.dispatchEvent(new Event("storage"));
-                                     toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
-                                   }}
-                                 >
-                                   <Heart className={cn("h-5 w-5", isFav && "fill-current")} />
-                                 </Button>
-                               </div>
+                                <div className="absolute top-4 right-4 z-30 flex flex-col gap-2">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className={cn(
+                                      "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
+                                      isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                                    )}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                      window.dispatchEvent(new Event("storage"));
+                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                    }}
+                                  >
+                                    <Heart className={cn("h-5 w-5", isFav && "fill-current")} />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-10 w-10 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const data = getShareData(ev);
+                                      handleShare(data.title, data.text, data.url, ev.id);
+                                    }}
+                                  >
+                                    <Share2 className="h-5 w-5" />
+                                  </Button>
+                                </div>
 
                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
                                
