@@ -127,15 +127,6 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
     </>
   );
 }
- const normalizeText = (text: string) => {
-   return text
-     .toLowerCase()
-     .normalize("NFD")
-     .replace(/[\u0300-\u036f]/g, "")
-     .trim();
- };
- 
-  import { getEventFallbackImage, normalizeText } from "@/lib/event-utils";
  
   function EventImage({ src, alt, category, className, icon: Icon }: { src?: string | null; alt: string; category?: string | null; className?: string; icon?: any }) {
     const [isLoaded, setIsLoaded] = useState(false);
