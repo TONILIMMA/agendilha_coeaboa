@@ -125,6 +125,20 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
     </>
   );
 }
+const categoryFallbacks: Record<string, string> = {
+  musica: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=800",
+  gastronomia: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=800",
+  cultura: "https://images.unsplash.com/photo-1514525253361-bee8a187499b?auto=format&fit=crop&q=80&w=800",
+  esporte: "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=800",
+  promocoes: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800",
+  outros: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800",
+};
+
+function getEventFallbackImage(category: string | null) {
+  const cat = category?.toLowerCase() || 'outros';
+  return categoryFallbacks[cat] || categoryFallbacks['outros'];
+}
+
 interface Event {
   id: string;
   event_title: string;
@@ -511,18 +525,16 @@ function buildUberLink(ev: Event): string {
                         {nearYouEvents.map(ev => (
                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer active:scale-95 transition-transform" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
-                              <div className="h-16 w-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-primary/5">
-                                {ev.image_url ? (
-                                  <img 
-                                    src={ev.image_url} 
-                                    alt={ev.event_title} 
-                                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                                    loading="lazy"
-                                  />
-                                ) : (
-                                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20 relative">
-                                    <CalendarDays className="h-7 w-7 text-primary relative z-10" />
-                                    <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=200')] bg-cover" />
+                              <div className="h-16 w-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-primary/5 relative">
+                                <img 
+                                  src={ev.image_url || getEventFallbackImage(ev.category)} 
+                                  alt={ev.event_title} 
+                                  className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                                  loading="lazy"
+                                />
+                                {!ev.image_url && (
+                                  <div className="absolute inset-0 bg-primary/20 flex items-center justify-center backdrop-blur-[1px]">
+                                    <CalendarDays className="h-6 w-6 text-white drop-shadow-md" />
                                   </div>
                                 )}
                               </div>
@@ -547,18 +559,16 @@ function buildUberLink(ev: Event): string {
                         {recommendedEvents.map(ev => (
                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer active:scale-95 transition-transform" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
-                              <div className="h-16 w-16 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 overflow-hidden border border-accent/5">
-                                {ev.image_url ? (
-                                  <img 
-                                    src={ev.image_url} 
-                                    alt={ev.event_title} 
-                                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                                    loading="lazy"
-                                  />
-                                ) : (
-                                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-accent/20 to-primary/20 relative">
-                                    <MusicIcon className="h-7 w-7 text-accent relative z-10" />
-                                    <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1514525253361-bee8a187499b?auto=format&fit=crop&q=80&w=200')] bg-cover" />
+                              <div className="h-16 w-16 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 overflow-hidden border border-accent/5 relative">
+                                <img 
+                                  src={ev.image_url || getEventFallbackImage(ev.category)} 
+                                  alt={ev.event_title} 
+                                  className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                                  loading="lazy"
+                                />
+                                {!ev.image_url && (
+                                  <div className="absolute inset-0 bg-accent/20 flex items-center justify-center backdrop-blur-[1px]">
+                                    <MusicIcon className="h-6 w-6 text-white drop-shadow-md" />
                                   </div>
                                 )}
                               </div>
@@ -583,18 +593,16 @@ function buildUberLink(ev: Event): string {
                         {trendingEvents.map(ev => (
                           <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
-                              <div className="h-16 w-16 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 overflow-hidden border border-orange-500/10">
-                                {ev.image_url ? (
-                                  <img 
-                                    src={ev.image_url} 
-                                    alt={ev.event_title} 
-                                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                                    loading="lazy"
-                                  />
-                                ) : (
-                                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-orange-500/20 to-yellow-500/20 relative">
-                                    <Play className="h-7 w-7 text-orange-600 relative z-10" />
-                                    <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=200')] bg-cover" />
+                              <div className="h-16 w-16 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 overflow-hidden border border-orange-500/10 relative">
+                                <img 
+                                  src={ev.image_url || getEventFallbackImage(ev.category)} 
+                                  alt={ev.event_title} 
+                                  className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                                  loading="lazy"
+                                />
+                                {!ev.image_url && (
+                                  <div className="absolute inset-0 bg-orange-500/20 flex items-center justify-center backdrop-blur-[1px]">
+                                    <Play className="h-6 w-6 text-white drop-shadow-md" />
                                   </div>
                                 )}
                               </div>
@@ -1013,27 +1021,26 @@ function buildUberLink(ev: Event): string {
                       >
                         <CardContent className="p-0">
                          <div className="flex flex-col lg:flex-row min-h-[320px]">
-                           {/* Imagem do Evento - Mobile-First */}
-                           {(ev as any).image_url ? (
-                             <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
-                               <img 
-                                 src={(ev as any).image_url} 
-                                 alt={ev.event_title}
-                                 loading="lazy"
-                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                               />
-                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
-                               {/* Badge flutuante na imagem para mobile */}
-                               <div className="absolute bottom-4 left-4 lg:hidden">
-                                 <Badge className="bg-white/95 text-primary border-none font-black text-[10px] tracking-widest px-3 py-1 shadow-lg backdrop-blur-sm">
-                                   {categoryLabels[ev.category!]?.split(' ')[0] || ev.category}
-                                 </Badge>
-                               </div>
-                             </div>
-                           ) : (
-                             /* Faixa lateral decorativa se não houver imagem */
-                             <div className="hidden lg:block w-3 bg-primary/10 shrink-0" />
-                           )}
+                            <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
+                              <img 
+                                src={ev.image_url || getEventFallbackImage(ev.category)} 
+                                alt={ev.event_title}
+                                loading="lazy"
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
+                              {!ev.image_url && (
+                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-[2px]">
+                                  <span className="text-4xl sm:text-6xl opacity-40 drop-shadow-lg">{categoryIcons[ev.category || ""] || "📌"}</span>
+                                </div>
+                              )}
+                              {/* Badge flutuante na imagem para mobile */}
+                              <div className="absolute bottom-4 left-4 lg:hidden">
+                                <Badge className="bg-white/95 text-primary border-none font-black text-[10px] tracking-widest px-3 py-1 shadow-lg backdrop-blur-sm">
+                                  {categoryLabels[ev.category!]?.split(' ')[0] || ev.category}
+                                </Badge>
+                              </div>
+                            </div>
 
                            <div className="flex-1 p-5 sm:p-8 lg:p-10 flex flex-col justify-between space-y-5 sm:space-y-6">
                               <div className="space-y-4 sm:space-y-6">
@@ -1171,14 +1178,19 @@ function buildUberLink(ev: Event): string {
             {selectedEvent && (
               <>
                 {/* Header/Banner - Fixed at top */}
-                <div className="relative aspect-[4/3] sm:aspect-video w-full bg-muted overflow-hidden shrink-0">
-                  {selectedEvent.image_url ? (
-                    <img src={selectedEvent.image_url} alt={selectedEvent.event_title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
-                      <CalendarDays className="h-20 w-20 text-primary/20" />
-                    </div>
-                  )}
+                 <div className="relative aspect-[4/3] sm:aspect-video w-full bg-muted overflow-hidden shrink-0 group">
+                   <img 
+                     src={selectedEvent.image_url || getEventFallbackImage(selectedEvent.category)} 
+                     alt={selectedEvent.event_title} 
+                     className="w-full h-full object-cover" 
+                   />
+                   {!selectedEvent.image_url && (
+                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-[2px]">
+                       <span className="text-6xl sm:text-8xl opacity-40 drop-shadow-lg">
+                         {categoryIcons[selectedEvent.category || ""] || "📌"}
+                       </span>
+                     </div>
+                   )}
                   <div className="absolute top-4 right-4 z-20 flex gap-2">
                     <Button 
                       variant="secondary" 
