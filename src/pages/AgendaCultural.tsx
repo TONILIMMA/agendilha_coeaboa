@@ -1383,19 +1383,13 @@ function buildUberLink(ev: Event): string {
             {selectedEvent && (
               <>
                 {/* Header/Banner - Fixed at top */}
-                 <div className="relative aspect-[4/3] sm:aspect-video w-full bg-muted overflow-hidden shrink-0 group">
-                   <img 
-                     src={selectedEvent.image_url || getEventFallbackImage(selectedEvent.category)} 
-                     alt={selectedEvent.event_title} 
-                     className="w-full h-full object-cover" 
-                   />
-                   {!selectedEvent.image_url && (
-                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-[2px]">
-                       <span className="text-6xl sm:text-8xl opacity-40 drop-shadow-lg">
-                         {categoryIcons[selectedEvent.category || ""] || "📌"}
-                       </span>
-                     </div>
-                   )}
+                  <div className="relative aspect-[4/3] sm:aspect-video w-full bg-muted overflow-hidden shrink-0 group">
+                    <EventImage 
+                      src={selectedEvent.image_url} 
+                      alt={selectedEvent.event_title} 
+                      category={selectedEvent.category} 
+                      className="absolute inset-0 w-full h-full"
+                    />
                   <div className="absolute top-4 right-4 z-20 flex gap-2">
                     <Button 
                       variant="secondary" 
