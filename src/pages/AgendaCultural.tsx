@@ -1121,21 +1121,57 @@ function buildUberLink(ev: Event): string {
                    <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
                  </div>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
-                    {filteredEvents.filter(e => e.is_highlight).map(ev => (
-                      <Card 
-                        key={ev.id} 
-                        className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group event-card"
-                        data-event-id={ev.id}
-                        data-nome={ev.event_title}
-                        onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
-                      >
-                        <EventImage 
-                          src={ev.image_url} 
-                          alt={ev.event_title} 
-                          category={ev.category} 
-                          className="h-48 w-full event-image"
-                          icon={Sparkles}
-                        />
+                    {filteredEvents.filter(e => e.is_highlight).map(ev => {
+                      const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                      return (
+                        <Card 
+                          key={ev.id} 
+                          className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group event-card"
+                          data-event-id={ev.id}
+                          data-nome={ev.event_title}
+                          onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
+                        >
+                          <div className="relative overflow-hidden group">
+                            <EventImage 
+                              src={ev.image_url} 
+                              alt={ev.event_title} 
+                              category={ev.category} 
+                              className="h-48 w-full event-image"
+                              icon={Sparkles}
+                            />
+                            <div className="absolute top-4 right-4 z-30 flex flex-col gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className={cn(
+                                  "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
+                                  isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                  const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                  localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                  window.dispatchEvent(new Event("storage"));
+                                  toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                }}
+                              >
+                                <Heart className={cn("h-5 w-5", isFav && "fill-current")} />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-10 w-10 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const data = getShareData(ev);
+                                  handleShare(data.title, data.text, data.url, ev.id);
+                                }}
+                              >
+                                <Share2 className="h-5 w-5" />
+                              </Button>
+                            </div>
+                          </div>
                         <CardContent className="p-6 space-y-4">
                           <div className="flex items-center justify-between">
                             <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0">DESTAQUE 🔥</Badge>
