@@ -466,8 +466,23 @@ function buildUberLink(ev: Event): string {
           setLoading(false);
         }
       }
-      load();
-    }, []);
+       load();
+
+       const channel = supabase
+         .channel('submissions-all-updates')
+         .on('postgres_changes', { 
+           event: '*', 
+           schema: 'public', 
+           table: 'submissions' 
+         }, () => {
+           load();
+         })
+         .subscribe();
+
+       return () => {
+         supabase.removeChannel(channel);
+       };
+     }, []);
 
   useEffect(() => {
     const channel = supabase
