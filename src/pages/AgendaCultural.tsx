@@ -1188,9 +1188,10 @@ function buildUberLink(ev: Event): string {
                               <span className="line-clamp-1">{ev.location}</span>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                 </div>
               </section>
             )}
