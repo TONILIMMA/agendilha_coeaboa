@@ -125,30 +125,42 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
     </>
   );
 }
-const categoryFallbacks: Record<string, string> = {
-  "MÚSICA / SHOW": "/assets/fallbacks/musica.jpg",
-  "OUTROS": "/assets/fallbacks/outros.jpg",
-  "TEATRO": "/assets/fallbacks/teatro.jpg",
-  "GASTRONOMIA": "/assets/fallbacks/gastronomia.jpg",
-  "ESPORTE": "/assets/fallbacks/esporte.jpg",
-  "MÚSICA": "/assets/fallbacks/musica.jpg",
-  "CULTURA / ARTE": "/assets/fallbacks/teatro.jpg",
-  "PROMOÇÕES": "/assets/fallbacks/outros.jpg",
-};
-
-function getEventFallbackImage(category: string | null) {
-  const normalized = category?.toUpperCase().trim() || "OUTROS";
-  
-  // Busca direta ou fallback por palavra-chave
-  if (categoryFallbacks[normalized]) return categoryFallbacks[normalized];
-  
-  if (normalized.includes("MÚSICA") || normalized.includes("SHOW")) return categoryFallbacks["MÚSICA / SHOW"];
-  if (normalized.includes("GASTRONOMIA") || normalized.includes("RESTAURANTE")) return categoryFallbacks["GASTRONOMIA"];
-  if (normalized.includes("TEATRO") || normalized.includes("CULTURA") || normalized.includes("ARTE")) return categoryFallbacks["TEATRO"];
-  if (normalized.includes("ESPORTE")) return categoryFallbacks["ESPORTE"];
-  
-  return categoryFallbacks["OUTROS"];
-}
+ const normalizeText = (text: string) => {
+   return text
+     .toLowerCase()
+     .normalize("NFD")
+     .replace(/[\u0300-\u036f]/g, "")
+     .trim();
+ };
+ 
+ const categoryFallbacks: Record<string, string> = {
+   "musica": "/assets/fallbacks/musica.jpg",
+   "show": "/assets/fallbacks/musica.jpg",
+   "outros": "/assets/fallbacks/outros.jpg",
+   "teatro": "/assets/fallbacks/teatro.jpg",
+   "gastronomia": "/assets/fallbacks/gastronomia.jpg",
+   "esporte": "/assets/fallbacks/esporte.jpg",
+   "cultura": "/assets/fallbacks/teatro.jpg",
+   "arte": "/assets/fallbacks/teatro.jpg",
+   "promocoes": "/assets/fallbacks/outros.jpg",
+ };
+ 
+ function getEventFallbackImage(category: string | null) {
+   if (!category) return categoryFallbacks["outros"];
+   
+   const normalized = normalizeText(category);
+   
+   // Busca direta
+   if (categoryFallbacks[normalized]) return categoryFallbacks[normalized];
+   
+   // Fallback por palavra-chave
+   if (normalized.includes("musica") || normalized.includes("show")) return categoryFallbacks["musica"];
+   if (normalized.includes("gastronomia") || normalized.includes("restaurante") || normalized.includes("comida")) return categoryFallbacks["gastronomia"];
+   if (normalized.includes("teatro") || normalized.includes("cultura") || normalized.includes("arte") || normalized.includes("cinema")) return categoryFallbacks["teatro"];
+   if (normalized.includes("esporte")) return categoryFallbacks["esporte"];
+   
+   return categoryFallbacks["outros"];
+ }
  
  function EventImage({ src, alt, category, className, icon: Icon }: { src?: string | null; alt: string; category?: string | null; className?: string; icon?: any }) {
    const [isLoaded, setIsLoaded] = useState(false);
@@ -181,12 +193,12 @@ function getEventFallbackImage(category: string | null) {
                "ESPORTE": "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=800",
                "OUTROS": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800",
              };
-             const normalized = category?.toUpperCase().trim() || "OUTROS";
-             let finalFallback = unsplashFallbacks["OUTROS"];
-             if (normalized.includes("MÚSICA")) finalFallback = unsplashFallbacks["MÚSICA / SHOW"];
-             else if (normalized.includes("GASTRONOMIA")) finalFallback = unsplashFallbacks["GASTRONOMIA"];
-             else if (normalized.includes("TEATRO") || normalized.includes("CULTURA")) finalFallback = unsplashFallbacks["TEATRO"];
-             else if (normalized.includes("ESPORTE")) finalFallback = unsplashFallbacks["ESPORTE"];
+               const normalized = normalizeText(category || "");
+               let finalFallback = unsplashFallbacks["OUTROS"];
+               if (normalized.includes("musica")) finalFallback = unsplashFallbacks["MÚSICA / SHOW"];
+               else if (normalized.includes("gastronomia")) finalFallback = unsplashFallbacks["GASTRONOMIA"];
+               else if (normalized.includes("teatro") || normalized.includes("cultura")) finalFallback = unsplashFallbacks["TEATRO"];
+               else if (normalized.includes("esporte")) finalFallback = unsplashFallbacks["ESPORTE"];
              
              currentTarget.src = finalFallback;
            }
@@ -587,23 +599,23 @@ function buildUberLink(ev: Event): string {
                         Hoje perto de você
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
-                        {nearYouEvents.map(ev => {
-                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                          return (
-                            <Card
-                              key={ev.id}
-                              className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer group event-card"
-                              data-event-id={ev.id}
-                              onClick={() => setSelectedEvent(ev)}
-                            >
-                              <CardContent className="p-3 flex items-center gap-4">
-                                <EventImage 
-                                  src={ev.image_url} 
-                                  alt={ev.event_title} 
-                                  category={ev.category} 
-                                  className="h-16 w-16 rounded-xl shrink-0"
-                                  icon={CalendarDays}
-                                />
+                         {nearYouEvents.map(ev => {
+                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                           return (
+                             <Card
+                               key={ev.id}
+                               className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer group event-card"
+                               data-event-id={ev.id}
+                               onClick={() => setSelectedEvent(ev)}
+                             >
+                               <CardContent className="p-3 flex items-center gap-4">
+                                 <EventImage 
+                                   src={ev.image_url} 
+                                   alt={ev.event_title} 
+                                   category={ev.category} 
+                                   className="h-16 w-16 rounded-xl shrink-0 event-image"
+                                   icon={CalendarDays}
+                                 />
                                 <div className="min-w-0 flex-1">
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
@@ -645,70 +657,6 @@ function buildUberLink(ev: Event): string {
                     </div>
                   )}
 
-                  {recommendedEvents.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
-                        <Sparkles className="h-5 w-5 text-secondary" />
-                        Você pode gostar
-                      </h3>
-                      <div className="grid grid-cols-1 gap-3">
-                        {recommendedEvents.map(ev => {
-                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                          return (
-                            <Card
-                              key={ev.id}
-                              className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group event-card"
-                              data-event-id={ev.id}
-                              onClick={() => setSelectedEvent(ev)}
-                            >
-                              <CardContent className="p-3 flex items-center gap-4">
-                                <EventImage 
-                                  src={ev.image_url} 
-                                  alt={ev.event_title} 
-                                  category={ev.category} 
-                                  className="h-16 w-16 rounded-xl shrink-0"
-                                  icon={MusicIcon}
-                                />
-                                <div className="min-w-0 flex-1">
-                                  <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                                  <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
-                                </div>
-                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
-                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
-                                      window.dispatchEvent(new Event("storage"));
-                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
-                                    }}
-                                  >
-                                    <Heart className={cn("h-4 w-4", isFav && "fill-current")} />
-                                  </Button>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const data = getShareData(ev);
-                                      handleShare(data.title, data.text, data.url, ev.id);
-                                    }}
-                                  >
-                                    <Share2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
 
                   {trendingEvents.length > 0 && (
                     <div className="space-y-4">
@@ -717,23 +665,23 @@ function buildUberLink(ev: Event): string {
                         Bombando agora
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
-                        {trendingEvents.map(ev => {
-                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                          return (
-                            <Card
-                              key={ev.id}
-                              className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer group event-card"
-                              data-event-id={ev.id}
-                              onClick={() => setSelectedEvent(ev)}
-                            >
-                              <CardContent className="p-3 flex items-center gap-4">
-                                <EventImage 
-                                  src={ev.image_url} 
-                                  alt={ev.event_title} 
-                                  category={ev.category} 
-                                  className="h-16 w-16 rounded-xl shrink-0"
-                                  icon={Play}
-                                />
+                         {trendingEvents.map(ev => {
+                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                           return (
+                             <Card
+                               key={ev.id}
+                               className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer group event-card"
+                               data-event-id={ev.id}
+                               onClick={() => setSelectedEvent(ev)}
+                             >
+                               <CardContent className="p-3 flex items-center gap-4">
+                                 <EventImage 
+                                   src={ev.image_url} 
+                                   alt={ev.event_title} 
+                                   category={ev.category} 
+                                   className="h-16 w-16 rounded-xl shrink-0 event-image"
+                                   icon={Play}
+                                 />
                                 <div className="min-w-0 flex-1">
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.views_count || 0} visualizações</p>
@@ -784,20 +732,25 @@ function buildUberLink(ev: Event): string {
                      <div className="grid grid-cols-1 gap-3">
                         {recommendedEvents.map(ev => {
                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                          return (
-                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group" onClick={() => setSelectedEvent(ev)}>
-                              <CardContent className="p-3 flex items-center gap-4">
-                                <EventImage 
-                                  src={ev.image_url} 
-                                  alt={ev.event_title} 
-                                  category={ev.category} 
-                                  className="h-16 w-16 rounded-xl shrink-0"
-                                  icon={MusicIcon}
-                                />
-                                <div className="min-w-0 flex-1">
-                                  <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                                  <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
-                                </div>
+                           return (
+                             <Card 
+                               key={ev.id} 
+                               className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group event-card" 
+                               data-event-id={ev.id}
+                               onClick={() => setSelectedEvent(ev)}
+                             >
+                               <CardContent className="p-3 flex items-center gap-4">
+                                 <EventImage 
+                                   src={ev.image_url} 
+                                   alt={ev.event_title} 
+                                   category={ev.category} 
+                                   className="h-16 w-16 rounded-xl shrink-0 event-image"
+                                   icon={MusicIcon}
+                                 />
+                                 <div className="min-w-0 flex-1">
+                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                   <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
+                                 </div>
                                 <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                   <Button 
                                     variant="ghost" 
@@ -1162,32 +1115,40 @@ function buildUberLink(ev: Event): string {
                    <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
                  </div>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
-                   {filteredEvents.filter(e => e.is_highlight).map(ev => (
-                     <Card 
-                       key={ev.id} 
-                        className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group"
+                    {filteredEvents.filter(e => e.is_highlight).map(ev => (
+                      <Card 
+                        key={ev.id} 
+                        className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group event-card"
+                        data-event-id={ev.id}
                         data-nome={ev.event_title}
-                       onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
-                     >
-                       <CardContent className="p-6 space-y-4">
-                         <div className="flex items-center justify-between">
-                           <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0">DESTAQUE 🔥</Badge>
-                           <span className="text-xs font-medium text-orange-600/70">{categoryLabels[ev.category!] || ev.category}</span>
-                         </div>
-                         <h3 className="font-display font-bold text-2xl leading-tight line-clamp-2 group-hover:text-primary transition-colors">{ev.event_title}</h3>
-                         <div className="space-y-2 text-sm text-muted-foreground font-medium">
-                           <div className="flex items-center gap-2">
-                             <CalendarDays className="h-4 w-4 text-orange-500" />
-                             <span>{ev.date} {ev.start_time ? `• ${ev.start_time}` : ""}</span>
-                           </div>
-                           <div className="flex items-center gap-2">
-                             <MapPin className="h-4 w-4 text-orange-500" />
-                             <span className="line-clamp-1">{ev.location}</span>
-                           </div>
-                         </div>
-                       </CardContent>
-                     </Card>
-                   ))}
+                        onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
+                      >
+                        <EventImage 
+                          src={ev.image_url} 
+                          alt={ev.event_title} 
+                          category={ev.category} 
+                          className="h-48 w-full event-image"
+                          icon={Sparkles}
+                        />
+                        <CardContent className="p-6 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0">DESTAQUE 🔥</Badge>
+                            <span className="text-xs font-medium text-orange-600/70">{categoryLabels[ev.category!] || ev.category}</span>
+                          </div>
+                          <h3 className="font-display font-bold text-2xl leading-tight line-clamp-2 group-hover:text-primary transition-colors">{ev.event_title}</h3>
+                          <div className="space-y-2 text-sm text-muted-foreground font-medium">
+                            <div className="flex items-center gap-2">
+                              <CalendarDays className="h-4 w-4 text-orange-500" />
+                              <span>{ev.date} {ev.start_time ? `• ${ev.start_time}` : ""}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-orange-500" />
+                              <span className="line-clamp-1">{ev.location}</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                 </div>
               </section>
             )}
@@ -1231,7 +1192,7 @@ function buildUberLink(ev: Event): string {
                                  src={ev.image_url} 
                                  alt={ev.event_title} 
                                  category={ev.category} 
-                                 className="absolute inset-0 w-full h-full"
+                                 className="absolute inset-0 w-full h-full event-image"
                                  icon={IconComp}
                                />
                                
