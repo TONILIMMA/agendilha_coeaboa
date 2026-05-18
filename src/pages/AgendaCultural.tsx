@@ -1200,11 +1200,15 @@ function buildUberLink(ev: Event): string {
                                      CalendarDays) as any;
 
                      return (
-                       <Card 
-                         key={ev.id} 
-                         className="overflow-hidden border-border/60 bg-card/50 hover:shadow-elevated transition-all group cursor-pointer rounded-[2.5rem]"
-                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
-                       >
+                        <Card
+                          key={ev.id}
+                          className="overflow-hidden border-border/60 bg-card/50 hover:shadow-elevated transition-all group cursor-pointer rounded-[2.5rem] event-card"
+                          data-event-id={ev.id}
+                          onClick={() => {
+                            trackView(ev.id);
+                            setSelectedEvent(ev);
+                          }}
+                        >
                          <CardContent className="p-0">
                           <div className="flex flex-col lg:flex-row min-h-[320px]">
                              <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
