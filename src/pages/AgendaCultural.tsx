@@ -18,6 +18,7 @@ import { Onboarding } from "@/components/Onboarding";
 import { PersonalizationDialog } from "@/components/PersonalizationDialog";
 import { ShareDialog } from "@/components/ShareDialog";
 import ArtistCard from "@/components/ArtistCard";
+import { getEventFallbackImage, normalizeText } from "@/lib/event-utils";
  import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
@@ -127,42 +128,6 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
     </>
   );
 }
- const normalizeText = (text: string) => {
-   return text
-     .toLowerCase()
-     .normalize("NFD")
-     .replace(/[\u0300-\u036f]/g, "")
-     .trim();
- };
- 
- const categoryFallbacks: Record<string, string> = {
-   "musica": "/assets/fallbacks/musica.jpg",
-   "show": "/assets/fallbacks/musica.jpg",
-   "outros": "/assets/fallbacks/outros.jpg",
-   "teatro": "/assets/fallbacks/teatro.jpg",
-   "gastronomia": "/assets/fallbacks/gastronomia.jpg",
-   "esporte": "/assets/fallbacks/esporte.jpg",
-   "cultura": "/assets/fallbacks/teatro.jpg",
-   "arte": "/assets/fallbacks/teatro.jpg",
-   "promocoes": "/assets/fallbacks/outros.jpg",
- };
- 
- function getEventFallbackImage(category: string | null) {
-   if (!category) return categoryFallbacks["outros"];
-   
-   const normalized = normalizeText(category);
-   
-   // Busca direta
-   if (categoryFallbacks[normalized]) return categoryFallbacks[normalized];
-   
-   // Fallback por palavra-chave
-   if (normalized.includes("musica") || normalized.includes("show")) return categoryFallbacks["musica"];
-   if (normalized.includes("gastronomia") || normalized.includes("restaurante") || normalized.includes("comida")) return categoryFallbacks["gastronomia"];
-   if (normalized.includes("teatro") || normalized.includes("cultura") || normalized.includes("arte") || normalized.includes("cinema")) return categoryFallbacks["teatro"];
-   if (normalized.includes("esporte")) return categoryFallbacks["esporte"];
-   
-   return categoryFallbacks["outros"];
- }
  
   function EventImage({ src, alt, category, className, icon: Icon }: { src?: string | null; alt: string; category?: string | null; className?: string; icon?: any }) {
     const [isLoaded, setIsLoaded] = useState(false);

@@ -294,19 +294,20 @@ export default function Landing() {
               <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
             </div>
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-            {todayEvents.map(ev => (
-              <DiscoveryEventCard 
-                key={ev.id} 
-                event={ev} 
-                onClick={() => navigate(`/agenda?event=${ev.id}`)}
-                isFavorite={favorites.includes(ev.id)}
-                 onFavoriteToggle={() => toggleFavorite(ev.id)}
-                 onShare={() => {
-                   const data = getShareData(ev);
-                   setShareData({ ...data, eventId: ev.id });
-                 }}
-               />
-             ))}
+              {todayEvents.map(ev => (
+                <DiscoveryEventCard 
+                  key={ev.id} 
+                  event={ev} 
+                  variant="compact"
+                  onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                  isFavorite={favorites.includes(ev.id)}
+                  onFavoriteToggle={() => toggleFavorite(ev.id)}
+                  onShare={() => {
+                    const data = getShareData(ev);
+                    setShareData({ ...data, eventId: ev.id });
+                  }}
+                />
+              ))}
             </div>
           </section>
         )}
@@ -317,13 +318,14 @@ export default function Landing() {
             <h2 className="text-2xl font-bold font-display">Eventos em alta</h2>
             <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
           </div>
-           <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
-             {allEvents.map(ev => (
-               <DiscoveryEventCard 
-                 key={ev.id} 
-                 event={ev} 
-                 onClick={() => navigate(`/agenda?event=${ev.id}`)}
-                 isFavorite={favorites.includes(ev.id)}
+            <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
+              {allEvents.map(ev => (
+                <DiscoveryEventCard 
+                  key={ev.id} 
+                  event={ev} 
+                  variant="compact"
+                  onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                  isFavorite={favorites.includes(ev.id)}
                   onFavoriteToggle={() => toggleFavorite(ev.id)}
                   onShare={() => {
                     const data = getShareData(ev);
@@ -331,7 +333,7 @@ export default function Landing() {
                   }}
                 />
               ))}
-           </div>
+            </div>
            {hasNextPage && (
              <div ref={loadMoreRef} className="w-full py-10 flex justify-center">
                <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -350,21 +352,22 @@ export default function Landing() {
                 </h2>
                 <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
               </div>
-              <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-                {recommendedEvents.map(ev => (
-                  <DiscoveryEventCard 
-                    key={ev.id} 
-                    event={ev} 
-                    onClick={() => navigate(`/agenda?event=${ev.id}`)}
-                    isFavorite={favorites.includes(ev.id)}
-                     onFavoriteToggle={() => toggleFavorite(ev.id)}
-                     onShare={() => {
-                       const data = getShareData(ev);
-                       setShareData({ ...data, eventId: ev.id });
-                     }}
-                   />
-                 ))}
-              </div>
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
+              {recommendedEvents.map(ev => (
+                <DiscoveryEventCard 
+                  key={ev.id} 
+                  event={ev} 
+                  variant="compact"
+                  onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                  isFavorite={favorites.includes(ev.id)}
+                  onFavoriteToggle={() => toggleFavorite(ev.id)}
+                  onShare={() => {
+                    const data = getShareData(ev);
+                    setShareData({ ...data, eventId: ev.id });
+                  }}
+                />
+              ))}
+            </div>
             </section>
 
             {user && recommendedEvents.length > 0 && (
@@ -376,20 +379,22 @@ export default function Landing() {
                   </h2>
                 </div>
                 <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-                  {recommendedEvents.slice(0, 3).map(ev => (
+                <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
+                  {recommendedEvents.slice(0, 5).map(ev => (
                     <DiscoveryEventCard 
                       key={ev.id} 
                       event={ev} 
-                      variant="small"
+                      variant="compact"
                       onClick={() => navigate(`/agenda?event=${ev.id}`)}
                       isFavorite={favorites.includes(ev.id)}
-                       onFavoriteToggle={() => toggleFavorite(ev.id)}
-                       onShare={() => {
-                         const data = getShareData(ev);
-                         setShareData({ ...data, eventId: ev.id });
-                       }}
-                     />
-                   ))}
+                      onFavoriteToggle={() => toggleFavorite(ev.id)}
+                      onShare={() => {
+                        const data = getShareData(ev);
+                        setShareData({ ...data, eventId: ev.id });
+                      }}
+                    />
+                  ))}
+                </div>
                 </div>
               </section>
             )}
