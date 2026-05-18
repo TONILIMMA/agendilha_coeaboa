@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
 import { useProfile } from "@/hooks/useProfile";
+import { useFavorites } from "@/hooks/useFavorites";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -349,6 +350,7 @@ function buildUberLink(ev: Event): string {
     const { toggleTheme } = useTheme();
     const [events, setEvents] = useState<Event[]>([]);
     const { profile, loaded: profileLoaded } = useProfile();
+    const { favorites, isFavorite, toggleFavorite } = useFavorites();
     const [personalizationOpen, setPersonalizationOpen] = useState(false);
   const [ratings, setRatings] = useState<Record<string, { average: number; total: number }>>({});
 
