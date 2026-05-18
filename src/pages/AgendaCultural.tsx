@@ -162,11 +162,16 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
    return categoryFallbacks["outros"];
  }
  
- function EventImage({ src, alt, category, className, icon: Icon }: { src?: string | null; alt: string; category?: string | null; className?: string; icon?: any }) {
-   const [isLoaded, setIsLoaded] = useState(false);
-   const [error, setError] = useState(false);
-   const fallback = getEventFallbackImage(category);
- 
+  function EventImage({ src, alt, category, className, icon: Icon }: { src?: string | null; alt: string; category?: string | null; className?: string; icon?: any }) {
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [error, setError] = useState(false);
+    const fallback = useMemo(() => getEventFallbackImage(category), [category]);
+
+    useEffect(() => {
+      setIsLoaded(false);
+      setError(false);
+    }, [src]);
+
    return (
      <div className={cn("relative overflow-hidden bg-muted/20", className)}>
        {!isLoaded && (
@@ -174,9 +179,10 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
            <Skeleton className="h-full w-full rounded-lg" />
          </div>
        )}
-       <img
-         src={error ? fallback : (src || fallback)}
-         alt={alt}
+        <img
+          src={error ? fallback : (src || fallback)}
+          alt={alt}
+          key={src || 'fallback'}
          className={cn(
            "h-full w-full object-cover transition-all duration-700",
            !isLoaded ? "opacity-0 blur-sm scale-105" : "opacity-100 blur-0 scale-100"
