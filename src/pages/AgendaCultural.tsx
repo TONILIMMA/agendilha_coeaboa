@@ -1111,10 +1111,7 @@ function buildUberLink(ev: Event): string {
               © {new Date().getFullYear()} — Ilha do Governador, RJ
             </div>
             <div className="mt-4 text-[11px] text-muted-foreground/70 font-medium">
-              ©2026 criado por <span className="font-bold text-foreground">TONI LIMA</span> — Vexo Sistemas ·{" "}
-              <a href="https://vexo-sistemas.lovable.app" target="_blank" rel="noreferrer" className="text-primary hover:underline">
-                vexo-sistemas.lovable.app
-              </a>
+              ©2026 criado por <span className="font-bold text-foreground">TONI LIMA</span> — <a href="https://vexo-sistemas.lovable.app" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors hover:underline">Vexo Sistemas</a>
             </div>
           </div>
         </footer>
