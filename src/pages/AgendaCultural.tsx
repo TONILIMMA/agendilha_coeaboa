@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
 import { useProfile } from "@/hooks/useProfile";
+import { useFavorites } from "@/hooks/useFavorites";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -349,6 +351,7 @@ function buildUberLink(ev: Event): string {
     const { toggleTheme } = useTheme();
     const [events, setEvents] = useState<Event[]>([]);
     const { profile, loaded: profileLoaded } = useProfile();
+    const { favorites, isFavorite, toggleFavorite } = useFavorites();
     const [personalizationOpen, setPersonalizationOpen] = useState(false);
   const [ratings, setRatings] = useState<Record<string, { average: number; total: number }>>({});
 
@@ -414,13 +417,7 @@ function buildUberLink(ev: Event): string {
        setCategoryFilter(category);
      }
      
-     // Sincronizar favoritos do localStorage se não estiver logado
-     const updateFavs = () => {
-       const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-       // Forçar re-render se necessário
-     };
-     window.addEventListener("storage", updateFavs);
-     return () => window.removeEventListener("storage", updateFavs);
+      // Sincronização automática via useFavorites hook
    }, []);
    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
    const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() => {
@@ -529,16 +526,15 @@ function buildUberLink(ev: Event): string {
    }, [events]);
 
     const filteredEvents = useMemo(() => {
-      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
       return upcomingEvents.filter(ev => {
         const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
                             (ev.description || "").toLowerCase().includes(search.toLowerCase());
         const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
         const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
-        const matchFav = !showFavoritesOnly || favs.includes(ev.id);
+        const matchFav = !showFavoritesOnly || isFavorite(ev.id);
         return matchSearch && matchCat && matchNeigh && matchFav;
       });
-    }, [upcomingEvents, search, categoryFilter, neighborhoodFilter, showFavoritesOnly]);
+    }, [upcomingEvents, search, categoryFilter, neighborhoodFilter, showFavoritesOnly, favorites, isFavorite]);
 
     // AI Recommendation Logic
     const nearYouEvents = useMemo(() => {
@@ -620,9 +616,7 @@ function buildUberLink(ev: Event): string {
                         Hoje perto de você
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
-                         {nearYouEvents.map(ev => {
-                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                           return (
+                         {nearYouEvents.map(ev => (
                              <Card
                                key={ev.id}
                                className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer group event-card"
@@ -641,25 +635,8 @@ function buildUberLink(ev: Event): string {
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
                                 </div>
-                                <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className={cn(
-                                      "h-8 w-8 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
-                                      isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
-                                    )}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
-                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
-                                      window.dispatchEvent(new Event("storage"));
-                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
-                                    }}
-                                  >
-                                    <Heart className={cn("h-4 w-4", isFav && "fill-current")} />
-                                  </Button>
+                                 <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
+                                   <FavoriteButton eventId={ev.id} className="h-8 w-8" />
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
@@ -675,8 +652,8 @@ function buildUberLink(ev: Event): string {
                                 </div>
                               </CardContent>
                             </Card>
-                          );
-                        })}
+                           ))
+                         }
                       </div>
                     </div>
                   )}
@@ -689,9 +666,7 @@ function buildUberLink(ev: Event): string {
                         Bombando agora
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
-                         {trendingEvents.map(ev => {
-                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                           return (
+                         {trendingEvents.map(ev => (
                              <Card
                                key={ev.id}
                                className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer group event-card"
@@ -710,25 +685,8 @@ function buildUberLink(ev: Event): string {
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.views_count || 0} visualizações</p>
                                 </div>
-                                <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className={cn(
-                                      "h-8 w-8 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
-                                      isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
-                                    )}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
-                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
-                                      window.dispatchEvent(new Event("storage"));
-                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
-                                    }}
-                                  >
-                                    <Heart className={cn("h-4 w-4", isFav && "fill-current")} />
-                                  </Button>
+                                 <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
+                                   <FavoriteButton eventId={ev.id} className="h-8 w-8" />
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
@@ -744,8 +702,8 @@ function buildUberLink(ev: Event): string {
                                 </div>
                               </CardContent>
                             </Card>
-                          );
-                        })}
+                           ))
+                         }
                       </div>
                     </div>
                   )}
@@ -757,9 +715,7 @@ function buildUberLink(ev: Event): string {
                        Você pode gostar
                      </h3>
                      <div className="grid grid-cols-1 gap-3">
-                        {recommendedEvents.map(ev => {
-                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                           return (
+                         {recommendedEvents.map(ev => (
                              <Card 
                                key={ev.id} 
                                className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group event-card" 
@@ -778,25 +734,8 @@ function buildUberLink(ev: Event): string {
                                    <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                    <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
                                  </div>
-                                <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className={cn(
-                                      "h-8 w-8 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
-                                      isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
-                                    )}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
-                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
-                                      window.dispatchEvent(new Event("storage"));
-                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
-                                    }}
-                                  >
-                                    <Heart className={cn("h-4 w-4", isFav && "fill-current")} />
-                                  </Button>
+                                 <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
+                                   <FavoriteButton eventId={ev.id} className="h-8 w-8" />
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
@@ -812,8 +751,8 @@ function buildUberLink(ev: Event): string {
                                 </div>
                               </CardContent>
                             </Card>
-                          );
-                        })}
+                           ))
+                         }
                      </div>
                    </div>
                  )}
@@ -1145,9 +1084,7 @@ function buildUberLink(ev: Event): string {
                    <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
                  </div>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
-                    {filteredEvents.filter(e => e.is_highlight).map(ev => {
-                      const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                      return (
+                    {filteredEvents.filter(e => e.is_highlight).map(ev => (
                         <Card 
                           key={ev.id} 
                           className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group event-card"
@@ -1164,24 +1101,7 @@ function buildUberLink(ev: Event): string {
                               icon={Sparkles}
                             />
                             <div className="absolute top-4 right-4 z-30 flex flex-col gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className={cn(
-                                  "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
-                                  isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
-                                )}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-                                  const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
-                                  localStorage.setItem("agendilha_favorites", JSON.stringify(next));
-                                  window.dispatchEvent(new Event("storage"));
-                                  toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
-                                }}
-                              >
-                                <Heart className={cn("h-5 w-5", isFav && "fill-current")} />
-                              </Button>
+                              <FavoriteButton eventId={ev.id} className="h-10 w-10" />
                               <Button 
                                 variant="ghost" 
                                 size="icon" 
@@ -1214,8 +1134,8 @@ function buildUberLink(ev: Event): string {
                           </div>
                           </CardContent>
                         </Card>
-                      );
-                    })}
+                        ))
+                    }
                 </div>
               </section>
             )}
@@ -1233,9 +1153,8 @@ function buildUberLink(ev: Event): string {
                 </div>
 
                 <div className="grid grid-cols-1 gap-8">
-                   {grouped[dayKey].items.map((ev) => {
-                     const icon = categoryIcons[ev.category || ""] || "📌";
-                     const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                    {grouped[dayKey].items.map((ev) => {
+                      const icon = categoryIcons[ev.category || ""] || "📌";
                      const IconComp = (ev.category === 'musica' ? MusicIcon : 
                                      ev.category === 'gastronomia' ? Utensils : 
                                      ev.category === 'esporte' ? Trophy : 
@@ -1264,24 +1183,7 @@ function buildUberLink(ev: Event): string {
                                />
                                
                                 <div className="absolute top-4 right-4 z-30 flex flex-col gap-2">
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className={cn(
-                                      "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
-                                      isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
-                                    )}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
-                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
-                                      window.dispatchEvent(new Event("storage"));
-                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
-                                    }}
-                                  >
-                                    <Heart className={cn("h-5 w-5", isFav && "fill-current")} />
-                                  </Button>
+                                  <FavoriteButton eventId={ev.id} className="h-10 w-10" />
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
@@ -1450,27 +1352,10 @@ function buildUberLink(ev: Event): string {
                       className="absolute inset-0 w-full h-full"
                     />
                   <div className="absolute top-4 right-4 z-20 flex gap-2">
-                    <Button 
-                      variant="secondary" 
-                      size="icon" 
-                      className={cn(
-                        "rounded-full backdrop-blur-md border border-white/20 transition-all shadow-lg",
-                        JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(selectedEvent.id) 
-                          ? "bg-primary text-white hover:bg-primary/80" 
-                          : "bg-black/40 text-white hover:bg-black/60"
-                      )}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-                        const isFav = favs.includes(selectedEvent.id);
-                        const next = isFav ? favs.filter((f: string) => f !== selectedEvent.id) : [...favs, selectedEvent.id];
-                        localStorage.setItem("agendilha_favorites", JSON.stringify(next));
-                        window.dispatchEvent(new Event("storage"));
-                        toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
-                      }}
-                    >
-                      <Heart className={cn("h-5 w-5", JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(selectedEvent.id) && "fill-current")} />
-                    </Button>
+                    <FavoriteButton 
+                      eventId={selectedEvent.id} 
+                      className="backdrop-blur-md border border-white/20 transition-all shadow-lg"
+                    />
                     <Button 
                       variant="secondary" 
                       size="icon" 
