@@ -125,30 +125,42 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
     </>
   );
 }
-const categoryFallbacks: Record<string, string> = {
-  "MÚSICA / SHOW": "/assets/fallbacks/musica.jpg",
-  "OUTROS": "/assets/fallbacks/outros.jpg",
-  "TEATRO": "/assets/fallbacks/teatro.jpg",
-  "GASTRONOMIA": "/assets/fallbacks/gastronomia.jpg",
-  "ESPORTE": "/assets/fallbacks/esporte.jpg",
-  "MÚSICA": "/assets/fallbacks/musica.jpg",
-  "CULTURA / ARTE": "/assets/fallbacks/teatro.jpg",
-  "PROMOÇÕES": "/assets/fallbacks/outros.jpg",
-};
-
-function getEventFallbackImage(category: string | null) {
-  const normalized = category?.toUpperCase().trim() || "OUTROS";
-  
-  // Busca direta ou fallback por palavra-chave
-  if (categoryFallbacks[normalized]) return categoryFallbacks[normalized];
-  
-  if (normalized.includes("MÚSICA") || normalized.includes("SHOW")) return categoryFallbacks["MÚSICA / SHOW"];
-  if (normalized.includes("GASTRONOMIA") || normalized.includes("RESTAURANTE")) return categoryFallbacks["GASTRONOMIA"];
-  if (normalized.includes("TEATRO") || normalized.includes("CULTURA") || normalized.includes("ARTE")) return categoryFallbacks["TEATRO"];
-  if (normalized.includes("ESPORTE")) return categoryFallbacks["ESPORTE"];
-  
-  return categoryFallbacks["OUTROS"];
-}
+ const normalizeText = (text: string) => {
+   return text
+     .toLowerCase()
+     .normalize("NFD")
+     .replace(/[\u0300-\u036f]/g, "")
+     .trim();
+ };
+ 
+ const categoryFallbacks: Record<string, string> = {
+   "musica": "/assets/fallbacks/musica.jpg",
+   "show": "/assets/fallbacks/musica.jpg",
+   "outros": "/assets/fallbacks/outros.jpg",
+   "teatro": "/assets/fallbacks/teatro.jpg",
+   "gastronomia": "/assets/fallbacks/gastronomia.jpg",
+   "esporte": "/assets/fallbacks/esporte.jpg",
+   "cultura": "/assets/fallbacks/teatro.jpg",
+   "arte": "/assets/fallbacks/teatro.jpg",
+   "promocoes": "/assets/fallbacks/outros.jpg",
+ };
+ 
+ function getEventFallbackImage(category: string | null) {
+   if (!category) return categoryFallbacks["outros"];
+   
+   const normalized = normalizeText(category);
+   
+   // Busca direta
+   if (categoryFallbacks[normalized]) return categoryFallbacks[normalized];
+   
+   // Fallback por palavra-chave
+   if (normalized.includes("musica") || normalized.includes("show")) return categoryFallbacks["musica"];
+   if (normalized.includes("gastronomia") || normalized.includes("restaurante") || normalized.includes("comida")) return categoryFallbacks["gastronomia"];
+   if (normalized.includes("teatro") || normalized.includes("cultura") || normalized.includes("arte") || normalized.includes("cinema")) return categoryFallbacks["teatro"];
+   if (normalized.includes("esporte")) return categoryFallbacks["esporte"];
+   
+   return categoryFallbacks["outros"];
+ }
  
  function EventImage({ src, alt, category, className, icon: Icon }: { src?: string | null; alt: string; category?: string | null; className?: string; icon?: any }) {
    const [isLoaded, setIsLoaded] = useState(false);
@@ -181,12 +193,12 @@ function getEventFallbackImage(category: string | null) {
                "ESPORTE": "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=800",
                "OUTROS": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800",
              };
-             const normalized = category?.toUpperCase().trim() || "OUTROS";
-             let finalFallback = unsplashFallbacks["OUTROS"];
-             if (normalized.includes("MÚSICA")) finalFallback = unsplashFallbacks["MÚSICA / SHOW"];
-             else if (normalized.includes("GASTRONOMIA")) finalFallback = unsplashFallbacks["GASTRONOMIA"];
-             else if (normalized.includes("TEATRO") || normalized.includes("CULTURA")) finalFallback = unsplashFallbacks["TEATRO"];
-             else if (normalized.includes("ESPORTE")) finalFallback = unsplashFallbacks["ESPORTE"];
+               const normalized = normalizeText(category || "");
+               let finalFallback = unsplashFallbacks["OUTROS"];
+               if (normalized.includes("musica")) finalFallback = unsplashFallbacks["MÚSICA / SHOW"];
+               else if (normalized.includes("gastronomia")) finalFallback = unsplashFallbacks["GASTRONOMIA"];
+               else if (normalized.includes("teatro") || normalized.includes("cultura")) finalFallback = unsplashFallbacks["TEATRO"];
+               else if (normalized.includes("esporte")) finalFallback = unsplashFallbacks["ESPORTE"];
              
              currentTarget.src = finalFallback;
            }
@@ -784,20 +796,25 @@ function buildUberLink(ev: Event): string {
                      <div className="grid grid-cols-1 gap-3">
                         {recommendedEvents.map(ev => {
                           const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                          return (
-                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group" onClick={() => setSelectedEvent(ev)}>
-                              <CardContent className="p-3 flex items-center gap-4">
-                                <EventImage 
-                                  src={ev.image_url} 
-                                  alt={ev.event_title} 
-                                  category={ev.category} 
-                                  className="h-16 w-16 rounded-xl shrink-0"
-                                  icon={MusicIcon}
-                                />
-                                <div className="min-w-0 flex-1">
-                                  <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                                  <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
-                                </div>
+                           return (
+                             <Card 
+                               key={ev.id} 
+                               className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group event-card" 
+                               data-event-id={ev.id}
+                               onClick={() => setSelectedEvent(ev)}
+                             >
+                               <CardContent className="p-3 flex items-center gap-4">
+                                 <EventImage 
+                                   src={ev.image_url} 
+                                   alt={ev.event_title} 
+                                   category={ev.category} 
+                                   className="h-16 w-16 rounded-xl shrink-0 event-image"
+                                   icon={MusicIcon}
+                                 />
+                                 <div className="min-w-0 flex-1">
+                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                   <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
+                                 </div>
                                 <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                   <Button 
                                     variant="ghost" 
