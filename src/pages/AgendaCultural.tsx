@@ -626,7 +626,7 @@ function buildUberLink(ev: Event): string {
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
                                 </div>
-                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
@@ -692,7 +692,7 @@ function buildUberLink(ev: Event): string {
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.views_count || 0} visualizações</p>
                                 </div>
-                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
@@ -757,7 +757,7 @@ function buildUberLink(ev: Event): string {
                                    <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                    <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
                                  </div>
-                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
