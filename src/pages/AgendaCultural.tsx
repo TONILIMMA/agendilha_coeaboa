@@ -1021,27 +1021,26 @@ function buildUberLink(ev: Event): string {
                       >
                         <CardContent className="p-0">
                          <div className="flex flex-col lg:flex-row min-h-[320px]">
-                           {/* Imagem do Evento - Mobile-First */}
-                           {(ev as any).image_url ? (
-                             <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
-                               <img 
-                                 src={(ev as any).image_url} 
-                                 alt={ev.event_title}
-                                 loading="lazy"
-                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                               />
-                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
-                               {/* Badge flutuante na imagem para mobile */}
-                               <div className="absolute bottom-4 left-4 lg:hidden">
-                                 <Badge className="bg-white/95 text-primary border-none font-black text-[10px] tracking-widest px-3 py-1 shadow-lg backdrop-blur-sm">
-                                   {categoryLabels[ev.category!]?.split(' ')[0] || ev.category}
-                                 </Badge>
-                               </div>
-                             </div>
-                           ) : (
-                             /* Faixa lateral decorativa se não houver imagem */
-                             <div className="hidden lg:block w-3 bg-primary/10 shrink-0" />
-                           )}
+                            <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
+                              <img 
+                                src={ev.image_url || getEventFallbackImage(ev.category)} 
+                                alt={ev.event_title}
+                                loading="lazy"
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
+                              {!ev.image_url && (
+                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-[2px]">
+                                  <span className="text-4xl sm:text-6xl opacity-40 drop-shadow-lg">{categoryIcons[ev.category || ""] || "📌"}</span>
+                                </div>
+                              )}
+                              {/* Badge flutuante na imagem para mobile */}
+                              <div className="absolute bottom-4 left-4 lg:hidden">
+                                <Badge className="bg-white/95 text-primary border-none font-black text-[10px] tracking-widest px-3 py-1 shadow-lg backdrop-blur-sm">
+                                  {categoryLabels[ev.category!]?.split(' ')[0] || ev.category}
+                                </Badge>
+                              </div>
+                            </div>
 
                            <div className="flex-1 p-5 sm:p-8 lg:p-10 flex flex-col justify-between space-y-5 sm:space-y-6">
                               <div className="space-y-4 sm:space-y-6">
