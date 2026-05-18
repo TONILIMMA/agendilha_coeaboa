@@ -46,7 +46,8 @@ export function DiscoveryEventCard({
 }) {
   const isLarge = variant === "large";
   const isHorizontal = variant === "horizontal";
-   const [isLoaded, setIsLoaded] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [hasError, setHasError] = useState(false);
 
    return (
      <motion.div
@@ -77,16 +78,20 @@ export function DiscoveryEventCard({
              )}
            </AnimatePresence>
            
-           <img 
-             src={event.image_url || "/placeholder.svg"} 
-             alt={event.event_title}
-             loading="lazy"
-             onLoad={() => setIsLoaded(true)}
-             className={cn(
-               "h-full w-full object-cover transition-all duration-700 group-hover:scale-110",
-               !isLoaded ? "opacity-0 scale-105 blur-sm" : "opacity-100 scale-100 blur-0"
-             )}
-           />
+            <img 
+              src={hasError ? "/placeholder.svg" : (event.image_url || "/placeholder.svg")} 
+              alt={event.event_title}
+              loading="lazy"
+              onLoad={() => setIsLoaded(true)}
+              onError={() => {
+                setHasError(true);
+                setIsLoaded(true);
+              }}
+              className={cn(
+                "h-full w-full object-cover transition-all duration-700 group-hover:scale-110",
+                !isLoaded ? "opacity-0 scale-105 blur-sm" : "opacity-100 scale-100 blur-0"
+              )}
+            />
            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
            
            {/* Top Badges Left */}

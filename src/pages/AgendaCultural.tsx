@@ -11,12 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Megaphone, Trophy } from "lucide-react";
+   import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Megaphone, Trophy, Utensils, Tag } from "lucide-react";
 import { Onboarding } from "@/components/Onboarding";
 import { PersonalizationDialog } from "@/components/PersonalizationDialog";
 import { ShareDialog } from "@/components/ShareDialog";
 import ArtistCard from "@/components/ArtistCard";
-import { Skeleton } from "@/components/ui/skeleton";
+ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
  import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
  import { handleError } from "@/lib/error-handler";
@@ -134,10 +134,45 @@ const categoryFallbacks: Record<string, string> = {
   outros: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=800",
 };
 
-function getEventFallbackImage(category: string | null) {
-  const cat = category?.toLowerCase() || 'outros';
-  return categoryFallbacks[cat] || categoryFallbacks['outros'];
-}
+ function getEventFallbackImage(category: string | null) {
+   const cat = category?.toLowerCase() || 'outros';
+   return categoryFallbacks[cat] || categoryFallbacks['outros'];
+ }
+ 
+ function EventImage({ src, alt, category, className, icon: Icon }: { src?: string | null; alt: string; category?: string | null; className?: string; icon?: any }) {
+   const [isLoaded, setIsLoaded] = useState(false);
+   const [error, setError] = useState(false);
+   const fallback = getEventFallbackImage(category);
+ 
+   return (
+     <div className={cn("relative overflow-hidden bg-muted/20", className)}>
+       {!isLoaded && (
+         <div className="absolute inset-0 z-10 p-2">
+           <Skeleton className="h-full w-full rounded-lg" />
+         </div>
+       )}
+       <img
+         src={error ? fallback : (src || fallback)}
+         alt={alt}
+         className={cn(
+           "h-full w-full object-cover transition-all duration-700",
+           !isLoaded ? "opacity-0 blur-sm scale-105" : "opacity-100 blur-0 scale-100"
+         )}
+         onLoad={() => setIsLoaded(true)}
+         onError={() => {
+           setError(true);
+           setIsLoaded(true);
+         }}
+         loading="lazy"
+       />
+       {(!src || error) && Icon && (
+         <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-[1px] z-20">
+           <Icon className="h-6 w-6 text-white drop-shadow-md" />
+         </div>
+       )}
+     </div>
+   );
+ }
 
 interface Event {
   id: string;
@@ -522,29 +557,55 @@ function buildUberLink(ev: Event): string {
                         Hoje perto de você
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
-                        {nearYouEvents.map(ev => (
-                           <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer active:scale-95 transition-transform" onClick={() => setSelectedEvent(ev)}>
-                            <CardContent className="p-3 flex items-center gap-4">
-                              <div className="h-16 w-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-primary/5 relative">
-                                <img 
-                                  src={ev.image_url || getEventFallbackImage(ev.category)} 
+                        {nearYouEvents.map(ev => {
+                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                          return (
+                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer group" onClick={() => setSelectedEvent(ev)}>
+                              <CardContent className="p-3 flex items-center gap-4">
+                                <EventImage 
+                                  src={ev.image_url} 
                                   alt={ev.event_title} 
-                                  className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                                  loading="lazy"
+                                  category={ev.category} 
+                                  className="h-16 w-16 rounded-xl shrink-0"
+                                  icon={CalendarDays}
                                 />
-                                {!ev.image_url && (
-                                  <div className="absolute inset-0 bg-primary/20 flex items-center justify-center backdrop-blur-[1px]">
-                                    <CalendarDays className="h-6 w-6 text-white drop-shadow-md" />
-                                  </div>
-                                )}
-                              </div>
-                              <div className="min-w-0">
-                                <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                                <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                  <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
+                                </div>
+                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 rounded-full text-secondary hover:bg-secondary/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                      window.dispatchEvent(new Event("storage"));
+                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                    }}
+                                  >
+                                    <Heart className={cn("h-4 w-4", isFav && "fill-current")} />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 rounded-full text-secondary hover:bg-secondary/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const data = getShareData(ev);
+                                      handleShare(data.title, data.text, data.url, ev.id);
+                                    }}
+                                  >
+                                    <Share2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -556,29 +617,55 @@ function buildUberLink(ev: Event): string {
                         Você pode gostar
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
-                        {recommendedEvents.map(ev => (
-                           <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer active:scale-95 transition-transform" onClick={() => setSelectedEvent(ev)}>
-                            <CardContent className="p-3 flex items-center gap-4">
-                              <div className="h-16 w-16 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 overflow-hidden border border-accent/5 relative">
-                                <img 
-                                  src={ev.image_url || getEventFallbackImage(ev.category)} 
+                        {recommendedEvents.map(ev => {
+                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                          return (
+                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group" onClick={() => setSelectedEvent(ev)}>
+                              <CardContent className="p-3 flex items-center gap-4">
+                                <EventImage 
+                                  src={ev.image_url} 
                                   alt={ev.event_title} 
-                                  className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                                  loading="lazy"
+                                  category={ev.category} 
+                                  className="h-16 w-16 rounded-xl shrink-0"
+                                  icon={MusicIcon}
                                 />
-                                {!ev.image_url && (
-                                  <div className="absolute inset-0 bg-accent/20 flex items-center justify-center backdrop-blur-[1px]">
-                                    <MusicIcon className="h-6 w-6 text-white drop-shadow-md" />
-                                  </div>
-                                )}
-                              </div>
-                              <div className="min-w-0">
-                                <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                                <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                  <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
+                                </div>
+                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                      window.dispatchEvent(new Event("storage"));
+                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                    }}
+                                  >
+                                    <Heart className={cn("h-4 w-4", isFav && "fill-current")} />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const data = getShareData(ev);
+                                      handleShare(data.title, data.text, data.url, ev.id);
+                                    }}
+                                  >
+                                    <Share2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -590,29 +677,55 @@ function buildUberLink(ev: Event): string {
                         Bombando agora
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
-                        {trendingEvents.map(ev => (
-                          <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
-                            <CardContent className="p-3 flex items-center gap-4">
-                              <div className="h-16 w-16 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 overflow-hidden border border-orange-500/10 relative">
-                                <img 
-                                  src={ev.image_url || getEventFallbackImage(ev.category)} 
+                        {trendingEvents.map(ev => {
+                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                          return (
+                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer group" onClick={() => setSelectedEvent(ev)}>
+                              <CardContent className="p-3 flex items-center gap-4">
+                                <EventImage 
+                                  src={ev.image_url} 
                                   alt={ev.event_title} 
-                                  className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                                  loading="lazy"
+                                  category={ev.category} 
+                                  className="h-16 w-16 rounded-xl shrink-0"
+                                  icon={Play}
                                 />
-                                {!ev.image_url && (
-                                  <div className="absolute inset-0 bg-orange-500/20 flex items-center justify-center backdrop-blur-[1px]">
-                                    <Play className="h-6 w-6 text-white drop-shadow-md" />
-                                  </div>
-                                )}
-                              </div>
-                              <div className="min-w-0">
-                                <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                                <p className="text-xs text-muted-foreground">{ev.views_count || 0} visualizações</p>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                  <p className="text-xs text-muted-foreground">{ev.views_count || 0} visualizações</p>
+                                </div>
+                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 rounded-full text-orange-500 hover:bg-orange-500/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                      window.dispatchEvent(new Event("storage"));
+                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                    }}
+                                  >
+                                    <Heart className={cn("h-4 w-4", isFav && "fill-current")} />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 rounded-full text-orange-500 hover:bg-orange-500/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const data = getShareData(ev);
+                                      handleShare(data.title, data.text, data.url, ev.id);
+                                    }}
+                                  >
+                                    <Share2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -624,19 +737,55 @@ function buildUberLink(ev: Event): string {
                        Você pode gostar
                      </h3>
                      <div className="grid grid-cols-1 gap-3">
-                       {recommendedEvents.map(ev => (
-                         <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
-                           <CardContent className="p-3 flex items-center gap-4">
-                             <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                               <MusicIcon className="h-6 w-6 text-accent" />
-                             </div>
-                             <div className="min-w-0">
-                               <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                               <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
-                             </div>
-                           </CardContent>
-                         </Card>
-                       ))}
+                        {recommendedEvents.map(ev => {
+                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                          return (
+                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group" onClick={() => setSelectedEvent(ev)}>
+                              <CardContent className="p-3 flex items-center gap-4">
+                                <EventImage 
+                                  src={ev.image_url} 
+                                  alt={ev.event_title} 
+                                  category={ev.category} 
+                                  className="h-16 w-16 rounded-xl shrink-0"
+                                  icon={MusicIcon}
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                  <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
+                                </div>
+                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                      window.dispatchEvent(new Event("storage"));
+                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                    }}
+                                  >
+                                    <Heart className={cn("h-4 w-4", isFav && "fill-current")} />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const data = getShareData(ev);
+                                      handleShare(data.title, data.text, data.url, ev.id);
+                                    }}
+                                  >
+                                    <Share2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
                      </div>
                    </div>
                  )}
@@ -1011,36 +1160,62 @@ function buildUberLink(ev: Event): string {
                 </div>
 
                 <div className="grid grid-cols-1 gap-8">
-                  {grouped[dayKey].items.map((ev) => {
-                    const icon = categoryIcons[ev.category || ""] || "📌";
-                    return (
-                      <Card 
-                        key={ev.id} 
-                        className="overflow-hidden border-border/60 bg-card/50 hover:shadow-elevated transition-all group cursor-pointer rounded-[2.5rem]"
-                        onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
-                      >
-                        <CardContent className="p-0">
-                         <div className="flex flex-col lg:flex-row min-h-[320px]">
-                            <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
-                              <img 
-                                src={ev.image_url || getEventFallbackImage(ev.category)} 
-                                alt={ev.event_title}
-                                loading="lazy"
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
-                              {!ev.image_url && (
-                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-[2px]">
-                                  <span className="text-4xl sm:text-6xl opacity-40 drop-shadow-lg">{categoryIcons[ev.category || ""] || "📌"}</span>
-                                </div>
-                              )}
-                              {/* Badge flutuante na imagem para mobile */}
-                              <div className="absolute bottom-4 left-4 lg:hidden">
-                                <Badge className="bg-white/95 text-primary border-none font-black text-[10px] tracking-widest px-3 py-1 shadow-lg backdrop-blur-sm">
-                                  {categoryLabels[ev.category!]?.split(' ')[0] || ev.category}
-                                </Badge>
-                              </div>
-                            </div>
+                   {grouped[dayKey].items.map((ev) => {
+                     const icon = categoryIcons[ev.category || ""] || "📌";
+                     const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                     const IconComp = (ev.category === 'musica' ? MusicIcon : 
+                                     ev.category === 'gastronomia' ? Utensils : 
+                                     ev.category === 'esporte' ? Trophy : 
+                                     ev.category === 'promocoes' ? Tag : 
+                                     CalendarDays) as any;
+
+                     return (
+                       <Card 
+                         key={ev.id} 
+                         className="overflow-hidden border-border/60 bg-card/50 hover:shadow-elevated transition-all group cursor-pointer rounded-[2.5rem]"
+                         onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
+                       >
+                         <CardContent className="p-0">
+                          <div className="flex flex-col lg:flex-row min-h-[320px]">
+                             <div className="w-full lg:w-72 xl:w-80 h-48 sm:h-64 lg:h-auto shrink-0 relative overflow-hidden group">
+                               <EventImage 
+                                 src={ev.image_url} 
+                                 alt={ev.event_title} 
+                                 category={ev.category} 
+                                 className="absolute inset-0 w-full h-full"
+                                 icon={IconComp}
+                               />
+                               
+                               <div className="absolute top-4 right-4 z-30">
+                                 <Button 
+                                   variant="ghost" 
+                                   size="icon" 
+                                   className={cn(
+                                     "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90",
+                                     isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                                   )}
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                     const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                     localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                     window.dispatchEvent(new Event("storage"));
+                                     toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                   }}
+                                 >
+                                   <Heart className={cn("h-5 w-5", isFav && "fill-current")} />
+                                 </Button>
+                               </div>
+
+                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
+                               
+                               {/* Badge flutuante na imagem para mobile */}
+                               <div className="absolute bottom-4 left-4 lg:hidden">
+                                 <Badge className="bg-white/95 text-primary border-none font-black text-[10px] tracking-widest px-3 py-1 shadow-lg backdrop-blur-sm">
+                                   {categoryLabels[ev.category!]?.split(' ')[0] || ev.category}
+                                 </Badge>
+                               </div>
+                             </div>
 
                            <div className="flex-1 p-5 sm:p-8 lg:p-10 flex flex-col justify-between space-y-5 sm:space-y-6">
                               <div className="space-y-4 sm:space-y-6">
