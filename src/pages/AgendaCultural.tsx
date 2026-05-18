@@ -782,7 +782,10 @@ function buildUberLink(ev: Event): string {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
+                                    className={cn(
+                                      "h-8 w-8 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
+                                      isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                                    )}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
@@ -797,7 +800,7 @@ function buildUberLink(ev: Event): string {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
+                                    className="h-8 w-8 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);
