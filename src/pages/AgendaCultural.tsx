@@ -162,11 +162,16 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
    return categoryFallbacks["outros"];
  }
  
- function EventImage({ src, alt, category, className, icon: Icon }: { src?: string | null; alt: string; category?: string | null; className?: string; icon?: any }) {
-   const [isLoaded, setIsLoaded] = useState(false);
-   const [error, setError] = useState(false);
-   const fallback = getEventFallbackImage(category);
- 
+  function EventImage({ src, alt, category, className, icon: Icon }: { src?: string | null; alt: string; category?: string | null; className?: string; icon?: any }) {
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [error, setError] = useState(false);
+    const fallback = useMemo(() => getEventFallbackImage(category), [category]);
+
+    useEffect(() => {
+      setIsLoaded(false);
+      setError(false);
+    }, [src]);
+
    return (
      <div className={cn("relative overflow-hidden bg-muted/20", className)}>
        {!isLoaded && (
@@ -174,9 +179,10 @@ function ReportButton({ eventId, eventTitle }: { eventId: string; eventTitle: st
            <Skeleton className="h-full w-full rounded-lg" />
          </div>
        )}
-       <img
-         src={error ? fallback : (src || fallback)}
-         alt={alt}
+        <img
+          src={error ? fallback : (src || fallback)}
+          alt={alt}
+          key={src || 'fallback'}
          className={cn(
            "h-full w-full object-cover transition-all duration-700",
            !isLoaded ? "opacity-0 blur-sm scale-105" : "opacity-100 blur-0 scale-100"
@@ -460,8 +466,23 @@ function buildUberLink(ev: Event): string {
           setLoading(false);
         }
       }
-      load();
-    }, []);
+       load();
+
+       const channel = supabase
+         .channel('submissions-all-updates')
+         .on('postgres_changes', { 
+           event: '*', 
+           schema: 'public', 
+           table: 'submissions' 
+         }, () => {
+           load();
+         })
+         .subscribe();
+
+       return () => {
+         supabase.removeChannel(channel);
+       };
+     }, []);
 
   useEffect(() => {
     const channel = supabase
@@ -620,11 +641,14 @@ function buildUberLink(ev: Event): string {
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
                                 </div>
-                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full text-secondary hover:bg-secondary/10"
+                                    className={cn(
+                                      "h-8 w-8 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
+                                      isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                                    )}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
@@ -639,7 +663,7 @@ function buildUberLink(ev: Event): string {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full text-secondary hover:bg-secondary/10"
+                                    className="h-8 w-8 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);
@@ -686,11 +710,14 @@ function buildUberLink(ev: Event): string {
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                   <p className="text-xs text-muted-foreground">{ev.views_count || 0} visualizações</p>
                                 </div>
-                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full text-orange-500 hover:bg-orange-500/10"
+                                    className={cn(
+                                      "h-8 w-8 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
+                                      isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                                    )}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
@@ -705,7 +732,7 @@ function buildUberLink(ev: Event): string {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full text-orange-500 hover:bg-orange-500/10"
+                                    className="h-8 w-8 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);
@@ -751,11 +778,14 @@ function buildUberLink(ev: Event): string {
                                    <p className="font-bold text-sm truncate">{ev.event_title}</p>
                                    <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
                                  </div>
-                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
+                                    className={cn(
+                                      "h-8 w-8 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
+                                      isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                                    )}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
@@ -770,7 +800,7 @@ function buildUberLink(ev: Event): string {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
+                                    className="h-8 w-8 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);
@@ -1115,21 +1145,57 @@ function buildUberLink(ev: Event): string {
                    <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
                  </div>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
-                    {filteredEvents.filter(e => e.is_highlight).map(ev => (
-                      <Card 
-                        key={ev.id} 
-                        className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group event-card"
-                        data-event-id={ev.id}
-                        data-nome={ev.event_title}
-                        onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
-                      >
-                        <EventImage 
-                          src={ev.image_url} 
-                          alt={ev.event_title} 
-                          category={ev.category} 
-                          className="h-48 w-full event-image"
-                          icon={Sparkles}
-                        />
+                    {filteredEvents.filter(e => e.is_highlight).map(ev => {
+                      const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                      return (
+                        <Card 
+                          key={ev.id} 
+                          className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group event-card"
+                          data-event-id={ev.id}
+                          data-nome={ev.event_title}
+                          onClick={() => { trackView(ev.id); setSelectedEvent(ev); }}
+                        >
+                          <div className="relative overflow-hidden group">
+                            <EventImage 
+                              src={ev.image_url} 
+                              alt={ev.event_title} 
+                              category={ev.category} 
+                              className="h-48 w-full event-image"
+                              icon={Sparkles}
+                            />
+                            <div className="absolute top-4 right-4 z-30 flex flex-col gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className={cn(
+                                  "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
+                                  isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                  const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                  localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                  window.dispatchEvent(new Event("storage"));
+                                  toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                }}
+                              >
+                                <Heart className={cn("h-5 w-5", isFav && "fill-current")} />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-10 w-10 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const data = getShareData(ev);
+                                  handleShare(data.title, data.text, data.url, ev.id);
+                                }}
+                              >
+                                <Share2 className="h-5 w-5" />
+                              </Button>
+                            </div>
+                          </div>
                         <CardContent className="p-6 space-y-4">
                           <div className="flex items-center justify-between">
                             <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0">DESTAQUE 🔥</Badge>
@@ -1146,9 +1212,10 @@ function buildUberLink(ev: Event): string {
                               <span className="line-clamp-1">{ev.location}</span>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                 </div>
               </section>
             )}
@@ -1196,26 +1263,38 @@ function buildUberLink(ev: Event): string {
                                  icon={IconComp}
                                />
                                
-                               <div className="absolute top-4 right-4 z-30">
-                                 <Button 
-                                   variant="ghost" 
-                                   size="icon" 
-                                   className={cn(
-                                     "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90",
-                                     isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
-                                   )}
-                                   onClick={(e) => {
-                                     e.stopPropagation();
-                                     const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
-                                     const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
-                                     localStorage.setItem("agendilha_favorites", JSON.stringify(next));
-                                     window.dispatchEvent(new Event("storage"));
-                                     toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
-                                   }}
-                                 >
-                                   <Heart className={cn("h-5 w-5", isFav && "fill-current")} />
-                                 </Button>
-                               </div>
+                                <div className="absolute top-4 right-4 z-30 flex flex-col gap-2">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className={cn(
+                                      "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90 shadow-sm",
+                                      isFav ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                                    )}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                      window.dispatchEvent(new Event("storage"));
+                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                    }}
+                                  >
+                                    <Heart className={cn("h-5 w-5", isFav && "fill-current")} />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-10 w-10 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const data = getShareData(ev);
+                                      handleShare(data.title, data.text, data.url, ev.id);
+                                    }}
+                                  >
+                                    <Share2 className="h-5 w-5" />
+                                  </Button>
+                                </div>
 
                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
                                
