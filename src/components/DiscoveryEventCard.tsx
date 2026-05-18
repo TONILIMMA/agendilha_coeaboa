@@ -1,10 +1,12 @@
  import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
- import { MapPin, Calendar, Star, Heart, Share2, Music, Utensils, Theater, Trophy, Tag, MoreHorizontal } from "lucide-react";
+import { MapPin, Calendar, Star, Heart, Share2, Music, Utensils, Theater, Trophy, Tag, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
- import { motion, AnimatePresence } from "framer-motion";
- import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useMemo } from "react";
+import { getEventFallbackImage } from "@/lib/event-utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Event {
   id: string;
@@ -29,69 +31,78 @@ interface Event {
    outros: { label: "Outros", icon: MoreHorizontal, color: "#374151", bg: "#F9FAFB", border: "#F3F4F6" },
  };
 
-export function DiscoveryEventCard({ 
-  event, 
-  onClick, 
+export function DiscoveryEventCard({
+  event,
+  onClick,
   variant = "large",
   isFavorite = false,
   onFavoriteToggle,
   onShare
-}: { 
-  event: Event; 
-  onClick: () => void; 
-  variant?: "large" | "small" | "horizontal";
+}: {
+  event: Event;
+  onClick: () => void;
+  variant?: "large" | "small" | "horizontal" | "compact";
   isFavorite?: boolean;
   onFavoriteToggle?: (e: React.MouseEvent) => void;
   onShare?: (e: React.MouseEvent) => void;
 }) {
   const isLarge = variant === "large";
   const isHorizontal = variant === "horizontal";
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [hasError, setHasError] = useState(false);
+  const isCompact = variant === "compact";
+  const isSmall = variant === "small";
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-   return (
-     <motion.div
-       initial={{ opacity: 0, y: 20 }}
-       animate={{ opacity: 1, y: 0 }}
-       transition={{ duration: 0.4 }}
-     >
-       <Card 
-         onClick={onClick}
-         className={cn(
-           "group cursor-pointer overflow-hidden border-none bg-transparent transition-all hover:scale-[1.02] active:scale-95 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2",
-            isLarge ? "w-[260px] xs:w-[280px] sm:w-[320px]" : isHorizontal ? "w-full" : "w-[160px] xs:w-[200px]"
-         )}
-       >
-         <div className={cn(
-           "relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] shadow-xl bg-muted/20",
-           isHorizontal && "aspect-[16/9]"
-         )}>
-           <AnimatePresence>
-             {!isLoaded && (
-               <motion.div 
-                 initial={{ opacity: 1 }}
-                 exit={{ opacity: 0 }}
-                 className="absolute inset-0 bg-muted/20 animate-pulse flex items-center justify-center z-10"
-               >
-                 <Music className="h-10 w-10 text-muted-foreground/20 animate-bounce" />
-               </motion.div>
-             )}
-           </AnimatePresence>
-           
-            <img 
-              src={hasError ? "/placeholder.svg" : (event.image_url || "/placeholder.svg")} 
-              alt={event.event_title}
-              loading="lazy"
-              onLoad={() => setIsLoaded(true)}
-              onError={() => {
-                setHasError(true);
-                setIsLoaded(true);
-              }}
-              className={cn(
-                "h-full w-full object-cover transition-all duration-700 group-hover:scale-110",
-                !isLoaded ? "opacity-0 scale-105 blur-sm" : "opacity-100 scale-100 blur-0"
-              )}
-            />
+  const fallbackImage = useMemo(() => getEventFallbackImage(event.category), [event.category]);
+  const finalImage = hasError ? fallbackImage : (event.image_url || fallbackImage);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Card
+        onClick={onClick}
+        className={cn(
+          "group cursor-pointer overflow-hidden border-none bg-transparent transition-all hover:scale-[1.02] active:scale-95 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2",
+          isLarge ? "w-[260px] xs:w-[280px] sm:w-[320px]" :
+            isHorizontal ? "w-full" :
+              isCompact ? "w-[220px]" :
+                isSmall ? "w-[160px] xs:w-[200px]" : "w-[160px] xs:w-[200px]"
+        )}
+      >
+        <div className={cn(
+          "relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] shadow-xl bg-muted/20",
+          isHorizontal && "aspect-[16/9]",
+          isCompact && "aspect-[16/9] h-[260px]"
+        )}>
+          <AnimatePresence>
+            {!isLoaded && (
+              <motion.div
+                initial={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-muted/10 animate-pulse z-10 p-4"
+              >
+                <Skeleton className="h-full w-full rounded-2xl" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <img
+            src={finalImage}
+            alt={event.event_title}
+            loading="lazy"
+            onLoad={() => setIsLoaded(true)}
+            onError={() => {
+              setHasError(true);
+              setIsLoaded(true);
+            }}
+            className={cn(
+              "h-full w-full object-cover transition-all duration-700 group-hover:scale-110",
+              !isLoaded ? "opacity-0 scale-105 blur-sm" : "opacity-100 scale-100 blur-0"
+            )}
+          />
            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
            
            {/* Top Badges Left */}
