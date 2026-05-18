@@ -511,8 +511,20 @@ function buildUberLink(ev: Event): string {
                         {nearYouEvents.map(ev => (
                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer active:scale-95 transition-transform" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
-                              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                <CalendarDays className="h-6 w-6 text-primary" />
+                              <div className="h-16 w-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-primary/5">
+                                {ev.image_url ? (
+                                  <img 
+                                    src={ev.image_url} 
+                                    alt={ev.event_title} 
+                                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20 relative">
+                                    <CalendarDays className="h-7 w-7 text-primary relative z-10" />
+                                    <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=200')] bg-cover" />
+                                  </div>
+                                )}
                               </div>
                               <div className="min-w-0">
                                 <p className="font-bold text-sm truncate">{ev.event_title}</p>
@@ -535,8 +547,20 @@ function buildUberLink(ev: Event): string {
                         {recommendedEvents.map(ev => (
                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer active:scale-95 transition-transform" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
-                              <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                                <MusicIcon className="h-6 w-6 text-accent" />
+                              <div className="h-16 w-16 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 overflow-hidden border border-accent/5">
+                                {ev.image_url ? (
+                                  <img 
+                                    src={ev.image_url} 
+                                    alt={ev.event_title} 
+                                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-accent/20 to-primary/20 relative">
+                                    <MusicIcon className="h-7 w-7 text-accent relative z-10" />
+                                    <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1514525253361-bee8a187499b?auto=format&fit=crop&q=80&w=200')] bg-cover" />
+                                  </div>
+                                )}
                               </div>
                               <div className="min-w-0">
                                 <p className="font-bold text-sm truncate">{ev.event_title}</p>
@@ -559,8 +583,20 @@ function buildUberLink(ev: Event): string {
                         {trendingEvents.map(ev => (
                           <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
                             <CardContent className="p-3 flex items-center gap-4">
-                              <div className="h-12 w-12 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
-                                <Play className="h-6 w-6 text-orange-600" />
+                              <div className="h-16 w-16 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 overflow-hidden border border-orange-500/10">
+                                {ev.image_url ? (
+                                  <img 
+                                    src={ev.image_url} 
+                                    alt={ev.event_title} 
+                                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-orange-500/20 to-yellow-500/20 relative">
+                                    <Play className="h-7 w-7 text-orange-600 relative z-10" />
+                                    <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=200')] bg-cover" />
+                                  </div>
+                                )}
                               </div>
                               <div className="min-w-0">
                                 <p className="font-bold text-sm truncate">{ev.event_title}</p>
