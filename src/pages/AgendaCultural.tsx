@@ -652,8 +652,8 @@ function buildUberLink(ev: Event): string {
                                 </div>
                               </CardContent>
                             </Card>
-                          );
-                        })}
+                           ))
+                         }
                       </div>
                     </div>
                   )}
@@ -702,8 +702,8 @@ function buildUberLink(ev: Event): string {
                                 </div>
                               </CardContent>
                             </Card>
-                          );
-                        })}
+                           ))
+                         }
                       </div>
                     </div>
                   )}
@@ -751,8 +751,8 @@ function buildUberLink(ev: Event): string {
                                 </div>
                               </CardContent>
                             </Card>
-                          );
-                        })}
+                           ))
+                         }
                      </div>
                    </div>
                  )}
