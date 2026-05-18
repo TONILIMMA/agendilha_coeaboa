@@ -1084,9 +1084,7 @@ function buildUberLink(ev: Event): string {
                    <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
                  </div>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
-                    {filteredEvents.filter(e => e.is_highlight).map(ev => {
-                      const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
-                      return (
+                    {filteredEvents.filter(e => e.is_highlight).map(ev => (
                         <Card 
                           key={ev.id} 
                           className="min-w-[300px] sm:min-w-[350px] snap-start border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-transparent hover:shadow-lg transition-all cursor-pointer overflow-hidden group event-card"
@@ -1136,8 +1134,8 @@ function buildUberLink(ev: Event): string {
                           </div>
                           </CardContent>
                         </Card>
-                      );
-                    })}
+                        ))
+                    }
                 </div>
               </section>
             )}
@@ -1155,9 +1153,8 @@ function buildUberLink(ev: Event): string {
                 </div>
 
                 <div className="grid grid-cols-1 gap-8">
-                   {grouped[dayKey].items.map((ev) => {
-                     const icon = categoryIcons[ev.category || ""] || "📌";
-                     const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                    {grouped[dayKey].items.map((ev) => {
+                      const icon = categoryIcons[ev.category || ""] || "📌";
                      const IconComp = (ev.category === 'musica' ? MusicIcon : 
                                      ev.category === 'gastronomia' ? Utensils : 
                                      ev.category === 'esporte' ? Trophy : 
