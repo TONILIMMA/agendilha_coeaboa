@@ -525,16 +525,15 @@ function buildUberLink(ev: Event): string {
    }, [events]);
 
     const filteredEvents = useMemo(() => {
-      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
       return upcomingEvents.filter(ev => {
         const matchSearch = ev.event_title.toLowerCase().includes(search.toLowerCase()) || 
                             (ev.description || "").toLowerCase().includes(search.toLowerCase());
         const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
         const matchNeigh = neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
-        const matchFav = !showFavoritesOnly || favs.includes(ev.id);
+        const matchFav = !showFavoritesOnly || isFavorite(ev.id);
         return matchSearch && matchCat && matchNeigh && matchFav;
       });
-    }, [upcomingEvents, search, categoryFilter, neighborhoodFilter, showFavoritesOnly]);
+    }, [upcomingEvents, search, categoryFilter, neighborhoodFilter, showFavoritesOnly, favorites, isFavorite]);
 
     // AI Recommendation Logic
     const nearYouEvents = useMemo(() => {
