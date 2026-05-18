@@ -737,19 +737,55 @@ function buildUberLink(ev: Event): string {
                        Você pode gostar
                      </h3>
                      <div className="grid grid-cols-1 gap-3">
-                       {recommendedEvents.map(ev => (
-                         <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer" onClick={() => setSelectedEvent(ev)}>
-                           <CardContent className="p-3 flex items-center gap-4">
-                             <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                               <MusicIcon className="h-6 w-6 text-accent" />
-                             </div>
-                             <div className="min-w-0">
-                               <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                               <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
-                             </div>
-                           </CardContent>
-                         </Card>
-                       ))}
+                        {recommendedEvents.map(ev => {
+                          const isFav = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]").includes(ev.id);
+                          return (
+                            <Card key={ev.id} className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group" onClick={() => setSelectedEvent(ev)}>
+                              <CardContent className="p-3 flex items-center gap-4">
+                                <EventImage 
+                                  src={ev.image_url} 
+                                  alt={ev.event_title} 
+                                  category={ev.category} 
+                                  className="h-16 w-16 rounded-xl shrink-0"
+                                  icon={MusicIcon}
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-bold text-sm truncate">{ev.event_title}</p>
+                                  <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
+                                </div>
+                                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const favs = JSON.parse(localStorage.getItem("agendilha_favorites") || "[]");
+                                      const next = isFav ? favs.filter((f: string) => f !== ev.id) : [...favs, ev.id];
+                                      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+                                      window.dispatchEvent(new Event("storage"));
+                                      toast.success(isFav ? "Removido dos favoritos" : "Adicionado aos favoritos");
+                                    }}
+                                  >
+                                    <Heart className={cn("h-4 w-4", isFav && "fill-current")} />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 rounded-full text-accent hover:bg-accent/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const data = getShareData(ev);
+                                      handleShare(data.title, data.text, data.url, ev.id);
+                                    }}
+                                  >
+                                    <Share2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
                      </div>
                    </div>
                  )}
