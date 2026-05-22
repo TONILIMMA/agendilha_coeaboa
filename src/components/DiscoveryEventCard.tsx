@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
 import { getEventFallbackImage } from "@/lib/event-utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useThumbnailCache } from "@/hooks/useThumbnailCache";
 
 interface Event {
   id: string;
@@ -56,7 +57,9 @@ export function DiscoveryEventCard({
 
    const fallbackImage = useMemo(() => getEventFallbackImage(event.category), [event.category]);
    const officialImage = event.image_url || event.imageUrl;
-   const finalImage = hasError ? fallbackImage : (officialImage || fallbackImage);
+   const sourceImage = hasError ? fallbackImage : (officialImage || fallbackImage);
+   const cachedThumb = useThumbnailCache(event.id, isCompact ? sourceImage : undefined);
+   const finalImage = isCompact ? (cachedThumb || sourceImage) : sourceImage;
 
   return (
     <motion.div
@@ -77,7 +80,7 @@ export function DiscoveryEventCard({
          <div className={cn(
            "relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] shadow-xl bg-muted/20",
            isHorizontal && "aspect-[16/9]",
-           isCompact && "aspect-[16/9] h-[240px] xs:h-[260px]"
+          isCompact && "aspect-square h-[220px] xs:h-[240px]"
          )}>
           <AnimatePresence>
             {!isLoaded && (
