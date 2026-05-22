@@ -25,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { StepIndicator } from "./submission-form/StepIndicator";
 import { SummarySection } from "./submission-form/SummarySection";
 import heroBanner from "@/assets/hero-banner.jpg";
+import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage
 } from "@/components/ui/form";
@@ -507,6 +508,22 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
       }
       if (imageUrlWhatsapp?.startsWith('data:image')) {
         imageUrlWhatsapp = await uploadDataUrl(imageUrlWhatsapp, 'whatsapp');
+      }
+
+      // Fallback: gerar flyer padrão Coé a Boa? quando não houver imagem
+      if (!imageUrl) {
+        try {
+          const flyerDataUrl = await generateFallbackFlyer({
+            title: data.eventTitle || data.atrativoName || "Evento",
+            date: data.date,
+            startTime: data.startTime,
+            location: data.locationName,
+            category: data.category,
+          });
+          imageUrl = await uploadDataUrl(flyerDataUrl, 'auto-flyer');
+        } catch (err) {
+          console.error("Falha ao gerar flyer padrão:", err);
+        }
       }
 
     const submissionData = {
