@@ -25,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { StepIndicator } from "./submission-form/StepIndicator";
 import { SummarySection } from "./submission-form/SummarySection";
 import heroBanner from "@/assets/hero-banner.jpg";
+import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage
 } from "@/components/ui/form";
