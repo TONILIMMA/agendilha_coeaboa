@@ -29,7 +29,8 @@ import { useProfile } from "@/hooks/useProfile";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useUserBadge } from "@/hooks/useUserBadge";
  import { Badge } from "@/components/ui/badge";
- import { HeaderUserMenu } from "@/components/HeaderUserMenu";
+  import { HeaderUserMenu } from "@/components/HeaderUserMenu";
+ import { SidebarMenu } from "@/components/SidebarMenu";
 import SubmissionsPanel from "@/components/SubmissionsPanel";
 import {
   DropdownMenu,
@@ -214,44 +215,8 @@ export default function Header() {
                     <Menu className="h-5 w-5 text-foreground" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[85vw] p-0 border-l-0 bg-background/95 backdrop-blur-xl">
-                  <SheetHeader className="p-6 border-b border-border/40">
-                    <div className="flex items-center gap-3">
-                      <img src={logoCoeABoa} alt="Coé a Boa?" className="h-8 w-8 rounded-full" />
-                      <SheetTitle className="text-left font-display text-xl font-black text-primary">AgendIlha</SheetTitle>
-                    </div>
-                  </SheetHeader>
-                  <div className="flex flex-col p-6 gap-6">
-                     <div className="flex flex-col gap-2">
-                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-2">Navegação</p>
-                       <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors group">
-                         <Sun className="h-5 w-5 text-primary" />
-                         <span className="font-bold text-foreground">Página Inicial</span>
-                       </Link>
-                       <Link to="/agenda" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
-                         <CalendarDays className="h-5 w-5 text-primary" />
-                         <span className="font-bold text-foreground">Eventos</span>
-                       </Link>
-                       <Link to="/artistas" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
-                         <Users className="h-5 w-5 text-primary" />
-                         <span className="font-bold text-foreground">Artistas Locais</span>
-                       </Link>
-                       <Link to="/agenda?view=favorites" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-2xl hover:bg-primary/5 transition-colors">
-                         <Heart className="h-5 w-5 text-primary" />
-                         <span className="font-bold text-foreground">Meus Favoritos</span>
-                         {favoritesCount > 0 && <Badge variant="secondary" className="ml-auto">{favoritesCount}</Badge>}
-                       </Link>
-                     </div>
-                    
-                    <div className="flex flex-col gap-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-2">Conta</p>
-                      <HeaderUserMenu variant="mobile" onNavigate={() => setMenuOpen(false)} />
-                    </div>
-
-                    <div className="mt-auto pt-10 text-center">
-                      <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/40">© {new Date().getFullYear()} Coé a Boa?</p>
-                    </div>
-                  </div>
+                <SheetContent side="right" className="p-0 border-l-0 bg-sidebar w-64 overflow-hidden">
+                  <SidebarMenu onClose={() => setMenuOpen(false)} />
                 </SheetContent>
               </Sheet>
             </div>
