@@ -170,6 +170,7 @@ export function SidebarMenu({ onClose }: Props) {
                   onClick={() => {
                     if (onClose) onClose();
                   }}
+                >
                   <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary-foreground" : "text-primary group-hover:scale-110 transition-transform")} />
                   <span className="text-sm flex-1">{item.label}</span>
                   {item.badge && (
