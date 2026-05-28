@@ -113,65 +113,122 @@
        {/* Content */}
        <div className="max-w-7xl mx-auto px-6 mt-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
          {/* Left Column: Bio & Info */}
-         <div className="lg:col-span-2 space-y-12">
-           <section>
-             <h2 className="text-xl font-display font-bold mb-4 flex items-center gap-2">
-               <Music className="h-5 w-5 text-primary" /> Sobre o Artista
-             </h2>
-             <p className="text-muted-foreground leading-relaxed">
-               {artist.bio || "Este artista ainda não adicionou uma biografia."}
-             </p>
-           </section>
- 
-           {videos.length > 0 && (
-             <section>
-               <h2 className="text-xl font-display font-bold mb-4 flex items-center gap-2">
-                 <Video className="h-5 w-5 text-primary" /> Vídeos Curtos
-               </h2>
-               <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar">
-                 {videos.map((video) => (
-                   <div key={video.id} className="relative min-w-[160px] aspect-[9/16] rounded-xl overflow-hidden bg-muted snap-start shadow-md hover:scale-[1.02] transition-transform">
-                     <img src={video.thumbnail_url} className="w-full h-full object-cover" alt="Video thumbnail" />
-                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
-                       <Play className="h-8 w-8 text-white drop-shadow-lg" />
-                     </div>
-                   </div>
-                 ))}
-               </div>
-             </section>
-           )}
- 
-           <section>
-             <h2 className="text-xl font-display font-bold mb-4 flex items-center gap-2">
-               <Calendar className="h-5 w-5 text-primary" /> Agenda de Shows
-             </h2>
-             <div className="bg-card rounded-2xl p-8 border border-border shadow-sm text-center">
-               <p className="text-muted-foreground mb-4">Nenhum show confirmado para os próximos dias.</p>
-               <Button variant="outline" className="rounded-full">Ver Agenda Completa</Button>
-             </div>
-           </section>
-         </div>
+          <div className="lg:col-span-2 space-y-12">
+            <section>
+              <h2 className="text-xl font-display font-bold mb-4 flex items-center gap-2">
+                <Music className="h-5 w-5 text-primary" /> Sobre o Artista
+              </h2>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                {artist.work_description || artist.bio || "Este artista ainda não adicionou uma descrição detalhada."}
+              </p>
+              {artist.differentials && (
+                <div className="mt-6 p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                  <h4 className="font-bold text-primary text-sm mb-2 flex items-center gap-2">
+                    <span className="p-1 bg-white rounded-full shadow-sm">✨</span> Diferenciais
+                  </h4>
+                  <p className="text-sm text-muted-foreground">{artist.differentials}</p>
+                </div>
+              )}
+            </section>
+
+            {artist.styles && artist.styles.length > 0 && (
+              <section>
+                <h2 className="text-lg font-display font-bold mb-4">Estilos Musicais</h2>
+                <div className="flex flex-wrap gap-2">
+                  {artist.styles.map((style: string) => (
+                    <Badge key={style} variant="outline" className="px-3 py-1 rounded-full bg-slate-50 border-slate-200 text-slate-600">
+                      {style}
+                    </Badge>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {images.length > 0 && (
+              <section>
+                <h2 className="text-xl font-display font-bold mb-4 flex items-center gap-2">
+                  <Video className="h-5 w-5 text-primary" /> Galeria de Mídia
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {images.map((img: any) => (
+                    <div key={img.id} className="aspect-square rounded-xl overflow-hidden border border-border shadow-sm hover:scale-105 transition-transform">
+                      <img src={img.url} className="w-full h-full object-cover" alt="Artist media" />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {videos.length > 0 && (
+              <section>
+                <h2 className="text-xl font-display font-bold mb-4 flex items-center gap-2">
+                  <Video className="h-5 w-5 text-primary" /> Vídeos Curtos
+                </h2>
+                <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar">
+                  {videos.map((video: any) => (
+                    <div key={video.id} className="relative min-w-[160px] aspect-[9/16] rounded-xl overflow-hidden bg-muted snap-start shadow-md group">
+                      <img src={video.thumbnail_url || video.url} className="w-full h-full object-cover" alt="Video thumbnail" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+                        <Play className="h-8 w-8 text-white drop-shadow-lg" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <section>
+              <h2 className="text-xl font-display font-bold mb-4 flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" /> Agenda de Shows
+              </h2>
+              <div className="bg-card rounded-2xl p-8 border border-border shadow-sm text-center">
+                <p className="text-muted-foreground mb-4">Nenhum show confirmado para os próximos dias.</p>
+                <Button variant="outline" className="rounded-full">Ver Agenda Completa</Button>
+              </div>
+            </section>
+          </div>
  
          {/* Right Column: Sidebar */}
          <div className="space-y-8">
            <div className="bg-card rounded-2xl p-6 border border-border shadow-sm space-y-6 sticky top-24">
-             <h3 className="font-display font-bold text-lg">Contrate o Artista</h3>
-             
-             <div className="space-y-3">
-                 {artist.instagram && (
-                   <a href={`https://instagram.com/${artist.instagram.replace('@', '')}`} target="_blank" rel="noreferrer">
-                     <Button variant="outline" className="w-full justify-start gap-3 rounded-xl border-pink-100 hover:bg-pink-50 hover:text-pink-600 transition-all">
-                       <Globe className="h-4 w-4" /> Instagram
-                     </Button>
-                   </a>
-                 )}
-               {artist.whatsapp && (
-                 <a href={`https://wa.me/55${artist.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">
-                   <Button variant="outline" className="w-full justify-start gap-3 rounded-xl border-green-100 hover:bg-green-50 hover:text-green-600 transition-all">
-                     <MessageCircle className="h-4 w-4" /> WhatsApp
-                   </Button>
-                 </a>
-               )}
+              <h3 className="font-display font-bold text-lg">Canais e Contato</h3>
+              
+              <div className="space-y-3">
+                {artist.spotify_url && (
+                    <a href={artist.spotify_url} target="_blank" rel="noreferrer">
+                      <Button variant="outline" className="w-full justify-start gap-3 rounded-xl border-emerald-100 hover:bg-emerald-50 hover:text-emerald-600 transition-all mb-3">
+                        <Music className="h-4 w-4" /> Spotify
+                      </Button>
+                    </a>
+                  )}
+                  {artist.youtube && (
+                    <a href={artist.youtube.startsWith('http') ? artist.youtube : `https://youtube.com/${artist.youtube}`} target="_blank" rel="noreferrer">
+                      <Button variant="outline" className="w-full justify-start gap-3 rounded-xl border-red-100 hover:bg-red-50 hover:text-red-600 transition-all mb-3">
+                        <Video className="h-4 w-4" /> YouTube
+                      </Button>
+                    </a>
+                  )}
+                  {artist.website_url && (
+                    <a href={artist.website_url.startsWith('http') ? artist.website_url : `https://${artist.website_url}`} target="_blank" rel="noreferrer">
+                      <Button variant="outline" className="w-full justify-start gap-3 rounded-xl border-blue-100 hover:bg-blue-50 hover:text-blue-600 transition-all mb-3">
+                        <Globe className="h-4 w-4" /> Site Oficial
+                      </Button>
+                    </a>
+                  )}
+                  {artist.instagram && (
+                    <a href={`https://instagram.com/${artist.instagram.replace('@', '')}`} target="_blank" rel="noreferrer">
+                      <Button variant="outline" className="w-full justify-start gap-3 rounded-xl border-pink-100 hover:bg-pink-50 hover:text-pink-600 transition-all mb-3">
+                        <Globe className="h-4 w-4" /> Instagram
+                      </Button>
+                    </a>
+                  )}
+                {artist.whatsapp && (
+                  <a href={`https://wa.me/55${artist.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">
+                    <Button className="w-full justify-start gap-3 rounded-xl bg-green-600 hover:bg-green-700 text-white transition-all shadow-md">
+                      <MessageCircle className="h-4 w-4" /> WhatsApp Profissional
+                    </Button>
+                  </a>
+                )}
                <Button variant="outline" className="w-full justify-start gap-3 rounded-xl border-blue-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
                  <Share2 className="h-4 w-4" /> Compartilhar Perfil
                </Button>

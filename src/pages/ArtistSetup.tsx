@@ -1,309 +1,277 @@
- import { useState } from "react";
- import { useNavigate } from "react-router-dom";
- import { useAuth } from "@/contexts/AuthContext";
- import { supabase } from "@/integrations/supabase/client";
- import { Button } from "@/components/ui/button";
- import { Input } from "@/components/ui/input";
- import { Label } from "@/components/ui/label";
- import { Textarea } from "@/components/ui/textarea";
-  import { handleError } from "@/lib/error-handler";
-  import { toast } from "sonner";
- import { 
-   Music, 
-   Users, 
-   MapPin, 
-    Globe, 
-    Plus, 
-    Loader2,
-    CheckCircle2,
-    Upload,
-    Video,
-    Image as ImageIcon,
-    X
-  } from "lucide-react";
- import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
- } from "@/components/ui/select";
- 
- const NEIGHBORHOODS = [
-   "Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia",
-   "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras",
-   "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"
- ].sort();
- 
-  export default function ArtistSetup() {
-    const [mediaFiles, setMediaFiles] = useState<{ file: File; type: 'image' | 'video'; preview: string }[]>([]);
-    const [uploadingMedia, setUploadingMedia] = useState(false);
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useForm } from "react-hook-form";
+import { 
+  Music, 
+  User as UserIcon, 
+  Globe, 
+  Video, 
+  LayoutDashboard, 
+  Eye, 
+  Save, 
+  Loader2,
+  CheckCircle2
+} from "lucide-react";
+import { toast } from "sonner";
+import { ProfileStatus } from "@/components/artist-setup/ProfileStatus";
+import { BasicInfoForm } from "@/components/artist-setup/BasicInfoForm";
+import { PresentationForm } from "@/components/artist-setup/PresentationForm";
+import { SocialLinksForm } from "@/components/artist-setup/SocialLinksForm";
+import { MediaUploadForm } from "@/components/artist-setup/MediaUploadForm";
+import Header from "@/components/Header";
 
-    const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
-      const files = Array.from(e.target.files || []);
-      const newFiles = files.map(file => ({
-        file,
-        type,
-        preview: URL.createObjectURL(file)
-      }));
-      setMediaFiles(prev => [...prev, ...newFiles]);
-    };
+export default function ArtistSetup() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [artistProfile, setArtistProfile] = useState<any>(null);
+  
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      genre: "",
+      neighborhood: "",
+      member_count: 1,
+      artist_type: "cover",
+      bio: "",
+      work_description: "",
+      styles: [],
+      differentials: "",
+      instagram: "",
+      youtube: "",
+      spotify_url: "",
+      website_url: "",
+      whatsapp: "",
+    }
+  });
 
-    const removeMedia = (index: number) => {
-      setMediaFiles(prev => {
-        const updated = [...prev];
-        URL.revokeObjectURL(updated[index].preview);
-        updated.splice(index, 1);
-        return updated;
-      });
-    };
+  const fetchProfile = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("artist_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-   const { user } = useAuth();
-   const navigate = useNavigate();
-   const [loading, setLoading] = useState(false);
-   
-   const [formData, setFormData] = useState({
-     name: "",
-     bio: "",
-     genre: "",
-     city: "Rio de Janeiro",
-     neighborhood: "",
-     member_count: "1",
-     artist_type: "cover",
-     instagram: "",
-     whatsapp: "",
-     spotify: "",
-     youtube: "",
-     avatar_url: "",
-     cover_url: "",
-   });
- 
-   async function handleSubmit(e: React.FormEvent) {
-     e.preventDefault();
-     if (!user) return;
-     
-     setLoading(true);
-      try {
-        const { data: profileData, error: profileError } = await supabase
-          .from("artist_profiles")
-          .upsert({
-            user_id: user.id,
-            ...formData,
-            member_count: parseInt(formData.member_count),
-            artist_type: formData.artist_type as 'cover' | 'autoral' | 'both',
-            is_approved: false
-          })
-          .select()
-          .single();
-
-        if (profileError) throw profileError;
-
-        // Upload media files
-        if (mediaFiles.length > 0) {
-          setUploadingMedia(true);
-          for (const item of mediaFiles) {
-            const fileExt = item.file.name.split('.').pop();
-            const filePath = `${profileData.id}/${Math.random()}.${fileExt}`;
-            
-            const { error: uploadError } = await supabase.storage
-              .from('artist-media')
-              .upload(filePath, item.file);
-
-            if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-              .from('artist-media')
-              .getPublicUrl(filePath);
-
-            await supabase.from('artist_media').insert({
-              artist_id: profileData.id,
-              url: publicUrl,
-              media_type: item.type,
-              moderation_status: 'pending'
-            });
-          }
-        }
-
-        toast.success("Perfil e mídias enviados para análise!", {
-          description: "Avisaremos assim que tudo for aprovado."
+      if (data) {
+        setArtistProfile(data);
+        form.reset({
+          name: data.name || "",
+          genre: data.genre || "",
+          neighborhood: data.neighborhood || "",
+          member_count: data.member_count || 1,
+          artist_type: data.artist_type || "cover",
+          bio: data.bio || "",
+          work_description: data.work_description || "",
+          styles: data.styles || [],
+          differentials: data.differentials || "",
+          instagram: data.instagram || "",
+          youtube: data.youtube || "",
+          spotify_url: data.spotify_url || "",
+          website_url: data.website_url || "",
+          whatsapp: data.whatsapp || "",
         });
-        navigate("/agenda");
-      } catch (error) {
-        handleError(error, "Erro ao salvar perfil");
-      } finally {
-       setLoading(false);
-     }
-   }
- 
-   return (
-     <div className="min-h-screen bg-background py-12 px-6">
-       <div className="max-w-2xl mx-auto space-y-8">
-         <div className="text-center space-y-2">
-           <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-4">
-             <Music className="h-6 w-6 text-primary" />
-           </div>
-           <h1 className="text-3xl font-display font-bold">Configure seu Perfil Artístico</h1>
-           <p className="text-muted-foreground">Conte um pouco sobre seu trabalho para a comunidade.</p>
-         </div>
- 
-         <form onSubmit={handleSubmit} className="bg-card p-8 rounded-2xl border border-border shadow-sm space-y-6">
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div className="space-y-2">
-               <Label htmlFor="name">Nome Artístico / Banda</Label>
-               <Input 
-                 id="name" 
-                 value={formData.name} 
-                 onChange={e => setFormData({...formData, name: e.target.value})}
-                 required 
-                 placeholder="Ex: Banda do Porto"
-               />
-             </div>
-             <div className="space-y-2">
-               <Label htmlFor="genre">Gênero Principal</Label>
-               <Input 
-                 id="genre" 
-                 value={formData.genre} 
-                 onChange={e => setFormData({...formData, genre: e.target.value})}
-                 required 
-                 placeholder="Ex: Samba, Rock, MPB..."
-               />
-             </div>
-           </div>
- 
-           <div className="space-y-2">
-             <Label htmlFor="bio">Biografia Curta</Label>
-             <Textarea 
-               id="bio" 
-               value={formData.bio} 
-               onChange={e => setFormData({...formData, bio: e.target.value})}
-               placeholder="Fale um pouco sobre sua trajetória musical..."
-               className="min-h-[100px]"
-             />
-           </div>
- 
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-             <div className="space-y-2">
-               <Label>Bairro</Label>
-               <Select value={formData.neighborhood} onValueChange={v => setFormData({...formData, neighborhood: v})}>
-                 <SelectTrigger>
-                   <SelectValue placeholder="Selecione" />
-                 </SelectTrigger>
-                 <SelectContent>
-                   {NEIGHBORHOODS.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-                 </SelectContent>
-               </Select>
-             </div>
-             <div className="space-y-2">
-               <Label>Integrantes</Label>
-               <Input 
-                 type="number" 
-                 min="1" 
-                 value={formData.member_count} 
-                 onChange={e => setFormData({...formData, member_count: e.target.value})}
-               />
-             </div>
-             <div className="space-y-2">
-               <Label>Tipo</Label>
-               <Select value={formData.artist_type} onValueChange={v => setFormData({...formData, artist_type: v})}>
-                 <SelectTrigger>
-                   <SelectValue placeholder="Selecione" />
-                 </SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="cover">Cover</SelectItem>
-                   <SelectItem value="autoral">Autoral</SelectItem>
-                   <SelectItem value="both">Ambos</SelectItem>
-                 </SelectContent>
-               </Select>
-             </div>
-           </div>
- 
-           <div className="space-y-4 pt-4 border-t border-border">
-             <h3 className="font-display font-semibold flex items-center gap-2">
-               <Plus className="h-4 w-4" /> Links & Redes Sociais
-             </h3>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-xs"><Globe className="h-3 w-3" /> Instagram</Label>
-                 <Input 
-                   placeholder="@usuario" 
-                   value={formData.instagram} 
-                   onChange={e => setFormData({...formData, instagram: e.target.value})}
-                 />
-               </div>
-               <div className="space-y-2">
-                  <Label className="flex items-center gap-2 text-xs"><Video className="h-3 w-3" /> YouTube</Label>
-                 <Input 
-                   placeholder="Link do canal ou vídeo" 
-                   value={formData.youtube} 
-                   onChange={e => setFormData({...formData, youtube: e.target.value})}
-                 />
-               </div>
-             </div>
-           </div>
- 
-            <div className="space-y-4 pt-4 border-t border-border">
-              <h3 className="font-display font-semibold flex items-center gap-2 text-primary">
-                <Video className="h-5 w-5" /> Fotos e Vídeos (Opcional)
-              </h3>
-              <p className="text-xs text-muted-foreground">Adicione flyers, fotos de shows ou vídeos curtos (máx 30s) para seu feed.</p>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="relative group">
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    multiple 
-                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                    onChange={(e) => handleMediaChange(e, 'image')}
-                  />
-                  <div className="border-2 border-dashed border-primary/20 rounded-xl p-4 flex flex-col items-center justify-center gap-2 group-hover:border-primary/40 transition-colors bg-primary/5">
-                    <ImageIcon className="h-6 w-6 text-primary" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Add Fotos</span>
-                  </div>
-                </div>
-                <div className="relative group">
-                  <input 
-                    type="file" 
-                    accept="video/*" 
-                    multiple 
-                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                    onChange={(e) => handleMediaChange(e, 'video')}
-                  />
-                  <div className="border-2 border-dashed border-primary/20 rounded-xl p-4 flex flex-col items-center justify-center gap-2 group-hover:border-primary/40 transition-colors bg-primary/5">
-                    <Video className="h-6 w-6 text-primary" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Add Vídeos</span>
-                  </div>
-                </div>
-              </div>
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-              {mediaFiles.length > 0 && (
-                <div className="grid grid-cols-4 gap-2 mt-4">
-                  {mediaFiles.map((item, idx) => (
-                    <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-border">
-                      {item.type === 'image' ? (
-                        <img src={item.preview} className="w-full h-full object-cover" />
-                      ) : (
-                        <video src={item.preview} className="w-full h-full object-cover" />
-                      )}
-                      <button 
-                        type="button"
-                        onClick={() => removeMedia(idx)}
-                        className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-black/70"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
+  useEffect(() => {
+    fetchProfile();
+  }, [user]);
+
+  const onSave = async (values: any) => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      const { data, error } = await supabase
+        .from("artist_profiles")
+        .upsert({
+          user_id: user.id,
+          ...values,
+          moderation_status: artistProfile?.moderation_status || 'incomplete'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      setArtistProfile(data);
+      toast.success("Perfil salvo com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao salvar perfil.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const calculateCompleteness = () => {
+    const fields = [
+      'name', 'genre', 'neighborhood', 'artist_type', 
+      'bio', 'work_description', 'styles', 'whatsapp', 'instagram'
+    ];
+    const values = form.getValues();
+    const filled = fields.filter(f => {
+      const val = values[f as keyof typeof values];
+      if (Array.isArray(val)) return val.length > 0;
+      return !!val;
+    });
+    return Math.round((filled.length / fields.length) * 100);
+  };
+
+  const getMissingFields = () => {
+    const labels: Record<string, string> = {
+      name: "Nome Artístico",
+      genre: "Gênero Principal",
+      neighborhood: "Bairro",
+      artist_type: "Tipo (Cover/Autoral)",
+      bio: "Biografia Curta",
+      work_description: "Descrição do Trabalho",
+      styles: "Estilos Musicais",
+      whatsapp: "WhatsApp Profissional",
+      instagram: "Instagram"
+    };
+    const values = form.getValues();
+    return Object.keys(labels).filter(f => {
+      const val = values[f as keyof typeof values];
+      if (Array.isArray(val)) return val.length === 0;
+      if (f === 'instagram') return !val; // explicitly check optional but completeness-relevant
+      return !val;
+    }).map(f => labels[f]);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50/50">
+      <Header />
+      
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Sidebar: Status & Actions */}
+          <div className="space-y-6">
+            <Card className="border-none shadow-sm bg-white overflow-hidden rounded-3xl">
+              <CardContent className="p-6">
+                <ProfileStatus 
+                  status={artistProfile?.moderation_status || 'incomplete'}
+                  completeness={calculateCompleteness()}
+                  missingFields={getMissingFields()}
+                />
+                
+                <div className="mt-8 space-y-3">
+                  <Button 
+                    className="w-full h-12 rounded-xl gradient-sunset font-bold shadow-md hover:scale-[1.02] active:scale-95 transition-all"
+                    onClick={form.handleSubmit(onSave)}
+                    disabled={saving}
+                  >
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                    Salvar Perfil
+                  </Button>
+                  
+                  {artistProfile && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-12 rounded-xl border-2 font-bold flex items-center justify-center gap-2"
+                      onClick={() => navigate(`/artista/${artistProfile.id}`)}
+                    >
+                      <Eye className="h-4 w-4" />
+                      Ver Perfil Público
+                    </Button>
+                  )}
                 </div>
-              )}
+              </CardContent>
+            </Card>
+
+            <div className="hidden lg:block bg-primary/5 p-6 rounded-3xl border border-primary/10 space-y-3">
+              <h4 className="font-bold text-primary flex items-center gap-2 text-sm">
+                <Music className="h-4 w-4" /> Dica de Ouro
+              </h4>
+              <p className="text-xs text-primary/70 leading-relaxed">
+                Perfis com descrição detalhada e estilos bem definidos têm 3x mais chances de serem contratados.
+              </p>
             </div>
+          </div>
 
-            <Button type="submit" className="w-full rounded-xl" disabled={loading || uploadingMedia}>
-              {loading || uploadingMedia ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
-              {uploadingMedia ? "Enviando mídias..." : "Enviar para Aprovação"}
-            </Button>
-         </form>
-       </div>
-     </div>
-   );
- }
+          {/* Main Content: Form Hub */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+              <Tabs defaultValue="basic" className="w-full">
+                <div className="px-6 pt-6 border-b border-slate-50">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                      <h1 className="text-2xl font-black font-display text-primary uppercase tracking-tight">Hub do Artista</h1>
+                      <p className="text-sm text-muted-foreground font-medium">Gerencie sua identidade artística no AgendIlha.</p>
+                    </div>
+                  </div>
+                  
+                  <TabsList className="bg-slate-100/50 p-1 h-12 rounded-xl w-full justify-start overflow-x-auto overflow-y-hidden scrollbar-none gap-1">
+                    <TabsTrigger value="basic" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm gap-2 text-xs font-bold uppercase tracking-wider">
+                      <UserIcon className="h-3.5 w-3.5" /> Básico
+                    </TabsTrigger>
+                    <TabsTrigger value="presentation" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm gap-2 text-xs font-bold uppercase tracking-wider">
+                      <Music className="h-3.5 w-3.5" /> Show
+                    </TabsTrigger>
+                    <TabsTrigger value="links" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm gap-2 text-xs font-bold uppercase tracking-wider">
+                      <Globe className="h-3.5 w-3.5" /> Links
+                    </TabsTrigger>
+                    <TabsTrigger value="media" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm gap-2 text-xs font-bold uppercase tracking-wider">
+                      <Video className="h-3.5 w-3.5" /> Mídia
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <div className="p-6">
+                  <TabsContent value="basic" className="mt-0 outline-none">
+                    <BasicInfoForm form={form} />
+                  </TabsContent>
+                  
+                  <TabsContent value="presentation" className="mt-0 outline-none">
+                    <PresentationForm form={form} />
+                  </TabsContent>
+                  
+                  <TabsContent value="links" className="mt-0 outline-none">
+                    <SocialLinksForm form={form} />
+                  </TabsContent>
+                  
+                  <TabsContent value="media" className="mt-0 outline-none">
+                    <MediaUploadForm 
+                      artistId={artistProfile?.id} 
+                      onMediaUploaded={fetchProfile} 
+                    />
+                  </TabsContent>
+                </div>
+              </Tabs>
+            </div>
+            
+            <div className="lg:hidden bg-primary/5 p-6 rounded-3xl border border-primary/10">
+               <h4 className="font-bold text-primary flex items-center gap-2 text-sm mb-2">
+                <Music className="h-4 w-4" /> Dica de Ouro
+              </h4>
+              <p className="text-xs text-primary/70 leading-relaxed">
+                Perfis com descrição detalhada e estilos bem definidos têm 3x mais chances de serem contratados.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  );
+}
