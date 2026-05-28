@@ -291,9 +291,9 @@ export default function AdminEvents() {
               {[
                 { label: 'Total', value: kpis.total, color: 'text-slate-600', bg: 'bg-white' },
                 { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-white' },
-                { label: 'Em Análise', value: kpis.analysis, color: 'text-blue-600', bg: 'bg-white' },
+                { label: 'Em Revisão', value: kpis.in_review, color: 'text-blue-600', bg: 'bg-white' },
                 { label: 'Aprovados', value: kpis.approved, color: 'text-emerald-600', bg: 'bg-white' },
-                { label: 'Rejeitados', value: kpis.rejected, color: 'text-rose-600', bg: 'bg-white' },
+                { label: 'Divulgados', value: kpis.divulgado, color: 'text-emerald-600', bg: 'bg-white' },
                 { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-white' },
               ].map((kpi) => (
              <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm hover:shadow-md transition-all`}>
