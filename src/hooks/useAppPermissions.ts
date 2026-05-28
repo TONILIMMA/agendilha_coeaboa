@@ -34,39 +34,26 @@ export function useAppPermissions() {
 
     async function loadPermissions() {
       try {
-        // Fetch user roles from app_user_roles (System B)
-        const { data: userRolesData } = await supabase
-          .from('app_user_roles')
-          .select('app_roles(name)')
-          .eq('user_id', user.id);
+        // Fetch everything in one parallel batch
+        const [rolesResponse, permsResponse] = await Promise.all([
+          supabase.from('app_user_roles').select('app_roles(name)').eq('user_id', user.id),
+          supabase.rpc('get_user_permissions', { p_user_id: user.id })
+        ]);
 
-        const roleNames = userRolesData?.map(r => (r.app_roles as any)?.name).filter(Boolean) || [];
+        const roleNames = rolesResponse.data?.map(r => (r.app_roles as any)?.name).filter(Boolean) || [];
         
-        // Also fetch from legacy user_roles (System A) for extra safety
-        const { data: legacyRoles } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id);
-        
-        if (legacyRoles) {
-          legacyRoles.forEach(r => {
-            if (r.role === 'master' && !roleNames.includes('master_admin')) {
-              roleNames.push('master_admin');
-            }
-            if (r.role === 'admin' && !roleNames.includes('admin')) {
-              roleNames.push('admin');
-            }
+        // Legacy system fallback for transition period
+        if (roleNames.length === 0) {
+          const { data: legacyRoles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+          legacyRoles?.forEach(r => {
+            if (r.role === 'master' && !roleNames.includes('master_admin')) roleNames.push('master_admin');
+            if (r.role === 'admin' && !roleNames.includes('admin')) roleNames.push('admin');
           });
         }
 
         setRoles(roleNames);
-
-        // Fetch user permissions via RPC for efficiency and security
-        const { data: permsData } = await supabase
-          .rpc('get_user_permissions', { p_user_id: user.id });
-
-        if (permsData) {
-          setPermissions(new Set(permsData as PermissionName[]));
+        if (permsResponse.data) {
+          setPermissions(new Set(permsResponse.data as PermissionName[]));
         }
       } catch (error) {
         console.error("Error loading permissions:", error);
