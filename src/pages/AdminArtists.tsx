@@ -13,7 +13,11 @@
  } from "lucide-react";
  import { Badge } from "@/components/ui/badge";
  
- export default function AdminArtists() {
+  export default function AdminArtists() {
+    const { user, isAdmin, loading: authLoading } = useAuth();
+    if (authLoading) return <div className="p-8">Carregando...</div>;
+    if (!user || !isAdmin) return <Navigate to="/" replace />;
+
    const queryClient = useQueryClient();
  
    const { data: artists, isLoading } = useQuery({
