@@ -60,10 +60,11 @@ function ProtectedRoute({
   requiredPermission 
 }: { 
   children: React.ReactNode; 
-  requiredPermission?: PermissionName
+  requiredPermission?: PermissionName;
+  masterOnly?: boolean;
 }) {
   const { user, loading: authLoading } = useAuth();
-  const { hasPermission, loading: permsLoading } = useAppPermissions();
+  const { hasPermission, isMaster, loading: permsLoading } = useAppPermissions();
   const location = useLocation();
   
   if (authLoading || permsLoading) {
@@ -76,6 +77,10 @@ function ProtectedRoute({
   
   if (!user) {
     return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  if (masterOnly && !isMaster) {
+    return <Navigate to="/agenda" replace />;
   }
 
   if (requiredPermission && !hasPermission(requiredPermission)) {
@@ -112,7 +117,7 @@ const AppRoutes = () => (
           <ProtectedRoute requiredPermission="users.read"><Header /><AdminCollaborators /></ProtectedRoute>
         } />
         <Route path="/admin/master" element={
-          <ProtectedRoute requiredPermission="roles.manage"><AdminPinGate><Header /><AdminMaster /></AdminPinGate></ProtectedRoute>
+          <ProtectedRoute masterOnly={true} requiredPermission="roles.manage"><AdminPinGate><Header /><AdminMaster /></AdminPinGate></ProtectedRoute>
         } />
         <Route path="/admin/newsletter" element={
           <ProtectedRoute requiredPermission="users.read"><AdminNewsletter /></ProtectedRoute>
@@ -124,7 +129,7 @@ const AppRoutes = () => (
           <ProtectedRoute requiredPermission="events.read"><Header /><AdminMedia /></ProtectedRoute>
         } />
         <Route path="/admin/audit" element={
-          <ProtectedRoute requiredPermission="audit_logs.read"><AdminAuditLogs /></ProtectedRoute>
+          <ProtectedRoute masterOnly={true} requiredPermission="audit_logs.read"><AdminAuditLogs /></ProtectedRoute>
         } />
         <Route path="/ranking" element={<ProtectedRoute><Header /><Ranking /></ProtectedRoute>} />
 
