@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { handleError } from "@/lib/error-handler";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 
 interface Submission {
@@ -129,6 +130,7 @@ export default function AdminEvents() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   async function fetchAll() {
     setLoading(true);
@@ -150,15 +152,14 @@ export default function AdminEvents() {
   }, [hasPermission]);
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Tem certeza que deseja excluir este evento?")) return;
     const { error } = await supabase.from("submissions").delete().eq("id", id);
     if (error) {
       handleError(error, "Erro ao remover evento");
     } else {
-      toast.success("Evento removido");
+      toast.success("Evento removido com sucesso");
       setSubmissions((prev) => prev.filter((s) => s.id !== id));
     }
-
+    setDeleteConfirmId(null);
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
@@ -596,9 +597,9 @@ export default function AdminEvents() {
                                </DropdownMenuItem>
                              )}
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleDelete(sub.id)} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer font-bold">
-                              <Trash2 className="h-4 w-4 mr-2" /> Excluir permanentemente
-                            </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => setDeleteConfirmId(sub.id)} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer font-bold">
+                               <Trash2 className="h-4 w-4 mr-2" /> Excluir permanentemente
+                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TooltipProvider>
@@ -671,6 +672,16 @@ export default function AdminEvents() {
           )}
         </div>
       </div>
+      
+      <ConfirmModal
+        isOpen={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => deleteConfirmId && handleDelete(deleteConfirmId)}
+        title="Excluir Evento"
+        description="Esta ação não pode ser desfeita. O evento será removido permanentemente da base de dados e da agenda pública."
+        confirmText="Excluir Agora"
+        variant="destructive"
+      />
     </div>
   );
 }
