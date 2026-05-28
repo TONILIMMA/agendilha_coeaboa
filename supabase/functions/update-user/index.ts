@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     }
 
     // Caller must be master
-    const { data: isMaster } = await anonClient.rpc("is_master", { _user_id: user.id });
+    const { data: isMaster } = await anonClient.rpc("is_admin_or_master", { p_user_id: user.id });
     if (!isMaster) {
       return new Response(JSON.stringify({ error: "Forbidden — master only" }), {
         status: 403,

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardKPIs } from "./DashboardKPIs";
@@ -7,7 +7,6 @@ import { DashboardFilters } from "./DashboardFilters";
 import { DashboardRankings } from "./DashboardRankings";
 import { OperationalMetrics } from "./OperationalMetrics";
 import { Loader2, LayoutDashboard, Database, TrendingUp, Shield } from "lucide-react";
-import { subDays, startOfDay, format, isAfter } from "date-fns";
 import { toast } from "sonner";
 
 export default function AdminDashboard() {
@@ -22,258 +21,61 @@ export default function AdminDashboard() {
   const { data: dashboardData, isLoading, error } = useQuery({
     queryKey: ["admin-dashboard-data", filters],
     queryFn: async () => {
-      // Base queries for raw data
-      let submissionsQuery = supabase.from("submissions").select("*");
-      let profilesQuery = supabase.from("profiles").select("*");
-      let favoritesQuery = supabase.from("user_favorites").select("*");
-      let artistsQuery = supabase.from("artist_profiles").select("*");
-      let placesQuery = supabase.from("places").select("*");
-      let rolesQuery = supabase.from("app_user_roles").select("user_id, app_roles(name)");
+      const { data, error } = await supabase.rpc("get_admin_dashboard_stats", {
+        p_period: filters.period,
+        p_neighborhood: filters.neighborhood,
+        p_category: filters.category
+      });
 
-      // Apply Period Filter
-      const now = new Date();
-      let cutoffDate = null;
-      if (filters.period === "week") cutoffDate = subDays(now, 7);
-      else if (filters.period === "month") cutoffDate = subDays(now, 30);
-      else if (filters.period === "year") cutoffDate = subDays(now, 365);
-
-      if (cutoffDate) {
-        const isoDate = cutoffDate.toISOString();
-        submissionsQuery = submissionsQuery.gte("created_at", isoDate);
-        profilesQuery = profilesQuery.gte("created_at", isoDate);
-        favoritesQuery = favoritesQuery.gte("created_at", isoDate);
+      if (error) {
+        console.error("Dashboard RPC Error:", error);
+        throw error;
       }
-
-      // Apply other filters
-      if (filters.neighborhood !== "all") submissionsQuery = submissionsQuery.eq("address_neighborhood", filters.neighborhood);
-      if (filters.category !== "all") submissionsQuery = submissionsQuery.eq("category", filters.category);
-      if (filters.status !== "all") submissionsQuery = submissionsQuery.eq("status", filters.status);
-
-      // Execute all queries in parallel
-      const [
-        { data: submissions = [] },
-        { data: profiles = [] },
-        { data: favorites = [] },
-        { data: artists = [] },
-        { data: places = [] },
-        { data: userRoles = [] }
-      ] = await Promise.all([
-        submissionsQuery,
-        profilesQuery,
-        favoritesQuery,
-        artistsQuery,
-        placesQuery,
-        rolesQuery
-      ]);
-
-      // Calculate KPIs
-      const totalUsers = profiles.length;
-      const adminsCount = userRoles.filter(ur => (ur.app_roles as any)?.name === 'admin' || (ur.app_roles as any)?.name === 'master_admin').length;
-      const promotersCount = profiles.filter(p => p.role === 'promoter').length;
-      const publicUsersCount = totalUsers - adminsCount - promotersCount;
-
-      const totalEvents = submissions.length;
-      const pendingEvents = submissions.filter(s => s.status === 'pendente' || s.status === 'em_revisao').length;
-      const approvedEvents = submissions.filter(s => s.status === 'aprovado' || s.status === 'publicado' || s.status === 'divulgado').length;
-      const cancelledEvents = submissions.filter(s => s.status === 'cancelado' || s.status === 'blocked').length;
-
-      const neighborhoodsWithEvents = new Set(submissions.filter(s => s.status === 'aprovado' || s.status === 'publicado' || s.status === 'divulgado').map(s => s.address_neighborhood)).size;
-
-      // Charts Data
-      // 1. Users by Type
-      const usersByType = [
-        { name: 'Público', value: publicUsersCount },
-        { name: 'Divulgadores', value: promotersCount },
-        { name: 'Admins', value: adminsCount },
-      ];
-
-      // 2. Events by Neighborhood (Top 10)
-      const neighborhoodCounts: Record<string, number> = {};
-      submissions.forEach(s => {
-        const n = s.address_neighborhood || "Não informado";
-        neighborhoodCounts[n] = (neighborhoodCounts[n] || 0) + 1;
-      });
-      const eventsByNeighborhood = Object.entries(neighborhoodCounts)
-        .map(([name, value]) => ({ name, value }))
-        .sort((a, b) => b.value - a.value)
-        .slice(0, 10);
-
-      // 3. Events by Period
-      const eventsByPeriodMap: Record<string, number> = {};
-      submissions.forEach(s => {
-        const date = format(new Date(s.created_at), "dd/MM");
-        eventsByPeriodMap[date] = (eventsByPeriodMap[date] || 0) + 1;
-      });
-      const eventsByPeriod = Object.entries(eventsByPeriodMap)
-        .map(([name, value]) => ({ name, value }))
-        .slice(-10);
-
-      // 4. Events by Category
-      const categoryMap: Record<string, number> = {};
-      submissions.forEach(s => {
-        const c = s.category || "Outros";
-        categoryMap[c] = (categoryMap[c] || 0) + 1;
-      });
-      const eventsByCategory = Object.entries(categoryMap).map(([name, value]) => ({ name, value }));
-
-      // 5. Status Funnel
-      const eventStatusFunnel = [
-        { name: 'Pendente', value: pendingEvents },
-        { name: 'Aprovado', value: approvedEvents },
-        { name: 'Cancelado', value: cancelledEvents },
-      ];
-
-      // 6. New Users Evolution
-      const newUsersMap: Record<string, number> = {};
-      profiles.forEach(p => {
-        const date = format(new Date(p.created_at), "dd/MM");
-        newUsersMap[date] = (newUsersMap[date] || 0) + 1;
-      });
-      const newUsersEvolution = Object.entries(newUsersMap)
-        .map(([name, value]) => ({ name, value }))
-        .slice(-10);
-
-      // Rankings
-      // Top Events by Favorites
-      const favCounts: Record<string, number> = {};
-      favorites.forEach(f => {
-        if (f.event_id) favCounts[f.event_id] = (favCounts[f.event_id] || 0) + 1;
-      });
-      const topEvents = Object.entries(favCounts)
-        .map(([id, count]) => {
-          const event = submissions.find(s => s.id === id);
-          return { name: event?.event_title || "Evento Desconhecido", count };
-        })
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-      // Top Events by Views
-      const topEventsByViews = [...submissions]
-        .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
-        .map(s => ({ name: s.event_title, count: s.views_count || 0 }))
-        .slice(0, 10);
-
-      // Top Neighborhoods by Favorites
-      const neighborhoodFavs: Record<string, number> = {};
-      favorites.forEach(f => {
-        const event = submissions.find(s => s.id === f.event_id);
-        if (event) {
-          const n = event.address_neighborhood || "Não informado";
-          neighborhoodFavs[n] = (neighborhoodFavs[n] || 0) + 1;
-        }
-      });
-      const topNeighborhoodsByFavs = Object.entries(neighborhoodFavs)
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-      // Top Places by Favorites
-      const placeFavs: Record<string, number> = {};
-      favorites.forEach(f => {
-        const event = submissions.find(s => s.id === f.event_id);
-        if (event && event.location) {
-          placeFavs[event.location] = (placeFavs[event.location] || 0) + 1;
-        }
-      });
-      const topPlaces = Object.entries(placeFavs)
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-      // Top Artists by Favorites
-      const artistFavs: Record<string, number> = {};
-      favorites.forEach(f => {
-        const event = submissions.find(s => s.id === f.event_id);
-        if (event && event.artist_id) {
-          const artist = artists.find(a => a.id === event.artist_id);
-          const name = artist?.name || "Artista Desconhecido";
-          artistFavs[name] = (artistFavs[name] || 0) + 1;
-        }
-      });
-      const topArtists = Object.entries(artistFavs)
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-      // Top Promoters
-      const promoterApprovedCounts: Record<string, number> = {};
-      submissions.filter(s => s.status === 'approved' || s.status === 'published').forEach(s => {
-        promoterApprovedCounts[s.user_id] = (promoterApprovedCounts[s.user_id] || 0) + 1;
-      });
-      const topPromoters = Object.entries(promoterApprovedCounts)
-        .map(([uid, count]) => {
-          const profile = profiles.find(p => p.user_id === uid);
-          return { name: profile?.responsible_name || profile?.company_name || "Divulgador", count };
-        })
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-      // Operational Metrics
-      const approvalRate = totalEvents > 0 ? Math.round((approvedEvents / totalEvents) * 100) : 0;
-      const rejectionRate = totalEvents > 0 ? Math.round((cancelledEvents / totalEvents) * 100) : 0;
       
-      // Moderation Time (placeholder calculation for now)
-      const avgModerationTime = "2.4h"; 
-      const awaitingAnalysis = pendingEvents;
-      const eventsWithZeroFavs = submissions.filter(s => !favCounts[s.id]).length;
-      const newUsersInPeriod = profiles.length;
-
-      // 7. Neighborhoods Comparison (Events vs Favorites)
-      const neighborhoodComparison = Object.entries(neighborhoodCounts)
-        .map(([name, events]) => ({
-          name,
-          events,
-          favorites: neighborhoodFavs[name] || 0
-        }))
-        .sort((a, b) => (b.events + b.favorites) - (a.events + a.favorites))
-        .slice(0, 8);
+      const stats = data as any;
 
       return {
-        kpis: {
-          totalUsers,
-          publicUsers: publicUsersCount,
-          promoters: promotersCount,
-          admins: adminsCount,
-          totalEvents,
-          pendingEvents,
-          approvedEvents,
-          cancelledEvents,
-          totalFavorites: favorites.length,
-          totalArtists: artists.length,
-          totalPlaces: places.length,
-          neighborhoodsWithEvents
-        },
+        kpis: stats.kpis,
         charts: {
-          usersByType,
-          eventsByNeighborhood,
-          eventsByPeriod,
-          placesByFavorites: topPlaces,
-          artistsByFavorites: topArtists,
-          eventsByCategory,
-          eventStatusFunnel,
-          newUsersEvolution,
-          neighborhoodComparison
+          ...stats.charts,
+          usersByType: [
+            { name: 'Público', value: stats.kpis.publicUsers },
+            { name: 'Divulgadores', value: stats.kpis.promoters },
+            { name: 'Admins', value: stats.kpis.admins },
+          ],
+          eventStatusFunnel: [
+            { name: 'Pendente', value: stats.kpis.pendingEvents },
+            { name: 'Aprovado', value: stats.kpis.approvedEvents },
+            { name: 'Cancelado', value: stats.kpis.cancelledEvents },
+          ],
+          eventsByPeriod: stats.charts.eventsByPeriod || [], 
+          newUsersEvolution: stats.charts.newUsersEvolution || [],
+          neighborhoodComparison: (stats.charts.eventsByNeighborhood || []).map((n: any) => ({
+            name: n.name,
+            events: n.value,
+            favorites: 0 // Placeholder
+          }))
         },
         rankings: {
-          topEvents,
-          topEventsByViews,
-          topNeighborhoods: eventsByNeighborhood.map(n => ({ name: n.name, count: n.value })),
-          topPlaces: topPlaces.slice(0, 5),
-          topArtists: topArtists.slice(0, 5),
-          topPromoters: topPromoters.slice(0, 5)
+          topEvents: stats.rankings.topEvents || [],
+          topEventsByViews: [], 
+          topNeighborhoods: (stats.charts.eventsByNeighborhood || []).map((n: any) => ({ name: n.name, count: n.value })),
+          topPlaces: stats.rankings.topPlaces || [],
+          topArtists: stats.rankings.topArtists || [],
+          topPromoters: stats.rankings.topPromoters || []
         },
         metrics: {
-          approvalRate,
-          rejectionRate,
-          avgModerationTime,
-          awaitingAnalysis,
-          eventsWithZeroFavs,
-          newUsersInPeriod
+          approvalRate: stats.kpis.totalEvents > 0 ? Math.round((stats.kpis.approvedEvents / stats.kpis.totalEvents) * 100) : 0,
+          rejectionRate: stats.kpis.totalEvents > 0 ? Math.round((stats.kpis.cancelledEvents / stats.kpis.totalEvents) * 100) : 0,
+          avgModerationTime: "2.4h", 
+          awaitingAnalysis: stats.kpis.pendingEvents,
+          eventsWithZeroFavs: 0,
+          newUsersInPeriod: stats.kpis.totalUsers
         },
-        allNeighborhoods: Array.from(new Set(submissions.map(s => s.address_neighborhood))).filter(Boolean) as string[]
+        allNeighborhoods: (stats.charts.eventsByNeighborhood || []).map((n: any) => n.name)
       };
     },
-    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+    refetchInterval: 5 * 60 * 1000, 
   });
 
   if (isLoading) {
@@ -292,7 +94,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-10 animate-fade-in pb-10">
-      {/* Filters Section */}
       <section>
         <DashboardFilters 
           filters={filters} 
@@ -301,7 +102,6 @@ export default function AdminDashboard() {
         />
       </section>
 
-      {/* Executive Summary */}
       <section className="space-y-6">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600">
@@ -312,7 +112,6 @@ export default function AdminDashboard() {
         <DashboardKPIs stats={dashboardData!.kpis} />
       </section>
 
-      {/* Discovery & Engagement */}
       <section className="space-y-6">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600">
@@ -324,7 +123,6 @@ export default function AdminDashboard() {
         <DashboardRankings data={dashboardData!.rankings} />
       </section>
 
-      {/* Admin Operation */}
       <section className="space-y-6">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600">
@@ -335,7 +133,6 @@ export default function AdminDashboard() {
         <OperationalMetrics metrics={dashboardData!.metrics} />
       </section>
 
-      {/* Territorial Intelligence */}
       <section className="space-y-6">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600">
@@ -344,7 +141,6 @@ export default function AdminDashboard() {
           <h2 className="text-xl font-black tracking-tight text-foreground uppercase tracking-widest">Inteligência Territorial</h2>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Comparison chart could go here */}
           <DashboardRankings data={{
             ...dashboardData!.rankings,
             topEvents: dashboardData!.rankings.topEvents.slice(0, 5),

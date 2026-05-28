@@ -57,7 +57,7 @@ const PageFallback = () => (
   </div>
 );
 
-function ProtectedRoute({ 
+export function ProtectedRoute({ 
   children, 
   requiredPermission,
   masterOnly
@@ -93,7 +93,7 @@ function ProtectedRoute({
   return <>{children}</>;
 }
 
-const AppRoutes = () => (
+export const AppRoutes = () => (
   <SubmissionProvider>
     <Suspense fallback={<PageFallback />}>
       <Routes>

@@ -1054,6 +1054,14 @@ export type Database = {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       contains_bad_words: { Args: { text_to_check: string }; Returns: boolean }
       generate_slug: { Args: { title: string }; Returns: string }
+      get_admin_dashboard_stats: {
+        Args: {
+          p_category?: string
+          p_neighborhood?: string
+          p_period?: string
+        }
+        Returns: Json
+      }
       get_user_permissions: { Args: { p_user_id: string }; Returns: string[] }
       has_app_permission: {
         Args: { p_permission_name: string; p_user_id: string }
@@ -1072,6 +1080,7 @@ export type Database = {
       }
       increment_shares: { Args: { event_id: string }; Returns: undefined }
       increment_views: { Args: { event_id: string }; Returns: undefined }
+      is_admin_or_master: { Args: { p_user_id: string }; Returns: boolean }
       is_master: { Args: { _user_id: string }; Returns: boolean }
       report_event: {
         Args: {
