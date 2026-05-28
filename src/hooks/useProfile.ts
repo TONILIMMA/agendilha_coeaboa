@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
+
 
  export interface ProfileAddress {
    company_name: string;
@@ -114,11 +116,12 @@ export function useProfile() {
       .eq("user_id", user.id);
 
     if (error) {
-      toast.error("Erro ao salvar perfil");
+      handleError(error, "Erro ao salvar perfil");
     } else {
       setProfile((prev) => ({ ...prev, ...data }));
       toast.success("Perfil atualizado!");
     }
+
   }
 
   return { profile, loaded, saveProfile };

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { handleError } from "@/lib/error-handler";
+
 
 export type PermissionName = 
   | 'events.create'
@@ -63,10 +65,11 @@ export function useAppPermissions() {
           setPermissions(new Set(permsResponse.data as PermissionName[]));
         }
       } catch (error) {
-        console.error("Error loading permissions:", error);
+        handleError(error, "Erro ao carregar permissões");
       } finally {
         setLoading(false);
       }
+
     }
 
     loadPermissions();
