@@ -268,35 +268,47 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
   const showCollaborators = isAdmin || (perms.loaded && perms.canApprove);
    const hasAdminLinks = showEventos || isAdmin || showCollaborators;
  
-   // Final fallback header (Admin Area / Protected pages)
+   // Final fallback header (Admin Area / Protected pages / Other)
    return (
      <TooltipProvider delayDuration={200}>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
-        <div className="mx-auto flex h-auto max-w-5xl items-center justify-between px-4 py-2 gap-2">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 gap-2">
           {/* Left: Brand + date */}
-          <div className="flex flex-col min-w-0 shrink">
-            <div className="flex items-center gap-1.5 flex-wrap">
-               {!isHome && !isAgenda && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button size="icon" variant="ghost" onClick={() => navigate("/")} className="h-7 w-7 text-primary shrink-0" aria-label="Voltar">
-                      <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Voltar à página inicial</TooltipContent>
-                </Tooltip>
-              )}
-                 <Link to="/" className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-2 hover:opacity-80 transition-opacity" aria-label="AgendIlha - Página Inicial">
-                  <div className="flex items-center gap-1.5">
-                    <img src={logoCoeABoa} alt="AgendIlha" className="h-5 w-5 rounded-full" />
-                    <span className="font-display text-base sm:text-xl font-black text-primary whitespace-nowrap tracking-tight">AgendIlha</span>
-                  </div>
-                  <span className="text-[10px] sm:text-sm text-secondary font-black uppercase tracking-widest opacity-80">Coé a Boa?</span>
-                </Link>
-                {isAdmin && isAdminArea && <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />}
-            </div>
-            <span className="text-[10px] sm:text-[11px] text-muted-foreground capitalize block">{currentDate}</span>
+          <div className="flex items-center gap-3">
+             {/* Mobile menu trigger */}
+             <div className="flex md:hidden items-center">
+               <Button 
+                 variant="ghost" 
+                 size="icon" 
+                 onClick={onMobileMenuToggle} 
+                 className="h-10 w-10 text-primary"
+               >
+                 <Menu className="h-6 w-6" />
+               </Button>
+             </div>
+
+             <div className="flex items-center gap-2">
+               {/* Brand: Hide on desktop if we are in admin area (sidebar is already there) */}
+               <div className={cn(
+                 "flex items-center gap-2",
+                 isAdminArea && "md:hidden" // Fix duplication: Hide if sidebar is visible
+               )}>
+                 <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                   <img src={logoCoeABoa} alt="AgendIlha" className="h-7 w-7 rounded-full shadow-sm" />
+                   <div className="flex flex-col leading-none">
+                     <span className="font-display text-base sm:text-lg font-black text-primary tracking-tight">AgendIlha</span>
+                     <span className="text-[8px] text-secondary font-black uppercase tracking-widest opacity-80">Coé a Boa?</span>
+                   </div>
+                 </Link>
+               </div>
+               
+               <div className="hidden sm:flex flex-col ml-2">
+                 <span className="text-[10px] text-muted-foreground capitalize leading-none mb-0.5">{currentDate}</span>
+                 {isAdminArea && <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />}
+               </div>
+             </div>
           </div>
+
 
           {/* Right actions - hide specific ones on public agenda */}
           {user && !isAgenda && (() => {
