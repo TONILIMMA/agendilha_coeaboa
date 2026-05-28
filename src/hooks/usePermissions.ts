@@ -101,3 +101,6 @@ export function useAppPermissions() {
 }
 
 export const usePermissions = useAppPermissions;
+export function usePermissionsLegacy() {
+  return useAppPermissions();
+}

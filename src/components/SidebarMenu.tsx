@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { useUserBadge, UserStatus } from "@/hooks/useUserBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubmissions } from "@/contexts/SubmissionContext";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,8 @@ interface Props {
 export function SidebarMenu({ onClose }: Props) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { status, name, initials, label, loaded } = useUserBadge();
+  const { status, name, initials, label, loaded: badgeLoaded } = useUserBadge();
+  const { isMaster, isAdmin, isCollaborator, loading: permsLoading } = usePermissions();
   const { signOut } = useAuth();
   const { savedCount } = useSubmissions();
 
