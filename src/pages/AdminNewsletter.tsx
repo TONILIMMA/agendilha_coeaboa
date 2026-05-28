@@ -107,8 +107,7 @@ export default function AdminNewsletter() {
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className="min-h-screen bg-muted/30 pb-20">
-      <Header />
+    <div className="pb-20 animate-fade-in">
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="space-y-1">
