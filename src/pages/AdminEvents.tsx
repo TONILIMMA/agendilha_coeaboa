@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { handleError } from "@/lib/error-handler";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 
 interface Submission {

@@ -4,6 +4,8 @@ import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useState } from "react";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { 
   Check, 
   X, 
