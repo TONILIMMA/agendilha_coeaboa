@@ -138,12 +138,14 @@ export default function ArtistSetup() {
       bio: "Biografia Curta",
       work_description: "Descrição do Trabalho",
       styles: "Estilos Musicais",
-      whatsapp: "WhatsApp Profissional"
+      whatsapp: "WhatsApp Profissional",
+      instagram: "Instagram"
     };
     const values = form.getValues();
     return Object.keys(labels).filter(f => {
       const val = values[f as keyof typeof values];
       if (Array.isArray(val)) return val.length === 0;
+      if (f === 'instagram') return !val; // explicitly check optional but completeness-relevant
       return !val;
     }).map(f => labels[f]);
   };
