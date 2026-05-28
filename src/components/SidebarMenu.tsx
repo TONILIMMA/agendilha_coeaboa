@@ -61,19 +61,19 @@ export function SidebarMenu({ onClose }: Props) {
           label: "Artistas Locais", 
           path: "/artistas", 
           icon: Users,
-          excludeRoles: ["admin", "master"] 
+          excludeRoles: ["admin", "master", "master_admin"] 
         },
         { 
           label: "Meus Favoritos", 
           path: "/agenda?view=favorites", 
           icon: Heart,
-          excludeRoles: ["admin", "master"]
+          excludeRoles: ["admin", "master", "master_admin"]
         },
       ]
     },
     {
       title: "Administração",
-      roles: ["admin", "master"],
+      roles: ["admin", "master", "master_admin"],
       items: [
         { label: "Gerenciar Eventos", path: "/admin/events", icon: ShieldCheck },
         { label: "Gerenciar Usuários", path: "/admin/users", icon: User },
@@ -82,7 +82,7 @@ export function SidebarMenu({ onClose }: Props) {
     },
     {
       title: "Master",
-      roles: ["master"],
+      roles: ["master", "master_admin"],
       items: [
         { label: "Visão Geral", path: "/admin/master", icon: Crown },
         { label: "Ranking Divulgadores", path: "/ranking", icon: Trophy },
