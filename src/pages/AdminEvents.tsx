@@ -464,7 +464,6 @@ export default function AdminEvents() {
                       })()}
                     </div>
 
-                    {/* Ações */}
                     <div className="col-span-3 flex justify-end flex-wrap gap-1.5">
                       <TooltipProvider>
                         {/* Ver Detalhes */}
@@ -563,21 +562,13 @@ export default function AdminEvents() {
                             <DropdownMenuItem onClick={() => sub.long_copy && copyToClipboard(sub.long_copy, "Texto longo")} disabled={!sub.long_copy} className="cursor-pointer">
                               <MessageCircle className="h-4 w-4 mr-2" /> Copiar Texto Longo
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => sub.short_copy && openWhatsApp(sub.short_copy)} disabled={!sub.short_copy} className="cursor-pointer">
+                            <DropdownMenuItem onClick={() => sub.short_copy && openWhatsApp(sub.short_copy)} disabled={!sub.short_copy} className="cursor-pointer text-emerald-600">
                               <Phone className="h-4 w-4 mr-2" /> Abrir no WhatsApp
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => exportSingleEventPdf(sub)} className="cursor-pointer">
                               <FileDown className="h-4 w-4 mr-2" /> Exportar PDF
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(sub.id)} className="cursor-pointer text-rose-600 hover:text-rose-700 hover:bg-rose-50">
-                              <Trash2 className="h-4 w-4 mr-2" /> Excluir Evento
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")} className="cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50 font-bold">
-                              <MessageCircle className="h-4 w-4 mr-2" /> Divulgar WhatsApp
-                            </DropdownMenuItem>
-                            
                             <DropdownMenuSeparator />
                              <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Moderação</div>
                              {sub.moderation_status === 'flagged' && (
@@ -594,17 +585,6 @@ export default function AdminEvents() {
                                  <RotateCcw className="h-4 w-4 mr-2" /> Desbloquear
                                </DropdownMenuItem>
                              )}
-                             {sub.status !== 'analysis' && (
-                               <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'analysis')} className="cursor-pointer">
-                                 <Search className="h-4 w-4 mr-2" /> Colocar em Análise
-                               </DropdownMenuItem>
-                             )}
-                             {sub.status === 'published' && (
-                               <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'approved')} className="cursor-pointer text-indigo-600 focus:text-indigo-600 focus:bg-indigo-50">
-                                 <Globe className="h-4 w-4 mr-2" /> Remover da Agenda
-                               </DropdownMenuItem>
-                             )}
-                            
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleDelete(sub.id)} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer font-bold">
                               <Trash2 className="h-4 w-4 mr-2" /> Excluir permanentemente
