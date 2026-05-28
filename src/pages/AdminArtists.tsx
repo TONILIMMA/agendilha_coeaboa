@@ -1,4 +1,7 @@
- import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+  import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+  import { useAuth } from "@/contexts/AuthContext";
+  import { Navigate } from "react-router-dom";
+
  import { supabase } from "@/integrations/supabase/client";
  import { Button } from "@/components/ui/button";
  import { toast } from "sonner";
