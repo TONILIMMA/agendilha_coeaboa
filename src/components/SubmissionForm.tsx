@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useProfile } from "@/hooks/useProfile";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { z } from "zod";
 import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
@@ -89,7 +89,8 @@ export default function SubmissionForm() {
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
   const { addSubmission } = useSubmissions();
-  const { user } = useAuth();
+  const { user } = useAppPermissions(); // useAppPermissions returns user via useAuth internally, but we can also use useAuth directly if needed. Better use useAuth to be safe.
+  const { user: authUser } = useAuth();
   const { profile, loaded, saveProfile } = useProfile();
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -145,7 +146,7 @@ export default function SubmissionForm() {
       if (eventImage instanceof File) {
         const fileExt = eventImage.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${user?.id}/${fileName}`;
+        const filePath = `${authUser?.id}/${fileName}`;
 
         const { error: uploadError } = await supabaseClient.storage
           .from('event-flyers')

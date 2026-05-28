@@ -1,78 +1,80 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-export interface Permissions {
-  canSubmit: boolean;
-  canApprove: boolean;
-  canEdit: boolean;
-  canDelete: boolean;
-  isCollaborator: boolean;
-  loaded: boolean;
-}
+export type PermissionName = 
+  | 'events.create'
+  | 'events.read'
+  | 'events.update'
+  | 'events.approve'
+  | 'events.cancel'
+  | 'events.delete'
+  | 'users.read'
+  | 'users.update'
+  | 'users.promote'
+  | 'users.demote'
+  | 'admins.invite'
+  | 'admins.remove'
+  | 'roles.manage'
+  | 'audit_logs.read';
 
-export function usePermissions(): Permissions {
-  const { user, isAdmin } = useAuth();
-  const [perms, setPerms] = useState<Permissions>({
-    canSubmit: false,
-    canApprove: false,
-    canEdit: false,
-    canDelete: false,
-    isCollaborator: false,
-    loaded: false,
-  });
+export function useAppPermissions() {
+  const { user } = useAuth();
+  const [permissions, setPermissions] = useState<Set<PermissionName>>(new Set());
+  const [roles, setRoles] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
-      setPerms({ canSubmit: false, canApprove: false, canEdit: false, canDelete: false, isCollaborator: false, loaded: true });
+      setPermissions(new Set());
+      setRoles([]);
+      setLoading(false);
       return;
     }
 
-    if (isAdmin) {
-      setPerms({ canSubmit: true, canApprove: true, canEdit: true, canDelete: true, isCollaborator: true, loaded: true });
-      return;
-    }
-
-    async function load() {
+    async function loadPermissions() {
       try {
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("role, collaborators(can_submit, can_approve, can_edit, can_delete, is_active)")
-          .eq("user_id", user!.id)
-          .maybeSingle();
+        // Fetch everything in one parallel batch
+        const [rolesResponse, permsResponse] = await Promise.all([
+          supabase.from('app_user_roles').select('app_roles(name)').eq('user_id', user.id),
+          supabase.rpc('get_user_permissions', { p_user_id: user.id })
+        ]);
 
-        if (profileError) throw profileError;
-
-        const isPromoter = profileData?.role === 'promoter';
-        const collab = profileData?.collaborators?.[0] as any;
-
-        if (collab && collab.is_active !== false) {
-          setPerms({
-            canSubmit: collab.can_submit || isPromoter,
-            canApprove: collab.can_approve,
-            canEdit: collab.can_edit || isPromoter,
-            canDelete: collab.can_delete,
-            isCollaborator: true,
-            loaded: true,
-          });
-        } else {
-          setPerms({ 
-            canSubmit: isPromoter, 
-            canApprove: false, 
-            canEdit: false, 
-            canDelete: false, 
-            isCollaborator: false, 
-            loaded: true 
+        const roleNames = rolesResponse.data?.map(r => (r.app_roles as any)?.name).filter(Boolean) || [];
+        
+        // Legacy system fallback for transition period
+        if (roleNames.length === 0) {
+          const { data: legacyRoles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+          legacyRoles?.forEach(r => {
+            if (r.role === 'master' && !roleNames.includes('master_admin')) roleNames.push('master_admin');
+            if (r.role === 'admin' && !roleNames.includes('admin')) roleNames.push('admin');
           });
         }
-      } catch (err) {
-        console.error("Error loading permissions:", err);
-        setPerms(prev => ({ ...prev, loaded: true }));
+
+        setRoles(roleNames);
+        if (permsResponse.data) {
+          setPermissions(new Set(permsResponse.data as PermissionName[]));
+        }
+      } catch (error) {
+        console.error("Error loading permissions:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
-    load();
-  }, [user, isAdmin]);
+    loadPermissions();
+  }, [user]);
 
-  return perms;
+  const hasPermission = (permission: PermissionName) => permissions.has(permission);
+  const hasRole = (role: string) => roles.includes(role);
+
+  return {
+    permissions,
+    roles,
+    loading,
+    hasPermission,
+    hasRole,
+    isMaster: roles.includes('master_admin'),
+    isAdmin: roles.includes('admin') || roles.includes('master_admin'),
+  };
 }

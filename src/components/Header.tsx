@@ -26,7 +26,7 @@ import { useSubmissions } from "@/contexts/SubmissionContext";
  import { useAuth } from "@/contexts/AuthContext";
  import { useTheme } from "@/hooks/useTheme";
 import { useProfile } from "@/hooks/useProfile";
-import { usePermissions } from "@/hooks/usePermissions";
+import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { useUserBadge } from "@/hooks/useUserBadge";
  import { Badge } from "@/components/ui/badge";
   import { HeaderUserMenu } from "@/components/HeaderUserMenu";
@@ -132,7 +132,7 @@ export default function Header() {
    const { user, signOut, isAdmin } = useAuth();
    const { theme, toggleTheme } = useTheme();
   const { profile } = useProfile();
-  const perms = usePermissions();
+  const perms = useAppPermissions();
   const { status, name: badgeName } = useUserBadge();
   const isMaster = status === "master";
   const navigate = useNavigate();

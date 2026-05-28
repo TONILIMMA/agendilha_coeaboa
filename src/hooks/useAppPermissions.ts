@@ -34,13 +34,15 @@ export function useAppPermissions() {
 
     async function loadPermissions() {
       try {
+        setLoading(true);
         // Fetch everything in one parallel batch
-        const [rolesResponse, permsResponse] = await Promise.all([
+        const [rolesResponse, permsResponse, profileResponse] = await Promise.all([
           supabase.from('app_user_roles').select('app_roles(name)').eq('user_id', user.id),
-          supabase.rpc('get_user_permissions', { p_user_id: user.id })
+          supabase.rpc('get_user_permissions', { p_user_id: user.id }),
+          supabase.from('profiles').select('role').eq('user_id', user.id).maybeSingle()
         ]);
 
-        const roleNames = rolesResponse.data?.map(r => (r.app_roles as any)?.name).filter(Boolean) || [];
+        let roleNames = rolesResponse.data?.map(r => (r.app_roles as any)?.name).filter(Boolean) || [];
         
         // Legacy system fallback for transition period
         if (roleNames.length === 0) {
@@ -49,6 +51,11 @@ export function useAppPermissions() {
             if (r.role === 'master' && !roleNames.includes('master_admin')) roleNames.push('master_admin');
             if (r.role === 'admin' && !roleNames.includes('admin')) roleNames.push('admin');
           });
+        }
+
+        // Add 'promoter' or other roles from profiles if applicable
+        if (profileResponse.data?.role && !roleNames.includes(profileResponse.data.role)) {
+          roleNames.push(profileResponse.data.role);
         }
 
         setRoles(roleNames);
@@ -68,13 +75,27 @@ export function useAppPermissions() {
   const hasPermission = (permission: PermissionName) => permissions.has(permission);
   const hasRole = (role: string) => roles.includes(role);
 
+  // Derived capability flags (replacing usePermissions legacy logic)
+  const isMaster = roles.includes('master_admin') || roles.includes('master');
+  const isAdmin = roles.includes('admin') || isMaster;
+  const isPromoter = roles.includes('promoter');
+  const isCollaborator = roles.includes('collaborator') || isAdmin;
+
   return {
     permissions,
     roles,
     loading,
     hasPermission,
     hasRole,
-    isMaster: roles.includes('master_admin'),
-    isAdmin: roles.includes('admin') || roles.includes('master_admin'),
+    isMaster,
+    isAdmin,
+    isPromoter,
+    isCollaborator,
+    // Explicit capability mappings from legacy usePermissions
+    canSubmit: isPromoter || isCollaborator || hasPermission('events.create'),
+    canApprove: isAdmin || hasPermission('events.approve'),
+    canEdit: isAdmin || isPromoter || hasPermission('events.update'),
+    canDelete: isAdmin || hasPermission('events.delete'),
+    loaded: !loading
   };
 }
