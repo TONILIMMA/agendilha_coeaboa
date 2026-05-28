@@ -222,13 +222,13 @@ export default function Landing() {
        <section className="pt-24 sm:pt-40 pb-12 px-4 max-w-6xl mx-auto">
          <div className="text-center mb-10 animate-in fade-in slide-in-from-top-4 duration-1000">
            <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 mb-6 shadow-sm">
-             <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary/70">AgendIlha · Agenda Cultural da Ilha</span>
+             <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary/70">AgendIlha · Coé a Boa?</span>
            </div>
            <h1 className="text-3xl xs:text-4xl sm:text-7xl font-black mb-6 font-display text-primary tracking-tightest leading-[1.1] sm:leading-[0.9]">
              O que tem pra<br /><span className="text-secondary">hoje na Ilha?</span> 🌴
            </h1>
            <p className="text-muted-foreground text-base sm:text-xl font-medium max-w-xl mx-auto mb-8 text-balance leading-relaxed">
-             Shows, gastronomia e eventos. Tudo o que você precisa saber sobre a vida cultural da região.
+             A agenda cultural definitiva da Ilha do Governador. Shows, gastronomia e eventos em um só lugar.
            </p>
            
             <div className="flex flex-col items-center gap-4 max-w-lg mx-auto">
@@ -365,16 +365,16 @@ export default function Landing() {
         </section>
 
          {/* Recommendations AI Sections */}
-         {allEvents.length > 0 && (
-          <>
-            <section className="mb-12">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold font-display flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  {user ? "No seu radar" : "Sugestões para você"}
-                </h2>
-                <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
-              </div>
+         <section className="mb-12">
+           <div className="flex items-center justify-between mb-6">
+             <h2 className="text-2xl font-bold font-display flex items-center gap-2">
+               <MapPin className="h-5 w-5 text-primary" />
+               {user ? "No seu radar" : "Sugestões para você"}
+             </h2>
+             <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
+           </div>
+           
+           {recommendedEvents.length > 0 ? (
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
               {recommendedEvents.map(ev => (
                 <DiscoveryEventCard 
@@ -391,38 +391,54 @@ export default function Landing() {
                 />
               ))}
             </div>
-            </section>
+           ) : (
+            <div className="bg-muted/30 rounded-3xl p-10 text-center border-2 border-dashed border-primary/10">
+              <Sparkles className="h-10 w-10 text-primary/20 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-foreground/80 mb-2">Ainda não temos sugestões personalizadas</h3>
+              <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-6">
+                {!user 
+                  ? "Crie uma conta e selecione seus bairros e estilos favoritos para que nossa IA recomende os melhores eventos para você."
+                  : "Complete seu perfil com seus estilos musicais e locais favoritos para receber recomendações exclusivas."}
+              </p>
+              {!user ? (
+                <Button onClick={() => navigate("/auth")} variant="outline" className="rounded-full font-bold">
+                  Criar minha conta
+                </Button>
+              ) : (
+                <Button onClick={() => setPersonalizationOpen(true)} variant="outline" className="rounded-full font-bold">
+                  Definir Preferências
+                </Button>
+              )}
+            </div>
+           )}
+         </section>
 
-            {user && recommendedEvents.length > 0 && (
-              <section className="mb-12">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold font-display flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    Recomendado para você
-                  </h2>
-                </div>
-                <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-                <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-                  {recommendedEvents.slice(0, 5).map(ev => (
-                    <DiscoveryEventCard 
-                      key={ev.id} 
-                      event={ev} 
-                      variant="compact"
-                      onClick={() => navigate(`/agenda?event=${ev.id}`)}
-                      isFavorite={favorites.includes(ev.id)}
-                      onFavoriteToggle={() => toggleFavorite(ev.id)}
-                      onShare={() => {
-                        const data = getShareData(ev);
-                        setShareData({ ...data, eventId: ev.id });
-                      }}
-                    />
-                  ))}
-                </div>
-                </div>
-              </section>
-            )}
-          </>
-        )}
+         {user && recommendedEvents.length > 0 && (
+           <section className="mb-12">
+             <div className="flex items-center justify-between mb-6">
+               <h2 className="text-2xl font-bold font-display flex items-center gap-2">
+                 <Sparkles className="h-5 w-5 text-primary" />
+                 Recomendado para você
+               </h2>
+             </div>
+             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
+               {recommendedEvents.slice(0, 5).map(ev => (
+                 <DiscoveryEventCard 
+                   key={ev.id} 
+                   event={ev} 
+                   variant="compact"
+                   onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                   isFavorite={favorites.includes(ev.id)}
+                   onFavoriteToggle={() => toggleFavorite(ev.id)}
+                   onShare={() => {
+                     const data = getShareData(ev);
+                     setShareData({ ...data, eventId: ev.id });
+                   }}
+                 />
+               ))}
+             </div>
+           </section>
+         )}
 
         {/* Newsletter / Public Registration */}
         <section className="mb-12">
@@ -482,12 +498,12 @@ export default function Landing() {
         <section className="rounded-3xl bg-secondary/5 p-8 flex flex-col sm:flex-row items-center justify-between mb-16 border border-secondary/10 gap-6">
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-2">Explore no Mapa</h3>
-            <p className="text-muted-foreground text-sm">Visualize todos os eventos da Ilha do Governador em tempo real.</p>
+            <p className="text-muted-foreground text-sm">Localize bares, eventos e pontos culturais da Ilha do Governador.</p>
           </div>
           <Button 
             variant="secondary" 
             className="rounded-full h-12 px-8 shadow-md border border-secondary/20 font-bold hover:scale-105 transition-all"
-            onClick={() => window.open("https://www.google.com/maps/search/eventos+na+ilha+do+governador", "_blank")}
+            onClick={() => window.open("https://www.google.com/maps/search/eventos+e+bares+na+ilha+do+governador+rio+de+janeiro", "_blank")}
           >
             <MapIcon className="mr-2 h-4 w-4"/> Abrir Mapa
           </Button>

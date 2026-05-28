@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   CalendarDays, 
   Users, 
@@ -23,6 +23,7 @@ import { useSubmissions } from "@/contexts/SubmissionContext";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 
 interface SidebarItem {
   label: string;
@@ -45,6 +46,7 @@ interface Props {
 
 export function SidebarMenu({ onClose }: Props) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { status, name, initials, label, loaded } = useUserBadge();
   const { signOut } = useAuth();
   const { savedCount } = useSubmissions();
@@ -124,11 +126,22 @@ export function SidebarMenu({ onClose }: Props) {
   const StatusIcon = getStatusIcon(status);
 
   return (
-    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border w-64">
+    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border w-64 shadow-xl">
       {/* Header Profile */}
       <div className="p-6">
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate("/")}>
+            <img src={logoCoeABoa} alt="AgendIlha" className="h-8 w-8 rounded-full ring-2 ring-primary/20 shadow-sm group-hover:scale-110 transition-transform" />
+            <div className="flex flex-col leading-none">
+              <span className="font-display text-base font-black text-primary tracking-tight">AgendIlha</span>
+              <span className="text-[8px] text-secondary font-black uppercase tracking-widest">Coé a Boa?</span>
+            </div>
+          </div>
+          <Separator className="bg-sidebar-border" />
+        </div>
+        
         <div className="flex items-center gap-3 p-3 rounded-2xl bg-sidebar-accent/50 border border-sidebar-border mb-4">
-          <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-display text-sm font-medium shrink-0">
+          <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-display text-sm font-medium shrink-0 shadow-inner">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
@@ -202,7 +215,7 @@ export function SidebarMenu({ onClose }: Props) {
         </Button>
         <div className="mt-4 text-center">
           <p className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground/40">
-            © {new Date().getFullYear()} AgendIlha
+            © {new Date().getFullYear()} AgendIlha · Coé a Boa?
           </p>
         </div>
       </div>

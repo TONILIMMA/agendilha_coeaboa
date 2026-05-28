@@ -105,9 +105,10 @@ export default function CoeABoa() {
     <div className="min-h-screen bg-background">
       {/* Hero */}
       <div className="bg-primary text-primary-foreground py-8 px-4 text-center">
-        <h1 className="text-3xl sm:text-4xl font-bold font-display">Coé a Boa? 🤙</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold font-display">AgendIlha 📌</h1>
+        <p className="mt-1 text-sm font-black uppercase tracking-widest text-secondary">Coé a Boa?</p>
         <p className="mt-2 text-sm opacity-90 capitalize">{today}</p>
-        <p className="mt-1 text-xs opacity-75">Agenda de eventos da Ilha do Governador</p>
+        <p className="mt-1 text-xs opacity-75">Sua agenda de eventos da Ilha do Governador</p>
         {events.length > 0 && (
           <Button
             size="sm"
@@ -281,7 +282,7 @@ export default function CoeABoa() {
       </div>
 
       <footer className="text-center py-6 text-xs text-muted-foreground border-t border-border">
-        📌 AgendIlha — Sua agenda de eventos da Ilha do Governador
+        📌 AgendIlha · Coé a Boa? — Sua agenda de eventos da Ilha do Governador
       </footer>
     </div>
   );

@@ -156,7 +156,7 @@ function drawHeader(doc: jsPDF) {
     doc.setFontSize(7.5);
     doc.setTextColor(255, 255, 255, 0.9);
     doc.setFont("helvetica", "bold");
-    doc.text("Coé a Boa?", MARGIN + 16, 10.5);
+    doc.text("AgendIlha / Coé a Boa?", MARGIN + 16, 10.5);
     doc.setFontSize(5);
     doc.text("A AGENDA DA ILHA", MARGIN + 16, 13);
 

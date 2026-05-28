@@ -36,8 +36,8 @@ export function LegalStep({ form }: { form: UseFormReturn<any> }) {
               />
             </FormControl>
             <div className="space-y-1 leading-none">
-              <FormLabel>
-                Li e aceito os termos de divulgação do portal Coé a Boa.
+              <FormLabel className="cursor-pointer">
+                Li e aceito os termos de divulgação do portal AgendIlha / Coé a Boa?.
               </FormLabel>
               <FormMessage />
             </div>
