@@ -1,9 +1,11 @@
+import type jsPDF from "jspdf";
+import { AGENDILHA_LOGO_BASE64, LOGO_MIME } from "./logoBase64";
+
 // Dynamic import for performance optimization
 async function getJsPDF() {
   const mod = await import("jspdf");
   return mod.default;
 }
-import { AGENDILHA_LOGO_BASE64, LOGO_MIME } from "./logoBase64";
 
 const categoryLabels: Record<string, string> = {
   musica: "Música / Show",
