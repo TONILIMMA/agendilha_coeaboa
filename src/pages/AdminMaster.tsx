@@ -30,6 +30,7 @@ import {
 import { toast } from "sonner";
 
 import AdminDashboard from "@/components/admin-dashboard/AdminDashboard";
+import Header from "@/components/Header";
 
 interface AdminUser {
   id: string;
@@ -388,6 +389,7 @@ export default function AdminMaster() {
 
    return (
      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-muted pb-16">
+       <Header />
        <div className="container max-w-6xl mx-auto px-4 pt-8 space-y-8 animate-fade-in">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
