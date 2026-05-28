@@ -83,8 +83,8 @@ export function SidebarMenu({ onClose }: Props) {
         icon: Star,
         items: [
           { label: "Painel Master", path: "/master/dashboard", icon: Crown },
-          { label: "Gerenciar Usuários", path: "/admin/users", icon: Users },
-          { label: "Logs de Auditoria", path: "/admin/audit", icon: History },
+          { label: "Gerenciar Usuários", path: "/master/usuarios", icon: Users },
+          { label: "Logs de Auditoria", path: "/master/logs", icon: History },
           { label: "Ranking Divulgadores", path: "/ranking", icon: Trophy },
           { label: "Newsletter", path: "/admin/newsletter", icon: Mail },
         ]
