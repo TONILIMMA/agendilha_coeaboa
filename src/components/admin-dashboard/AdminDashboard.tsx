@@ -65,11 +65,13 @@ export default function AdminDashboard() {
         },
         rankings: {
           topEvents: stats.rankings.topEvents || [],
+          topEventsByViews: stats.rankings.topEvents || [],
           topNeighborhoods: (stats.charts.eventsByNeighborhood || []).map((n: any) => ({ name: n.name, count: n.value })),
           topPlaces: stats.rankings.topPlaces || [],
           topArtists: stats.rankings.topArtists || [],
           topPromoters: stats.rankings.topPromoters || []
         },
+
         metrics: {
           approvalRate: stats.kpis.totalEvents > 0 ? Math.round((stats.kpis.approvedEvents / stats.kpis.totalEvents) * 100) : 0,
           rejectionRate: stats.kpis.totalEvents > 0 ? Math.round((stats.kpis.cancelledEvents / stats.kpis.totalEvents) * 100) : 0,

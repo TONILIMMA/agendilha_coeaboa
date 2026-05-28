@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
+
 import { Navigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
