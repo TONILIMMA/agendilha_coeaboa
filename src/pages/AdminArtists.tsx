@@ -26,6 +26,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 export default function AdminArtists() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
+  const [revokingId, setRevokingId] = useState<string | null>(null);
 
   const { data: artists, isLoading, error } = useQuery({
     queryKey: ["admin-artists"],
