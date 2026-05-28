@@ -144,7 +144,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
    const isHome = pathname === "/" || pathname === "/lp" || pathname === "/landing";
    const isAgenda = pathname === "/agenda";
    const isSubmit = pathname === "/enviar-evento";
-   const isAdminArea = pathname.startsWith("/admin");
+   const isAdminArea = pathname.startsWith("/admin") || pathname === "/ranking";
  
    // Home / Landing - Transparent floating style
    const [scrolled, setScrolled] = useState(false);
