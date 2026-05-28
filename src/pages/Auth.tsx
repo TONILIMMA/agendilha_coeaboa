@@ -186,13 +186,16 @@ export default function Auth() {
     <div className="flex items-center justify-center min-h-screen bg-background px-4">
       <div className="w-full max-w-sm rounded-2xl bg-card shadow-elevated p-8 space-y-6">
         <div className="text-center">
-          <h1 className="font-display text-2xl font-bold text-foreground">
-            📌 AgendIlha
-          </h1>
+          <div className="flex flex-col items-center mb-4">
+            <h1 className="font-display text-2xl font-black text-primary tracking-tight">
+              AgendIlha
+            </h1>
+            <span className="text-[10px] text-secondary font-black uppercase tracking-widest">Coé a Boa?</span>
+          </div>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-[280px] mx-auto">
             {mode === "login" 
-              ? "Use seu WhatsApp para entrar na sua conta." 
-              : "Cadastre-se para receber novidades de shows e eventos da Ilha."}
+              ? "Use seu WhatsApp para entrar na sua conta e salvar seus favoritos." 
+              : "Cadastre-se para receber sugestões personalizadas de eventos baseadas no seu bairro e estilo musical."}
           </p>
         </div>
 
