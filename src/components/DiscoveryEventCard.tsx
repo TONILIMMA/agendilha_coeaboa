@@ -40,15 +40,17 @@ export const DiscoveryEventCard = memo(({
   variant = "large",
   isFavorite = false,
   onFavoriteToggle,
-  onShare
-}: {
-  event: Event;
-  onClick: () => void;
-  variant?: "large" | "small" | "horizontal" | "compact";
-  isFavorite?: boolean;
-  onFavoriteToggle?: (e: React.MouseEvent) => void;
-  onShare?: (e: React.MouseEvent) => void;
-}) => {
+   onShare,
+   className
+ }: {
+   event: Event;
+   onClick: () => void;
+   variant?: "large" | "small" | "horizontal" | "compact";
+   isFavorite?: boolean;
+   onFavoriteToggle?: (e: React.MouseEvent) => void;
+   onShare?: (e: React.MouseEvent) => void;
+   className?: string;
+ }) => {
   const isLarge = variant === "large";
   const isHorizontal = variant === "horizontal";
   const isCompact = variant === "compact";
@@ -73,10 +75,13 @@ export const DiscoveryEventCard = memo(({
         onClick={onClick}
         className={cn(
           "group cursor-pointer overflow-hidden border-none bg-transparent transition-all hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none",
-          isLarge ? "w-[260px] xs:w-[280px] sm:w-[320px]" :
-            isHorizontal ? "w-full" :
-              isCompact ? "w-[200px] xs:w-[220px]" :
-                isSmall ? "w-[150px] xs:w-[180px]" : "w-[150px] xs:w-[180px]"
+          isHorizontal ? "w-full" : 
+            !className?.includes('w-') && (
+              isLarge ? "w-[260px] xs:w-[280px] sm:w-[320px]" :
+              isCompact ? "w-[180px] xs:w-[220px]" :
+              isSmall ? "w-[150px] xs:w-[180px]" : "w-[150px] xs:w-[180px]"
+            ),
+          className
         )}
       >
          <div className={cn(
