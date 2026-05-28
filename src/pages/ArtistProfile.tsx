@@ -20,8 +20,30 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function ArtistProfile() {
-...
-  return (
+  const { id } = useParams();
+
+  const { data: artist, isLoading } = useQuery({
+    queryKey: ["artist", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("artist_profiles")
+        .select(`
+          *,
+          artist_media (*)
+        `)
+        .eq("id", id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
+  if (!artist) return <div className="min-h-screen flex items-center justify-center">Artista não encontrado.</div>;
+
+  const videos = artist.artist_media?.filter((m: any) => m.media_type === "video") || [];
+  const images = artist.artist_media?.filter((m: any) => m.media_type === "image") || [];
+
     <div className="min-h-screen bg-background pb-20">
       
       {/* Hero Section */}
