@@ -45,12 +45,25 @@ interface DashboardChartsProps {
     eventsByCategory: any[];
     eventStatusFunnel: any[];
     newUsersEvolution: any[];
+    neighborhoodComparison: any[];
   };
 }
 
 export function DashboardCharts({ data }: DashboardChartsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <ChartCard title="Eventos vs Favoritos por Bairro">
+        <BarChart data={data.neighborhoodComparison}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="name" fontSize={10} />
+          <YAxis fontSize={10} />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="events" name="Eventos" fill="#8884d8" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="favorites" name="Favoritos" fill="#ffc658" radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ChartCard>
+
       <ChartCard title="Usuários por Tipo">
         <PieChart>
           <Pie
