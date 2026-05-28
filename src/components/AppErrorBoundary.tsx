@@ -51,7 +51,7 @@ export class AppErrorBoundary extends Component<Props, State> {
                 {this.state.error?.message}
               </pre>
             )}
-            <Button onClick={handleReset} className="w-full gap-2" size="lg">
+            <Button onClick={this.handleReset} className="w-full gap-2" size="lg">
               <RotateCcw className="h-4 w-4" />
               Recarregar página
             </Button>
@@ -60,6 +60,7 @@ export class AppErrorBoundary extends Component<Props, State> {
       );
     }
 
-    return this.children;
+    return this.props.children;
   }
 }
+
