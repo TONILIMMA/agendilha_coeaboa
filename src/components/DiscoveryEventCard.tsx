@@ -1,10 +1,10 @@
- import { Card } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, Star, Heart, Share2, Music, Utensils, Theater, Trophy, Tag, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo } from "react";
 import { getEventFallbackImage } from "@/lib/event-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useThumbnailCache } from "@/hooks/useThumbnailCache";
@@ -18,8 +18,8 @@ interface Event {
   location: string | null;
   address_neighborhood: string | null;
   category: string | null;
-   image_url?: string | null;
-   imageUrl?: string | null;
+  image_url?: string | null;
+  imageUrl?: string | null;
   rating?: { average: number; total: number };
   age_rating?: string;
   is_suitable_for_minors?: boolean;
@@ -34,7 +34,7 @@ const CATEGORY_MAP: Record<string, { label: string; icon: any; color: string; bg
   outros: { label: "Outros", icon: MoreHorizontal, color: "#374151", bg: "#F9FAFB", border: "#F3F4F6" },
 };
 
-export function DiscoveryEventCard({
+export const DiscoveryEventCard = memo(({
   event,
   onClick,
   variant = "large",
@@ -48,7 +48,7 @@ export function DiscoveryEventCard({
   isFavorite?: boolean;
   onFavoriteToggle?: (e: React.MouseEvent) => void;
   onShare?: (e: React.MouseEvent) => void;
-}) {
+}) => {
   const isLarge = variant === "large";
   const isHorizontal = variant === "horizontal";
   const isCompact = variant === "compact";
@@ -56,17 +56,18 @@ export function DiscoveryEventCard({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-   const fallbackImage = useMemo(() => getEventFallbackImage(event.category), [event.category]);
-   const officialImage = event.image_url || event.imageUrl;
-   const sourceImage = hasError ? fallbackImage : (officialImage || fallbackImage);
-   const cachedThumb = useThumbnailCache(event.id, isCompact ? sourceImage : undefined);
-   const finalImage = isCompact ? (cachedThumb || sourceImage) : sourceImage;
+  const fallbackImage = useMemo(() => getEventFallbackImage(event.category), [event.category]);
+  const officialImage = event.image_url || event.imageUrl;
+  const sourceImage = hasError ? fallbackImage : (officialImage || fallbackImage);
+  const cachedThumb = useThumbnailCache(event.id, isCompact ? sourceImage : undefined);
+  const finalImage = isCompact ? (cachedThumb || sourceImage) : sourceImage;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "50px" }}
+      transition={{ duration: 0.35 }}
     >
       <Card
         onClick={onClick}
@@ -95,13 +96,11 @@ export function DiscoveryEventCard({
             )}
           </AnimatePresence>
 
-            {officialImage && (
-              <link rel="prefetch" href={officialImage} as="image" />
-            )}
             <img
               src={finalImage}
               alt={event.event_title}
-              loading="eager"
+              loading="lazy"
+              decoding="async"
               onLoad={() => setIsLoaded(true)}
               onError={() => {
                 setHasError(true);
@@ -121,8 +120,8 @@ export function DiscoveryEventCard({
                const Icon = cat.icon;
                return (
                  <Badge 
-                   style={{ backgroundColor: cat.bg, color: cat.color, borderColor: cat.border }}
-                   className="border shadow-sm text-[10px] font-bold uppercase tracking-wider py-1.5 px-3.5 rounded-full flex items-center gap-1.5"
+                    style={{ backgroundColor: cat.bg, color: cat.color, borderColor: cat.border }}
+                    className="border shadow-sm text-[10px] font-bold uppercase tracking-wider py-1.5 px-3.5 rounded-full flex items-center gap-1.5"
                  >
                    <Icon className="h-3 w-3" strokeWidth={2.5} />
                    {cat.label}
@@ -139,36 +138,36 @@ export function DiscoveryEventCard({
                </Badge>
              )}
            </div>
- 
+  
            {/* Quick Actions Right */}
            <div className="absolute right-4 top-4 flex flex-col gap-2 z-20">
              <Button 
-               variant="ghost" 
-               size="icon" 
-               className={cn(
-                 "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90",
-                 isFavorite ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
-               )}
-               onClick={(e) => {
-                 e.stopPropagation();
-                 onFavoriteToggle?.(e);
-               }}
+                variant="ghost" 
+                size="icon" 
+                className={cn(
+                  "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90",
+                  isFavorite ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFavoriteToggle?.(e);
+                }}
              >
                <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
              </Button>
- 
+  
              <Button 
-               variant="ghost" 
-               size="icon" 
-               className="h-10 w-10 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 transition-all active:scale-90"
-               onClick={(e) => {
-                 e.stopPropagation();
-                 onShare?.(e);
-               }}
+                variant="ghost" 
+                size="icon" 
+                className="h-10 w-10 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 transition-all active:scale-90"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShare?.(e);
+                }}
              >
                <Share2 className="h-5 w-5" />
              </Button>
- 
+  
              {event.rating && event.rating.total > 0 && (
                <Badge className="bg-yellow-400/90 text-black font-black py-1 px-3 rounded-full flex items-center gap-1 h-10">
                  <Star className="h-3 w-3 fill-current" />
@@ -176,31 +175,33 @@ export function DiscoveryEventCard({
                </Badge>
              )}
            </div>
-            <div className={cn(
-              "absolute bottom-0 left-0 right-0 p-4 xs:p-6 text-white bg-gradient-to-t from-black/90 via-black/40 to-transparent",
-              isCompact && "p-3 xs:p-4"
-            )}>
-              <div className={cn(
-                "flex items-center gap-2 text-[10px] xs:text-xs font-mono uppercase tracking-widest text-white/90 mb-1 xs:mb-2",
-                isCompact && "mb-1"
-              )}>
-                <Calendar className="h-3 w-3 text-primary" />
-                {formatBrazilianDate(event.date)} {event.start_time && `• ${event.start_time}`}
-              </div>
-              <h3 className={cn(
-                "font-display font-black leading-tight mb-1 xs:mb-2 group-hover:text-primary transition-colors line-clamp-2",
-                isLarge ? "text-xl xs:text-2xl" : "text-base xs:text-lg",
-                isCompact && "text-sm xs:text-base mb-1"
-              )}>
-                {event.event_title}
-              </h3>
-              <div className="flex items-center gap-1.5 text-[10px] xs:text-sm font-medium text-white/60">
-                <MapPin className="h-3 w-3 xs:h-4 xs:w-4 text-primary shrink-0" />
-                <span className="truncate">{event.location}</span>
-              </div>
-            </div>
+             <div className={cn(
+               "absolute bottom-0 left-0 right-0 p-4 xs:p-6 text-white bg-gradient-to-t from-black/90 via-black/40 to-transparent",
+               isCompact && "p-3 xs:p-4"
+             )}>
+               <div className={cn(
+                 "flex items-center gap-2 text-[10px] xs:text-xs font-mono uppercase tracking-widest text-white/90 mb-1 xs:mb-2",
+                 isCompact && "mb-1"
+               )}>
+                 <Calendar className="h-3 w-3 text-primary" />
+                 {formatBrazilianDate(event.date)} {event.start_time && `• ${event.start_time}`}
+               </div>
+               <h3 className={cn(
+                 "font-display font-black leading-tight mb-1 xs:mb-2 group-hover:text-primary transition-colors line-clamp-2",
+                 isLarge ? "text-xl xs:text-2xl" : "text-base xs:text-lg",
+                 isCompact && "text-sm xs:text-base mb-1"
+               )}>
+                 {event.event_title}
+               </h3>
+               <div className="flex items-center gap-1.5 text-[10px] xs:text-sm font-medium text-white/60">
+                 <MapPin className="h-3 w-3 xs:h-4 xs:w-4 text-primary shrink-0" />
+                 <span className="truncate">{event.location}</span>
+               </div>
+             </div>
          </div>
        </Card>
-     </motion.div>
-   );
-}
+    </motion.div>
+  );
+});
+
+DiscoveryEventCard.displayName = "DiscoveryEventCard";
