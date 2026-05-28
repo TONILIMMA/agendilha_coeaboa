@@ -102,9 +102,11 @@ export function MasterPanel() {
 
   return (
     <div className="space-y-12 animate-fade-in">
-      <section>
-        <SystemHealthBlock health={dashboardData!.health} />
-      </section>
+      {dashboardData?.health && (
+        <section>
+          <SystemHealthBlock health={dashboardData.health} />
+        </section>
+      )}
 
       <section>
         <DashboardFilters 
