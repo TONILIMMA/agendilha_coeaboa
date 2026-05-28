@@ -14,7 +14,30 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User, Trash2, Pencil, Check, X, Crown, MapPin, Music, UserMinus } from "lucide-react";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { 
+  ShieldCheck, 
+  ShieldOff, 
+  Loader2, 
+  Users, 
+  Phone, 
+  User, 
+  Trash2, 
+  Pencil, 
+  Check, 
+  X, 
+  Crown, 
+  MapPin, 
+  Music, 
+  UserMinus,
+  ChevronDown
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { toast } from "sonner";
