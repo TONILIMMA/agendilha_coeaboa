@@ -66,6 +66,9 @@ export default function AdminUsers() {
   const [editName, setEditName] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
   const [togglingMaster, setTogglingMaster] = useState<string | null>(null);
+  const [showAdminConfirm, setShowAdminConfirm] = useState<UserWithRole | null>(null);
+  const [showMasterConfirm, setShowMasterConfirm] = useState<UserWithRole | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<UserWithRole | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -374,94 +377,37 @@ export default function AdminUsers() {
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 justify-end shrink-0">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant={u.is_admin ? "destructive" : "outline"}
-                          disabled={toggling === u.id || u.id === user?.id}
-                          className="rounded-full px-4 h-9 font-bold"
-                        >
-                          {toggling === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.is_admin ? "Remover Admin" : "Tornar Admin"}
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="rounded-3xl">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Confirmar alteração?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Deseja mesmo {u.is_admin ? "remover" : "conceder"} o papel de administrador para {u.responsible_name || u.email}?
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel className="rounded-full">Cancelar</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={() => toggleAdmin(u)}
-                            className={cn("rounded-full", u.is_admin ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : "bg-primary text-primary-foreground")}
-                          >
-                            Confirmar
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button
+                      size="sm"
+                      variant={u.is_admin ? "destructive" : "outline"}
+                      disabled={toggling === u.id || u.id === user?.id}
+                      className="rounded-full px-4 h-9 font-bold"
+                      onClick={() => setShowAdminConfirm(u)}
+                    >
+                      {toggling === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.is_admin ? "Remover Admin" : "Tornar Admin"}
+                    </Button>
 
                     {isMaster && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            size="sm"
-                            variant={u.status === "master" ? "destructive" : "secondary"}
-                            disabled={togglingMaster === u.id || u.id === user?.id}
-                            className="rounded-full px-4 h-9 font-bold"
-                          >
-                            {togglingMaster === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.status === "master" ? "Remover Master" : "Tornar Master"}
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="rounded-3xl">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Controle Master</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Deseja mesmo {u.status === "master" ? "remover" : "conceder"} acesso Admin Master para {u.responsible_name || u.email}? Esta é a permissão máxima do sistema.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel className="rounded-full">Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => toggleMaster(u)} className="rounded-full">
-                              Confirmar
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <Button
+                        size="sm"
+                        variant={u.status === "master" ? "destructive" : "secondary"}
+                        disabled={togglingMaster === u.id || u.id === user?.id}
+                        className="rounded-full px-4 h-9 font-bold"
+                        onClick={() => setShowMasterConfirm(u)}
+                      >
+                        {togglingMaster === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.status === "master" ? "Remover Master" : "Tornar Master"}
+                      </Button>
                     )}
 
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          disabled={u.id === user?.id || deleting === u.id}
-                          className="h-9 w-9 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-full"
-                        >
-                          {deleting === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="rounded-3xl">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle className="text-rose-600">Excluir Usuário?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Esta ação é IRREVERSÍVEL. Todos os dados associados a este usuário serão removidos.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel className="rounded-full">Cancelar</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={() => deleteUser(u)} 
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
-                          >
-                            Excluir Permanentemente
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      disabled={u.id === user?.id || deleting === u.id}
+                      className="h-9 w-9 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-full"
+                      onClick={() => setShowDeleteConfirm(u)}
+                    >
+                      {deleting === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -469,6 +415,46 @@ export default function AdminUsers() {
           ))}
         </div>
       )}
+
+      {/* Modais de Confirmação Unificados */}
+      <ConfirmModal 
+        isOpen={!!showAdminConfirm}
+        onClose={() => setShowAdminConfirm(null)}
+        onConfirm={() => {
+          if (showAdminConfirm) toggleAdmin(showAdminConfirm);
+          setShowAdminConfirm(null);
+        }}
+        title="Alterar Papel Administrativo"
+        description={`Deseja mesmo ${showAdminConfirm?.is_admin ? "remover" : "conceder"} privilégios de administrador para ${showAdminConfirm?.responsible_name || showAdminConfirm?.email}?`}
+        confirmText="Confirmar Alteração"
+        variant={showAdminConfirm?.is_admin ? "destructive" : "default"}
+      />
+
+      <ConfirmModal 
+        isOpen={!!showMasterConfirm}
+        onClose={() => setShowMasterConfirm(null)}
+        onConfirm={() => {
+          if (showMasterConfirm) toggleMaster(showMasterConfirm);
+          setShowMasterConfirm(null);
+        }}
+        title="Controle Admin Master"
+        description={`Esta é a permissão máxima do sistema. Confirmar ${showMasterConfirm?.status === 'master' ? "remoção" : "concessão"} de acesso Master para ${showMasterConfirm?.responsible_name || showMasterConfirm?.email}?`}
+        confirmText="Confirmar Master"
+        variant={showMasterConfirm?.status === 'master' ? "destructive" : "default"}
+      />
+
+      <ConfirmModal 
+        isOpen={!!showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(null)}
+        onConfirm={() => {
+          if (showDeleteConfirm) deleteUser(showDeleteConfirm);
+          setShowDeleteConfirm(null);
+        }}
+        title="Excluir Usuário"
+        description="Esta ação é irreversível. Todos os dados, preferências e históricos deste usuário serão permanentemente removidos da plataforma."
+        confirmText="Excluir Permanentemente"
+        variant="destructive"
+      />
     </div>
   );
 }
