@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+
 import { 
   CalendarDays, 
   ClipboardList, 
@@ -114,7 +116,7 @@ function RoleBadge({
   return null;
 }
 
-export default function Header() {
+export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: () => void }) {
   const { savedCount } = useSubmissions();
   const [favoritesCount, setFavoritesCount] = useState(0);
 
@@ -209,16 +211,15 @@ export default function Header() {
                >
                  Divulgar
                </Button>
-              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm">
-                    <Menu className="h-5 w-5 text-foreground" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="p-0 border-l-0 bg-sidebar w-64 overflow-hidden">
-                  <SidebarMenu onClose={() => setMenuOpen(false)} />
-                </SheetContent>
-              </Sheet>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onMobileMenuToggle} 
+                className="h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm"
+              >
+                <Menu className="h-5 w-5 text-foreground" />
+              </Button>
+
             </div>
           </div>
         </header>
@@ -319,7 +320,8 @@ export default function Header() {
               : "text-muted-foreground";
 
             return (
-             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+
               {/* Envios */}
               <Tooltip>
                 <TooltipTrigger asChild>
