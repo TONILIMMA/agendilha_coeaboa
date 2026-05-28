@@ -271,28 +271,28 @@ export default function AdminEvents() {
     <div className="animate-fade-in">
       <div className="mx-auto max-w-7xl px-4 py-8">
          {/* Header Area */}
-         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-10">
            <div className="space-y-1">
              <div className="flex items-center gap-2 text-primary">
-               <LayoutDashboard className="h-5 w-5" />
-               <span className="text-xs font-black uppercase tracking-[0.2em]">Backoffice</span>
+               <LayoutDashboard className="h-4 w-4" />
+               <span className="text-[10px] font-black uppercase tracking-[0.2em]">Backoffice</span>
              </div>
-              <h1 className="text-3xl font-black tracking-tight text-foreground">Gestão de Eventos</h1>
-              <p className="text-muted-foreground text-sm">Controle operacional e curadoria da agenda hiperlocal.</p>
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-foreground uppercase">Gestão de Eventos</h1>
+              <p className="text-muted-foreground text-xs sm:text-sm">Controle operacional e curadoria da agenda hiperlocal.</p>
            </div>
-            <div className="flex flex-wrap gap-3">
-               <Button variant="outline" size="sm" className="h-10 font-bold border-border bg-background hover:bg-muted" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
-               <Button variant="outline" size="sm" className="h-10 font-bold border-border bg-background hover:bg-muted" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+               <Button variant="outline" size="sm" className="h-9 sm:h-10 font-bold border-border bg-background hover:bg-muted text-[10px] sm:text-xs px-3 sm:px-4" onClick={() => fetchAll()}><RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Atualizar</Button>
+               <Button variant="outline" size="sm" className="h-9 sm:h-10 font-bold border-border bg-background hover:bg-muted text-[10px] sm:text-xs px-3 sm:px-4" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Exportar PDF</Button>
                 <Button 
                   size="sm"
-                  className="h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
+                  className="h-9 sm:h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 text-[10px] sm:text-xs px-3 sm:px-4"
                  onClick={() => {
                    const approved = submissions.filter(s => s.status === 'aprovado' || s.status === 'publicado' || s.status === 'divulgado');
                    if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
                    window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
                  }}
                >
-                <MessageCircle className="h-4 w-4 mr-2" /> Divulgação WhatsApp
+                <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> <span className="hidden sm:inline">Divulgação WhatsApp</span><span className="sm:hidden">WhatsApp</span>
               </Button>
             </div>
          </div>

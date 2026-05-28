@@ -159,12 +159,12 @@ export default function AdminMaster() {
       />
 
       <Tabs defaultValue="intelligence" className="space-y-8">
-        <TabsList className="bg-muted/50 p-1 rounded-full w-full max-w-md mx-auto grid grid-cols-2">
-          <TabsTrigger value="intelligence" className="rounded-full gap-2 font-bold text-xs uppercase tracking-widest">
-            <LayoutDashboard className="h-4 w-4" /> Inteligência
+        <TabsList className="bg-muted/50 p-1 rounded-full w-full max-w-sm mx-auto grid grid-cols-2 h-10 sm:h-12">
+          <TabsTrigger value="intelligence" className="rounded-full gap-2 font-bold text-[10px] sm:text-xs uppercase tracking-widest py-2 px-3">
+            <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden xs:inline">Inteligência</span><span className="xs:hidden">Dados</span>
           </TabsTrigger>
-          <TabsTrigger value="management" className="rounded-full gap-2 font-bold text-xs uppercase tracking-widest">
-            <Shield className="h-4 w-4" /> Gestão
+          <TabsTrigger value="management" className="rounded-full gap-2 font-bold text-[10px] sm:text-xs uppercase tracking-widest py-2 px-3">
+            <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden xs:inline">Gestão</span><span className="xs:hidden">Acesso</span>
           </TabsTrigger>
         </TabsList>
 
