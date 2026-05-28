@@ -118,7 +118,7 @@ export default function ArtistSetup() {
   const calculateCompleteness = () => {
     const fields = [
       'name', 'genre', 'neighborhood', 'artist_type', 
-      'bio', 'work_description', 'styles', 'whatsapp'
+      'bio', 'work_description', 'styles', 'whatsapp', 'instagram'
     ];
     const values = form.getValues();
     const filled = fields.filter(f => {
