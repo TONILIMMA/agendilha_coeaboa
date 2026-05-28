@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   CalendarDays, 
   Users, 
@@ -23,6 +23,7 @@ import { useSubmissions } from "@/contexts/SubmissionContext";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 
 interface SidebarItem {
   label: string;
@@ -45,6 +46,7 @@ interface Props {
 
 export function SidebarMenu({ onClose }: Props) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { status, name, initials, label, loaded } = useUserBadge();
   const { signOut } = useAuth();
   const { savedCount } = useSubmissions();
