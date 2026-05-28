@@ -302,11 +302,8 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
              </div>
 
              <div className="flex items-center gap-2">
-               {/* Brand: Hide on desktop if sidebar is potentially visible */}
-               <div className={cn(
-                 "flex items-center gap-2 transition-all duration-300",
-                 (isAdminArea || isMaster || isAdmin) && user && "md:hidden"
-               )}>
+               {/* Brand: Always show brand to avoid empty header on desktop for admins */}
+               <div className="flex items-center gap-2 transition-all duration-300">
                  <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                    <img src={logoCoeABoa} alt="AgendIlha" className="h-7 w-7 rounded-full shadow-sm" />
                    <div className="flex flex-col leading-none">
