@@ -216,7 +216,7 @@ export default function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="p-0 border-l-0 bg-sidebar w-64 overflow-hidden">
-                  <SidebarMenu />
+                  <SidebarMenu onClose={() => setMenuOpen(false)} />
                 </SheetContent>
               </Sheet>
             </div>

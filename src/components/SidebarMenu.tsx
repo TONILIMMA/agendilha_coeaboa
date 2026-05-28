@@ -39,7 +39,11 @@ interface SidebarSection {
   roles?: UserStatus[];
 }
 
-export function SidebarMenu() {
+interface Props {
+  onClose?: () => void;
+}
+
+export function SidebarMenu({ onClose }: Props) {
   const { pathname } = useLocation();
   const { status, name, initials, label, loaded } = useUserBadge();
   const { signOut } = useAuth();
@@ -163,7 +167,9 @@ export function SidebarMenu() {
                       ? "bg-primary text-primary-foreground font-bold shadow-sm" 
                       : "hover:bg-sidebar-accent text-sidebar-foreground/80 hover:text-sidebar-foreground"
                   )}
-                >
+                  onClick={() => {
+                    if (onClose) onClose();
+                  }}
                   <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary-foreground" : "text-primary group-hover:scale-110 transition-transform")} />
                   <span className="text-sm flex-1">{item.label}</span>
                   {item.badge && (
@@ -185,7 +191,10 @@ export function SidebarMenu() {
           variant="ghost" 
           size="lg" 
           className="w-full justify-start gap-3 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors"
-          onClick={() => signOut()}
+                  onClick={() => {
+                    signOut();
+                    if (onClose) onClose();
+                  }}
         >
           <LogOut className="h-4 w-4" />
           <span className="font-bold text-sm">Sair da Conta</span>
