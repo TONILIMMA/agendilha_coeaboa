@@ -47,7 +47,12 @@ const EVENT_TYPES = [
 export default function Auth() {
   const { user, loading } = useAuth();
   const [searchParams] = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/";
+  const rawRedirect = searchParams.get("redirect") || "/";
+  // Only allow same-origin relative paths to prevent open-redirect phishing.
+  const redirect =
+    rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : "/";
 
    const [mode, setMode] = useState<"login" | "signup">("login");
    const [role, setRole] = useState<"public" | "artist">("public");
