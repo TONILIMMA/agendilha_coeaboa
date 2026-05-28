@@ -147,6 +147,12 @@ export default function AdminDashboard() {
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
 
+      // Top Events by Views
+      const topEventsByViews = [...submissions]
+        .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+        .map(s => ({ name: s.event_title, count: s.views_count || 0 }))
+        .slice(0, 10);
+
       // Top Neighborhoods by Favorites
       const neighborhoodFavs: Record<string, number> = {};
       favorites.forEach(f => {
@@ -250,6 +256,7 @@ export default function AdminDashboard() {
         },
         rankings: {
           topEvents,
+          topEventsByViews,
           topNeighborhoods: eventsByNeighborhood.map(n => ({ name: n.name, count: n.value })),
           topPlaces: topPlaces.slice(0, 5),
           topArtists: topArtists.slice(0, 5),
