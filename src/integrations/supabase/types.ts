@@ -191,18 +191,25 @@ export type Database = {
           city: string | null
           cover_url: string | null
           created_at: string
+          differentials: string | null
           genre: string | null
           id: string
           instagram: string | null
           is_approved: boolean | null
           is_verified: boolean | null
           member_count: number | null
+          moderation_status: string | null
           name: string
           neighborhood: string | null
+          rejection_reason: string | null
           spotify: string | null
+          spotify_url: string | null
+          styles: string[] | null
           updated_at: string
           user_id: string
+          website_url: string | null
           whatsapp: string | null
+          work_description: string | null
           youtube: string | null
         }
         Insert: {
@@ -212,18 +219,25 @@ export type Database = {
           city?: string | null
           cover_url?: string | null
           created_at?: string
+          differentials?: string | null
           genre?: string | null
           id?: string
           instagram?: string | null
           is_approved?: boolean | null
           is_verified?: boolean | null
           member_count?: number | null
+          moderation_status?: string | null
           name: string
           neighborhood?: string | null
+          rejection_reason?: string | null
           spotify?: string | null
+          spotify_url?: string | null
+          styles?: string[] | null
           updated_at?: string
           user_id: string
+          website_url?: string | null
           whatsapp?: string | null
+          work_description?: string | null
           youtube?: string | null
         }
         Update: {
@@ -233,18 +247,25 @@ export type Database = {
           city?: string | null
           cover_url?: string | null
           created_at?: string
+          differentials?: string | null
           genre?: string | null
           id?: string
           instagram?: string | null
           is_approved?: boolean | null
           is_verified?: boolean | null
           member_count?: number | null
+          moderation_status?: string | null
           name?: string
           neighborhood?: string | null
+          rejection_reason?: string | null
           spotify?: string | null
+          spotify_url?: string | null
+          styles?: string[] | null
           updated_at?: string
           user_id?: string
+          website_url?: string | null
           whatsapp?: string | null
+          work_description?: string | null
           youtube?: string | null
         }
         Relationships: []
