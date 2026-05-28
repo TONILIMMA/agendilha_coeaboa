@@ -14,7 +14,8 @@ import {
   User,
   Settings,
   ShieldCheck,
-  Crown
+  Crown,
+  Trophy
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserBadge, UserStatus } from "@/hooks/useUserBadge";
