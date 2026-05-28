@@ -24,14 +24,14 @@ interface Event {
   is_suitable_for_minors?: boolean;
 }
 
- const categoryLabels: Record<string, { label: string; icon: any; color: string; bg: string; border: string }> = {
-   musica: { label: "Música / Show", icon: Music, color: "#2F5D46", bg: "#F6EEEA", border: "#E6D6CF" },
-   gastronomia: { label: "Gastronomia", icon: Utensils, color: "#7C2D12", bg: "#FFF7ED", border: "#FFEDD5" },
-   cultura: { label: "Cultura / Arte", icon: Theater, color: "#4C1D95", bg: "#F5F3FF", border: "#EDE9FE" },
-   esporte: { label: "Esporte", icon: Trophy, color: "#1E3A8A", bg: "#EFF6FF", border: "#DBEAFE" },
-   promocoes: { label: "Promoções", icon: Tag, color: "#991B1B", bg: "#FEF2F2", border: "#FEE2E2" },
-   outros: { label: "Outros", icon: MoreHorizontal, color: "#374151", bg: "#F9FAFB", border: "#F3F4F6" },
- };
+const CATEGORY_MAP: Record<string, { label: string; icon: any; color: string; bg: string; border: string }> = {
+  musica: { label: "Música / Show", icon: Music, color: "#2F5D46", bg: "#F6EEEA", border: "#E6D6CF" },
+  gastronomia: { label: "Gastronomia", icon: Utensils, color: "#7C2D12", bg: "#FFF7ED", border: "#FFEDD5" },
+  cultura: { label: "Cultura / Arte", icon: Theater, color: "#4C1D95", bg: "#F5F3FF", border: "#EDE9FE" },
+  esporte: { label: "Esporte", icon: Trophy, color: "#1E3A8A", bg: "#EFF6FF", border: "#DBEAFE" },
+  promocoes: { label: "Promoções", icon: Tag, color: "#991B1B", bg: "#FEF2F2", border: "#FEE2E2" },
+  outros: { label: "Outros", icon: MoreHorizontal, color: "#374151", bg: "#F9FAFB", border: "#F3F4F6" },
+};
 
 export function DiscoveryEventCard({
   event,
@@ -116,7 +116,7 @@ export function DiscoveryEventCard({
            {/* Top Badges Left */}
            <div className="absolute left-4 top-4 flex flex-wrap gap-2 z-20">
              {(() => {
-               const cat = categoryLabels[event.category || "outros"] || categoryLabels.outros;
+               const cat = CATEGORY_MAP[event.category || "outros"] || CATEGORY_MAP.outros;
                const Icon = cat.icon;
                return (
                  <Badge 

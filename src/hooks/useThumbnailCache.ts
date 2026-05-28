@@ -1,31 +1,9 @@
 import { useEffect, useState } from "react";
+import { get, set, del, keys } from "idb-keyval";
 
-const CACHE_PREFIX = "thumb_v1::";
-const CACHE_INDEX_KEY = "thumb_v1::__index";
-const MAX_ENTRIES = 80;
+const DB_STORE_NAME = "thumb_cache_v1";
+const MAX_ENTRIES = 150; // Increased since IDB has much more space than localStorage
 const TARGET_SIZE = 300;
-
-function readIndex(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(CACHE_INDEX_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function touchIndex(key: string) {
-  const idx = readIndex().filter((k) => k !== key);
-  idx.push(key);
-  while (idx.length > MAX_ENTRIES) {
-    const old = idx.shift()!;
-    try {
-      localStorage.removeItem(CACHE_PREFIX + old);
-    } catch {}
-  }
-  try {
-    localStorage.setItem(CACHE_INDEX_KEY, JSON.stringify(idx));
-  } catch {}
-}
 
 async function buildThumbnail(url: string): Promise<string | null> {
   return new Promise((resolve) => {
@@ -38,12 +16,17 @@ async function buildThumbnail(url: string): Promise<string | null> {
         canvas.height = TARGET_SIZE;
         const ctx = canvas.getContext("2d");
         if (!ctx) return resolve(null);
+        
+        // Center crop to square
         const min = Math.min(img.width, img.height);
         const sx = (img.width - min) / 2;
         const sy = (img.height - min) / 2;
         ctx.drawImage(img, sx, sy, min, min, 0, 0, TARGET_SIZE, TARGET_SIZE);
+        
+        // We use JPEG for better compression of photos
         resolve(canvas.toDataURL("image/jpeg", 0.82));
-      } catch {
+      } catch (err) {
+        console.error("Thumbnail generation failed:", err);
         resolve(null);
       }
     };
@@ -52,10 +35,23 @@ async function buildThumbnail(url: string): Promise<string | null> {
   });
 }
 
+async function manageCacheLimit() {
+  try {
+    const allKeys = await keys();
+    if (allKeys.length > MAX_ENTRIES) {
+      // Remove oldest 20 entries if limit reached
+      const keysToRemove = allKeys.slice(0, 20);
+      await Promise.all(keysToRemove.map(k => del(k)));
+    }
+  } catch (err) {
+    console.error("Failed to manage IDB cache limit:", err);
+  }
+}
+
 /**
  * Returns a cached 300x300 thumbnail dataURL for the given image URL.
  * Falls back to the original URL while building / on failure.
- * Cache is stored in localStorage keyed by event id + url.
+ * Uses IndexedDB for storage to avoid localStorage size limits.
  */
 export function useThumbnailCache(eventId: string, url?: string | null): string | undefined {
   const [thumb, setThumb] = useState<string | undefined>(undefined);
@@ -65,36 +61,44 @@ export function useThumbnailCache(eventId: string, url?: string | null): string 
       setThumb(undefined);
       return;
     }
-    const key = `${eventId}::${url}`;
-    try {
-      const cached = localStorage.getItem(CACHE_PREFIX + key);
-      if (cached) {
-        setThumb(cached);
-        touchIndex(key);
-        return;
-      }
-    } catch {}
 
-    setThumb(url); // show original while building
+    // Don't cache dataURLs (already generated fallbacks)
+    if (url.startsWith("data:")) {
+      setThumb(url);
+      return;
+    }
+
+    const key = `thumb_${eventId}_${url}`;
     let cancelled = false;
-    buildThumbnail(url).then((data) => {
-      if (cancelled || !data) return;
+
+    async function init() {
       try {
-        localStorage.setItem(CACHE_PREFIX + key, data);
-        touchIndex(key);
-      } catch {
-        // quota exceeded: best-effort clear oldest then ignore
-        try {
-          const idx = readIndex();
-          for (let i = 0; i < 20 && idx.length; i++) {
-            localStorage.removeItem(CACHE_PREFIX + idx.shift()!);
-          }
-          localStorage.setItem(CACHE_INDEX_KEY, JSON.stringify(idx));
-          localStorage.setItem(CACHE_PREFIX + key, data);
-        } catch {}
+        const cached = await get(key);
+        if (cached && !cancelled) {
+          setThumb(cached);
+          return;
+        }
+      } catch (err) {
+        console.warn("IDB read failed, falling back to network:", err);
       }
-      setThumb(data);
-    });
+
+      if (cancelled) return;
+      setThumb(url); // Show original while building
+
+      const data = await buildThumbnail(url);
+      if (cancelled || !data) return;
+
+      try {
+        await set(key, data);
+        setThumb(data);
+        await manageCacheLimit();
+      } catch (err) {
+        console.error("Failed to save to IDB:", err);
+      }
+    }
+
+    init();
+
     return () => {
       cancelled = true;
     };

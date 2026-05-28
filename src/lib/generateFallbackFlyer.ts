@@ -15,12 +15,17 @@ const BRAND_ACCENT = "#f5b400";
 const TEXT_LIGHT = "#fafaf5";
 const TEXT_MUTED = "rgba(250,250,245,0.78)";
 const LOGO_URL = "/coeaboa-logo.jpg";
+let cachedLogo: HTMLImageElement | null = null;
 
-function loadImage(src: string): Promise<HTMLImageElement | null> {
+async function loadImage(src: string): Promise<HTMLImageElement | null> {
+  if (cachedLogo) return cachedLogo;
   return new Promise((resolve) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
+    img.onload = () => {
+      cachedLogo = img;
+      resolve(img);
+    };
     img.onerror = () => resolve(null);
     img.src = src;
   });
