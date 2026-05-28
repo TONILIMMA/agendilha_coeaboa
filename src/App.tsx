@@ -57,7 +57,8 @@ const PageFallback = () => (
 
 function ProtectedRoute({ 
   children, 
-  requiredPermission 
+  requiredPermission,
+  masterOnly
 }: { 
   children: React.ReactNode; 
   requiredPermission?: PermissionName;
