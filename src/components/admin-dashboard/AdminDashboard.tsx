@@ -12,7 +12,7 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function AdminDashboard() {
+export function MasterPanel() {
   const { user } = useAuth();
   const [filters, setFilters] = useState({
     period: "month",
