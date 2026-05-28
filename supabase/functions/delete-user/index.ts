@@ -66,6 +66,23 @@ Deno.serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+    // Prevent deleting a master user (privilege escalation guard).
+    // Only another master can delete a master.
+    const { data: targetIsMaster } = await adminClient.rpc("is_master", {
+      _user_id: targetUserId,
+    });
+    if (targetIsMaster) {
+      const { data: callerIsMaster } = await adminClient.rpc("is_master", {
+        _user_id: user.id,
+      });
+      if (!callerIsMaster) {
+        return new Response(
+          JSON.stringify({ error: "Cannot delete a master user" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     // Delete user from auth (cascades to profiles and user_roles via FK)
     const { error } = await adminClient.auth.admin.deleteUser(targetUserId);
 
