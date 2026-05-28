@@ -84,6 +84,7 @@ export default function Auth() {
       digits = digits.slice(2);
     }
 
+
     if (digits.length <= 2) return digits;
     if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
     if (digits.length <= 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
@@ -102,9 +103,10 @@ export default function Auth() {
 
   function isValidPhone(value: string) {
     const digits = value.replace(/\D/g, "");
-    // Accepts 10 or 11 digits (with or without prefix already handled by handlePhoneChange)
-    return digits.length >= 10 && digits.length <= 11;
+    // Accepts 10 or 11 digits (if prefix is removed) or up to 13 with +55
+    return (digits.length >= 10 && digits.length <= 11) || (digits.startsWith("55") && digits.length >= 12 && digits.length <= 13);
   }
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
