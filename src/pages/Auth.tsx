@@ -163,8 +163,8 @@ export default function Auth() {
 
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-card shadow-elevated p-8 space-y-6">
+    <div className="flex items-center justify-center min-h-[calc(100vh-8rem)] bg-background px-4 py-8">
+      <div className="w-full max-w-sm rounded-2xl bg-card shadow-elevated p-6 sm:p-8 space-y-6">
         <div className="text-center">
           <div className="flex flex-col items-center mb-4">
             <h1 className="font-display text-2xl font-black text-primary tracking-tight">
