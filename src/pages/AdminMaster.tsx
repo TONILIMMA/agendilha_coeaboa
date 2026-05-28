@@ -456,6 +456,11 @@ export default function AdminMaster() {
               <Link to="/admin/newsletter">
                 <Button variant="ghost" size="sm" className="text-xs text-primary font-bold">Ver Painel Completo</Button>
               </Link>
+              <Link to="/admin/audit">
+                <Button variant="ghost" size="sm" className="text-xs text-secondary font-bold flex items-center gap-1">
+                  <History className="h-3 w-3" /> Logs de Auditoria
+                </Button>
+              </Link>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
