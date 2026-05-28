@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
  import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Filter } from "lucide-react";
-import { formatDateWithWeekday } from "@/lib/dateUtils";
+import { formatBrazilianDate, formatLongDate } from "@/lib/date-utils";
  import { exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
 
@@ -36,23 +36,7 @@ interface Event {
 }
 
 function formatDateLabel(dateStr: string | null): string {
-  if (!dateStr) return "";
-  // The date from the DB could be DD/MM/YYYY or YYYY-MM-DD
-  const withWeekday = formatDateWithWeekday(dateStr);
-  if (withWeekday !== dateStr) return withWeekday;
-  // Fallback: try parsing YYYY-MM-DD for display
-  try {
-    const [y, m, d] = dateStr.split("-").map(Number);
-    const date = new Date(y, m - 1, d);
-    const formatted = date.toLocaleDateString("pt-BR", {
-      day: "numeric",
-      month: "long",
-    });
-    const weekday = date.toLocaleDateString("pt-BR", { weekday: "long" });
-    return `${formatted} (${weekday})`;
-  } catch {
-    return dateStr;
-  }
+  return formatLongDate(dateStr);
 }
 
 function buildWhatsAppShare(event: Event) {
@@ -196,7 +180,7 @@ export default function CoeABoa() {
                    <CardContent className="p-4">
                      <Badge className="mb-2 bg-amber-500 text-white border-0">DESTAQUE 🔥</Badge>
                      <h3 className="font-bold text-base leading-tight">{ev.event_title}</h3>
-                     <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{ev.location} • {ev.date}</p>
+                     <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{ev.location} • {formatBrazilianDate(ev.date)}</p>
                    </CardContent>
                  </Card>
                ))}
@@ -220,7 +204,7 @@ export default function CoeABoa() {
               <div className="flex items-center gap-2 mb-4">
                 <CalendarDays className="h-5 w-5 text-primary" />
                 <h2 className="text-lg font-bold text-foreground capitalize">
-                  {dateKey === "sem-data" ? "Data a confirmar" : formatDateLabel(dateKey)}
+                  {dateKey === "sem-data" ? "Data a confirmar" : formatLongDate(dateKey)}
                 </h2>
               </div>
 

@@ -8,6 +8,7 @@ import { useState, useMemo } from "react";
 import { getEventFallbackImage } from "@/lib/event-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useThumbnailCache } from "@/hooks/useThumbnailCache";
+import { formatBrazilianDate } from "@/lib/date-utils";
 
 interface Event {
   id: string;
@@ -70,11 +71,11 @@ export function DiscoveryEventCard({
       <Card
         onClick={onClick}
         className={cn(
-          "group cursor-pointer overflow-hidden border-none bg-transparent transition-all hover:scale-[1.02] active:scale-95 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2",
+          "group cursor-pointer overflow-hidden border-none bg-transparent transition-all hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none",
           isLarge ? "w-[260px] xs:w-[280px] sm:w-[320px]" :
             isHorizontal ? "w-full" :
-              isCompact ? "w-[220px]" :
-                isSmall ? "w-[160px] xs:w-[200px]" : "w-[160px] xs:w-[200px]"
+              isCompact ? "w-[200px] xs:w-[220px]" :
+                isSmall ? "w-[150px] xs:w-[180px]" : "w-[150px] xs:w-[180px]"
         )}
       >
          <div className={cn(
@@ -180,11 +181,11 @@ export function DiscoveryEventCard({
               isCompact && "p-3 xs:p-4"
             )}>
               <div className={cn(
-                "flex items-center gap-2 text-[10px] xs:text-xs font-mono uppercase tracking-widest text-white/70 mb-1 xs:mb-2",
+                "flex items-center gap-2 text-[10px] xs:text-xs font-mono uppercase tracking-widest text-white/90 mb-1 xs:mb-2",
                 isCompact && "mb-1"
               )}>
-                <Calendar className="h-3 w-3" />
-                {event.date} {event.start_time && `• ${event.start_time}`}
+                <Calendar className="h-3 w-3 text-primary" />
+                {formatBrazilianDate(event.date)} {event.start_time && `• ${event.start_time}`}
               </div>
               <h3 className={cn(
                 "font-display font-black leading-tight mb-1 xs:mb-2 group-hover:text-primary transition-colors line-clamp-2",

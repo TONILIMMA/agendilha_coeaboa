@@ -118,9 +118,14 @@ export default function Landing() {
      getNextPageParam: (lastPage) => lastPage.nextPage,
    });
  
-   const allEvents = eventsData?.pages.flatMap(page => page.items) || [];
-   const todayStr = new Date().toISOString().split('T')[0];
-   const todayEvents = allEvents.filter(e => e.date === todayStr);
+    const allEvents = eventsData?.pages.flatMap(page => page.items) || [];
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayEvents = allEvents.filter(e => e.date === todayStr).slice(0, 6);
+    
+    // Deduplicate: events in alta should not be in today if possible, or limited
+    const trendingEvents = allEvents
+      .filter(e => !todayEvents.find(t => t.id === e.id))
+      .slice(0, 8);
  
    useEffect(() => {
      if (loadMoreInView && hasNextPage && !isFetchingNextPage) {
@@ -196,10 +201,10 @@ export default function Landing() {
            return matchStyle || matchNeighborhood;
          }).slice(0, 5);
          
-         setRecommendedEvents(recs.length > 0 ? recs : allEvents.slice(0, 5));
-       } else {
-         setRecommendedEvents(allEvents.slice(0, 5));
-       }
+          setRecommendedEvents(recs.length > 0 ? recs : allEvents.filter(e => !todayEvents.find(t => t.id === e.id) && !trendingEvents.find(f => f.id === e.id)).slice(0, 5));
+        } else {
+          setRecommendedEvents(allEvents.filter(e => !todayEvents.find(t => t.id === e.id) && !trendingEvents.find(f => f.id === e.id)).slice(0, 5));
+        }
      }
    }, [allEvents, profileLoaded, user, profile.musical_preferences, profile.home_location, profile.work_neighborhood]);
 
@@ -214,27 +219,27 @@ export default function Landing() {
       <Header />
       
        {/* ── Hero Discovery ── */}
-       <section className="pt-28 sm:pt-40 pb-16 px-4 max-w-6xl mx-auto">
-         <div className="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
+       <section className="pt-24 sm:pt-40 pb-12 px-4 max-w-6xl mx-auto">
+         <div className="text-center mb-10 animate-in fade-in slide-in-from-top-4 duration-1000">
            <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 mb-6 shadow-sm">
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/70">Agenda Cultural da Ilha do Governador</span>
+             <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary/70">AgendIlha · Agenda Cultural da Ilha</span>
            </div>
-           <h1 className="text-5xl sm:text-7xl font-black mb-6 font-display text-primary tracking-tightest leading-[0.9]">
+           <h1 className="text-3xl xs:text-4xl sm:text-7xl font-black mb-6 font-display text-primary tracking-tightest leading-[1.1] sm:leading-[0.9]">
              O que tem pra<br /><span className="text-secondary">hoje na Ilha?</span> 🌴
            </h1>
-           <p className="text-muted-foreground text-lg sm:text-xl font-medium max-w-xl mx-auto mb-10 text-balance leading-relaxed">
+           <p className="text-muted-foreground text-base sm:text-xl font-medium max-w-xl mx-auto mb-8 text-balance leading-relaxed">
              Shows, gastronomia e eventos. Tudo o que você precisa saber sobre a vida cultural da região.
            </p>
            
-            <div className="flex flex-col items-center gap-6 max-w-lg mx-auto">
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
+            <div className="flex flex-col items-center gap-4 max-w-lg mx-auto">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
                 <Button 
                   onClick={() => navigate("/agenda")}
-                  className="w-full sm:flex-1 h-14 rounded-full font-black text-lg gradient-sunset shadow-xl hover:scale-105 active:scale-95 transition-all uppercase tracking-wider"
+                  className="w-full sm:flex-1 h-14 rounded-full font-black text-lg gradient-sunset shadow-xl hover:scale-[1.03] active:scale-95 transition-all uppercase tracking-wider"
                 >
                   Explorar Agenda
                 </Button>
-                {!user && (
+                {!user ? (
                   <Button 
                     variant="outline"
                     onClick={() => navigate("/auth")}
@@ -242,44 +247,62 @@ export default function Landing() {
                   >
                     Criar conta
                   </Button>
+                ) : (
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate("/enviar-evento")}
+                    className="w-full sm:flex-1 h-14 rounded-full font-bold text-lg border-2 border-primary/20 text-primary bg-white/50 hover:bg-primary/5 transition-all shadow-md"
+                  >
+                    Divulgar Evento
+                  </Button>
                 )}
               </div>
               
-              <Button
-                variant="ghost"
-                className="rounded-full h-12 px-6 font-bold text-sm text-secondary hover:text-secondary/80 hover:bg-secondary/5 flex items-center gap-2 transition-all"
+              <button
+                className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-secondary hover:text-primary transition-colors mt-2 underline underline-offset-4"
                 onClick={() => setPersonalizationOpen(true)}
               >
-                <Settings2 className="h-4 w-4" />
                 Personalizar Recomendações
-              </Button>
+              </button>
             </div>
          </div>
  
-         <div className="relative mb-16 max-w-3xl mx-auto reveal">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+         <form 
+           onSubmit={(e) => {
+             e.preventDefault();
+             if (searchQuery.trim()) navigate(`/agenda?search=${encodeURIComponent(searchQuery)}`);
+           }}
+           className="relative mb-16 max-w-3xl mx-auto reveal"
+         >
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary/60" />
           <Input 
-            placeholder="Shows, teatros, festas..." 
-            className="h-14 pl-12 rounded-full border-0 bg-secondary/10 text-lg shadow-sm"
+            placeholder="O que você está procurando? (shows, festas, bares...)" 
+            className="h-14 pl-12 pr-4 rounded-full border-2 border-primary/10 bg-white shadow-lg text-lg focus:border-primary/30 transition-all"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </div>
+          <Button 
+            type="submit"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 rounded-full bg-primary text-white font-bold px-6 hidden sm:flex"
+          >
+            Buscar
+          </Button>
+        </form>
 
         {/* Categories */}
         <div className="flex gap-4 overflow-x-auto pb-6 mb-8 scrollbar-none">
           {genres.map((g) => (
-            <Button 
-              key={g.id} 
-              variant="outline" 
-              className="rounded-full gap-2 px-6 h-12 shadow-sm shrink-0 border-border/50"
-              onClick={() => navigate(`/agenda?category=${g.id}`)}
-            >
-              <div className={cn("p-1.5 rounded-full text-white", g.color)}>
-                <g.icon className="h-3 w-3" />
-              </div>
-              {g.label}
-            </Button>
+             <Button 
+               key={g.id} 
+               variant="outline" 
+               className="rounded-full gap-2 px-5 sm:px-6 h-12 shadow-sm shrink-0 border-border/50 hover:bg-primary/5 hover:border-primary/20 transition-all"
+               onClick={() => navigate(`/agenda?category=${g.id}`)}
+             >
+               <div className={cn("p-1.5 rounded-full text-white", g.color)}>
+                 <g.icon className="h-3.5 w-3.5" />
+               </div>
+               <span className="text-xs sm:text-sm font-bold">{g.label}</span>
+             </Button>
           ))}
         </div>
 
@@ -318,8 +341,8 @@ export default function Landing() {
             <h2 className="text-2xl font-bold font-display">Eventos em alta</h2>
             <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
           </div>
-            <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
-              {allEvents.map(ev => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {trendingEvents.map(ev => (
                 <DiscoveryEventCard 
                   key={ev.id} 
                   event={ev} 
@@ -348,7 +371,7 @@ export default function Landing() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold font-display flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-primary" />
-                  {user ? "No seu radar" : "Eventos perto de você"}
+                  {user ? "No seu radar" : "Sugestões para você"}
                 </h2>
                 <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
               </div>
@@ -455,13 +478,19 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Map Placeholder */}
-        <section className="rounded-3xl bg-muted/30 p-8 flex items-center justify-between mb-12 border border-border/50">
-          <div>
+        {/* Map Explorer CTA */}
+        <section className="rounded-3xl bg-secondary/5 p-8 flex flex-col sm:flex-row items-center justify-between mb-16 border border-secondary/10 gap-6">
+          <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-2">Explore no Mapa</h3>
-            <p className="text-muted-foreground">Veja o que está acontecendo perto de você</p>
+            <p className="text-muted-foreground text-sm">Visualize todos os eventos da Ilha do Governador em tempo real.</p>
           </div>
-          <Button variant="secondary" className="rounded-full h-12 px-6 shadow-sm border border-border/40"><MapIcon className="mr-2 h-4 w-4"/> Abrir Mapa</Button>
+          <Button 
+            variant="secondary" 
+            className="rounded-full h-12 px-8 shadow-md border border-secondary/20 font-bold hover:scale-105 transition-all"
+            onClick={() => window.open("https://www.google.com/maps/search/eventos+na+ilha+do+governador", "_blank")}
+          >
+            <MapIcon className="mr-2 h-4 w-4"/> Abrir Mapa
+          </Button>
         </section>
       </section>
 

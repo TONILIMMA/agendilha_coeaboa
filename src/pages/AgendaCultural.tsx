@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-   import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Megaphone, Trophy, Utensils, Tag } from "lucide-react";
+    import { Loader2, MapPin, Clock, Share2, CalendarDays, FileDown, Search, Copy, ExternalLink, ArrowUpDown, X, Globe, MessageCircle, Info, Download, Star, Heart, AlertCircle, Sparkles, Video, Users, Music as MusicIcon, Play, Settings2, Megaphone, Trophy, Utensils, Tag, Calendar } from "lucide-react";
+import { formatBrazilianDate, formatLongDate } from "@/lib/date-utils";
 import { Onboarding } from "@/components/Onboarding";
 import { PersonalizationDialog } from "@/components/PersonalizationDialog";
 import { ShareDialog } from "@/components/ShareDialog";
@@ -534,7 +535,7 @@ function buildUberLink(ev: Event): string {
         : "sem-data";
       if (!map[key]) {
         map[key] = {
-          label: formatDayLabel(ev.date),
+          label: formatLongDate(ev.date),
           sortKey: key === "sem-data" ? "9999-99-99" : key,
           items: [],
         };
@@ -561,11 +562,11 @@ function buildUberLink(ev: Event): string {
          {/* Topo da Página - Hero Mobile-First */}
          <div className="mb-12 sm:mb-20 text-center space-y-8 relative animate-in fade-in slide-in-from-top-4 duration-700">
             <div className="flex flex-col items-center gap-4 sm:gap-6">
-              <div className="inline-flex items-center justify-center px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-secondary/20 border border-secondary/30 mb-2 shadow-sm">
-                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary">Coé a Boa? apresenta:</span>
+              <div className="inline-flex items-center justify-center px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-secondary/10 border border-secondary/20 mb-2 shadow-sm">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary">AgendIlha apresenta:</span>
               </div>
               <h1 className="text-5xl xs:text-6xl sm:text-8xl font-black font-display text-primary tracking-tightest leading-[0.9] drop-shadow-sm">
-                AgendIlha
+                Coé a Boa?
               </h1>
                <p className="text-foreground/80 text-lg sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed px-2 sm:px-4 text-balance contrast-125">
                  A agenda cultural da Ilha do Governador.
@@ -599,7 +600,7 @@ function buildUberLink(ev: Event): string {
                                  />
                                 <div className="min-w-0 flex-1">
                                   <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                                  <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {ev.start_time}</p>
+                                  <p className="text-xs text-muted-foreground">{ev.address_neighborhood} • {formatBrazilianDate(ev.date)} • {ev.start_time}</p>
                                 </div>
                                  <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
                                    <FavoriteButton eventId={ev.id} className="h-8 w-8" />
@@ -698,7 +699,7 @@ function buildUberLink(ev: Event): string {
                                  />
                                  <div className="min-w-0 flex-1">
                                    <p className="font-bold text-sm truncate">{ev.event_title}</p>
-                                   <p className="text-xs text-muted-foreground">{ev.category} • {ev.date}</p>
+                                   <p className="text-xs text-muted-foreground">{ev.category} • {formatBrazilianDate(ev.date)}</p>
                                  </div>
                                  <div className="flex flex-col gap-1 shrink-0 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-30">
                                    <FavoriteButton eventId={ev.id} className="h-8 w-8" />
@@ -1364,7 +1365,7 @@ function buildUberLink(ev: Event): string {
                           </div>
                           <div>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Data</p>
-                            <p className="font-bold text-base sm:text-lg text-foreground">{formatDayLabel(selectedEvent.date)}</p>
+                            <p className="font-bold text-base sm:text-lg text-foreground">{formatLongDate(selectedEvent.date)}</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-4">
@@ -1556,6 +1557,21 @@ function buildUberLink(ev: Event): string {
             )}
           </DialogContent>
         </Dialog>
+       <footer className="py-12 px-6 border-t border-border/40 bg-card/30 mt-20">
+         <div className="mx-auto max-w-4xl flex flex-col items-center gap-6">
+           <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-white/50 backdrop-blur-sm border border-white/20 shadow-sm">
+             <img src={logoCoeABoa} alt="AgendIlha" className="h-6 w-6 rounded-full" />
+             <div className="flex items-center gap-2 leading-none">
+               <span className="font-display text-sm font-black text-primary tracking-tight">AgendIlha</span>
+               <span className="h-1 w-1 rounded-full bg-secondary/40" />
+               <span className="font-display text-xs font-bold text-secondary tracking-tight">Coé a Boa?</span>
+             </div>
+           </div>
+           <p className="text-[10px] text-muted-foreground/50 font-mono uppercase tracking-[0.3em]">
+             © {new Date().getFullYear()} — Ilha do Governador, RJ
+           </p>
+         </div>
+       </footer>
     </div>
   );
 }

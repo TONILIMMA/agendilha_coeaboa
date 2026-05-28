@@ -16,8 +16,9 @@ import {
    FileDown, MapPin, Clock, Building2, LayoutDashboard,
    CheckCircle, XCircle, ChevronDown, ChevronUp, FileText,
    Phone, Mail, Globe, Info, Send, RotateCcw, Copy,
-    DollarSign, Users, Briefcase, History, Megaphone, Image as ImageIcon,
- } from "lucide-react";
+     DollarSign, Users, Briefcase, History, Megaphone, Image as ImageIcon, Calendar
+  } from "lucide-react";
+import { formatBrazilianDate } from "@/lib/date-utils";
  import {
    Dialog,
    DialogContent,
@@ -163,7 +164,7 @@ function buildBulkWhatsAppMessage(events: Submission[]): string {
    if (highlights.length > 0) {
      lines.push(`🔥 *DESTAQUES DA SEMANA*`);
      highlights.forEach(h => {
-       lines.push(`• ${h.event_title} (${h.date} às ${h.start_time})`);
+       lines.push(`• ${h.event_title} (${formatBrazilianDate(h.date)} às ${h.start_time})`);
      });
      lines.push(``);
    }
@@ -178,7 +179,7 @@ function buildBulkWhatsAppMessage(events: Submission[]): string {
   Array.from(byDate.keys()).sort().forEach((dateKey) => {
     const dayOfWeek = getDayOfWeek(dateKey);
     lines.push(`━━━━━━━━━━━━━━━`);
-    lines.push(`🗓️ *${dayOfWeek ? dayOfWeek + " - " : ""}${dateKey}*`);
+    lines.push(`🗓️ *${dayOfWeek ? dayOfWeek + " - " : ""}${formatBrazilianDate(dateKey)}*`);
     lines.push(``);
     byDate.get(dateKey)!.forEach((ev) => {
       lines.push(`🎙️ ${ev.start_time || ""}${ev.end_time ? ` às ${ev.end_time}` : ""} - *${ev.event_title}*`);
@@ -197,7 +198,7 @@ function buildNotificationMessage(sub: Submission, status: string): string {
       `✅ *Evento Aprovado!*`, ``,
       `Olá${sub.responsible_name ? `, ${sub.responsible_name}` : ""}! Seu evento foi aprovado no *AgendIlha*! 🎉`,
       ``, `📌 *${sub.event_title}*`,
-      sub.date ? `🗓️ ${sub.date}${sub.start_time ? ` às ${sub.start_time}` : ""}` : "",
+      sub.date ? `🗓️ ${formatBrazilianDate(sub.date)}${sub.start_time ? ` às ${sub.start_time}` : ""}` : "",
       ``, `Seu evento será divulgado na agenda cultural da Ilha do Governador.`,
       ``, `Acesse: https://coeaboa.lovable.app/`,
     ].filter(Boolean).join("\n");
@@ -427,7 +428,7 @@ export default function Eventos() {
                 {sub.date && (
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    {sub.date} {sub.start_time && `às ${sub.start_time}`}{sub.end_time && ` - ${sub.end_time}`}
+                    {formatBrazilianDate(sub.date)} {sub.start_time && `às ${sub.start_time}`}{sub.end_time && ` - ${sub.end_time}`}
                   </span>
                 )}
                 {sub.location && (
