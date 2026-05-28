@@ -25,6 +25,7 @@ export function AppShell({
 
   // Automatically show sidebar for admins/masters if not explicitly false
   const effectiveShowSidebar = showSidebar || (isAdmin || isMaster);
+  const isAdminArea = window.location.pathname.startsWith("/admin") || window.location.pathname.startsWith("/master") || window.location.pathname === "/ranking";
 
   const maxWidthClasses = {
     sm: "max-w-3xl",

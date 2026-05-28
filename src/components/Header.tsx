@@ -140,11 +140,11 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
   const navigate = useNavigate();
   const currentDate = useCurrentDate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { pathname } = useLocation();
+   const { pathname } = useLocation();
    const isHome = pathname === "/" || pathname === "/lp" || pathname === "/landing";
    const isAgenda = pathname === "/agenda";
    const isSubmit = pathname === "/enviar-evento";
-   const isAdminArea = pathname.startsWith("/admin") || pathname === "/ranking";
+   const isAdminArea = pathname.startsWith("/admin") || pathname.startsWith("/master") || pathname === "/ranking";
  
    // Home / Landing - Transparent floating style
    const [scrolled, setScrolled] = useState(false);
