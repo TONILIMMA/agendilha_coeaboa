@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_configs: {
+        Row: {
+          created_at: string | null
+          id: string
+          pin_hash: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          pin_hash?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          pin_hash?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       artist_media: {
         Row: {
           ai_score: number | null
@@ -890,6 +914,8 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_admin_pin: { Args: { new_pin: string }; Returns: undefined }
+      verify_admin_pin: { Args: { input_pin: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user" | "master"

@@ -24,11 +24,15 @@ export default function ForgotPassword() {
   const [submitting, setSubmitting] = useState(false);
 
   function formatPhoneDisplay(value: string) {
-    const d = value.replace(/\D/g, "");
+    let d = value.replace(/\D/g, "");
+    // Remove prefix for display formatting if it's there
+    if (d.startsWith("55") && d.length > 11) d = d.slice(2);
+    
     if (d.length <= 2) return d;
     if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
     return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7, 11)}`;
   }
+
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const d = e.target.value.replace(/\D/g, "");
@@ -36,8 +40,10 @@ export default function ForgotPassword() {
   }
 
   function isValidPhone(value: string) {
-    return /^\d{2}9\d{8}$/.test(value.replace(/\D/g, ""));
+    const d = value.replace(/\D/g, "");
+    return (d.length >= 10 && d.length <= 11) || (d.startsWith("55") && d.length >= 12 && d.length <= 13);
   }
+
 
   async function handleRequestCode(e: React.FormEvent) {
     e.preventDefault();

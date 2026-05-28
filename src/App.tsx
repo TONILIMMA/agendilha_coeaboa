@@ -9,6 +9,8 @@ import Header from "@/components/Header";
 import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
 import { usePermissions } from "@/hooks/usePermissions";
+import { AppErrorBoundary } from "@/components/AppErrorBoundary";
+
 
 // Critical (above-the-fold) — keep eager
 import Landing from "./pages/Landing";
@@ -135,15 +137,18 @@ const AppRoutes = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </BrowserRouter>
+      <AppErrorBoundary>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </BrowserRouter>
+      </AppErrorBoundary>
     </TooltipProvider>
   </QueryClientProvider>
+
 );
 
 export default App;
