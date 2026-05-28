@@ -341,12 +341,13 @@ export default function Landing() {
             <h2 className="text-2xl font-bold font-display">Eventos em alta</h2>
             <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
           </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
               {trendingEvents.map(ev => (
                 <DiscoveryEventCard 
                   key={ev.id} 
                   event={ev} 
                   variant="compact"
+                  className="w-full h-auto"
                   onClick={() => navigate(`/agenda?event=${ev.id}`)}
                   isFavorite={favorites.includes(ev.id)}
                   onFavoriteToggle={() => toggleFavorite(ev.id)}

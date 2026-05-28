@@ -281,17 +281,17 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                  variant="ghost" 
                  size="icon" 
                  onClick={onMobileMenuToggle} 
-                 className="h-10 w-10 text-primary"
+                 className="h-10 w-10 text-primary hover:bg-primary/5 active:scale-90 transition-all"
                >
                  <Menu className="h-6 w-6" />
                </Button>
              </div>
 
              <div className="flex items-center gap-2">
-               {/* Brand: Hide on desktop if we are in admin area (sidebar is already there) */}
+               {/* Brand: Hide on desktop if sidebar is potentially visible */}
                <div className={cn(
-                 "flex items-center gap-2",
-                 isAdminArea && "md:hidden" // Fix duplication: Hide if sidebar is visible
+                 "flex items-center gap-2 transition-all duration-300",
+                 (isAdminArea || isMaster || isAdmin) && user && "md:hidden"
                )}>
                  <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                    <img src={logoCoeABoa} alt="AgendIlha" className="h-7 w-7 rounded-full shadow-sm" />
