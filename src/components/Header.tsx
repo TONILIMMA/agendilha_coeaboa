@@ -289,8 +289,11 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 gap-2">
           {/* Left: Brand + date */}
           <div className="flex items-center gap-3">
-             {/* Mobile menu trigger */}
-             <div className="flex md:hidden items-center">
+             {/* Mobile menu trigger - Always show for Master/Admin as a quick access even on desktop */}
+             <div className={cn(
+               "flex items-center",
+               !(isMaster || isAdmin) && "md:hidden"
+             )}>
                <Button 
                  variant="ghost" 
                  size="icon" 
