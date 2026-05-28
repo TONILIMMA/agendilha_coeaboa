@@ -156,18 +156,53 @@ export default function AdminEvents() {
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
-    const { error } = await supabase.from("submissions").update({ 
+    const updateData: any = { 
       status: newStatus,
-      additional_details: `Status alterado por ${user?.email}`
-    }).eq("id", id);
+      additional_details: `Status alterado por ${user?.email} para ${newStatus}`
+    };
+
+    if (newStatus === 'aprovado') {
+      updateData.approved_at = new Date().toISOString();
+      updateData.approved_by = user?.id;
+    } else if (newStatus === 'publicado') {
+      updateData.published_at = new Date().toISOString();
+    }
+
+    const { error } = await supabase.from("submissions").update(updateData).eq("id", id);
     
     if (error) {
       toast.error("Erro ao atualizar status");
     } else {
       toast.success(`Status atualizado para ${newStatus}`);
-      setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
+      fetchAll(); // Refresh to get generated slugs/copies
     }
   }
+
+  async function handleApproveAndPublish(id: string) {
+    const { error } = await supabase.from("submissions").update({ 
+      status: 'publicado',
+      approved_at: new Date().toISOString(),
+      approved_by: user?.id,
+      published_at: new Date().toISOString(),
+      additional_details: `Aprovado e publicado por ${user?.email}`
+    }).eq("id", id);
+    
+    if (error) {
+      toast.error("Erro ao aprovar e publicar");
+    } else {
+      toast.success("Evento aprovado e publicado com sucesso!");
+      fetchAll();
+    }
+  }
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copiado!`);
+  };
+
+  const openWhatsApp = (text: string) => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  };
 
   async function handleModerationChange(id: string, newModerationStatus: string) {
     const { error } = await supabase.from("submissions").update({ 
