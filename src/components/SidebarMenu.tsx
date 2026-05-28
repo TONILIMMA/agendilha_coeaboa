@@ -202,7 +202,7 @@ export function SidebarMenu({ onClose }: Props) {
         </Button>
         <div className="mt-4 text-center">
           <p className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground/40">
-            © {new Date().getFullYear()} AgendIlha
+            © {new Date().getFullYear()} AgendIlha · Coé a Boa?
           </p>
         </div>
       </div>
