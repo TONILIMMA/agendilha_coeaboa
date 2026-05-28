@@ -692,7 +692,10 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                             <FormLabel className="text-sm">WhatsApp de Contato <span className="text-accent">*</span></FormLabel>
                             <FormControl>
                               <IMaskInput
-                                mask="(00) 00000-0000"
+                                 mask={[
+                                  { mask: "(00) 00000-0000" },
+                                  { mask: "+55 (00) 00000-0000" }
+                                ]}
                                 definitions={{
                                   '0': /[0-9]/
                                 }}

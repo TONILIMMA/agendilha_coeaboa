@@ -295,7 +295,7 @@ export default function Auth() {
               placeholder="(21) 98765-4321"
               className="h-11 sm:h-12 bg-muted/30 focus-visible:ring-primary/20"
             />
-            <p className="text-[10px] text-muted-foreground">O DDD é obrigatório. Ex: 21 para o Rio.</p>
+            <p className="text-[10px] text-muted-foreground">O DDD é obrigatório. Ex: 21 para o Rio. Prefixo +55 opcional.</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Senha</Label>
