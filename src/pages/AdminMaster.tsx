@@ -385,7 +385,7 @@ export default function AdminMaster() {
     );
   }
   if (!user) return <Navigate to="/auth" replace />;
-  if (status !== "master") return <Navigate to="/" replace />;
+  if (status !== "master" && status !== "admin") return <Navigate to="/" replace />;
 
    return (
      <div className="animate-fade-in space-y-8">

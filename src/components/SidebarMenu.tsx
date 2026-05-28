@@ -106,12 +106,15 @@ export function SidebarMenu({ onClose }: Props) {
 
   const filteredSections = sections.filter(section => {
     if (!section.roles) return true;
-    return status && section.roles.includes(status);
+    // Map "master_admin" from status to "master" to match section roles
+    const effectiveStatus = status === "master" ? "master_admin" : status;
+    return effectiveStatus && (section.roles.includes(effectiveStatus) || (effectiveStatus === "master_admin" && section.roles.includes("master")));
   }).map(section => ({
     ...section,
     items: section.items.filter(item => {
-      if (item.roles && (!status || !item.roles.includes(status))) return false;
-      if (item.excludeRoles && status && item.excludeRoles.includes(status)) return false;
+      const effectiveStatus = status === "master" ? "master_admin" : status;
+      if (item.roles && (!effectiveStatus || !(item.roles.includes(effectiveStatus) || (effectiveStatus === "master_admin" && item.roles.includes("master"))))) return false;
+      if (item.excludeRoles && effectiveStatus && (item.excludeRoles.includes(effectiveStatus) || (effectiveStatus === "master_admin" && item.excludeRoles.includes("master")))) return false;
       return true;
     })
   })).filter(section => section.items.length > 0);
