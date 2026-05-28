@@ -120,10 +120,13 @@ export default function Auth() {
 
     setSubmitting(true);
 
+     // Standardize phone for backend (remove formatting, prefix handling is done in signIn/signUp)
+     const cleanPhone = phone.replace(/\D/g, "");
+     
      const { error } = mode === "login"
-       ? await signIn(phone, password)
+       ? await signIn(cleanPhone, password)
        : await signUp(
-           phone, 
+           cleanPhone, 
            password, 
            name.trim(), 
            {
