@@ -1,11 +1,13 @@
 import { UseFormReturn } from "react-hook-form";
-import { Image as ImageIcon, Sparkles } from "lucide-react";
+import { Image as ImageIcon, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "../FormFields";
-import { AIFlyerGenerator } from "../../AIFlyerGenerator";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { lazy, Suspense } from "react";
 
+// Lazy load heavy component
+const AIFlyerGenerator = lazy(() => import("../../AIFlyerGenerator").then(m => ({ default: m.AIFlyerGenerator })));
 
 interface MediaStepProps {
   form: UseFormReturn<any>;
@@ -68,23 +70,30 @@ export function MediaStep({ form, imageSource, setImageSource, eventImage, setEv
 
       {imageSource === "ai" && (
         <div className="animate-in zoom-in-95 duration-300">
-          <AIFlyerGenerator
-            initialData={{
-              title: form.watch("eventTitle") || "",
-              artist: form.watch("atrativoName") || "",
-              date: form.watch("date") ? format(new Date(form.watch("date")), "dd/MM") : "",
-              time: form.watch("startTime") || "",
-              location: form.watch("locationName") || "",
-              neighborhood: "", // Derived if possible
-              category: form.watch("category") || "musica"
-            }}
-            onFlyerGenerated={(urls) => {
-              setEventImage(urls.feed);
-              form.setValue("eventImageUrl", urls.feed);
-              form.setValue("eventImageUrlStory", urls.story);
-              form.setValue("eventImageUrlWhatsapp", urls.whatsapp);
-            }}
-          />
+          <Suspense fallback={
+            <div className="h-40 flex flex-col items-center justify-center gap-3 bg-muted/20 rounded-3xl border-2 border-dashed border-primary/20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm font-bold text-primary/60 uppercase tracking-widest">Carregando Estúdio IA...</p>
+            </div>
+          }>
+            <AIFlyerGenerator
+              initialData={{
+                title: form.watch("eventTitle") || "",
+                artist: form.watch("atrativoName") || "",
+                date: form.watch("date") ? format(new Date(form.watch("date")), "dd/MM") : "",
+                time: form.watch("startTime") || "",
+                location: form.watch("locationName") || "",
+                neighborhood: "", // Derived if possible
+                category: form.watch("category") || "musica"
+              }}
+              onFlyerGenerated={(urls) => {
+                setEventImage(urls.feed);
+                form.setValue("eventImageUrl", urls.feed);
+                form.setValue("eventImageUrlStory", urls.story);
+                form.setValue("eventImageUrlWhatsapp", urls.whatsapp);
+              }}
+            />
+          </Suspense>
         </div>
       )}
 
