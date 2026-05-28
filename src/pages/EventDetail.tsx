@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { 
@@ -59,7 +60,9 @@ export default function EventDetail() {
       } else {
         setEvent(data as unknown as Event);
         // Increment views
-        supabase.rpc('increment_views', { event_id: data.id }).catch(() => {});
+        supabase.rpc('increment_views', { event_id: data.id }).then(({ error }) => {
+          if (error) console.error("Error incrementing views:", error);
+        });
       }
       setLoading(false);
     }

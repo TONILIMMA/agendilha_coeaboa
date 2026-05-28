@@ -79,15 +79,17 @@ interface Submission {
  };
  
     const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string; border: string }> = {
-      draft: { label: "Rascunho", color: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200", icon: History },
-      pending: { label: "Pendente", color: "text-amber-700", bg: "bg-amber-100", border: "border-amber-200", icon: Clock3 },
-      analysis: { label: "Em análise", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", icon: Search },
-      approved: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
-      rejected: { label: "Rejeitado", color: "text-rose-700", bg: "bg-rose-100", border: "border-rose-200", icon: XCircle },
-       published: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
-       flagged: { label: "Sinalizado", color: "text-orange-700", bg: "bg-orange-100", border: "border-orange-300", icon: AlertCircle },
-       blocked: { label: "Bloqueado", color: "text-red-700", bg: "bg-red-100", border: "border-red-300", icon: ShieldAlert },
-     };
+      rascunho: { label: "Rascunho", color: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200", icon: History },
+      pendente: { label: "Pendente", color: "text-amber-700", bg: "bg-amber-100", border: "border-amber-200", icon: Clock3 },
+      em_revisao: { label: "Em revisão", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", icon: Search },
+      aprovado: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
+      publicado: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
+      agendado_para_divulgacao: { label: "Agendado", color: "text-purple-700", bg: "bg-purple-100", border: "border-purple-300", icon: Clock },
+      divulgado: { label: "Divulgado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-300", icon: Megaphone },
+      cancelado: { label: "Cancelado", color: "text-rose-700", bg: "bg-rose-100", border: "border-rose-200", icon: XCircle },
+      flagged: { label: "Sinalizado", color: "text-orange-700", bg: "bg-orange-100", border: "border-orange-300", icon: AlertCircle },
+      blocked: { label: "Bloqueado", color: "text-red-700", bg: "bg-red-100", border: "border-red-300", icon: ShieldAlert },
+    };
  
  function formatSubmissionDate(iso: string) {
    if (!iso) return "—";
