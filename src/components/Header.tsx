@@ -26,7 +26,7 @@ import { useSubmissions } from "@/contexts/SubmissionContext";
  import { useAuth } from "@/contexts/AuthContext";
  import { useTheme } from "@/hooks/useTheme";
 import { useProfile } from "@/hooks/useProfile";
-import { useAppPermissions } from "@/hooks/useAppPermissions";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useUserBadge } from "@/hooks/useUserBadge";
  import { Badge } from "@/components/ui/badge";
   import { HeaderUserMenu } from "@/components/HeaderUserMenu";

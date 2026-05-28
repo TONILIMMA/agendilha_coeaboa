@@ -153,7 +153,7 @@ export function SidebarMenu({ onClose }: Props) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-display text-sm font-bold truncate">
-              {loaded ? name : "Carregando..."}
+              {badgeLoaded ? name : "Carregando..."}
             </div>
             {status && (
               <div className="flex items-center gap-1 mt-0.5">
