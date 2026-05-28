@@ -93,8 +93,8 @@ export function MasterPanel() {
   if (error) {
     return (
       <ErrorState 
-        title="Ocorreu uma falha no carregamento"
-        message={`Não foi possível conectar ao serviço de inteligência: ${(error as any)?.message || "Internal RPC Error"}`}
+        title="Dashboard Temporariamente Indisponível"
+        message="Estamos com dificuldades para conectar ao banco de dados. A estrutura do painel permanece ativa, mas os dados analíticos não puderam ser carregados no momento."
         onRetry={() => refetch()}
       />
     );
