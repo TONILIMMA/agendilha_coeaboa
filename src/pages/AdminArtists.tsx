@@ -119,6 +119,7 @@ export default function AdminArtists() {
                   </div>
 
                   <div className="flex gap-2 justify-end">
+                  <div className="flex gap-2 justify-end">
                     {!artist.is_approved ? (
                       <Button 
                         size="sm" 
@@ -131,12 +132,13 @@ export default function AdminArtists() {
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => approveMutation.mutate({ id: artist.id, approved: false })}
+                        onClick={() => setRevokingId(artist.id)}
                         className="rounded-full border-rose-200 text-rose-600 hover:bg-rose-50 font-bold gap-2"
                       >
                         <X className="h-4 w-4" /> Revogar
                       </Button>
                     )}
+                  </div>
                   </div>
                 </div>
               </CardContent>
@@ -144,6 +146,19 @@ export default function AdminArtists() {
           ))}
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={!!revokingId}
+        onClose={() => setRevokingId(null)}
+        onConfirm={() => {
+          if (revokingId) approveMutation.mutate({ id: revokingId, approved: false });
+          setRevokingId(null);
+        }}
+        title="Revogar Aprovação"
+        description="O perfil deste artista deixará de ser público imediatamente. Ele precisará ser reavaliado para voltar ao ar."
+        confirmText="Revogar Agora"
+        variant="destructive"
+      />
     </div>
   );
 }
