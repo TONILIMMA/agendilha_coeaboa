@@ -166,7 +166,6 @@ export default function SubmissionForm() {
         ...values,
         image_url: imageUrl,
         status: 'pending',
-        stage: 'pending'
       } as any);
 
       setSubmitted(true);

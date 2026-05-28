@@ -74,11 +74,22 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
   const fetchSubmissions = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const { data, error } = await supabase
+    
+    // Check if user is admin/master to fetch all non-approved, otherwise fetch only their own
+    const { data: userRoles } = await supabase.from('app_user_roles').select('app_roles(name)').eq('user_id', user.id);
+    const isAdmin = userRoles?.some(r => ['admin', 'master', 'master_admin'].includes((r.app_roles as any)?.name));
+    
+    let query = supabase
       .from("submissions")
       .select("*")
       .neq("status", "approved")
       .order("created_at", { ascending: false });
+
+    if (!isAdmin) {
+      query = query.eq("user_id", user.id);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       toast.error("Erro ao carregar envios");
