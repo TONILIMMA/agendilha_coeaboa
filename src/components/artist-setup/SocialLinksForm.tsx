@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UseFormReturn } from "react-hook-form";
-import { Music, Globe, MessageCircle, Video, Youtube } from "lucide-react";
+import { Music, Globe, MessageCircle, Video } from "lucide-react";
 
 interface SocialLinksFormProps {
   form: UseFormReturn<any>;
@@ -27,7 +27,7 @@ export function SocialLinksForm({ form }: SocialLinksFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="youtube" className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-            <Youtube className="h-3 w-3 text-red-500" /> YouTube
+             <Video className="h-3 w-3 text-red-500" /> YouTube
           </Label>
           <Input 
             id="youtube" 
