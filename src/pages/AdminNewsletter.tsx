@@ -106,6 +106,7 @@ export default function AdminNewsletter() {
   if (authLoading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
+
   return (
     <div className="pb-20 animate-fade-in">
       <div className="mx-auto max-w-6xl px-4 py-8">
