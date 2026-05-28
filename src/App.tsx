@@ -38,6 +38,7 @@ const AdminArtists = lazy(() => import("./pages/AdminArtists"));
 const ArtistFeed = lazy(() => import("./pages/ArtistFeed"));
 const AdminMedia = lazy(() => import("./pages/AdminMedia"));
 const AdminAuditLogs = lazy(() => import("./pages/AdminAuditLogs"));
+const EventDetail = lazy(() => import("./pages/EventDetail"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -103,6 +104,7 @@ const AppRoutes = () => (
         <Route path="/auth" element={<><Header /><Auth /></>} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/artista/:id" element={<ArtistProfile />} />
+        <Route path="/evento/:slug" element={<EventDetail />} />
 
         {/* Envio de Evento / Artista */}
         <Route path="/configurar-artista" element={<ProtectedRoute><Header /><ArtistSetup /></ProtectedRoute>} />

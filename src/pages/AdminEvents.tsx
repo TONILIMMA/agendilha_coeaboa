@@ -20,7 +20,7 @@ import {
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
   CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp, AlertCircle, ShieldAlert,
   Phone, Mail, Globe, Info, Send, Star, TrendingUp, BarChart3,
-  RotateCcw, LayoutDashboard, Edit, ExternalLink, Eye, History
+  RotateCcw, LayoutDashboard, Edit, ExternalLink, Eye, History, Megaphone, Copy, Share2
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -62,6 +62,11 @@ interface Submission {
   is_suitable_for_minors?: boolean;
   report_count?: number;
   moderation_status?: string;
+  slug?: string;
+  short_copy?: string;
+  long_copy?: string;
+  approved_at?: string;
+  published_at?: string;
 }
 
  const categoryLabels: Record<string, string> = {
@@ -74,15 +79,17 @@ interface Submission {
  };
  
     const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string; border: string }> = {
-      draft: { label: "Rascunho", color: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200", icon: History },
-      pending: { label: "Pendente", color: "text-amber-700", bg: "bg-amber-100", border: "border-amber-200", icon: Clock3 },
-      analysis: { label: "Em análise", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", icon: Search },
-      approved: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
-      rejected: { label: "Rejeitado", color: "text-rose-700", bg: "bg-rose-100", border: "border-rose-200", icon: XCircle },
-       published: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
-       flagged: { label: "Sinalizado", color: "text-orange-700", bg: "bg-orange-100", border: "border-orange-300", icon: AlertCircle },
-       blocked: { label: "Bloqueado", color: "text-red-700", bg: "bg-red-100", border: "border-red-300", icon: ShieldAlert },
-     };
+      rascunho: { label: "Rascunho", color: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200", icon: History },
+      pendente: { label: "Pendente", color: "text-amber-700", bg: "bg-amber-100", border: "border-amber-200", icon: Clock3 },
+      em_revisao: { label: "Em revisão", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", icon: Search },
+      aprovado: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
+      publicado: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
+      agendado_para_divulgacao: { label: "Agendado", color: "text-purple-700", bg: "bg-purple-100", border: "border-purple-300", icon: Clock },
+      divulgado: { label: "Divulgado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-300", icon: Megaphone },
+      cancelado: { label: "Cancelado", color: "text-rose-700", bg: "bg-rose-100", border: "border-rose-200", icon: XCircle },
+      flagged: { label: "Sinalizado", color: "text-orange-700", bg: "bg-orange-100", border: "border-orange-300", icon: AlertCircle },
+      blocked: { label: "Bloqueado", color: "text-red-700", bg: "bg-red-100", border: "border-red-300", icon: ShieldAlert },
+    };
  
  function formatSubmissionDate(iso: string) {
    if (!iso) return "—";
@@ -102,11 +109,13 @@ interface Submission {
    return dateStr;
  }
  
- function buildWhatsAppMessage(sub: Submission): string {
-   const date = formatEventDate(sub.date);
-   const msg = `🗓️ *${sub.event_title}*\n⏰ ${date} às ${sub.start_time || "--:--"}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: https://agendilha-divulgacao.lovable.app/agenda`;
-   return encodeURIComponent(msg);
- }
+  function buildWhatsAppMessage(sub: Submission): string {
+    if (sub.short_copy) return encodeURIComponent(sub.short_copy);
+    const date = formatEventDate(sub.date);
+    const url = sub.slug ? `${window.location.origin}/evento/${sub.slug}` : `${window.location.origin}/agenda`;
+    const msg = `🗓️ *${sub.event_title}*\n⏰ ${date} às ${sub.start_time || "--:--"}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: ${url}`;
+    return encodeURIComponent(msg);
+  }
 
 export default function AdminEvents() {
   const { user, loading: authLoading } = useAuth();
@@ -149,18 +158,53 @@ export default function AdminEvents() {
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
-    const { error } = await supabase.from("submissions").update({ 
+    const updateData: any = { 
       status: newStatus,
-      additional_details: `Status alterado por ${user?.email}`
-    }).eq("id", id);
+      additional_details: `Status alterado por ${user?.email} para ${newStatus}`
+    };
+
+    if (newStatus === 'aprovado') {
+      updateData.approved_at = new Date().toISOString();
+      updateData.approved_by = user?.id;
+    } else if (newStatus === 'publicado') {
+      updateData.published_at = new Date().toISOString();
+    }
+
+    const { error } = await supabase.from("submissions").update(updateData).eq("id", id);
     
     if (error) {
       toast.error("Erro ao atualizar status");
     } else {
       toast.success(`Status atualizado para ${newStatus}`);
-      setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
+      fetchAll(); // Refresh to get generated slugs/copies
     }
   }
+
+  async function handleApproveAndPublish(id: string) {
+    const { error } = await supabase.from("submissions").update({ 
+      status: 'publicado',
+      approved_at: new Date().toISOString(),
+      approved_by: user?.id,
+      published_at: new Date().toISOString(),
+      additional_details: `Aprovado e publicado por ${user?.email}`
+    }).eq("id", id);
+    
+    if (error) {
+      toast.error("Erro ao aprovar e publicar");
+    } else {
+      toast.success("Evento aprovado e publicado com sucesso!");
+      fetchAll();
+    }
+  }
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copiado!`);
+  };
+
+  const openWhatsApp = (text: string) => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  };
 
   async function handleModerationChange(id: string, newModerationStatus: string) {
     const { error } = await supabase.from("submissions").update({ 
@@ -187,11 +231,11 @@ export default function AdminEvents() {
   const kpis = useMemo(() => {
     return {
       total: submissions.length,
-      pending: submissions.filter(s => s.status === 'pending').length,
-      analysis: submissions.filter(s => s.status === 'analysis').length,
-      approved: submissions.filter(s => s.status === 'approved').length,
-      rejected: submissions.filter(s => s.status === 'rejected').length,
-      published: submissions.filter(s => s.status === 'published').length,
+      pending: submissions.filter(s => s.status === 'pendente').length,
+      in_review: submissions.filter(s => s.status === 'em_revisao').length,
+      approved: submissions.filter(s => s.status === 'aprovado').length,
+      published: submissions.filter(s => s.status === 'publicado').length,
+      divulgado: submissions.filter(s => s.status === 'divulgado').length,
     };
   }, [submissions]);
 
@@ -230,15 +274,15 @@ export default function AdminEvents() {
             <div className="flex flex-wrap gap-3">
                <Button variant="outline" size="sm" className="h-10 font-bold border-border bg-background hover:bg-muted" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
                <Button variant="outline" size="sm" className="h-10 font-bold border-border bg-background hover:bg-muted" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
-               <Button 
-                 size="sm"
-                 className="h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
-                onClick={() => {
-                  const approved = submissions.filter(s => s.status === 'approved' || s.status === 'published');
-                  if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
-                  window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
-                }}
-              >
+                <Button 
+                  size="sm"
+                  className="h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
+                 onClick={() => {
+                   const approved = submissions.filter(s => s.status === 'aprovado' || s.status === 'publicado' || s.status === 'divulgado');
+                   if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
+                   window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
+                 }}
+               >
                 <MessageCircle className="h-4 w-4 mr-2" /> Divulgação WhatsApp
               </Button>
             </div>
@@ -249,9 +293,9 @@ export default function AdminEvents() {
               {[
                 { label: 'Total', value: kpis.total, color: 'text-slate-600', bg: 'bg-white' },
                 { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-white' },
-                { label: 'Em Análise', value: kpis.analysis, color: 'text-blue-600', bg: 'bg-white' },
+                { label: 'Em Revisão', value: kpis.in_review, color: 'text-blue-600', bg: 'bg-white' },
                 { label: 'Aprovados', value: kpis.approved, color: 'text-emerald-600', bg: 'bg-white' },
-                { label: 'Rejeitados', value: kpis.rejected, color: 'text-rose-600', bg: 'bg-white' },
+                { label: 'Divulgados', value: kpis.divulgado, color: 'text-emerald-600', bg: 'bg-white' },
                 { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-white' },
               ].map((kpi) => (
              <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm hover:shadow-md transition-all`}>
@@ -422,7 +466,6 @@ export default function AdminEvents() {
                       })()}
                     </div>
 
-                    {/* Ações */}
                     <div className="col-span-3 flex justify-end flex-wrap gap-1.5">
                       <TooltipProvider>
                         {/* Ver Detalhes */}
@@ -446,35 +489,47 @@ export default function AdminEvents() {
                         </Tooltip>
 
                         {/* Aprovar/Rejeitar/Publicar (Dinâmico) */}
-                        {sub.status === 'pending' || sub.status === 'analysis' ? (
+                        {sub.status === 'pendente' || sub.status === 'em_revisao' ? (
                           <>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button size="icon" variant="outline" className="h-9 w-9 bg-white border-border hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'approved')}>
+                                <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'aprovado')}>
                                   <CheckCircle className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Aprovar</TooltipContent>
                             </Tooltip>
+                            
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button size="icon" variant="outline" className="h-9 w-9 bg-white border-border hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'rejected')}>
-                                  <XCircle className="h-4 w-4" />
+                                <Button size="icon" variant="outline" className="h-9 w-9 bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" onClick={() => handleApproveAndPublish(sub.id)}>
+                                  <Globe className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Rejeitar</TooltipContent>
+                              <TooltipContent>Aprovar e Publicar</TooltipContent>
                             </Tooltip>
                           </>
-                        ) : sub.status === 'approved' ? (
+                        ) : (sub.status === 'aprovado' || sub.status === 'agendado_para_divulgacao') ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button size="icon" variant="outline" className="h-9 w-9 bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'published')}>
+                              <Button size="icon" variant="outline" className="h-9 w-9 bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'publicado')}>
                                 <Send className="h-4 w-4" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>Publicar na Agenda</TooltipContent>
                           </Tooltip>
                         ) : null}
+
+                        {sub.slug && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button size="icon" variant="outline" className="h-9 w-9 bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm" onClick={() => window.open(`/evento/${sub.slug}`, '_blank')}>
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Ver Página Pública</TooltipContent>
+                          </Tooltip>
+                        )}
 
                         {/* Destacar */}
                         <Tooltip>
@@ -503,13 +558,19 @@ export default function AdminEvents() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-56">
                             <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Distribuição</div>
+                            <DropdownMenuItem onClick={() => sub.short_copy && copyToClipboard(sub.short_copy, "Texto curto")} disabled={!sub.short_copy} className="cursor-pointer">
+                              <MessageCircle className="h-4 w-4 mr-2" /> Copiar Texto Curto
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => sub.long_copy && copyToClipboard(sub.long_copy, "Texto longo")} disabled={!sub.long_copy} className="cursor-pointer">
+                              <MessageCircle className="h-4 w-4 mr-2" /> Copiar Texto Longo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => sub.short_copy && openWhatsApp(sub.short_copy)} disabled={!sub.short_copy} className="cursor-pointer text-emerald-600">
+                              <Phone className="h-4 w-4 mr-2" /> Abrir no WhatsApp
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => exportSingleEventPdf(sub)} className="cursor-pointer">
                               <FileDown className="h-4 w-4 mr-2" /> Exportar PDF
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")} className="cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50 font-bold">
-                              <MessageCircle className="h-4 w-4 mr-2" /> Divulgar WhatsApp
-                            </DropdownMenuItem>
-                            
                             <DropdownMenuSeparator />
                              <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Moderação</div>
                              {sub.moderation_status === 'flagged' && (
@@ -526,17 +587,6 @@ export default function AdminEvents() {
                                  <RotateCcw className="h-4 w-4 mr-2" /> Desbloquear
                                </DropdownMenuItem>
                              )}
-                             {sub.status !== 'analysis' && (
-                               <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'analysis')} className="cursor-pointer">
-                                 <Search className="h-4 w-4 mr-2" /> Colocar em Análise
-                               </DropdownMenuItem>
-                             )}
-                             {sub.status === 'published' && (
-                               <DropdownMenuItem onClick={() => handleStatusChange(sub.id, 'approved')} className="cursor-pointer text-indigo-600 focus:text-indigo-600 focus:bg-indigo-50">
-                                 <Globe className="h-4 w-4 mr-2" /> Remover da Agenda
-                               </DropdownMenuItem>
-                             )}
-                            
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleDelete(sub.id)} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer font-bold">
                               <Trash2 className="h-4 w-4 mr-2" /> Excluir permanentemente

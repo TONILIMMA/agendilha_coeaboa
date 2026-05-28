@@ -73,11 +73,11 @@ export default function AdminDashboard() {
       const publicUsersCount = totalUsers - adminsCount - promotersCount;
 
       const totalEvents = submissions.length;
-      const pendingEvents = submissions.filter(s => s.status === 'pending' || s.status === 'analysis').length;
-      const approvedEvents = submissions.filter(s => s.status === 'approved' || s.status === 'published').length;
-      const cancelledEvents = submissions.filter(s => s.status === 'rejected' || s.status === 'blocked').length;
+      const pendingEvents = submissions.filter(s => s.status === 'pendente' || s.status === 'em_revisao').length;
+      const approvedEvents = submissions.filter(s => s.status === 'aprovado' || s.status === 'publicado' || s.status === 'divulgado').length;
+      const cancelledEvents = submissions.filter(s => s.status === 'cancelado' || s.status === 'blocked').length;
 
-      const neighborhoodsWithEvents = new Set(submissions.filter(s => s.status === 'approved' || s.status === 'published').map(s => s.address_neighborhood)).size;
+      const neighborhoodsWithEvents = new Set(submissions.filter(s => s.status === 'aprovado' || s.status === 'publicado' || s.status === 'divulgado').map(s => s.address_neighborhood)).size;
 
       // Charts Data
       // 1. Users by Type
@@ -145,6 +145,12 @@ export default function AdminDashboard() {
           return { name: event?.event_title || "Evento Desconhecido", count };
         })
         .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
+      // Top Events by Views
+      const topEventsByViews = [...submissions]
+        .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+        .map(s => ({ name: s.event_title, count: s.views_count || 0 }))
         .slice(0, 10);
 
       // Top Neighborhoods by Favorites
@@ -250,6 +256,7 @@ export default function AdminDashboard() {
         },
         rankings: {
           topEvents,
+          topEventsByViews,
           topNeighborhoods: eventsByNeighborhood.map(n => ({ name: n.name, count: n.value })),
           topPlaces: topPlaces.slice(0, 5),
           topArtists: topArtists.slice(0, 5),

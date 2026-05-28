@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Trophy, Star, MapPin, Building2, Music, ThumbsUp } from "lucide-react";
+import { Trophy, Star, MapPin, Building2, Music } from "lucide-react";
 
 interface RankingItem {
   name: string;
@@ -55,6 +54,7 @@ const RankingList = ({ title, icon: Icon, items }: RankingListProps) => (
 interface DashboardRankingsProps {
   data: {
     topEvents: RankingItem[];
+    topEventsByViews: RankingItem[];
     topNeighborhoods: RankingItem[];
     topPlaces: RankingItem[];
     topArtists: RankingItem[];
@@ -64,8 +64,9 @@ interface DashboardRankingsProps {
 
 export function DashboardRankings({ data }: DashboardRankingsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <RankingList title="Top Eventos (Favoritos)" icon={Star} items={data.topEvents} />
+      <RankingList title="Top Eventos (Cliques)" icon={Trophy} items={data.topEventsByViews} />
       <RankingList title="Bairros (+ Eventos)" icon={MapPin} items={data.topNeighborhoods} />
       <RankingList title="Estabelecimentos" icon={Building2} items={data.topPlaces} />
       <RankingList title="Artistas / Bandas" icon={Music} items={data.topArtists} />
