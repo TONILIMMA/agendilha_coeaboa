@@ -11,6 +11,8 @@ import { Loader2 } from "lucide-react";
 import { useAppPermissions, PermissionName } from "@/hooks/usePermissions";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { AdminLayout } from "@/components/AdminLayout";
+import { handleError } from "@/lib/error-handler";
+
 
 
 // Critical (above-the-fold) — keep eager
