@@ -32,7 +32,7 @@ import { Input } from "@/components/ui/input";
   ArrowDown,
    Calendar,
  } from "lucide-react";
- import Header from "@/components/Header";
+ 
 import { toast } from "sonner";
 
 type Period = "week" | "month" | "year" | "all" | "custom";
@@ -220,7 +220,6 @@ export default function Ranking() {
 
    return (
      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-muted pb-16">
-       <Header />
        <div className="container max-w-6xl mx-auto px-4 pt-8 space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">

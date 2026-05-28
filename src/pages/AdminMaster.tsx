@@ -400,7 +400,7 @@ export default function AdminMaster() {
                 Visão Geral
               </h1>
               <p className="text-sm text-muted-foreground">
-                Inteligência e Métricas da Plataforma
+                Inteligência Analítica da Plataforma
               </p>
             </div>
           </div>
