@@ -51,19 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    // Periodic session check every 60s
-    const interval = setInterval(async () => {
-      const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-      if (error || !currentSession) {
-        setSession(null);
-        setUser(null);
-        setIsAdmin(false);
-      }
-    }, 60000);
+    // Periodic session check removed in favor of onAuthStateChange and autoRefreshToken
+    // This reduces redundant network requests and improves performance
+
 
     return () => {
       subscription.unsubscribe();
-      clearInterval(interval);
+      // Interval removed
     };
   }, []);
 
