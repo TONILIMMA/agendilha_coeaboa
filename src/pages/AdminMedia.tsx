@@ -1,5 +1,9 @@
- import { useState } from "react";
- import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+  import { useState } from "react";
+  import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+  import { Navigate } from "react-router-dom";
+  import { useAuth } from "@/contexts/AuthContext";
+
+
  import { supabase } from "@/integrations/supabase/client";
  import { Loader2, Check, X, Shield, Play, User, ExternalLink } from "lucide-react";
  import { Button } from "@/components/ui/button";
@@ -14,7 +18,11 @@
    DialogTitle,
  } from "@/components/ui/dialog";
  
- export default function AdminMedia() {
+  export default function AdminMedia() {
+    const { user, isAdmin, loading: authLoading } = useAuth();
+    if (authLoading) return <div className="p-8 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    if (!user || !isAdmin) return <Navigate to="/" replace />;
+
    const queryClient = useQueryClient();
    const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
  

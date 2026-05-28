@@ -1,4 +1,7 @@
- import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+  import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+  import { useAuth } from "@/contexts/AuthContext";
+  import { Navigate } from "react-router-dom";
+
  import { supabase } from "@/integrations/supabase/client";
  import { Button } from "@/components/ui/button";
  import { toast } from "sonner";
@@ -13,7 +16,11 @@
  } from "lucide-react";
  import { Badge } from "@/components/ui/badge";
  
- export default function AdminArtists() {
+  export default function AdminArtists() {
+    const { user, isAdmin, loading: authLoading } = useAuth();
+    if (authLoading) return <div className="p-8">Carregando...</div>;
+    if (!user || !isAdmin) return <Navigate to="/" replace />;
+
    const queryClient = useQueryClient();
  
    const { data: artists, isLoading } = useQuery({
