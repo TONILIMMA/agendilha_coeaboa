@@ -157,11 +157,11 @@ export default function Header() {
       return (
         <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? "bg-white/90 backdrop-blur-xl border-b border-white/40 shadow-sm" : "bg-transparent border-b border-transparent"}`}>
           <div className="mx-auto flex h-16 sm:h-20 max-w-6xl items-center justify-between px-4 sm:px-8">
-            <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-8 w-8 sm:h-10 sm:w-10 rounded-full ring-2 ring-foreground/5 shadow-sm" />
+            <Link to="/" className="flex items-center gap-2.5 group shrink-0" aria-label="AgendIlha - Página Inicial">
+              <img src={logoCoeABoa} alt="AgendIlha" className="h-8 w-8 sm:h-10 sm:w-10 rounded-full ring-2 ring-primary/10 shadow-sm group-hover:scale-105 transition-transform" />
               <div className="flex flex-col leading-none">
                 <span className="font-display text-lg sm:text-xl font-black tracking-tight text-primary">AgendIlha</span>
-                <span className="text-[9px] sm:text-[10px] text-secondary font-black uppercase tracking-[0.2em]">Coé a Boa?</span>
+                <span className="text-[9px] sm:text-[10px] text-secondary font-black uppercase tracking-[0.15em]">Coé a Boa?</span>
               </div>
             </Link>
 
@@ -320,12 +320,12 @@ export default function Header() {
                   <TooltipContent>Voltar à página inicial</TooltipContent>
                 </Tooltip>
               )}
-                 <Link to="/" className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-1.5 hover:opacity-80 transition-opacity">
+                 <Link to="/" className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-2 hover:opacity-80 transition-opacity" aria-label="AgendIlha - Página Inicial">
                   <div className="flex items-center gap-1.5">
-                    <img src={logoCoeABoa} alt="Coé a Boa?" className="h-5 w-5 rounded-full" />
+                    <img src={logoCoeABoa} alt="AgendIlha" className="h-5 w-5 rounded-full" />
                     <span className="font-display text-base sm:text-xl font-black text-primary whitespace-nowrap tracking-tight">AgendIlha</span>
                   </div>
-                  <span className="text-[10px] sm:text-sm text-muted-foreground font-medium opacity-70">Coé a Boa?</span>
+                  <span className="text-[10px] sm:text-sm text-secondary font-black uppercase tracking-widest opacity-80">Coé a Boa?</span>
                 </Link>
                 {isAdmin && isAdminArea && <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />}
             </div>
