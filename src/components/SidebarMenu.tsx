@@ -31,14 +31,14 @@ interface SidebarItem {
   path: string;
   icon: React.ElementType;
   badge?: string | number;
-  roles?: UserStatus[];
-  excludeRoles?: UserStatus[];
+  roles?: string[];
+  excludeRoles?: string[];
 }
 
 interface SidebarSection {
   title: string;
   items: SidebarItem[];
-  roles?: UserStatus[];
+  roles?: string[];
 }
 
 interface Props {
