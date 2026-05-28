@@ -34,40 +34,40 @@ export function usePermissions(): Permissions {
     }
 
     async function load() {
-      const [{ data: collabData }, { data: profileData }] = await Promise.all([
-        supabase
-          .from("collaborators")
-          .select("can_submit, can_approve, can_edit, can_delete, is_active")
-          .eq("user_id", user!.id)
-          .maybeSingle(),
-        supabase
+      try {
+        const { data: profileData, error: profileError } = await supabase
           .from("profiles")
-          .select("role")
+          .select("role, collaborators(can_submit, can_approve, can_edit, can_delete, is_active)")
           .eq("user_id", user!.id)
-          .maybeSingle()
-      ]);
+          .maybeSingle();
 
-      const isPromoter = profileData?.role === 'promoter';
+        if (profileError) throw profileError;
 
-      if (collabData && (collabData as any).is_active !== false) {
-        setPerms({
-          canSubmit: collabData.can_submit || isPromoter,
-          canApprove: collabData.can_approve,
-          canEdit: collabData.can_edit || isPromoter,
-          canDelete: collabData.can_delete,
-          isCollaborator: true,
-          loaded: true,
-        });
-      } else {
-        // Regular public users cannot submit anymore
-        setPerms({ 
-          canSubmit: isPromoter, 
-          canApprove: false, 
-          canEdit: false, 
-          canDelete: false, 
-          isCollaborator: false, 
-          loaded: true 
-        });
+        const isPromoter = profileData?.role === 'promoter';
+        const collab = profileData?.collaborators?.[0] as any;
+
+        if (collab && collab.is_active !== false) {
+          setPerms({
+            canSubmit: collab.can_submit || isPromoter,
+            canApprove: collab.can_approve,
+            canEdit: collab.can_edit || isPromoter,
+            canDelete: collab.can_delete,
+            isCollaborator: true,
+            loaded: true,
+          });
+        } else {
+          setPerms({ 
+            canSubmit: isPromoter, 
+            canApprove: false, 
+            canEdit: false, 
+            canDelete: false, 
+            isCollaborator: false, 
+            loaded: true 
+          });
+        }
+      } catch (err) {
+        console.error("Error loading permissions:", err);
+        setPerms(prev => ({ ...prev, loaded: true }));
       }
     }
 
