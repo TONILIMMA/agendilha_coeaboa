@@ -224,7 +224,7 @@ export default function Landing() {
            <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 mb-6 shadow-sm">
              <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary/70">AgendIlha · Agenda Cultural da Ilha</span>
            </div>
-           <h1 className="text-4xl sm:text-7xl font-black mb-6 font-display text-primary tracking-tightest leading-[1] sm:leading-[0.9]">
+           <h1 className="text-3xl xs:text-4xl sm:text-7xl font-black mb-6 font-display text-primary tracking-tightest leading-[1.1] sm:leading-[0.9]">
              O que tem pra<br /><span className="text-secondary">hoje na Ilha?</span> 🌴
            </h1>
            <p className="text-muted-foreground text-base sm:text-xl font-medium max-w-xl mx-auto mb-8 text-balance leading-relaxed">
@@ -292,17 +292,17 @@ export default function Landing() {
         {/* Categories */}
         <div className="flex gap-4 overflow-x-auto pb-6 mb-8 scrollbar-none">
           {genres.map((g) => (
-            <Button 
-              key={g.id} 
-              variant="outline" 
-              className="rounded-full gap-2 px-6 h-12 shadow-sm shrink-0 border-border/50"
-              onClick={() => navigate(`/agenda?category=${g.id}`)}
-            >
-              <div className={cn("p-1.5 rounded-full text-white", g.color)}>
-                <g.icon className="h-3 w-3" />
-              </div>
-              {g.label}
-            </Button>
+             <Button 
+               key={g.id} 
+               variant="outline" 
+               className="rounded-full gap-2 px-5 sm:px-6 h-12 shadow-sm shrink-0 border-border/50 hover:bg-primary/5 hover:border-primary/20 transition-all"
+               onClick={() => navigate(`/agenda?category=${g.id}`)}
+             >
+               <div className={cn("p-1.5 rounded-full text-white", g.color)}>
+                 <g.icon className="h-3.5 w-3.5" />
+               </div>
+               <span className="text-xs sm:text-sm font-bold">{g.label}</span>
+             </Button>
           ))}
         </div>
 
