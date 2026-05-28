@@ -1,0 +1,75 @@
+import { UseFormReturn } from "react-hook-form";
+import { SummarySection } from "../SummarySection";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+interface ReviewStepProps {
+  form: UseFormReturn<any>;
+  goToStep: (step: number) => void;
+}
+
+export function ReviewStep({ form, goToStep }: ReviewStepProps) {
+  const values = form.getValues();
+
+  return (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="space-y-2">
+        <h2 className="text-xl font-bold text-primary">Revise seus dados</h2>
+        <p className="text-sm text-muted-foreground">Confira se tudo está correto antes de enviar.</p>
+      </div>
+
+      <SummarySection
+        title="1. Identificação"
+        onEdit={() => goToStep(1)}
+        items={[
+          { label: "Apelido", value: values.nickName },
+          { label: "WhatsApp", value: values.basicPhone },
+        ]}
+      />
+
+      <SummarySection
+        title="2. Profissional"
+        onEdit={() => goToStep(2)}
+        items={[
+          { label: "Empresa/Promotor", value: values.companyName },
+          { label: "E-mail", value: values.email },
+          { label: "Endereço", value: `${values.addressStreet || ""}, ${values.addressNumber || ""}` },
+        ]}
+      />
+
+      <SummarySection
+        title="3. Evento"
+        onEdit={() => goToStep(3)}
+        items={[
+          { label: "Categoria", value: values.category },
+          { label: "Título", value: values.eventTitle },
+          { 
+            label: "Data", 
+            value: values.date ? format(new Date(values.date), "PPP", { locale: ptBR }) : null 
+          },
+          { label: "Horário", value: `${values.startTime}h ${values.endTime ? `- ${values.endTime}h` : '(Sem término)'}` },
+        ]}
+      />
+
+      <SummarySection
+        title="4. Atrativo"
+        onEdit={() => goToStep(4)}
+        items={[
+          { label: "Nome", value: values.atrativoName },
+          { label: "Tipo", value: values.atrativoType },
+          { label: "Estilo", value: values.atrativoStyle },
+        ]}
+      />
+
+      <SummarySection
+        title="5. Local"
+        onEdit={() => goToStep(5)}
+        items={[
+          { label: "Nome do Local", value: values.locationName },
+          { label: "Endereço", value: values.eventAddress },
+          { label: "Tipo", value: values.locationType === 'commercial' ? 'Estabelecimento' : 'Espaço Público' },
+        ]}
+      />
+    </div>
+  );
+}
