@@ -36,23 +36,7 @@ interface Event {
 }
 
 function formatDateLabel(dateStr: string | null): string {
-  if (!dateStr) return "";
-  // The date from the DB could be DD/MM/YYYY or YYYY-MM-DD
-  const withWeekday = formatDateWithWeekday(dateStr);
-  if (withWeekday !== dateStr) return withWeekday;
-  // Fallback: try parsing YYYY-MM-DD for display
-  try {
-    const [y, m, d] = dateStr.split("-").map(Number);
-    const date = new Date(y, m - 1, d);
-    const formatted = date.toLocaleDateString("pt-BR", {
-      day: "numeric",
-      month: "long",
-    });
-    const weekday = date.toLocaleDateString("pt-BR", { weekday: "long" });
-    return `${formatted} (${weekday})`;
-  } catch {
-    return dateStr;
-  }
+  return formatLongDate(dateStr);
 }
 
 function buildWhatsAppShare(event: Event) {
