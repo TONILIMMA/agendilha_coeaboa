@@ -132,7 +132,7 @@ export default function Header() {
    const { user, signOut, isAdmin } = useAuth();
    const { theme, toggleTheme } = useTheme();
   const { profile } = useProfile();
-  const perms = useAppPermissions();
+  const perms = usePermissions();
   const { status, name: badgeName } = useUserBadge();
   const isMaster = status === "master";
   const navigate = useNavigate();
