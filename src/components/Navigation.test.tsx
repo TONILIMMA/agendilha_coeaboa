@@ -4,7 +4,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import * as authContext from '@/contexts/AuthContext';
 import * as useAppPermissionsHook from '@/hooks/useAppPermissions';
 import * as useUserBadgeHook from '@/hooks/useUserBadge';
-import App from '@/App';
+import { AppRoutes } from '@/App';
 
 // Mocks
 vi.mock('@/contexts/AuthContext');
@@ -55,8 +55,9 @@ describe('Admin/Master Route Protection Integration', () => {
 
     render(
       <MemoryRouter initialEntries={['/admin/events']}>
-        <App />
+        <AppRoutes />
       </MemoryRouter>
+
     );
 
     await waitFor(() => {
@@ -69,8 +70,9 @@ describe('Admin/Master Route Protection Integration', () => {
 
     render(
       <MemoryRouter initialEntries={['/admin/events']}>
-        <App />
+        <AppRoutes />
       </MemoryRouter>
+
     );
 
     await waitFor(() => {
@@ -83,8 +85,9 @@ describe('Admin/Master Route Protection Integration', () => {
 
     render(
       <MemoryRouter initialEntries={['/admin/events']}>
-        <App />
+        <AppRoutes />
       </MemoryRouter>
+
     );
 
     await waitFor(() => {
@@ -99,8 +102,9 @@ describe('Admin/Master Route Protection Integration', () => {
 
     render(
       <MemoryRouter initialEntries={['/admin/master']}>
-        <App />
+        <AppRoutes />
       </MemoryRouter>
+
     );
 
     await waitFor(() => {
@@ -113,8 +117,9 @@ describe('Admin/Master Route Protection Integration', () => {
 
     render(
       <MemoryRouter initialEntries={['/admin/master']}>
-        <App />
+        <AppRoutes />
       </MemoryRouter>
+
     );
 
     await waitFor(() => {
