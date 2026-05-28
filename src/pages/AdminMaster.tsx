@@ -28,6 +28,8 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
+
 
 import AdminDashboard from "@/components/admin-dashboard/AdminDashboard";
 import Header from "@/components/Header";
@@ -121,10 +123,11 @@ export default function AdminMaster() {
       setEditingUser(null);
       loadAll();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao salvar");
+      handleError(e, "Erro ao salvar alterações");
     } finally {
       setSavingEdit(false);
     }
+
   }
 
   const [period, setPeriod] = useState<Period>("month");
@@ -148,9 +151,10 @@ export default function AdminMaster() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
-        toast.error("Sessão expirada.");
+        handleError("Sessão expirada. Por favor, entre novamente.");
         return;
       }
+
 
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-users`,
@@ -222,10 +226,11 @@ export default function AdminMaster() {
         newsletter: subsCount ?? 0,
       });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao carregar dados");
+      handleError(e, "Erro ao carregar dados administrativos");
     } finally {
       setLoading(false);
     }
+
   }
 
   async function loadRanking(p: Period, cat: string) {
@@ -297,10 +302,11 @@ export default function AdminMaster() {
       .from("user_roles")
       .insert({ user_id: uid, role: "admin" });
     setBusyId(null);
-    if (error) return toast.error("Erro: " + error.message);
+    if (error) return handleError(error, "Erro ao promover usuário");
     toast.success("Promovido a Admin");
     loadAll();
   }
+
 
   async function promoteToMaster(uid: string) {
     setBusyId(uid);
@@ -308,10 +314,11 @@ export default function AdminMaster() {
       .from("user_roles")
       .insert({ user_id: uid, role: "master" });
     setBusyId(null);
-    if (error) return toast.error("Erro: " + error.message);
+    if (error) return handleError(error, "Erro ao promover usuário");
     toast.success("Promovido a Admin Master");
     loadAll();
   }
+
 
   async function removeAdmin(uid: string) {
     if (uid === user?.id) return toast.error("Você não pode remover a si mesmo.");
@@ -322,10 +329,11 @@ export default function AdminMaster() {
       .eq("user_id", uid)
       .eq("role", "admin");
     setBusyId(null);
-    if (error) return toast.error("Erro: " + error.message);
+    if (error) return handleError(error, "Erro ao remover administrador");
     toast.success("Admin removido");
     loadAll();
   }
+
 
   async function removeMaster(uid: string) {
     if (uid === user?.id) return toast.error("Você não pode remover a si mesmo.");
@@ -337,19 +345,21 @@ export default function AdminMaster() {
       .eq("user_id", uid)
       .eq("role", "master");
     setBusyId(null);
-    if (error) return toast.error("Erro: " + error.message);
+    if (error) return handleError(error, "Erro ao remover administrador master");
     toast.success("Master removido");
     loadAll();
   }
+
 
   async function bootstrapToniLima() {
     setBootstrapping(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
-        toast.error("Sessão expirada.");
+        handleError("Sessão expirada. Por favor, entre novamente.");
         return;
       }
+
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/bootstrap-master`,
         {
@@ -371,10 +381,11 @@ export default function AdminMaster() {
       toast.success("TONI LIMA cadastrado como Admin Master! Senha: Master@2025");
       loadAll();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao cadastrar");
+      handleError(e, "Erro ao cadastrar administrador mestre");
     } finally {
       setBootstrapping(false);
     }
+
   }
 
   if (authLoading || !badgeLoaded) {

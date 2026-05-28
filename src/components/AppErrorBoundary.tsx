@@ -23,12 +23,15 @@ export class AppErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
+    // Here you could send the error to an analytics service like Sentry
   }
 
   private handleReset = () => {
     this.setState({ hasError: false, error: null });
-    window.location.href = "/";
+    // Try to navigate to home instead of full reload first, if that fails, full reload
+    window.location.href = window.location.origin;
   };
+
 
   public render() {
     if (this.state.hasError) {
