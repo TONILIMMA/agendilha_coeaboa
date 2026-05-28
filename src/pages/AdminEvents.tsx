@@ -6,25 +6,26 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
- import {
-   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
- } from "@/components/ui/select";
- import {
-   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
- } from "@/components/ui/tooltip";
- import {
-   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
- } from "@/components/ui/dropdown-menu";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   CalendarDays, Loader2, MessageCircle, Trash2, Search,
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
-   CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp, AlertCircle, ShieldAlert,
+  CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp, AlertCircle, ShieldAlert,
   Phone, Mail, Globe, Info, Send, Star, TrendingUp, BarChart3,
   RotateCcw, LayoutDashboard, Edit, ExternalLink, Eye, History
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
+import { useAppPermissions } from "@/hooks/useAppPermissions";
 
 interface Submission {
   id: string;
@@ -108,7 +109,9 @@ interface Submission {
  }
 
 export default function AdminEvents() {
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { hasPermission, loading: permsLoading } = useAppPermissions();
+  const isAdmin = hasPermission('events.read');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -131,8 +134,8 @@ export default function AdminEvents() {
   }
 
   useEffect(() => {
-    if (isAdmin) fetchAll();
-  }, [isAdmin]);
+    if (hasPermission('events.read')) fetchAll();
+  }, [hasPermission]);
 
   async function handleDelete(id: string) {
     if (!window.confirm("Tem certeza que deseja excluir este evento?")) return;
@@ -146,7 +149,11 @@ export default function AdminEvents() {
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
-    const { error } = await supabase.from("submissions").update({ status: newStatus }).eq("id", id);
+    const { error } = await supabase.from("submissions").update({ 
+      status: newStatus,
+      additional_details: `Status alterado por ${user?.email}`
+    }).eq("id", id);
+    
     if (error) {
       toast.error("Erro ao atualizar status");
     } else {
@@ -156,7 +163,9 @@ export default function AdminEvents() {
   }
 
   async function handleModerationChange(id: string, newModerationStatus: string) {
-    const { error } = await supabase.from("submissions").update({ moderation_status: newModerationStatus }).eq("id", id);
+    const { error } = await supabase.from("submissions").update({ 
+      moderation_status: newModerationStatus 
+    }).eq("id", id);
     if (error) {
       toast.error("Erro ao atualizar moderação");
     } else {
@@ -202,8 +211,8 @@ export default function AdminEvents() {
      return list;
    }, [submissions, statusFilter, categoryFilter, search]);
 
-  if (authLoading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>;
-  if (!user || !isAdmin) return <Navigate to="/" replace />;
+  if (authLoading || permsLoading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+  if (!user || !hasPermission('events.read')) return <Navigate to="/" replace />;
 
   return (
     <div className="min-h-screen bg-muted/30">

@@ -8,7 +8,7 @@ import { SubmissionProvider } from "@/contexts/SubmissionContext";
 import Header from "@/components/Header";
 import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
-import { usePermissions } from "@/hooks/usePermissions";
+import { useAppPermissions, PermissionName } from "@/hooks/useAppPermissions";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 
 
@@ -36,6 +36,7 @@ const ArtistSetup = lazy(() => import("./pages/ArtistSetup"));
 const AdminArtists = lazy(() => import("./pages/AdminArtists"));
 const ArtistFeed = lazy(() => import("./pages/ArtistFeed"));
 const AdminMedia = lazy(() => import("./pages/AdminMedia"));
+const AdminAuditLogs = lazy(() => import("./pages/AdminAuditLogs"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,29 +57,29 @@ const PageFallback = () => (
 
 function ProtectedRoute({ 
   children, 
-  requiredRole 
+  requiredPermission 
 }: { 
   children: React.ReactNode; 
-  requiredRole?: 'admin' | 'promoter' | 'artist' 
+  requiredPermission?: PermissionName
 }) {
-  const { user, loading, isAdmin } = useAuth();
-  const perms = usePermissions();
+  const { user, loading: authLoading } = useAuth();
+  const { hasPermission, loading: permsLoading } = useAppPermissions();
   const location = useLocation();
   
-  if (loading) {
+  if (authLoading || permsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
+  
   if (!user) {
     return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   }
 
-  if (requiredRole && perms.loaded) {
-    if (requiredRole === 'admin' && !isAdmin) return <Navigate to="/agenda" replace />;
-    if (requiredRole === 'promoter' && !perms.canSubmit) return <Navigate to="/agenda" replace />;
+  if (requiredPermission && !hasPermission(requiredPermission)) {
+    return <Navigate to="/agenda" replace />;
   }
 
   return <>{children}</>;
@@ -102,25 +103,28 @@ const AppRoutes = () => (
 
         {/* Administrativas */}
         <Route path="/admin/events" element={
-          <ProtectedRoute requiredRole="promoter"><Header /><AdminEvents /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="events.read"><Header /><AdminEvents /></ProtectedRoute>
         } />
         <Route path="/admin/users" element={
-          <ProtectedRoute requiredRole="admin"><AdminPinGate><Header /><AdminUsers /></AdminPinGate></ProtectedRoute>
+          <ProtectedRoute requiredPermission="users.read"><AdminPinGate><Header /><AdminUsers /></AdminPinGate></ProtectedRoute>
         } />
         <Route path="/admin/collaborators" element={
-          <ProtectedRoute requiredRole="admin"><Header /><AdminCollaborators /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="users.read"><Header /><AdminCollaborators /></ProtectedRoute>
         } />
         <Route path="/admin/master" element={
-          <ProtectedRoute requiredRole="admin"><AdminPinGate><Header /><AdminMaster /></AdminPinGate></ProtectedRoute>
+          <ProtectedRoute requiredPermission="roles.manage"><AdminPinGate><Header /><AdminMaster /></AdminPinGate></ProtectedRoute>
         } />
         <Route path="/admin/newsletter" element={
-          <ProtectedRoute requiredRole="admin"><AdminNewsletter /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="users.read"><AdminNewsletter /></ProtectedRoute>
         } />
         <Route path="/admin/artists" element={
-          <ProtectedRoute requiredRole="admin"><Header /><AdminArtists /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="users.read"><Header /><AdminArtists /></ProtectedRoute>
         } />
         <Route path="/admin/media" element={
-          <ProtectedRoute requiredRole="admin"><Header /><AdminMedia /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="events.read"><Header /><AdminMedia /></ProtectedRoute>
+        } />
+        <Route path="/admin/audit" element={
+          <ProtectedRoute requiredPermission="audit_logs.read"><AdminAuditLogs /></ProtectedRoute>
         } />
         <Route path="/ranking" element={<ProtectedRoute><Header /><Ranking /></ProtectedRoute>} />
 
