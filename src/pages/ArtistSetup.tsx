@@ -23,7 +23,6 @@ import { BasicInfoForm } from "@/components/artist-setup/BasicInfoForm";
 import { PresentationForm } from "@/components/artist-setup/PresentationForm";
 import { SocialLinksForm } from "@/components/artist-setup/SocialLinksForm";
 import { MediaUploadForm } from "@/components/artist-setup/MediaUploadForm";
-import Header from "@/components/Header";
 
 export default function ArtistSetup() {
   const { user } = useAuth();

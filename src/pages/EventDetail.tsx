@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -18,77 +17,10 @@ import { cn } from "@/lib/utils";
 import { getEventFallbackImage } from "@/lib/event-utils";
 
 interface Event {
-  id: string;
-  event_title: string;
-  date: string | null;
-  start_time: string | null;
-  end_time: string | null;
-  location: string | null;
-  address_neighborhood: string | null;
-  address_street: string | null;
-  address_number: string | null;
-  address_city: string | null;
-  description: string | null;
-  category: string | null;
-  image_url: string | null;
-  is_highlight: boolean;
-  slug: string;
-  status: string;
-}
-
-export default function EventDetail() {
-  const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
-  const [event, setEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    async function fetchEvent() {
-      if (!slug) return;
-      setLoading(true);
-      
-      const { data, error } = await supabase
-        .from("submissions")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
-
-      if (error || !data) {
-        console.error("Error fetching event:", error);
-        setError(true);
-      } else {
-        setEvent(data as unknown as Event);
-        // Increment views
-        supabase.rpc('increment_views', { event_id: data.id }).then(({ error }) => {
-          if (error) console.error("Error incrementing views:", error);
-        });
-      }
-      setLoading(false);
-    }
-
-    fetchEvent();
-  }, [slug]);
-
-  const handleShare = () => {
-    if (!event) return;
-    const url = window.location.href;
-    if (navigator.share) {
-      navigator.share({
-        title: event.event_title,
-        text: `Confira este evento no AgendIlha: ${event.event_title}`,
-        url: url
-      });
-    } else {
-      navigator.clipboard.writeText(url);
-      toast.success("Link copiado para a área de transferência!");
-    }
-  };
-
+...
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
           <Skeleton className="h-[400px] w-full rounded-3xl" />
           <div className="space-y-4">
