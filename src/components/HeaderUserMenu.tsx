@@ -182,7 +182,7 @@ interface Props {
         )}
         {status === "master" && (
           <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-            <Link to="/admin/master">
+            <Link to="/master/dashboard">
               <Crown className="h-4 w-4 mr-2" />
               Painel Master
             </Link>
