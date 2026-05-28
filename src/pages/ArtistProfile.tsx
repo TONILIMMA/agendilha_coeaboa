@@ -44,6 +44,7 @@ export default function ArtistProfile() {
   const videos = artist.artist_media?.filter((m: any) => m.media_type === "video") || [];
   const images = artist.artist_media?.filter((m: any) => m.media_type === "image") || [];
 
+  return (
     <div className="min-h-screen bg-background pb-20">
       
       {/* Hero Section */}
