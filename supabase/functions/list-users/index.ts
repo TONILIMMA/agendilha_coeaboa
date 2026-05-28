@@ -34,10 +34,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { data: isAdmin } = await anonClient.rpc("has_role", {
-      _user_id: user.id,
-      _role: "admin",
+    const { data: isAdmin } = await anonClient.rpc("is_admin_or_master", {
+      p_user_id: user.id,
     });
+
 
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
