@@ -308,14 +308,14 @@ export default function AdminUsers() {
           {users.map((u) => (
             <Card key={u.id} className="group hover:shadow-md transition-all duration-300 border-border bg-card overflow-hidden">
               <CardContent className="p-0">
-                <div className="flex flex-col md:flex-row md:items-center p-4 sm:p-6 gap-6">
+                <div className="flex flex-col md:flex-row md:items-center p-4 sm:p-6 gap-6 relative">
                   {/* User Profile Info */}
                   <div className="flex-1 flex gap-4 min-w-0">
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <User className="h-6 w-6 text-primary" />
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0 space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap pr-10 md:pr-0">
                         {editingId === u.id ? (
                           <div className="flex items-center gap-2 w-full max-w-sm">
                             <Input
@@ -325,63 +325,66 @@ export default function AdminUsers() {
                               autoFocus
                               disabled={savingEdit}
                             />
-                            <Button size="sm" onClick={() => saveEdit(u)} disabled={savingEdit}>
-                              {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={cancelEdit} disabled={savingEdit}>
-                              <X className="h-4 w-4" />
-                            </Button>
+                            <div className="flex gap-1 shrink-0">
+                              <Button size="sm" className="h-9 w-9 p-0" onClick={() => saveEdit(u)} disabled={savingEdit}>
+                                {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-9 w-9 p-0" onClick={cancelEdit} disabled={savingEdit}>
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         ) : (
                           <>
-                            <h3 className="text-lg font-bold text-foreground truncate">
-                              {u.responsible_name || <span className="text-muted-foreground italic">Nome não definido</span>}
+                            <h3 className="text-base sm:text-lg font-bold text-foreground truncate max-w-[150px] xs:max-w-none">
+                              {u.responsible_name || <span className="text-muted-foreground italic text-sm">Nome não definido</span>}
                             </h3>
-                            {isMaster && (
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={() => startEdit(u)}
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                              </Button>
-                            )}
-                            {u.status && <StatusBadge role={u.status} />}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {u.status && <StatusBadge role={u.status} />}
+                              {isMaster && (
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-7 w-7 text-muted-foreground opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => startEdit(u)}
+                                >
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                              )}
+                            </div>
                           </>
                         )}
                       </div>
                       
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1.5">
-                          <Phone className="h-3.5 w-3.5" />
+                      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-4 gap-y-1 text-[11px] sm:text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1.5 truncate">
+                          <Phone className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
                           {formatPhone(u.phone)}
                         </span>
-                        <span className="flex items-center gap-1.5">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {u.address_neighborhood || <span className="text-rose-400 font-medium">Bairro não definido</span>}
+                        <span className="flex items-center gap-1.5 truncate">
+                          <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                          {u.address_neighborhood || <span className="text-rose-400 font-medium">Bairro?</span>}
                         </span>
                         {u.musical_preferences && u.musical_preferences.length > 0 && (
-                          <span className="flex items-center gap-1.5">
-                            <Music className="h-3.5 w-3.5" />
-                            {u.musical_preferences.slice(0, 2).join(", ")}
-                            {u.musical_preferences.length > 2 && "..."}
+                          <span className="flex items-center gap-1.5 truncate">
+                            <Music className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                            {u.musical_preferences.slice(0, 1).join(", ")}{u.musical_preferences.length > 1 && "..."}
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-mono">
-                        UID: {u.id.slice(0, 8)}... • Desde {new Date(u.created_at).toLocaleDateString("pt-BR")}
+                      <p className="text-[9px] sm:text-[10px] text-muted-foreground/60 uppercase tracking-widest font-mono pt-1">
+                        UID: {u.id.slice(0, 6)}... • {new Date(u.created_at).toLocaleDateString("pt-BR")}
                       </p>
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-2 justify-end shrink-0">
+                  {/* Desktop Actions */}
+                  <div className="hidden md:flex items-center gap-2 justify-end shrink-0">
                     <Button
                       size="sm"
                       variant={u.is_admin ? "destructive" : "outline"}
                       disabled={toggling === u.id || u.id === user?.id}
-                      className="rounded-full px-4 h-9 font-bold"
+                      className="rounded-full px-4 h-9 font-bold text-xs"
                       onClick={() => setShowAdminConfirm(u)}
                     >
                       {toggling === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.is_admin ? "Remover Admin" : "Tornar Admin"}
@@ -392,7 +395,7 @@ export default function AdminUsers() {
                         size="sm"
                         variant={u.status === "master" ? "destructive" : "secondary"}
                         disabled={togglingMaster === u.id || u.id === user?.id}
-                        className="rounded-full px-4 h-9 font-bold"
+                        className="rounded-full px-4 h-9 font-bold text-xs"
                         onClick={() => setShowMasterConfirm(u)}
                       >
                         {togglingMaster === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.status === "master" ? "Remover Master" : "Tornar Master"}
@@ -408,6 +411,31 @@ export default function AdminUsers() {
                     >
                       {deleting === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     </Button>
+                  </div>
+
+                  {/* Mobile Mobile Action Trigger (Dropdown style) */}
+                  <div className="md:hidden absolute top-4 right-4">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full">
+                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuItem onClick={() => setShowAdminConfirm(u)} disabled={u.id === user?.id}>
+                          {u.is_admin ? "Remover Admin" : "Tornar Admin"}
+                        </DropdownMenuItem>
+                        {isMaster && (
+                          <DropdownMenuItem onClick={() => setShowMasterConfirm(u)} disabled={u.id === user?.id}>
+                            {u.status === "master" ? "Remover Master" : "Tornar Master"}
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => setShowDeleteConfirm(u)} disabled={u.id === user?.id} className="text-rose-600 font-bold">
+                          Excluir Usuário
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </CardContent>
