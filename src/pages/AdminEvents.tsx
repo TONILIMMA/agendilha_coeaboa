@@ -20,7 +20,7 @@ import {
   FileDown, SlidersHorizontal, MapPin, Clock, Building2,
   CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp, AlertCircle, ShieldAlert,
   Phone, Mail, Globe, Info, Send, Star, TrendingUp, BarChart3,
-  RotateCcw, LayoutDashboard, Edit, ExternalLink, Eye, History
+  RotateCcw, LayoutDashboard, Edit, ExternalLink, Eye, History, Megaphone, Copy, Share2
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
