@@ -103,7 +103,7 @@ export default function Landing() {
      queryFn: async ({ pageParam = 0 }) => {
        const { data, error } = await supabase
          .from("submissions")
-         .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, is_highlight, atrativo_style")
+         .select("id, event_title, date, start_time, end_time, location, address_street, address_neighborhood, category, image_url, is_highlight, atrativo_style, description, age_rating, is_suitable_for_minors")
          .eq('status', 'published')
          .order('date', { ascending: true })
          .range(pageParam, pageParam + 9);
