@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAppPermissions as usePermissions } from "@/hooks/usePermissions";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +12,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Shield, Edit2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Shield, Edit2, UserCheck, ShieldCheck, Mail, Phone, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { cn } from "@/lib/utils";
 
 interface Collaborator {
   id: string;
@@ -52,7 +57,6 @@ export default function AdminCollaborators() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  // Load available users for reference
   const [availableUsers, setAvailableUsers] = useState<{ id: string; phone: string; name: string }[]>([]);
 
   async function fetchCollaborators() {
@@ -85,7 +89,7 @@ export default function AdminCollaborators() {
       fetchCollaborators();
       fetchUsers();
     }
-  }, [isAdmin]);
+  }, [isAdmin, hasAccess]);
 
   function openNewDialog() {
     setEditingId(null);
@@ -168,14 +172,7 @@ export default function AdminCollaborators() {
     }
   }
 
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
+  if (authLoading) return <LoadingState fullPage message="Carregando..." />;
   if (!user || !hasAccess) return <Navigate to="/" replace />;
 
   const permissionLabels = [
@@ -186,134 +183,80 @@ export default function AdminCollaborators() {
   ] as const;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <Shield className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-display font-bold text-foreground">Colaboradores</h1>
-          <Badge variant="secondary" className="text-xs">{collaborators.length}</Badge>
-        </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={openNewDialog}>
-              <Plus className="h-4 w-4 mr-1" />
-              Novo Colaborador
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>{editingId ? "Editar Colaborador" : "Novo Colaborador"}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Usuário cadastrado</Label>
-                <select
-                  className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  value={form.user_id}
-                  onChange={(e) => {
-                    const uid = e.target.value;
-                    setForm(prev => ({ ...prev, user_id: uid }));
-                    const found = availableUsers.find(u => u.id === uid);
-                    if (found && !form.name) {
-                      setForm(prev => ({ ...prev, name: found.name }));
-                    }
-                  }}
-                >
-                  <option value="">Selecione um usuário</option>
-                  {availableUsers.map(u => (
-                    <option key={u.id} value={u.id}>
-                      {u.name} {u.phone ? `(${u.phone})` : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label>Nome</Label>
-                  <Input value={form.name} onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Função</Label>
-                  <Input value={form.role_title} onChange={(e) => setForm(prev => ({ ...prev, role_title: e.target.value }))} placeholder="Ex: Coordenador" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>E-mail (opcional)</Label>
-                <Input type="email" value={form.email} onChange={(e) => setForm(prev => ({ ...prev, email: e.target.value }))} />
-              </div>
-              <div className="space-y-3">
-                <Label className="font-semibold">Permissões</Label>
-                {permissionLabels.map(({ key, label, icon }) => (
-                  <div key={key} className="flex items-center gap-3">
-                    <Checkbox
-                      checked={form[key]}
-                      onCheckedChange={(checked) => setForm(prev => ({ ...prev, [key]: !!checked }))}
-                    />
-                    <span className="text-sm">{icon} {label}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center gap-3 pt-2 border-t border-border">
-                <Checkbox
-                  checked={form.is_active}
-                  onCheckedChange={(checked) => setForm(prev => ({ ...prev, is_active: !!checked }))}
-                />
-                <span className="text-sm font-medium">✅ Colaborador ativo</span>
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline" size="sm">Cancelar</Button>
-              </DialogClose>
-              <Button size="sm" onClick={handleSave} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
-                {editingId ? "Salvar" : "Adicionar"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+    <div className="space-y-8 max-w-5xl mx-auto">
+      <SectionHeader 
+        title="Colaboradores" 
+        subtitle="Gerencie os membros da equipe e suas permissões operacionais no AgendIlha."
+        rightElement={
+          <Button size="sm" onClick={openNewDialog} className="rounded-full px-6 font-bold shadow-sm">
+            <Plus className="h-4 w-4 mr-1.5" />
+            Adicionar Colaborador
+          </Button>
+        }
+      />
 
       {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+        <LoadingState message="Buscando colaboradores..." />
       ) : collaborators.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <Users className="h-12 w-12 text-muted-foreground/40 mb-3" />
-          <p className="text-muted-foreground text-sm">Nenhum colaborador cadastrado.</p>
-          <p className="text-muted-foreground text-xs mt-1">Adicione colaboradores para gerenciar permissões de eventos.</p>
-        </div>
+        <EmptyState 
+          icon={UserCheck}
+          title="Nenhum colaborador cadastrado"
+          description="Você ainda não adicionou membros à sua equipe de moderação."
+          actionLabel="Adicionar agora"
+          onAction={openNewDialog}
+        />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-4">
           {collaborators.map((collab) => (
-            <Card key={collab.id} className="border-border">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-display font-semibold text-foreground">{collab.name}</h3>
-                      <Badge variant="outline" className="text-xs">{collab.role_title}</Badge>
-                      <Badge variant={collab.is_active ? "default" : "secondary"} className="text-xs">
-                        {collab.is_active ? "Ativo" : "Inativo"}
-                      </Badge>
+            <Card key={collab.id} className="group hover:shadow-md transition-all border-border overflow-hidden">
+              <CardContent className="p-0">
+                <div className="flex flex-col md:flex-row md:items-center p-5 gap-6">
+                  <div className="flex-1 flex items-center gap-4">
+                    <div className={cn(
+                      "h-12 w-12 rounded-full flex items-center justify-center shrink-0 border-2",
+                      collab.is_active ? "bg-primary/5 border-primary/20 text-primary" : "bg-muted border-muted-foreground/20 text-muted-foreground"
+                    )}>
+                      <Shield className="h-6 w-6" />
                     </div>
-                    {collab.email && <p className="text-xs text-muted-foreground">{collab.email}</p>}
-                    <p className="text-[10px] text-muted-foreground">
-                      Cadastrado em {new Date(collab.created_at).toLocaleDateString("pt-BR")}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {collab.can_submit && <Badge variant="secondary" className="text-xs">📤 Enviar</Badge>}
-                      {collab.can_approve && <Badge variant="secondary" className="text-xs">✅ Liberar</Badge>}
-                      {collab.can_edit && <Badge variant="secondary" className="text-xs">✏️ Editar</Badge>}
-                      {collab.can_delete && <Badge variant="secondary" className="text-xs">🗑️ Excluir</Badge>}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-bold text-lg text-foreground">{collab.name}</h3>
+                        <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest px-2 py-0 border-primary/30 text-primary bg-primary/5">
+                          {collab.role_title}
+                        </Badge>
+                        {!collab.is_active && (
+                          <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-widest px-2 py-0">Inativo</Badge>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-muted-foreground mt-1">
+                        {collab.email && (
+                          <span className="flex items-center gap-1.5">
+                            <Mail className="h-3.5 w-3.5" />
+                            {collab.email}
+                          </span>
+                        )}
+                        <span className="text-[10px] uppercase tracking-widest font-mono opacity-60">
+                          ID: {collab.user_id.slice(0, 8)}...
+                        </span>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {permissionLabels.map(({ key, label }) => (
+                          collab[key] && (
+                            <Badge key={key} variant="secondary" className="text-[10px] font-medium bg-muted/50 text-muted-foreground border-none">
+                              {label}
+                            </Badge>
+                          )
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => openEditDialog(collab)} className="h-8 w-8">
+
+                  <div className="flex items-center gap-2 justify-end shrink-0">
+                    <Button size="icon" variant="ghost" onClick={() => openEditDialog(collab)} className="h-9 w-9 rounded-full">
                       <Edit2 className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => handleDelete(collab.id)} className="h-8 w-8 text-destructive hover:text-destructive">
+                    <Button size="icon" variant="ghost" onClick={() => handleDelete(collab.id)} className="h-9 w-9 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-full">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -323,6 +266,87 @@ export default function AdminCollaborators() {
           ))}
         </div>
       )}
+
+      {/* Unified Modal for Create/Edit */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-3xl border-none shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black uppercase tracking-tight">
+              {editingId ? "Editar Colaborador" : "Novo Colaborador"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest opacity-70">Vincular a Usuário</Label>
+              <select
+                className="w-full h-11 rounded-xl border border-input bg-background px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                value={form.user_id}
+                onChange={(e) => {
+                  const uid = e.target.value;
+                  setForm(prev => ({ ...prev, user_id: uid }));
+                  const found = availableUsers.find(u => u.id === uid);
+                  if (found && !form.name) {
+                    setForm(prev => ({ ...prev, name: found.name }));
+                  }
+                }}
+              >
+                <option value="">Selecione um usuário...</option>
+                {availableUsers.map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} {u.phone ? `(${u.phone})` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-widest opacity-70">Nome de Exibição</Label>
+                <Input className="h-11 rounded-xl" value={form.name} onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-widest opacity-70">Título / Cargo</Label>
+                <Input className="h-11 rounded-xl" value={form.role_title} onChange={(e) => setForm(prev => ({ ...prev, role_title: e.target.value }))} placeholder="Ex: Moderador" />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-xs font-bold uppercase tracking-widest opacity-70">Permissões de Acesso</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-muted/30 p-4 rounded-2xl border border-border/50">
+                {permissionLabels.map(({ key, label }) => (
+                  <div key={key} className="flex items-center gap-3">
+                    <Checkbox
+                      id={`perm-${key}`}
+                      checked={form[key]}
+                      onCheckedChange={(checked) => setForm(prev => ({ ...prev, [key]: !!checked }))}
+                      className="rounded-md"
+                    />
+                    <label htmlFor={`perm-${key}`} className="text-sm font-medium cursor-pointer select-none">{label}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-2xl border border-primary/10">
+              <Checkbox
+                id="is_active"
+                checked={form.is_active}
+                onCheckedChange={(checked) => setForm(prev => ({ ...prev, is_active: !!checked }))}
+              />
+              <label htmlFor="is_active" className="text-sm font-bold text-primary cursor-pointer select-none">Colaborador em atividade (Ativo)</label>
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <DialogClose asChild>
+              <Button variant="ghost" className="rounded-full font-bold">Cancelar</Button>
+            </DialogClose>
+            <Button className="rounded-full px-8 font-bold shadow-lg shadow-primary/20" onClick={handleSave} disabled={saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {editingId ? "Salvar Alterações" : "Criar Colaborador"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

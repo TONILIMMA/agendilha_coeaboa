@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useLocation, Outlet } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,7 +10,7 @@ import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
 import { useAppPermissions, PermissionName } from "@/hooks/usePermissions";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
-import { AdminLayout } from "@/components/AdminLayout";
+import { AppShell } from "@/components/layout/AppShell";
 import { handleError } from "@/lib/error-handler";
 
 
@@ -123,51 +123,43 @@ export const AppRoutes = () => (
       <Routes>
         {/* Públicas */}
         <Route path="/" element={<Landing />} />
-        <Route path="/agenda" element={<><Header /><AgendaCultural /></>} />
-        <Route path="/artistas" element={<><Header /><ArtistFeed /></>} />
-        <Route path="/auth" element={<><Header /><Auth /></>} />
+        
+        {/* App Wrapper for standard pages */}
+        <Route element={<AppShell maxWidth="md"><Outlet /></AppShell>}>
+          <Route path="/agenda" element={<AgendaCultural />} />
+          <Route path="/artistas" element={<ArtistFeed />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/configurar-artista" element={<ProtectedRoute><ArtistSetup /></ProtectedRoute>} />
+          <Route path="/enviar-evento" element={<ProtectedRoute><SubmitEvent /></ProtectedRoute>} />
+          <Route path="/eventos" element={<ProtectedRoute><Eventos /></ProtectedRoute>} />
+        </Route>
+
+        {/* Full width detail pages */}
+        <Route element={<AppShell maxWidth="lg"><Outlet /></AppShell>}>
+          <Route path="/artista/:id" element={<ArtistProfile />} />
+          <Route path="/evento/:slug" element={<EventDetail />} />
+        </Route>
+
+        {/* Admin/Master Pages - Full sidebar integration */}
+        <Route element={<ProtectedRoute><AppShell showSidebar={true} maxWidth="xl"><Outlet /></AppShell></ProtectedRoute>}>
+          <Route path="/admin/events" element={<AdminEvents />} />
+          <Route path="/admin/users" element={<AdminPinGate><AdminUsers /></AdminPinGate>} />
+          <Route path="/admin/collaborators" element={<AdminCollaborators />} />
+          <Route path="/admin/master" element={<AdminPinGate><AdminMaster /></AdminPinGate>} />
+          <Route path="/admin/newsletter" element={<AdminNewsletter />} />
+          <Route path="/admin/artists" element={<AdminArtists />} />
+          <Route path="/admin/media" element={<AdminMedia />} />
+          <Route path="/admin/audit" element={<AdminAuditLogs />} />
+          <Route path="/ranking" element={<Ranking />} />
+        </Route>
+
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/artista/:id" element={<ArtistProfile />} />
-        <Route path="/evento/:slug" element={<EventDetail />} />
-
-        {/* Envio de Evento / Artista */}
-        <Route path="/configurar-artista" element={<ProtectedRoute><Header /><ArtistSetup /></ProtectedRoute>} />
-        <Route path="/enviar-evento" element={<ProtectedRoute><Header /><SubmitEvent /></ProtectedRoute>} />
-
-        {/* Administrativas */}
-        <Route path="/admin/events" element={
-          <ProtectedRoute requiredPermission="events.read"><AdminLayout><AdminEvents /></AdminLayout></ProtectedRoute>
-        } />
-        <Route path="/admin/users" element={
-          <ProtectedRoute requiredPermission="users.read"><AdminPinGate><AdminLayout><AdminUsers /></AdminLayout></AdminPinGate></ProtectedRoute>
-        } />
-        <Route path="/admin/collaborators" element={
-          <ProtectedRoute requiredPermission="users.read"><AdminLayout><AdminCollaborators /></AdminLayout></ProtectedRoute>
-        } />
-        <Route path="/admin/master" element={
-          <ProtectedRoute masterOnly={true} requiredPermission="roles.manage"><AdminPinGate><AdminLayout><AdminMaster /></AdminLayout></AdminPinGate></ProtectedRoute>
-        } />
-        <Route path="/admin/newsletter" element={
-          <ProtectedRoute requiredPermission="users.read"><AdminLayout><AdminNewsletter /></AdminLayout></ProtectedRoute>
-        } />
-        <Route path="/admin/artists" element={
-          <ProtectedRoute requiredPermission="users.read"><AdminLayout><AdminArtists /></AdminLayout></ProtectedRoute>
-        } />
-        <Route path="/admin/media" element={
-          <ProtectedRoute requiredPermission="events.read"><AdminLayout><AdminMedia /></AdminLayout></ProtectedRoute>
-        } />
-        <Route path="/admin/audit" element={
-          <ProtectedRoute masterOnly={true} requiredPermission="audit_logs.read"><AdminLayout><AdminAuditLogs /></AdminLayout></ProtectedRoute>
-        } />
-        <Route path="/ranking" element={<ProtectedRoute><AdminLayout><Ranking /></AdminLayout></ProtectedRoute>} />
-
-        {/* Auxiliares / Legado */}
         <Route path="/coeaboa" element={<Navigate to="/agenda" replace />} />
         <Route path="/lp" element={<Navigate to="/" replace />} />
-        <Route path="/eventos" element={<ProtectedRoute><Header /><Eventos /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
+
   </SubmissionProvider>
 );
 

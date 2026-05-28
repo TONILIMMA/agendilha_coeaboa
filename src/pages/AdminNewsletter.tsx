@@ -21,9 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Search, Download, Mail } from "lucide-react";
+import { Loader2, Search, Download, Mail, Filter } from "lucide-react";
 import { toast } from "sonner";
-import Header from "@/components/Header";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function AdminNewsletter() {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -59,15 +61,6 @@ export default function AdminNewsletter() {
     return Array.from(set).sort();
   }, [subscribers]);
 
-  const stats = useMemo(() => {
-    const neighborhoodCounts: Record<string, number> = {};
-    subscribers.forEach(s => {
-      const n = s.neighborhood || "Não informado";
-      neighborhoodCounts[n] = (neighborhoodCounts[n] || 0) + 1;
-    });
-    return neighborhoodCounts;
-  }, [subscribers]);
-
   const filtered = useMemo(() => {
     return subscribers.filter(s => {
       const matchSearch = (s.name || "").toLowerCase().includes(search.toLowerCase()) || 
@@ -100,110 +93,101 @@ export default function AdminNewsletter() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success("CSV exportado com sucesso!");
+    toast.success("Exportação concluída!");
   };
 
-  if (authLoading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+  if (authLoading) return <LoadingState fullPage message="Carregando..." />;
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
-
   return (
-    <div className="pb-20 animate-fade-in">
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-black font-display text-foreground flex items-center gap-2">
-              <Mail className="h-8 w-8 text-primary" />
-              Inscritos Newsletter
-            </h1>
-            <p className="text-muted-foreground font-medium">Controle de público e alcance por bairro.</p>
-          </div>
-          <Button onClick={exportToCSV} className="rounded-full font-bold h-12 px-8 gradient-sunset shadow-lg">
-            <Download className="h-4 w-4 mr-2" /> Exportar CSV
+    <div className="space-y-8 max-w-6xl mx-auto">
+      <SectionHeader 
+        title="Inscritos na Newsletter" 
+        subtitle="Base de dados de contatos interessados em receber a agenda cultural."
+        rightElement={
+          <Button 
+            onClick={exportToCSV} 
+            variant="outline" 
+            className="rounded-full gap-2 border-primary/20 text-primary hover:bg-primary/5 font-bold"
+          >
+            <Download className="h-4 w-4" /> Exportar CSV
           </Button>
-        </div>
+        }
+      />
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
-          {Object.entries(stats).sort((a, b) => b[1] - a[1]).map(([n, count]) => (
-            <Card key={n} className="border-none shadow-sm bg-white overflow-hidden">
-              <CardContent className="p-4">
-                <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest truncate" title={n}>{n}</p>
-                <p className="text-2xl font-black text-primary mt-1">{count}</p>
-              </CardContent>
-            </Card>
-          ))}
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-muted/30 p-4 rounded-2xl border border-border/50">
+        <div className="relative w-full md:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nome ou e-mail..."
+            className="pl-10 h-11 rounded-xl bg-background"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-border shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-center">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar por nome ou e-mail..." 
-              className="pl-10 h-12 bg-muted/30 border-none rounded-xl"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-          <div className="w-full md:w-64">
-            <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
-              <SelectTrigger className="h-12 bg-muted/30 border-none rounded-xl">
-                <SelectValue placeholder="Filtrar por bairro" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os Bairros</SelectItem>
-                {neighborhoods.map(n => (
-                  <SelectItem key={n} value={n}>{n}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <Filter className="h-4 w-4 text-muted-foreground hidden sm:block" />
+          <Select value={neighborhoodFilter} onValueChange={setNeighborhoodFilter}>
+            <SelectTrigger className="w-full md:w-[200px] h-11 rounded-xl bg-background">
+              <SelectValue placeholder="Bairro" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Bairros</SelectItem>
+              {neighborhoods.map(n => (
+                <SelectItem key={n} value={n}>{n}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+      </div>
 
-        <Card className="border-border shadow-sm overflow-hidden rounded-2xl">
+      {loading ? (
+        <LoadingState message="Buscando lista de inscritos..." />
+      ) : filtered.length === 0 ? (
+        <EmptyState 
+          icon={Mail}
+          title="Nenhum inscrito encontrado"
+          description="A base de newsletter está vazia ou os filtros aplicados não retornaram resultados."
+        />
+      ) : (
+        <Card className="border-border overflow-hidden rounded-2xl shadow-sm">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader className="bg-muted/20">
+              <TableHeader className="bg-muted/50">
                 <TableRow>
-                  <TableHead className="font-bold uppercase text-[10px] tracking-widest">Nome</TableHead>
-                  <TableHead className="font-bold uppercase text-[10px] tracking-widest">E-mail</TableHead>
-                  <TableHead className="font-bold uppercase text-[10px] tracking-widest">Bairro</TableHead>
-                  <TableHead className="font-bold uppercase text-[10px] tracking-widest text-right">Inscrição</TableHead>
+                  <TableHead className="font-bold uppercase text-[10px] tracking-widest py-4">Inscrito</TableHead>
+                  <TableHead className="font-bold uppercase text-[10px] tracking-widest py-4">E-mail</TableHead>
+                  <TableHead className="font-bold uppercase text-[10px] tracking-widest py-4">Bairro</TableHead>
+                  <TableHead className="font-bold uppercase text-[10px] tracking-widest py-4">Inscrição</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="h-32 text-center">
-                      <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+                {filtered.map((subscriber) => (
+                  <TableRow key={subscriber.id} className="hover:bg-muted/30 transition-colors border-border">
+                    <TableCell className="font-medium py-4">
+                      {subscriber.name || <span className="text-muted-foreground italic">Não informado</span>}
                     </TableCell>
-                  </TableRow>
-                ) : filtered.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
-                      Nenhum inscrito encontrado.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filtered.map((s) => (
-                    <TableRow key={s.id} className="hover:bg-muted/5 transition-colors">
-                      <TableCell className="font-bold text-sm">{s.name || "—"}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{s.email}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="bg-primary/5 text-primary border-none text-[10px] font-bold">
-                          {s.neighborhood || "—"}
+                    <TableCell className="py-4 font-mono text-xs">{subscriber.email}</TableCell>
+                    <TableCell className="py-4">
+                      {subscriber.neighborhood ? (
+                        <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest bg-muted/50 border-none">
+                          {subscriber.neighborhood}
                         </Badge>
-                      </TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground">
-                        {new Date(s.created_at).toLocaleDateString("pt-BR")}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
+                      ) : (
+                        <span className="text-muted-foreground italic text-xs">Não informado</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs py-4">
+                      {new Date(subscriber.created_at).toLocaleDateString("pt-BR")}
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
         </Card>
-      </div>
+      )}
     </div>
   );
 }

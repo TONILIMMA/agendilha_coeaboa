@@ -3,8 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,8 +17,14 @@ import {
 import { ShieldCheck, ShieldOff, Loader2, Users, Phone, User, Trash2, Pencil, Check, X, Crown, MapPin, Music } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
-type UserStatus = "master" | "admin" | "collaborator" | "user";
+type UserStatus = "master" | "admin" | "collaborator" | "user" | "artist";
 
 interface UserWithRole {
   id: string;
@@ -35,22 +39,8 @@ interface UserWithRole {
   musical_preferences?: string[] | null;
 }
 
-const statusLabel: Record<UserStatus, string> = {
-  master: "Admin Master",
-  admin: "Admin",
-  collaborator: "Divulgador",
-  user: "Divulgador",
-};
-
-const statusBadgeClass: Record<UserStatus, string> = {
-  master: "bg-secondary/15 text-secondary border-secondary/40",
-  admin: "bg-primary/10 text-primary border-primary/30",
-  collaborator: "bg-muted text-foreground/80 border-border",
-  user: "bg-muted text-foreground/80 border-border",
-};
-
 function formatPhone(phone: string | null): string {
-  if (!phone) return "—";
+  if (!phone) return "Não informado";
   const digits = phone.replace(/\D/g, "");
   if (digits.length === 13 && digits.startsWith("55")) {
     const ddd = digits.slice(2, 4);
@@ -131,7 +121,6 @@ export default function AdminUsers() {
     }
     setSavingEdit(false);
   }
-
 
   async function fetchUsers() {
     setLoading(true);
@@ -284,207 +273,201 @@ export default function AdminUsers() {
     setDeleting(null);
   }
 
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
+  if (authLoading) return <LoadingState fullPage message="Verificando permissões..." />;
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className="mx-auto max-w-4xl px-2 sm:px-4 py-4 sm:py-8">
-      <Card className="border-border shadow-lg">
-        <CardHeader className="flex flex-row items-center gap-3 px-3 sm:px-6">
-          <Users className="h-6 w-6 text-primary" />
-          <CardTitle className="text-lg sm:text-xl font-display">Gerenciar Usuários</CardTitle>
-        </CardHeader>
-        <CardContent className="px-2 sm:px-6">
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : users.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">Nenhum usuário encontrado</p>
-          ) : (
-            <div className="space-y-3 sm:space-y-0 sm:divide-y sm:divide-border">
-              {users.map((u) => (
-                <div
-                  key={u.id}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 p-3 sm:py-3 sm:px-0 rounded-lg sm:rounded-none bg-muted/30 sm:bg-transparent"
-                >
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <User className="h-4 w-4 text-muted-foreground shrink-0" />
-                      {editingId === u.id ? (
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                          <Input
-                            value={editName}
-                            onChange={(e) => setEditName(e.target.value)}
-                            placeholder="Nome do usuário"
-                            className="h-8 text-sm"
-                            autoFocus
-                            disabled={savingEdit}
-                          />
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-primary"
-                            disabled={savingEdit}
-                            onClick={() => saveEdit(u)}
-                            aria-label="Salvar nome"
-                          >
-                            {savingEdit ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-4 w-4" />}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-muted-foreground"
-                            disabled={savingEdit}
-                            onClick={cancelEdit}
-                            aria-label="Cancelar edição"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <>
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {u.responsible_name || "Sem nome"}
-                          </p>
-                          {isMaster && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-                              onClick={() => startEdit(u)}
-                              aria-label="Editar nome"
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
+    <div className="space-y-8 max-w-5xl mx-auto">
+      <SectionHeader 
+        title="Gestão de Usuários" 
+        subtitle="Controle de acessos, papéis administrativos e moderação da comunidade."
+        rightElement={
+          <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-full border border-border">
+            <Users className="h-4 w-4 text-primary" />
+            <span className="text-sm font-bold">{users.length} usuários</span>
+          </div>
+        }
+      />
+
+      {loading ? (
+        <LoadingState message="Carregando lista de usuários..." />
+      ) : users.length === 0 ? (
+        <EmptyState 
+          icon={Users}
+          title="Nenhum usuário encontrado"
+          description="Ainda não há usuários cadastrados ou houve um erro na busca."
+          actionLabel="Recarregar"
+          onAction={() => fetchUsers()}
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {users.map((u) => (
+            <Card key={u.id} className="group hover:shadow-md transition-all duration-300 border-border bg-card overflow-hidden">
+              <CardContent className="p-0">
+                <div className="flex flex-col md:flex-row md:items-center p-4 sm:p-6 gap-6">
+                  {/* User Profile Info */}
+                  <div className="flex-1 flex gap-4 min-w-0">
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <User className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {editingId === u.id ? (
+                          <div className="flex items-center gap-2 w-full max-w-sm">
+                            <Input
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              className="h-9"
+                              autoFocus
+                              disabled={savingEdit}
+                            />
+                            <Button size="sm" onClick={() => saveEdit(u)} disabled={savingEdit}>
+                              {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                             </Button>
-                          )}
-                          {u.status && (
-                            <Badge className={`text-xs shrink-0 ${statusBadgeClass[u.status]}`}>
-                              {statusLabel[u.status]}
-                            </Badge>
-                          )}
-                        </>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <p className="text-sm text-muted-foreground">
-                        {formatPhone(u.phone)}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 pl-6">
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {u.address_neighborhood || "Bairro não definido"}
-                      </p>
-                      {u.musical_preferences && u.musical_preferences.length > 0 && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Music className="h-3 w-3" /> {u.musical_preferences.join(", ")}
-                        </p>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        Cadastro: {new Date(u.created_at).toLocaleDateString("pt-BR")}
+                            <Button size="sm" variant="ghost" onClick={cancelEdit} disabled={savingEdit}>
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <h3 className="text-lg font-bold text-foreground truncate">
+                              {u.responsible_name || <span className="text-muted-foreground italic">Nome não definido</span>}
+                            </h3>
+                            {isMaster && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => startEdit(u)}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                            {u.status && <StatusBadge role={u.status} />}
+                          </>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 items-center text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1.5">
+                          <Phone className="h-3.5 w-3.5" />
+                          {formatPhone(u.phone)}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {u.address_neighborhood || <span className="text-rose-400 font-medium">Bairro não definido</span>}
+                        </span>
+                        {u.musical_preferences && u.musical_preferences.length > 0 && (
+                          <span className="flex items-center gap-1.5">
+                            <Music className="h-3.5 w-3.5" />
+                            {u.musical_preferences.slice(0, 2).join(", ")}
+                            {u.musical_preferences.length > 2 && "..."}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-mono">
+                        UID: {u.id.slice(0, 8)}... • Desde {new Date(u.created_at).toLocaleDateString("pt-BR")}
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-2 justify-end">
-                    <Button
-                      size="sm"
-                      variant={u.is_admin ? "destructive" : "outline"}
-                      disabled={toggling === u.id || u.id === user?.id}
-                      onClick={() => toggleAdmin(u)}
-                      className="text-xs min-h-[44px] sm:min-h-0"
-                    >
-                      {toggling === u.id ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : u.is_admin ? (
-                        <>
-                          <ShieldOff className="h-3.5 w-3.5 mr-1" />
-                          Remover Admin
-                        </>
-                      ) : (
-                        <>
-                          <ShieldCheck className="h-3.5 w-3.5 mr-1" />
-                          Tornar Admin
-                        </>
-                      )}
-                    </Button>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 justify-end shrink-0">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant={u.is_admin ? "destructive" : "outline"}
+                          disabled={toggling === u.id || u.id === user?.id}
+                          className="rounded-full px-4 h-9 font-bold"
+                        >
+                          {toggling === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.is_admin ? "Remover Admin" : "Tornar Admin"}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="rounded-3xl">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Confirmar alteração?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Deseja mesmo {u.is_admin ? "remover" : "conceder"} o papel de administrador para {u.responsible_name || u.email}?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="rounded-full">Cancelar</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => toggleAdmin(u)}
+                            className={cn("rounded-full", u.is_admin ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : "bg-primary text-primary-foreground")}
+                          >
+                            Confirmar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
 
                     {isMaster && (
-                      <Button
-                        size="sm"
-                        variant={u.status === "master" ? "destructive" : "secondary"}
-                        disabled={togglingMaster === u.id || u.id === user?.id}
-                        onClick={() => toggleMaster(u)}
-                        className="text-xs min-h-[44px] sm:min-h-0"
-                      >
-                        {togglingMaster === u.id ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : u.status === "master" ? (
-                          <>
-                            <ShieldOff className="h-3.5 w-3.5 mr-1" />
-                            Remover Master
-                          </>
-                        ) : (
-                          <>
-                            <Crown className="h-3.5 w-3.5 mr-1" />
-                            Tornar Master
-                          </>
-                        )}
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant={u.status === "master" ? "destructive" : "secondary"}
+                            disabled={togglingMaster === u.id || u.id === user?.id}
+                            className="rounded-full px-4 h-9 font-bold"
+                          >
+                            {togglingMaster === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.status === "master" ? "Remover Master" : "Tornar Master"}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="rounded-3xl">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Controle Master</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Deseja mesmo {u.status === "master" ? "remover" : "conceder"} acesso Admin Master para {u.responsible_name || u.email}? Esta é a permissão máxima do sistema.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="rounded-full">Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => toggleMaster(u)} className="rounded-full">
+                              Confirmar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     )}
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
-                          size="sm"
-                          variant="destructive"
+                          size="icon"
+                          variant="ghost"
                           disabled={u.id === user?.id || deleting === u.id}
-                          className="text-xs min-h-[44px] sm:min-h-0"
+                          className="h-9 w-9 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-full"
                         >
-                          {deleting === u.id ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <>
-                              <Trash2 className="h-3.5 w-3.5 mr-1" />
-                              Excluir
-                            </>
-                          )}
+                          {deleting === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent className="rounded-3xl">
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Excluir usuário?</AlertDialogTitle>
+                          <AlertDialogTitle className="text-rose-600">Excluir Usuário?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Tem certeza que deseja excluir{" "}
-                            <strong>{u.responsible_name || u.email}</strong>? Esta ação é irreversível
-                            e todos os dados do usuário serão removidos.
+                            Esta ação é IRREVERSÍVEL. Todos os dados associados a este usuário serão removidos.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => deleteUser(u)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          <AlertDialogCancel className="rounded-full">Cancelar</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => deleteUser(u)} 
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
                           >
-                            Excluir
+                            Excluir Permanentemente
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
