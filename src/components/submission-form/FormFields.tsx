@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, X } from "lucide-react";
 import { useRef, useState, useCallback } from "react";
+import { toast } from "sonner";
+
 
 interface ViaCepData {
   logradouro?: string;
@@ -102,7 +104,15 @@ export function FileUpload({ label, accept, file, onFileChange, required }: File
           type="file"
           accept={accept}
           className="hidden"
-          onChange={(e) => onFileChange(e.target.files?.[0] || null)}
+          onChange={(e) => {
+            const selectedFile = e.target.files?.[0];
+            if (selectedFile && selectedFile.size > 5 * 1024 * 1024) {
+              toast.error("Arquivo muito grande", { description: "O limite é de 5MB" });
+              return;
+            }
+            onFileChange(selectedFile || null);
+          }}
+
         />
       </div>
     </div>
