@@ -232,8 +232,11 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-white/95 backdrop-blur-xl transition-all duration-300 shadow-sm">
           <div className="mx-auto flex h-16 sm:h-18 max-w-5xl items-center justify-between px-4 sm:px-6 gap-2">
             <div className="flex items-center gap-2">
-              {/* Mobile Menu Trigger for Agenda */}
-              <div className="flex md:hidden items-center">
+              {/* Mobile Menu Trigger for Agenda - Always show for Master/Admin for quick navigation */}
+              <div className={cn(
+                "flex items-center",
+                !(isMaster || isAdmin) && "md:hidden"
+              )}>
                 <Button 
                   variant="ghost" 
                   size="icon" 
