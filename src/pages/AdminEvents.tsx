@@ -111,6 +111,7 @@ interface Submission {
 export default function AdminEvents() {
   const { user, loading: authLoading } = useAuth();
   const { hasPermission, loading: permsLoading } = useAppPermissions();
+  const isAdmin = hasPermission('events.read');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -150,7 +151,6 @@ export default function AdminEvents() {
   async function handleStatusChange(id: string, newStatus: string) {
     const { error } = await supabase.from("submissions").update({ 
       status: newStatus,
-      // Added reason for audit
       additional_details: `Status alterado por ${user?.email}`
     }).eq("id", id);
     
@@ -159,6 +159,18 @@ export default function AdminEvents() {
     } else {
       toast.success(`Status atualizado para ${newStatus}`);
       setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
+    }
+  }
+
+  async function handleModerationChange(id: string, newModerationStatus: string) {
+    const { error } = await supabase.from("submissions").update({ 
+      moderation_status: newModerationStatus 
+    }).eq("id", id);
+    if (error) {
+      toast.error("Erro ao atualizar moderação");
+    } else {
+      toast.success(`Moderação atualizada: ${newModerationStatus}`);
+      setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, moderation_status: newModerationStatus } : s));
     }
   }
 
