@@ -1,9 +1,11 @@
 import { UseFormReturn } from "react-hook-form";
-import { Image as ImageIcon, Sparkles, Wand2 } from "lucide-react";
+import { Image as ImageIcon, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "../FormFields";
 import { AIFlyerGenerator } from "../../AIFlyerGenerator";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+
 
 interface MediaStepProps {
   form: UseFormReturn<any>;
@@ -67,12 +69,25 @@ export function MediaStep({ form, imageSource, setImageSource, eventImage, setEv
       {imageSource === "ai" && (
         <div className="animate-in zoom-in-95 duration-300">
           <AIFlyerGenerator
-            eventTitle={form.watch("eventTitle") || form.watch("atrativoName")}
-            eventDate={form.watch("date")}
-            onImageGenerated={(url) => setEventImage(url)}
+            initialData={{
+              title: form.watch("eventTitle") || "",
+              artist: form.watch("atrativoName") || "",
+              date: form.watch("date") ? format(new Date(form.watch("date")), "dd/MM") : "",
+              time: form.watch("startTime") || "",
+              location: form.watch("locationName") || "",
+              neighborhood: "", // Derived if possible
+              category: form.watch("category") || "musica"
+            }}
+            onFlyerGenerated={(urls) => {
+              setEventImage(urls.feed);
+              form.setValue("eventImageUrl", urls.feed);
+              form.setValue("eventImageUrlStory", urls.story);
+              form.setValue("eventImageUrlWhatsapp", urls.whatsapp);
+            }}
           />
         </div>
       )}
+
     </div>
   );
 }

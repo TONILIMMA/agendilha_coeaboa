@@ -17,11 +17,13 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
     }
     setSearching(true);
     const { data } = await supabase
-      .from("portal_atrativos")
+      .from("artist_profiles")
       .select("*")
       .ilike("name", `%${query}%`)
+      .eq("is_approved", true)
       .limit(5);
     setSuggestions(data || []);
+
     setSearching(false);
   };
 
@@ -69,12 +71,13 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm"
                 onClick={() => {
                   form.setValue("atrativoName", s.name);
-                  form.setValue("atrativoType", s.type || "");
-                  form.setValue("atrativoStyle", s.style || "");
-                  form.setValue("atrativoDescription", s.description || "");
-                  form.setValue("atrativoContact", s.contact_whatsapp || "");
+                  form.setValue("atrativoType", s.artist_type || "");
+                  form.setValue("atrativoStyle", s.genre || "");
+                  form.setValue("atrativoDescription", s.bio || "");
+                  form.setValue("atrativoContact", s.whatsapp || "");
                   setSuggestions([]);
                 }}
+
               >
                 <span className="font-bold">{s.name}</span>
                 <span className="text-muted-foreground ml-2">({s.type})</span>
