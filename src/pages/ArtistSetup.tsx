@@ -159,7 +159,7 @@ export default function ArtistSetup() {
 
   return (
     <div className="min-h-screen bg-slate-50/50">
-      <Header />
+      
       
       <main className="container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
