@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UseFormReturn } from "react-hook-form";
-import { Instagram, Youtube, Music, Globe, MessageCircle } from "lucide-react";
+import { Music, Globe, MessageCircle, Video, Youtube } from "lucide-react";
 
 interface SocialLinksFormProps {
   form: UseFormReturn<any>;
@@ -15,7 +15,7 @@ export function SocialLinksForm({ form }: SocialLinksFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="instagram" className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-            <Instagram className="h-3 w-3 text-pink-500" /> Instagram
+            <span className="text-pink-500 font-bold">IG</span> Instagram
           </Label>
           <Input 
             id="instagram" 
