@@ -17,6 +17,8 @@ vi.mock('@/pages/AdminMaster', () => ({ default: () => <div data-testid="admin-m
 vi.mock('@/pages/Landing', () => ({ default: () => <div data-testid="landing">Landing Page</div> }));
 vi.mock('@/pages/AgendaCultural', () => ({ default: () => <div data-testid="agenda">Agenda Page</div> }));
 vi.mock('@/pages/Auth', () => ({ default: () => <div data-testid="auth">Auth Page</div> }));
+vi.mock('@/components/AdminPinGate', () => ({ default: ({ children }: any) => <div data-testid="pin-gate">{children}</div> }));
+
 
 describe('Admin/Master Route Protection Integration', () => {
   beforeEach(() => {
