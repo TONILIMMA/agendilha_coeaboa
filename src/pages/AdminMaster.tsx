@@ -10,8 +10,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
- import { Label } from "@/components/ui/label";
- import Header from "@/components/Header";
+import { Label } from "@/components/ui/label";
+import Header from "@/components/Header";
 import {
   Crown,
   Shield,
@@ -24,6 +24,7 @@ import {
   UserPlus,
   Pencil,
   Mail,
+  History as HistoryIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -458,7 +459,7 @@ export default function AdminMaster() {
               </Link>
               <Link to="/admin/audit">
                 <Button variant="ghost" size="sm" className="text-xs text-secondary font-bold flex items-center gap-1">
-                  <History className="h-3 w-3" /> Logs de Auditoria
+                  <HistoryIcon className="h-3 w-3" /> Logs de Auditoria
                 </Button>
               </Link>
             </div>
