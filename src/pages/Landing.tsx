@@ -267,15 +267,27 @@ export default function Landing() {
             </div>
          </div>
  
-         <div className="relative mb-16 max-w-3xl mx-auto reveal">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+         <form 
+           onSubmit={(e) => {
+             e.preventDefault();
+             if (searchQuery.trim()) navigate(`/agenda?search=${encodeURIComponent(searchQuery)}`);
+           }}
+           className="relative mb-16 max-w-3xl mx-auto reveal"
+         >
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary/60" />
           <Input 
-            placeholder="Shows, teatros, festas..." 
-            className="h-14 pl-12 rounded-full border-0 bg-secondary/10 text-lg shadow-sm"
+            placeholder="O que você está procurando? (shows, festas, bares...)" 
+            className="h-14 pl-12 pr-4 rounded-full border-2 border-primary/10 bg-white shadow-lg text-lg focus:border-primary/30 transition-all"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </div>
+          <Button 
+            type="submit"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 rounded-full bg-primary text-white font-bold px-6 hidden sm:flex"
+          >
+            Buscar
+          </Button>
+        </form>
 
         {/* Categories */}
         <div className="flex gap-4 overflow-x-auto pb-6 mb-8 scrollbar-none">
@@ -466,13 +478,19 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Map Placeholder */}
-        <section className="rounded-3xl bg-muted/30 p-8 flex items-center justify-between mb-12 border border-border/50">
-          <div>
+        {/* Map Explorer CTA */}
+        <section className="rounded-3xl bg-secondary/5 p-8 flex flex-col sm:flex-row items-center justify-between mb-16 border border-secondary/10 gap-6">
+          <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-2">Explore no Mapa</h3>
-            <p className="text-muted-foreground">Veja o que está acontecendo perto de você</p>
+            <p className="text-muted-foreground text-sm">Visualize todos os eventos da Ilha do Governador em tempo real.</p>
           </div>
-          <Button variant="secondary" className="rounded-full h-12 px-6 shadow-sm border border-border/40"><MapIcon className="mr-2 h-4 w-4"/> Abrir Mapa</Button>
+          <Button 
+            variant="secondary" 
+            className="rounded-full h-12 px-8 shadow-md border border-secondary/20 font-bold hover:scale-105 transition-all"
+            onClick={() => window.open("https://www.google.com/maps/search/eventos+na+ilha+do+governador", "_blank")}
+          >
+            <MapIcon className="mr-2 h-4 w-4"/> Abrir Mapa
+          </Button>
         </section>
       </section>
 

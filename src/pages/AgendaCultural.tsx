@@ -1365,7 +1365,7 @@ function buildUberLink(ev: Event): string {
                           </div>
                           <div>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Data</p>
-                            <p className="font-bold text-base sm:text-lg text-foreground">{formatDayLabel(selectedEvent.date)}</p>
+                            <p className="font-bold text-base sm:text-lg text-foreground">{formatLongDate(selectedEvent.date)}</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-4">
