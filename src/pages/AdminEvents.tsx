@@ -26,6 +26,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
+import { handleError } from "@/lib/error-handler";
+
 
 interface Submission {
   id: string;
@@ -135,12 +137,13 @@ export default function AdminEvents() {
       .select("*")
       .order("created_at", { ascending: false });
     if (error) {
-      toast.error("Erro ao carregar eventos");
+      handleError(error, "Erro ao carregar eventos");
     } else {
       setSubmissions(data || []);
     }
     setLoading(false);
   }
+
 
   useEffect(() => {
     if (hasPermission('events.read')) fetchAll();
@@ -150,11 +153,12 @@ export default function AdminEvents() {
     if (!window.confirm("Tem certeza que deseja excluir este evento?")) return;
     const { error } = await supabase.from("submissions").delete().eq("id", id);
     if (error) {
-      toast.error("Erro ao remover evento");
+      handleError(error, "Erro ao remover evento");
     } else {
       toast.success("Evento removido");
       setSubmissions((prev) => prev.filter((s) => s.id !== id));
     }
+
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
@@ -173,11 +177,12 @@ export default function AdminEvents() {
     const { error } = await supabase.from("submissions").update(updateData).eq("id", id);
     
     if (error) {
-      toast.error("Erro ao atualizar status");
+      handleError(error, "Erro ao atualizar status");
     } else {
       toast.success(`Status atualizado para ${newStatus}`);
       fetchAll(); // Refresh to get generated slugs/copies
     }
+
   }
 
   async function handleApproveAndPublish(id: string) {
@@ -190,11 +195,12 @@ export default function AdminEvents() {
     }).eq("id", id);
     
     if (error) {
-      toast.error("Erro ao aprovar e publicar");
+      handleError(error, "Erro ao aprovar e publicar");
     } else {
       toast.success("Evento aprovado e publicado com sucesso!");
       fetchAll();
     }
+
   }
 
   const copyToClipboard = (text: string, label: string) => {
@@ -211,21 +217,23 @@ export default function AdminEvents() {
       moderation_status: newModerationStatus 
     }).eq("id", id);
     if (error) {
-      toast.error("Erro ao atualizar moderação");
+      handleError(error, "Erro ao atualizar moderação");
     } else {
       toast.success(`Moderação atualizada: ${newModerationStatus}`);
       setSubmissions((prev) => prev.map((s) => s.id === id ? { ...s, moderation_status: newModerationStatus } : s));
     }
+
   }
 
   async function toggleHighlight(id: string, current: boolean) {
     const { error } = await supabase.from("submissions").update({ is_highlight: !current }).eq("id", id);
     if (error) {
-      toast.error("Erro ao atualizar destaque");
+      handleError(error, "Erro ao atualizar destaque");
     } else {
       toast.success(!current ? "Evento em destaque! 🔥" : "Destaque removido");
       setSubmissions(prev => prev.map(s => s.id === id ? { ...s, is_highlight: !current } : s));
     }
+
   }
 
   const kpis = useMemo(() => {
