@@ -118,9 +118,14 @@ export default function Landing() {
      getNextPageParam: (lastPage) => lastPage.nextPage,
    });
  
-   const allEvents = eventsData?.pages.flatMap(page => page.items) || [];
-   const todayStr = new Date().toISOString().split('T')[0];
-   const todayEvents = allEvents.filter(e => e.date === todayStr);
+    const allEvents = eventsData?.pages.flatMap(page => page.items) || [];
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayEvents = allEvents.filter(e => e.date === todayStr).slice(0, 6);
+    
+    // Deduplicate: events in alta should not be in today if possible, or limited
+    const trendingEvents = allEvents
+      .filter(e => !todayEvents.find(t => t.id === e.id))
+      .slice(0, 8);
  
    useEffect(() => {
      if (loadMoreInView && hasNextPage && !isFetchingNextPage) {
@@ -196,10 +201,10 @@ export default function Landing() {
            return matchStyle || matchNeighborhood;
          }).slice(0, 5);
          
-         setRecommendedEvents(recs.length > 0 ? recs : allEvents.slice(0, 5));
-       } else {
-         setRecommendedEvents(allEvents.slice(0, 5));
-       }
+          setRecommendedEvents(recs.length > 0 ? recs : allEvents.filter(e => !todayEvents.find(t => t.id === e.id) && !trendingEvents.find(f => f.id === e.id)).slice(0, 5));
+        } else {
+          setRecommendedEvents(allEvents.filter(e => !todayEvents.find(t => t.id === e.id) && !trendingEvents.find(f => f.id === e.id)).slice(0, 5));
+        }
      }
    }, [allEvents, profileLoaded, user, profile.musical_preferences, profile.home_location, profile.work_neighborhood]);
 
@@ -214,27 +219,27 @@ export default function Landing() {
       <Header />
       
        {/* ── Hero Discovery ── */}
-       <section className="pt-28 sm:pt-40 pb-16 px-4 max-w-6xl mx-auto">
-         <div className="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
+       <section className="pt-24 sm:pt-40 pb-12 px-4 max-w-6xl mx-auto">
+         <div className="text-center mb-10 animate-in fade-in slide-in-from-top-4 duration-1000">
            <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 mb-6 shadow-sm">
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/70">Agenda Cultural da Ilha do Governador</span>
+             <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary/70">AgendIlha · Agenda Cultural da Ilha</span>
            </div>
-           <h1 className="text-5xl sm:text-7xl font-black mb-6 font-display text-primary tracking-tightest leading-[0.9]">
+           <h1 className="text-4xl sm:text-7xl font-black mb-6 font-display text-primary tracking-tightest leading-[1] sm:leading-[0.9]">
              O que tem pra<br /><span className="text-secondary">hoje na Ilha?</span> 🌴
            </h1>
-           <p className="text-muted-foreground text-lg sm:text-xl font-medium max-w-xl mx-auto mb-10 text-balance leading-relaxed">
+           <p className="text-muted-foreground text-base sm:text-xl font-medium max-w-xl mx-auto mb-8 text-balance leading-relaxed">
              Shows, gastronomia e eventos. Tudo o que você precisa saber sobre a vida cultural da região.
            </p>
            
-            <div className="flex flex-col items-center gap-6 max-w-lg mx-auto">
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
+            <div className="flex flex-col items-center gap-4 max-w-lg mx-auto">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
                 <Button 
                   onClick={() => navigate("/agenda")}
-                  className="w-full sm:flex-1 h-14 rounded-full font-black text-lg gradient-sunset shadow-xl hover:scale-105 active:scale-95 transition-all uppercase tracking-wider"
+                  className="w-full sm:flex-1 h-14 rounded-full font-black text-lg gradient-sunset shadow-xl hover:scale-[1.03] active:scale-95 transition-all uppercase tracking-wider"
                 >
                   Explorar Agenda
                 </Button>
-                {!user && (
+                {!user ? (
                   <Button 
                     variant="outline"
                     onClick={() => navigate("/auth")}
@@ -242,17 +247,23 @@ export default function Landing() {
                   >
                     Criar conta
                   </Button>
+                ) : (
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate("/enviar-evento")}
+                    className="w-full sm:flex-1 h-14 rounded-full font-bold text-lg border-2 border-primary/20 text-primary bg-white/50 hover:bg-primary/5 transition-all shadow-md"
+                  >
+                    Divulgar Evento
+                  </Button>
                 )}
               </div>
               
-              <Button
-                variant="ghost"
-                className="rounded-full h-12 px-6 font-bold text-sm text-secondary hover:text-secondary/80 hover:bg-secondary/5 flex items-center gap-2 transition-all"
+              <button
+                className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-secondary hover:text-primary transition-colors mt-2 underline underline-offset-4"
                 onClick={() => setPersonalizationOpen(true)}
               >
-                <Settings2 className="h-4 w-4" />
                 Personalizar Recomendações
-              </Button>
+              </button>
             </div>
          </div>
  
@@ -318,8 +329,8 @@ export default function Landing() {
             <h2 className="text-2xl font-bold font-display">Eventos em alta</h2>
             <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
           </div>
-            <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
-              {allEvents.map(ev => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {trendingEvents.map(ev => (
                 <DiscoveryEventCard 
                   key={ev.id} 
                   event={ev} 
@@ -348,7 +359,7 @@ export default function Landing() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold font-display flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-primary" />
-                  {user ? "No seu radar" : "Eventos perto de você"}
+                  {user ? "No seu radar" : "Sugestões para você"}
                 </h2>
                 <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
               </div>
