@@ -860,7 +860,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                      
                      <div className="grid grid-cols-2 gap-4">
                        <TextField control={form.control} name="startTime" label="Início" type="time" />
-                       <TextField control={form.control} name="endTime" label="Término" type="time" />
+                       <TextField control={form.control} name="endTime" label="Término" type="time" required={false} />
                      </div>
                    </div>
                  </div>
