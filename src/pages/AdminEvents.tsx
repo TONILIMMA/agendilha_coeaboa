@@ -109,11 +109,13 @@ interface Submission {
    return dateStr;
  }
  
- function buildWhatsAppMessage(sub: Submission): string {
-   const date = formatEventDate(sub.date);
-   const msg = `🗓️ *${sub.event_title}*\n⏰ ${date} às ${sub.start_time || "--:--"}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: https://agendilha-divulgacao.lovable.app/agenda`;
-   return encodeURIComponent(msg);
- }
+  function buildWhatsAppMessage(sub: Submission): string {
+    if (sub.short_copy) return encodeURIComponent(sub.short_copy);
+    const date = formatEventDate(sub.date);
+    const url = sub.slug ? `${window.location.origin}/evento/${sub.slug}` : `${window.location.origin}/agenda`;
+    const msg = `🗓️ *${sub.event_title}*\n⏰ ${date} às ${sub.start_time || "--:--"}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: ${url}`;
+    return encodeURIComponent(msg);
+  }
 
 export default function AdminEvents() {
   const { user, loading: authLoading } = useAuth();
@@ -272,15 +274,15 @@ export default function AdminEvents() {
             <div className="flex flex-wrap gap-3">
                <Button variant="outline" size="sm" className="h-10 font-bold border-border bg-background hover:bg-muted" onClick={() => fetchAll()}><RotateCcw className="h-4 w-4 mr-2" /> Atualizar</Button>
                <Button variant="outline" size="sm" className="h-10 font-bold border-border bg-background hover:bg-muted" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-4 w-4 mr-2" /> Exportar PDF</Button>
-               <Button 
-                 size="sm"
-                 className="h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
-                onClick={() => {
-                  const approved = submissions.filter(s => s.status === 'approved' || s.status === 'published');
-                  if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
-                  window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
-                }}
-              >
+                <Button 
+                  size="sm"
+                  className="h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
+                 onClick={() => {
+                   const approved = submissions.filter(s => s.status === 'aprovado' || s.status === 'publicado' || s.status === 'divulgado');
+                   if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
+                   window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
+                 }}
+               >
                 <MessageCircle className="h-4 w-4 mr-2" /> Divulgação WhatsApp
               </Button>
             </div>
