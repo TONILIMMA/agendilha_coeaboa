@@ -229,11 +229,11 @@ export default function AdminEvents() {
   const kpis = useMemo(() => {
     return {
       total: submissions.length,
-      pending: submissions.filter(s => s.status === 'pending').length,
-      analysis: submissions.filter(s => s.status === 'analysis').length,
-      approved: submissions.filter(s => s.status === 'approved').length,
-      rejected: submissions.filter(s => s.status === 'rejected').length,
-      published: submissions.filter(s => s.status === 'published').length,
+      pending: submissions.filter(s => s.status === 'pendente').length,
+      in_review: submissions.filter(s => s.status === 'em_revisao').length,
+      approved: submissions.filter(s => s.status === 'aprovado').length,
+      published: submissions.filter(s => s.status === 'publicado').length,
+      divulgado: submissions.filter(s => s.status === 'divulgado').length,
     };
   }, [submissions]);
 
