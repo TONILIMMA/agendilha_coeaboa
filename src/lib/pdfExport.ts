@@ -381,15 +381,17 @@ function drawEventPage(doc: jsPDF, event: EventData, isLastPage = true) {
   drawFooter(doc, isLastPage);
 }
 
-export function exportSingleEventPdf(event: EventData) {
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+export async function exportSingleEventPdf(event: EventData) {
+  const JsPDFClass = await getJsPDF();
+  const doc = new JsPDFClass({ orientation: "portrait", unit: "mm", format: "a4" });
   drawEventPage(doc, event);
   doc.save(`evento_${event.event_title.replace(/\s+/g, "_").slice(0, 30)}.pdf`);
 }
 
-export function exportBulkEventsPdf(events: EventData[]) {
+export async function exportBulkEventsPdf(events: EventData[]) {
   if (events.length === 0) return;
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const JsPDFClass = await getJsPDF();
+  const doc = new JsPDFClass({ orientation: "portrait", unit: "mm", format: "a4" });
   events.forEach((event, i) => {
     if (i > 0) doc.addPage();
     drawEventPage(doc, event, i === events.length - 1);
@@ -397,15 +399,17 @@ export function exportBulkEventsPdf(events: EventData[]) {
   doc.save(`agendilha_eventos_${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
-export function getEventPdfBlob(event: EventData): Blob {
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-   drawEventPage(doc, event);
-   return doc.output("blob");
- }
+export async function getEventPdfBlob(event: EventData): Promise<Blob> {
+  const JsPDFClass = await getJsPDF();
+  const doc = new JsPDFClass({ orientation: "portrait", unit: "mm", format: "a4" });
+  drawEventPage(doc, event);
+  return doc.output("blob") as unknown as Blob;
+}
 
- export function exportEditorialAgendaPdf(events: EventData[], title: string = "Agenda Cultural") {
-   if (events.length === 0) return;
-   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+export async function exportEditorialAgendaPdf(events: EventData[], title: string = "Agenda Cultural") {
+  if (events.length === 0) return;
+  const JsPDFClass = await getJsPDF();
+  const doc = new JsPDFClass({ orientation: "portrait", unit: "mm", format: "a4" });
    
    // --- Capa ---
    doc.setFillColor(...BRAND_ORANGE);
