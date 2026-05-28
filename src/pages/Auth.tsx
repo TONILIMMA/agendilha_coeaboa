@@ -127,60 +127,40 @@ export default function Auth() {
 
     setSubmitting(true);
 
-     // Standardize phone for backend (remove formatting, prefix handling is done in signIn/signUp)
-     const cleanPhone = phone.replace(/\D/g, "");
-     
-     const { error } = mode === "login"
-       ? await signIn(cleanPhone, password)
-       : await signUp(
-           cleanPhone, 
-           password, 
-           name.trim(), 
-           {
-             home_location: homeLocation,
-             work_neighborhood: workNeighborhood,
-             musical_preferences: musicalInterests,
-             event_type_preferences: eventTypeInterests
-           },
-           role
-         );
-         {mode === "signup" && (
-           <div className="flex p-1 bg-muted rounded-lg">
-             <button
-               type="button"
-               onClick={() => setRole("public")}
-               className={cn(
-                 "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
-                 role === "public" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
-               )}
-             >
-               Público Geral
-             </button>
-             <button
-               type="button"
-               onClick={() => setRole("artist")}
-               className={cn(
-                 "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
-                 role === "artist" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
-               )}
-             >
-               Músico / Banda
-             </button>
-           </div>
-         )}
- 
+    // Standardize phone for backend
+    const cleanPhone = phone.replace(/\D/g, "");
+    
+    try {
+      const { error } = mode === "login"
+        ? await signIn(cleanPhone, password)
+        : await signUp(
+            cleanPhone, 
+            password, 
+            name.trim(), 
+            {
+              home_location: homeLocation,
+              work_neighborhood: workNeighborhood,
+              musical_preferences: musicalInterests,
+              event_type_preferences: eventTypeInterests
+            },
+            role
+          );
 
-    setSubmitting(false);
-
-     if (error) {
-       handleError(error, mode === "login" ? "Erro ao entrar" : "Erro ao criar conta");
-     } else if (mode === "signup") {
-      toast.success("Conta criada!", {
-        description: "Você já pode fazer login com seu WhatsApp.",
-      });
-      setMode("login");
+      if (error) {
+        handleError(error, mode === "login" ? "Erro ao entrar" : "Erro ao criar conta");
+      } else if (mode === "signup") {
+        toast.success("Conta criada!", {
+          description: "Você já pode fazer login com seu WhatsApp.",
+        });
+        setMode("login");
+      }
+    } catch (err) {
+      handleError(err, "Erro no processo de autenticação");
+    } finally {
+      setSubmitting(false);
     }
   }
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background px-4">
@@ -202,6 +182,29 @@ export default function Auth() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === "signup" && (
             <div className="space-y-4 border-b border-border pb-6">
+              <div className="flex p-1 bg-muted rounded-lg mb-4">
+                <button
+                  type="button"
+                  onClick={() => setRole("public")}
+                  className={cn(
+                    "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
+                    role === "public" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
+                  )}
+                >
+                  Público Geral
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole("artist")}
+                  className={cn(
+                    "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
+                    role === "artist" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
+                  )}
+                >
+                  Músico / Banda
+                </button>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo</Label>
                 <Input
@@ -213,6 +216,7 @@ export default function Auth() {
                   placeholder="Digite seu nome completo"
                 />
               </div>
+
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
