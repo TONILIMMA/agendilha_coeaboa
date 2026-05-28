@@ -62,6 +62,11 @@ interface Submission {
   is_suitable_for_minors?: boolean;
   report_count?: number;
   moderation_status?: string;
+  slug?: string;
+  short_copy?: string;
+  long_copy?: string;
+  approved_at?: string;
+  published_at?: string;
 }
 
  const categoryLabels: Record<string, string> = {
