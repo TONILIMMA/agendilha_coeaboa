@@ -197,7 +197,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
 
              {/* Mobile Nav Trigger */}
-             <div className="flex md:hidden items-center gap-2">
+             <div className="flex items-center gap-2">
                <Button 
                  size="sm" 
                  onClick={() => {
@@ -207,7 +207,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                      navigate("/auth?redirect=/enviar-evento");
                    }
                  }}
-                 className="rounded-full bg-primary text-primary-foreground font-black shadow-md px-4 h-9 text-[10px] uppercase tracking-widest"
+                 className="rounded-full bg-primary text-primary-foreground font-black shadow-md px-4 h-9 text-[10px] uppercase tracking-widest hidden sm:flex"
                >
                  Divulgar
                </Button>
@@ -215,7 +215,10 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                 variant="ghost" 
                 size="icon" 
                 onClick={onMobileMenuToggle} 
-                className="h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm"
+                className={cn(
+                  "h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm transition-all",
+                  !(isMaster || isAdmin) && "md:hidden"
+                )}
               >
                 <Menu className="h-5 w-5 text-foreground" />
               </Button>
@@ -231,13 +234,30 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
       return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-white/95 backdrop-blur-xl transition-all duration-300 shadow-sm">
           <div className="mx-auto flex h-16 sm:h-18 max-w-5xl items-center justify-between px-4 sm:px-6 gap-2">
-             <Link to="/" className="flex items-center gap-1.5 sm:gap-2.5 hover:opacity-80 transition-opacity group shrink-0" aria-label="AgendIlha - Página Inicial">
-              <img src={logoCoeABoa} alt="AgendIlha" className="h-8 w-8 sm:h-9 sm:w-9 rounded-full ring-2 ring-primary/5 shadow-sm" />
-              <div className="flex flex-col leading-[1]">
-                <span className="font-display text-lg sm:text-xl font-black text-primary tracking-tight">AgendIlha</span>
-                <span className="text-[9px] sm:text-[10px] text-secondary font-black uppercase tracking-[0.15em]">Coé a Boa?</span>
+            <div className="flex items-center gap-2">
+              {/* Mobile Menu Trigger for Agenda - Always show for Master/Admin for quick navigation */}
+              <div className={cn(
+                "flex items-center",
+                !(isMaster || isAdmin) && "md:hidden"
+              )}>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={onMobileMenuToggle} 
+                  className="h-10 w-10 text-primary hover:bg-primary/5 active:scale-90 transition-all"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
               </div>
-            </Link>
+
+              <Link to="/" className="flex items-center gap-1.5 sm:gap-2.5 hover:opacity-80 transition-opacity group shrink-0" aria-label="AgendIlha - Página Inicial">
+                <img src={logoCoeABoa} alt="AgendIlha" className="h-8 w-8 sm:h-9 sm:w-9 rounded-full ring-2 ring-primary/5 shadow-sm" />
+                <div className="flex flex-col leading-[1]">
+                  <span className="font-display text-lg sm:text-xl font-black text-primary tracking-tight">AgendIlha</span>
+                  <span className="text-[9px] sm:text-[10px] text-secondary font-black uppercase tracking-[0.15em]">Coé a Boa?</span>
+                </div>
+              </Link>
+            </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
               {(isAdmin || perms.isCollaborator) && (
@@ -275,8 +295,11 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 gap-2">
           {/* Left: Brand + date */}
           <div className="flex items-center gap-3">
-             {/* Mobile menu trigger */}
-             <div className="flex md:hidden items-center">
+             {/* Mobile menu trigger - Always show for Master/Admin as a quick access even on desktop */}
+             <div className={cn(
+               "flex items-center",
+               !(isMaster || isAdmin) && "md:hidden"
+             )}>
                <Button 
                  variant="ghost" 
                  size="icon" 
@@ -288,11 +311,8 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
              </div>
 
              <div className="flex items-center gap-2">
-               {/* Brand: Hide on desktop if sidebar is potentially visible */}
-               <div className={cn(
-                 "flex items-center gap-2 transition-all duration-300",
-                 (isAdminArea || isMaster || isAdmin) && user && "md:hidden"
-               )}>
+               {/* Brand: Always show brand to avoid empty header on desktop for admins */}
+               <div className="flex items-center gap-2 transition-all duration-300">
                  <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                    <img src={logoCoeABoa} alt="AgendIlha" className="h-7 w-7 rounded-full shadow-sm" />
                    <div className="flex flex-col leading-none">

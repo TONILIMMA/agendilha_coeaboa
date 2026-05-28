@@ -59,7 +59,7 @@ export function useUserBadge(): UserBadge {
         if (cancelled) return;
         if (collab?.name) setCollabName(collab.name);
 
-        if (roleNames.includes('master_admin')) {
+        if (roleNames.includes('master_admin') || roleNames.includes('developer')) {
           setStatus("master");
         } else if (roleNames.includes('admin') || isAdmin) {
           setStatus("admin");
