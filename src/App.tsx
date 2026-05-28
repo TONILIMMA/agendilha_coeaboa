@@ -46,10 +46,32 @@ const queryClient = new QueryClient({
       staleTime: 60_000,
       gcTime: 5 * 60_000,
       refetchOnWindowFocus: false,
-      retry: 1,
+      retry: (failureCount, error: any) => {
+        // Don't retry on 404s or 403s
+        if (error?.status === 404 || error?.status === 403 || error?.code === 'PGRST116') return false;
+        return failureCount < 2;
+      },
+    },
+    mutations: {
+      onError: (error) => {
+        handleError(error, "Erro ao processar solicitação");
+      },
     },
   },
 });
+
+// Global unhandled promise rejection handler
+window.onunhandledrejection = (event) => {
+  console.error("Unhandled promise rejection:", event.reason);
+  // Optional: Send to logging service
+};
+
+// Global error handler for non-React errors
+window.onerror = (message, source, lineno, colno, error) => {
+  console.error("Global error:", { message, source, lineno, colno, error });
+  // Optional: Send to logging service
+};
+
 
 const PageFallback = () => (
   <div className="flex items-center justify-center min-h-[50vh]">
