@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { SidebarMenu } from "./SidebarMenu";
 import Header from "./Header";
-import { useAppPermissions } from "@/hooks/useAppPermissions";
+import { useAppPermissions } from "@/hooks/usePermissions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 

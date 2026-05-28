@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePermissions } from "@/hooks/usePermissions";
 import { z } from "zod";
 import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
@@ -90,6 +91,7 @@ export default function SubmissionForm() {
   const navigate = useNavigate();
   const { addSubmission } = useSubmissions();
   const { user } = useAuth();
+  const { isCollaborator, isPromoter } = usePermissions();
   const { profile, loaded, saveProfile } = useProfile();
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -164,7 +166,6 @@ export default function SubmissionForm() {
         ...values,
         image_url: imageUrl,
         status: 'pending',
-        stage: 'pending'
       } as any);
 
       setSubmitted(true);

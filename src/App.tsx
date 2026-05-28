@@ -8,7 +8,7 @@ import { SubmissionProvider } from "@/contexts/SubmissionContext";
 import Header from "@/components/Header";
 import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
-import { useAppPermissions, PermissionName } from "@/hooks/useAppPermissions";
+import { useAppPermissions, PermissionName } from "@/hooks/usePermissions";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { AdminLayout } from "@/components/AdminLayout";
 
