@@ -282,7 +282,7 @@ export default function CoeABoa() {
       </div>
 
       <footer className="text-center py-6 text-xs text-muted-foreground border-t border-border">
-        📌 AgendIlha — Sua agenda de eventos da Ilha do Governador
+        📌 AgendIlha · Coé a Boa? — Sua agenda de eventos da Ilha do Governador
       </footer>
     </div>
   );
