@@ -145,7 +145,7 @@ export const AppRoutes = () => (
           <Route path="/admin/events" element={<AdminEvents />} />
           <Route path="/admin/users" element={<AdminPinGate><AdminUsers /></AdminPinGate>} />
           <Route path="/admin/collaborators" element={<AdminCollaborators />} />
-          <Route path="/admin/master" element={<AdminPinGate><AdminMaster /></AdminPinGate>} />
+          <Route path="/master/dashboard" element={<AdminPinGate><AdminMaster /></AdminPinGate>} />
           <Route path="/admin/newsletter" element={<AdminNewsletter />} />
           <Route path="/admin/artists" element={<AdminArtists />} />
           <Route path="/admin/media" element={<AdminMedia />} />
