@@ -751,6 +751,8 @@ export type Database = {
           age_rating: string | null
           ai_moderation_labels: string[] | null
           ai_moderation_score: number | null
+          approved_at: string | null
+          approved_by: string | null
           artist_id: string | null
           atrativo_contact: string | null
           atrativo_name: string | null
@@ -780,6 +782,7 @@ export type Database = {
           location: string | null
           location_contact: string | null
           location_type: string | null
+          long_copy: string | null
           longitude: number | null
           maintenance_cost: string | null
           moderation_status: string | null
@@ -787,12 +790,15 @@ export type Database = {
           predicted_duration: string | null
           promotion_rules: string | null
           promotion_type: string | null
+          published_at: string | null
           rejection_reason: string | null
           report_count: number | null
           responsible_name: string | null
           responsible_person: string | null
           sale_price: string | null
           shares_count: number | null
+          short_copy: string | null
+          slug: string | null
           stage: string
           start_time: string | null
           status: string
@@ -813,6 +819,8 @@ export type Database = {
           age_rating?: string | null
           ai_moderation_labels?: string[] | null
           ai_moderation_score?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
           artist_id?: string | null
           atrativo_contact?: string | null
           atrativo_name?: string | null
@@ -842,6 +850,7 @@ export type Database = {
           location?: string | null
           location_contact?: string | null
           location_type?: string | null
+          long_copy?: string | null
           longitude?: number | null
           maintenance_cost?: string | null
           moderation_status?: string | null
@@ -849,12 +858,15 @@ export type Database = {
           predicted_duration?: string | null
           promotion_rules?: string | null
           promotion_type?: string | null
+          published_at?: string | null
           rejection_reason?: string | null
           report_count?: number | null
           responsible_name?: string | null
           responsible_person?: string | null
           sale_price?: string | null
           shares_count?: number | null
+          short_copy?: string | null
+          slug?: string | null
           stage?: string
           start_time?: string | null
           status?: string
@@ -875,6 +887,8 @@ export type Database = {
           age_rating?: string | null
           ai_moderation_labels?: string[] | null
           ai_moderation_score?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
           artist_id?: string | null
           atrativo_contact?: string | null
           atrativo_name?: string | null
@@ -904,6 +918,7 @@ export type Database = {
           location?: string | null
           location_contact?: string | null
           location_type?: string | null
+          long_copy?: string | null
           longitude?: number | null
           maintenance_cost?: string | null
           moderation_status?: string | null
@@ -911,12 +926,15 @@ export type Database = {
           predicted_duration?: string | null
           promotion_rules?: string | null
           promotion_type?: string | null
+          published_at?: string | null
           rejection_reason?: string | null
           report_count?: number | null
           responsible_name?: string | null
           responsible_person?: string | null
           sale_price?: string | null
           shares_count?: number | null
+          short_copy?: string | null
+          slug?: string | null
           stage?: string
           start_time?: string | null
           status?: string
@@ -1035,6 +1053,7 @@ export type Database = {
     Functions: {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       contains_bad_words: { Args: { text_to_check: string }; Returns: boolean }
+      generate_slug: { Args: { title: string }; Returns: string }
       get_user_permissions: { Args: { p_user_id: string }; Returns: string[] }
       has_app_permission: {
         Args: { p_permission_name: string; p_user_id: string }
