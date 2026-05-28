@@ -34,13 +34,31 @@ export function useAppPermissions() {
 
     async function loadPermissions() {
       try {
-        // Fetch user roles
+        // Fetch user roles from app_user_roles (System B)
         const { data: userRolesData } = await supabase
           .from('app_user_roles')
           .select('app_roles(name)')
           .eq('user_id', user.id);
 
         const roleNames = userRolesData?.map(r => (r.app_roles as any)?.name).filter(Boolean) || [];
+        
+        // Also fetch from legacy user_roles (System A) for extra safety
+        const { data: legacyRoles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+        
+        if (legacyRoles) {
+          legacyRoles.forEach(r => {
+            if (r.role === 'master' && !roleNames.includes('master_admin')) {
+              roleNames.push('master_admin');
+            }
+            if (r.role === 'admin' && !roleNames.includes('admin')) {
+              roleNames.push('admin');
+            }
+          });
+        }
+
         setRoles(roleNames);
 
         // Fetch user permissions via RPC for efficiency and security
