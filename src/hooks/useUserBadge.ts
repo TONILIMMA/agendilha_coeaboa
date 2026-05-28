@@ -40,78 +40,58 @@ export function useUserBadge(): UserBadge {
     let cancelled = false;
 
     (async () => {
-      const { data: masterFlag } = await supabase.rpc("is_master", {
-        _user_id: user.id,
-      });
+      try {
+        // Fetch roles from the robust System B (app_user_roles)
+        const { data: userRolesData } = await supabase
+          .from('app_user_roles')
+          .select('app_roles(name)')
+          .eq('user_id', user.id);
 
-      if (cancelled) return;
+        const roleNames = userRolesData?.map(r => (r.app_roles as any)?.name).filter(Boolean) || [];
 
-      // Always try to fetch collaborator name (used as display fallback)
-      const { data: collab } = await supabase
-        .from("collaborators")
-        .select("name, is_active")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (cancelled) return;
-      if (collab?.name) setCollabName(collab.name);
-
-      if (masterFlag === true) {
-        setStatus("master");
-        setStatusLoaded(true);
-        return;
-      }
-
-       if (isAdmin) {
-         setStatus("admin");
-         setStatusLoaded(true);
-         return;
-       }
- 
-       // Check if artist
-       if (profile?.role === 'artist') {
-         setStatus("artist");
-         setStatusLoaded(true);
-         return;
-       }
-
-      if (collab && collab.is_active !== false) {
-        setStatus("collaborator");
-      } else {
-        setStatus("user");
-      }
-      setStatusLoaded(true);
-
-      // Auto-popular profile.responsible_name a partir do user_metadata
-      // para usuários antigos cujo profile não tem nome salvo.
-      const metaName =
-        (user.user_metadata as any)?.full_name ||
-        (user.user_metadata as any)?.name ||
-        "";
-      if (metaName) {
-        const { data: existingProfile } = await supabase
-          .from("profiles")
-          .select("id, responsible_name")
+        // Always try to fetch collaborator name (used as display fallback)
+        const { data: collab } = await supabase
+          .from("collaborators")
+          .select("name, is_active")
           .eq("user_id", user.id)
           .maybeSingle();
+
         if (cancelled) return;
-        if (existingProfile && !existingProfile.responsible_name) {
-          await supabase
-            .from("profiles")
-            .update({ responsible_name: metaName })
-            .eq("user_id", user.id);
-        } else if (!existingProfile) {
-          await supabase
-            .from("profiles")
-            .insert({ user_id: user.id, responsible_name: metaName });
+        if (collab?.name) setCollabName(collab.name);
+
+        if (roleNames.includes('master_admin')) {
+          setStatus("master");
+        } else if (roleNames.includes('admin') || isAdmin) {
+          setStatus("admin");
+        } else if (profile?.role === 'artist') {
+          setStatus("artist");
+        } else if (collab && collab.is_active !== false) {
+          setStatus("collaborator");
+        } else {
+          setStatus("user");
         }
+
+        // Auto-populate profile.responsible_name from user_metadata
+        const metaName = (user.user_metadata as any)?.full_name || (user.user_metadata as any)?.name || "";
+        if (metaName && profileLoaded) {
+          if (profile && !profile.responsible_name) {
+            await supabase
+              .from("profiles")
+              .update({ responsible_name: metaName })
+              .eq("user_id", user.id);
+          }
+        }
+      } catch (err) {
+        console.error("Error in useUserBadge:", err);
+      } finally {
+        if (!cancelled) setStatusLoaded(true);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [user, isAdmin]);
+  }, [user, isAdmin, profile, profileLoaded]);
 
   // Priority: profile name → company → collaborator name → user metadata → email/phone
   const emailLocal = user?.email?.split("@")[0] || "";

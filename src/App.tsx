@@ -10,6 +10,7 @@ import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
 import { useAppPermissions, PermissionName } from "@/hooks/useAppPermissions";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
+import { AdminLayout } from "@/components/AdminLayout";
 
 
 // Critical (above-the-fold) — keep eager
@@ -109,30 +110,30 @@ const AppRoutes = () => (
 
         {/* Administrativas */}
         <Route path="/admin/events" element={
-          <ProtectedRoute requiredPermission="events.read"><Header /><AdminEvents /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="events.read"><AdminLayout><AdminEvents /></AdminLayout></ProtectedRoute>
         } />
         <Route path="/admin/users" element={
-          <ProtectedRoute requiredPermission="users.read"><AdminPinGate><Header /><AdminUsers /></AdminPinGate></ProtectedRoute>
+          <ProtectedRoute requiredPermission="users.read"><AdminPinGate><AdminLayout><AdminUsers /></AdminLayout></AdminPinGate></ProtectedRoute>
         } />
         <Route path="/admin/collaborators" element={
-          <ProtectedRoute requiredPermission="users.read"><Header /><AdminCollaborators /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="users.read"><AdminLayout><AdminCollaborators /></AdminLayout></ProtectedRoute>
         } />
         <Route path="/admin/master" element={
-          <ProtectedRoute masterOnly={true} requiredPermission="roles.manage"><AdminPinGate><Header /><AdminMaster /></AdminPinGate></ProtectedRoute>
+          <ProtectedRoute masterOnly={true} requiredPermission="roles.manage"><AdminPinGate><AdminLayout><AdminMaster /></AdminLayout></AdminPinGate></ProtectedRoute>
         } />
         <Route path="/admin/newsletter" element={
-          <ProtectedRoute requiredPermission="users.read"><Header /><AdminNewsletter /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="users.read"><AdminLayout><AdminNewsletter /></AdminLayout></ProtectedRoute>
         } />
         <Route path="/admin/artists" element={
-          <ProtectedRoute requiredPermission="users.read"><Header /><AdminArtists /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="users.read"><AdminLayout><AdminArtists /></AdminLayout></ProtectedRoute>
         } />
         <Route path="/admin/media" element={
-          <ProtectedRoute requiredPermission="events.read"><Header /><AdminMedia /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="events.read"><AdminLayout><AdminMedia /></AdminLayout></ProtectedRoute>
         } />
         <Route path="/admin/audit" element={
-          <ProtectedRoute masterOnly={true} requiredPermission="audit_logs.read"><Header /><AdminAuditLogs /></ProtectedRoute>
+          <ProtectedRoute masterOnly={true} requiredPermission="audit_logs.read"><AdminLayout><AdminAuditLogs /></AdminLayout></ProtectedRoute>
         } />
-        <Route path="/ranking" element={<ProtectedRoute><Header /><Ranking /></ProtectedRoute>} />
+        <Route path="/ranking" element={<ProtectedRoute><AdminLayout><Ranking /></AdminLayout></ProtectedRoute>} />
 
         {/* Auxiliares / Legado */}
         <Route path="/coeaboa" element={<Navigate to="/agenda" replace />} />

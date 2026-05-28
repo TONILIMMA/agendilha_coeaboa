@@ -388,9 +388,8 @@ export default function AdminMaster() {
   if (status !== "master") return <Navigate to="/" replace />;
 
    return (
-     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-muted pb-16">
-       <Header />
-       <div className="container max-w-6xl mx-auto px-4 pt-8 space-y-8 animate-fade-in">
+     <div className="animate-fade-in space-y-8">
+       <div className="container max-w-6xl mx-auto px-4 space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center gap-3">

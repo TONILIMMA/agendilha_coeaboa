@@ -78,9 +78,8 @@ export default function AdminAuditLogs() {
   if (!hasPermission('audit_logs.read')) return <Navigate to="/" replace />;
 
   return (
-    <div className="min-h-screen bg-muted/30 pb-16">
-      <Header />
-      <div className="container max-w-6xl mx-auto px-4 pt-8 space-y-8 animate-fade-in">
+    <div className="pb-16 animate-fade-in">
+      <div className="container max-w-6xl mx-auto px-4 space-y-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link to="/admin/master">
