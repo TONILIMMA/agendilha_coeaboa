@@ -390,8 +390,9 @@ export default function AdminMaster() {
 
   if (authLoading || !badgeLoaded) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-muted-foreground animate-pulse">Autenticando acesso master...</p>
       </div>
     );
   }
@@ -399,52 +400,92 @@ export default function AdminMaster() {
   if (status !== "master" && status !== "admin") return <Navigate to="/" replace />;
 
    return (
-     <div className="animate-fade-in space-y-8">
-       <div className="container max-w-6xl mx-auto px-4 space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-secondary/15 border border-secondary/30 flex items-center justify-center">
-              <Crown className="h-6 w-6 text-secondary" />
+     <div className="animate-fade-in pb-12">
+        {/* Breadcrumb & Context Header */}
+        <div className="bg-white/40 border-b border-slate-200/60 sticky top-0 z-10 backdrop-blur-md">
+          <div className="container max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              <Link to="/" className="hover:text-primary transition-colors">AgendIlha</Link>
+              <span>/</span>
+              <span className="text-foreground">Painel Master</span>
+              <span>/</span>
+              <span className="text-primary/70">{status === 'master' ? 'Admin Master' : 'Administrador'}</span>
             </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-display font-semibold text-foreground">
-                Visão Geral
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Inteligência Analítica da Plataforma
-              </p>
+            
+            <div className="flex items-center gap-4">
+              <div className="text-right hidden sm:block">
+                <div className="text-xs font-black text-foreground leading-none">
+                  {user.email?.split('@')[0].toUpperCase()}
+                </div>
+                <div className="text-[10px] text-muted-foreground font-medium">
+                  {status === 'master' ? 'Acesso Total' : 'Acesso Admin'}
+                </div>
+              </div>
+              <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+                {user.email?.[0].toUpperCase()}
+              </div>
             </div>
           </div>
-          <div className="flex gap-2">
+        </div>
+
+       <div className="container max-w-7xl mx-auto px-4 mt-8 space-y-8">
+        {/* Header Title Section */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div className="space-y-1">
+            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-foreground uppercase">
+              Dashboard <span className="text-primary">Estratégico</span>
+            </h1>
+            <p className="text-muted-foreground font-medium">
+              Monitoramento em tempo real e inteligência analítica da plataforma.
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
             <Button
               onClick={bootstrapToniLima}
               disabled={bootstrapping}
-              className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-sm"
+              variant="outline"
+              size="sm"
+              className="gap-2 border-secondary/30 text-secondary hover:bg-secondary/5"
             >
               {bootstrapping ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-3 w-3 animate-spin" />
               ) : (
-                <UserPlus className="h-4 w-4" />
+                <UserPlus className="h-3 w-3" />
               )}
-              TONI LIMA
+              Configurar Admin Padrão
             </Button>
+            <Link to="/admin/audit">
+              <Button variant="outline" size="sm" className="gap-2 border-slate-200">
+                <HistoryIcon className="h-3 w-3" />
+                Logs do Sistema
+              </Button>
+            </Link>
           </div>
         </div>
 
         <Tabs defaultValue="intelligence" className="space-y-8">
-          <TabsList className="bg-white/50 border border-white/60 p-1 h-auto flex flex-wrap">
-            <TabsTrigger value="intelligence" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
-              <LayoutDashboard className="h-4 w-4" /> Inteligência Analítica
-            </TabsTrigger>
-            <TabsTrigger value="management" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
-              <Shield className="h-4 w-4" /> Gestão de Administradores
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-center justify-between border-b border-slate-200">
+            <TabsList className="bg-transparent h-auto p-0 gap-8">
+              <TabsTrigger 
+                value="intelligence" 
+                className="gap-2 py-3 px-0 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary font-bold text-xs uppercase tracking-widest transition-all"
+              >
+                <LayoutDashboard className="h-4 w-4" /> Inteligência Analítica
+              </TabsTrigger>
+              <TabsTrigger 
+                value="management" 
+                className="gap-2 py-3 px-0 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary font-bold text-xs uppercase tracking-widest transition-all"
+              >
+                <Shield className="h-4 w-4" /> Gestão de Acessos
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="intelligence" className="space-y-8">
+          <TabsContent value="intelligence" className="mt-0 outline-none">
             <AdminDashboard />
           </TabsContent>
+
 
           <TabsContent value="management" className="space-y-8">
             {/* Stats Summary - Mini version */}
