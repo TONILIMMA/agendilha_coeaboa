@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import AdminDashboard from "@/components/admin-dashboard/AdminDashboard";
+
 interface AdminUser {
   id: string;
   email: string;
@@ -398,52 +400,76 @@ export default function AdminMaster() {
                 Painel Master
               </h1>
               <p className="text-sm text-muted-foreground">
-                Controle total da plataforma
+                Controle e Inteligência da Plataforma
               </p>
             </div>
           </div>
-          <Button
-            onClick={bootstrapToniLima}
-            disabled={bootstrapping}
-            className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-sm"
-          >
-            {bootstrapping ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <UserPlus className="h-4 w-4" />
-            )}
-            Cadastrar TONI LIMA como Master
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={bootstrapToniLima}
+              disabled={bootstrapping}
+              className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-sm"
+            >
+              {bootstrapping ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <UserPlus className="h-4 w-4" />
+              )}
+              TONI LIMA
+            </Button>
+          </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { icon: Users, label: "Usuários", value: stats.users, tone: "text-primary bg-primary/10 border-primary/20" },
-            { icon: Shield, label: "Admins", value: stats.admins, tone: "text-secondary bg-secondary/10 border-secondary/20" },
-            { icon: CalendarCheck, label: "Eventos", value: stats.approved, tone: "text-emerald-700 bg-emerald-500/10 border-emerald-500/20" },
-            { icon: Mail, label: "Newsletter", value: stats.newsletter, tone: "text-orange-700 bg-orange-500/10 border-orange-500/20" },
-          ].map((s) => (
-            <Card
-              key={s.label}
-              className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm transition-transform hover:scale-[1.01]"
-            >
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className={`h-12 w-12 rounded-xl border flex items-center justify-center ${s.tone}`}>
-                  <s.icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground font-mono">
-                    {s.label}
-                  </div>
-                  <div className="text-2xl font-display font-semibold text-foreground">
-                    {loading ? "—" : s.value}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Tabs defaultValue="intelligence" className="space-y-8">
+          <TabsList className="bg-white/50 border border-white/60 p-1 h-auto flex flex-wrap">
+            <TabsTrigger value="intelligence" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
+              <LayoutDashboard className="h-4 w-4" /> Inteligência
+            </TabsTrigger>
+            <TabsTrigger value="management" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
+              <Shield className="h-4 w-4" /> Gestão
+            </TabsTrigger>
+            <TabsTrigger value="newsletter" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
+              <Mail className="h-4 w-4" /> Newsletter
+            </TabsTrigger>
+            <TabsTrigger value="ranking" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
+              <Trophy className="h-4 w-4" /> Ranking
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="intelligence" className="space-y-8">
+            <AdminDashboard />
+          </TabsContent>
+
+          <TabsContent value="management" className="space-y-8">
+            {/* Stats Summary - Mini version */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { icon: Users, label: "Usuários", value: stats.users, tone: "text-primary bg-primary/10 border-primary/20" },
+                { icon: Shield, label: "Admins", value: stats.admins, tone: "text-secondary bg-secondary/10 border-secondary/20" },
+                { icon: CalendarCheck, label: "Eventos", value: stats.approved, tone: "text-emerald-700 bg-emerald-500/10 border-emerald-500/20" },
+                { icon: Mail, label: "Newsletter", value: stats.newsletter, tone: "text-orange-700 bg-orange-500/10 border-orange-500/20" },
+              ].map((s) => (
+                <Card
+                  key={s.label}
+                  className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm transition-transform hover:scale-[1.01]"
+                >
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <div className={`h-12 w-12 rounded-xl border flex items-center justify-center ${s.tone}`}>
+                      <s.icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground font-mono">
+                        {s.label}
+                      </div>
+                      <div className="text-2xl font-display font-semibold text-foreground">
+                        {loading ? "—" : s.value}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
 
         {/* Admin management */}
         {/* Newsletter Subscribers */}
