@@ -2,14 +2,13 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
-import { CalendarIcon, Clock, PartyPopper, Users } from "lucide-react";
+import { CalendarIcon, PartyPopper } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 
 const categories = [
   { value: "musica", label: "Música / Show" },
@@ -128,6 +127,20 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField
           control={form.control}
+          name="predictedDuration"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Duração Prevista (opcional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Ex: 2 horas, 4h" className="h-12" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="endTime"
           render={({ field }) => (
             <FormItem>
@@ -140,31 +153,31 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
             </FormItem>
           )}
         />
-
-        <FormField
-          control={form.control}
-          name="ageRating"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Classificação</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="Livre">Livre</SelectItem>
-                  <SelectItem value="14+">14+</SelectItem>
-                  <SelectItem value="16+">16+</SelectItem>
-                  <SelectItem value="18+">18+</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </div>
+
+      <FormField
+        control={form.control}
+        name="ageRating"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Classificação</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="Livre">Livre</SelectItem>
+                <SelectItem value="14+">14+</SelectItem>
+                <SelectItem value="16+">16+</SelectItem>
+                <SelectItem value="18+">18+</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 }
