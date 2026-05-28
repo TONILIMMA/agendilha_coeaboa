@@ -76,7 +76,7 @@ export function useAppPermissions() {
   const hasRole = (role: string) => roles.includes(role);
 
   // Derived capability flags (replacing usePermissions legacy logic)
-  const isMaster = roles.includes('master_admin') || roles.includes('master');
+  const isMaster = roles.includes('master_admin') || roles.includes('master') || roles.includes('developer');
   const isAdmin = roles.includes('admin') || isMaster;
   const isPromoter = roles.includes('promoter');
   const isCollaborator = roles.includes('collaborator') || isAdmin;
