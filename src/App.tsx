@@ -10,6 +10,7 @@ import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
 import { useAppPermissions, PermissionName } from "@/hooks/useAppPermissions";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
+import { AdminLayout } from "@/components/AdminLayout";
 
 
 // Critical (above-the-fold) — keep eager
