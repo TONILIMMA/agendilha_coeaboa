@@ -99,7 +99,7 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, [user]);
 
-  const addSubmission = useCallback(async (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "stage"> & { stage?: string }) => {
+  const addSubmission = useCallback(async (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "status" | "rejection_reason"> & { status?: string }) => {
     if (!user) return false;
     const { error } = await supabase
       .from("submissions")
