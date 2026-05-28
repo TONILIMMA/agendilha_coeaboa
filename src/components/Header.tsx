@@ -197,7 +197,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
 
              {/* Mobile Nav Trigger */}
-             <div className="flex md:hidden items-center gap-2">
+             <div className="flex items-center gap-2">
                <Button 
                  size="sm" 
                  onClick={() => {
@@ -207,7 +207,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                      navigate("/auth?redirect=/enviar-evento");
                    }
                  }}
-                 className="rounded-full bg-primary text-primary-foreground font-black shadow-md px-4 h-9 text-[10px] uppercase tracking-widest"
+                 className="rounded-full bg-primary text-primary-foreground font-black shadow-md px-4 h-9 text-[10px] uppercase tracking-widest hidden sm:flex"
                >
                  Divulgar
                </Button>
@@ -215,7 +215,10 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                 variant="ghost" 
                 size="icon" 
                 onClick={onMobileMenuToggle} 
-                className="h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm"
+                className={cn(
+                  "h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm transition-all",
+                  !(isMaster || isAdmin) && "md:hidden"
+                )}
               >
                 <Menu className="h-5 w-5 text-foreground" />
               </Button>
