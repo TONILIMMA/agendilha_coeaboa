@@ -130,6 +130,7 @@ export default function AdminEvents() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   async function fetchAll() {
     setLoading(true);
@@ -151,15 +152,14 @@ export default function AdminEvents() {
   }, [hasPermission]);
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Tem certeza que deseja excluir este evento?")) return;
     const { error } = await supabase.from("submissions").delete().eq("id", id);
     if (error) {
       handleError(error, "Erro ao remover evento");
     } else {
-      toast.success("Evento removido");
+      toast.success("Evento removido com sucesso");
       setSubmissions((prev) => prev.filter((s) => s.id !== id));
     }
-
+    setDeleteConfirmId(null);
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
