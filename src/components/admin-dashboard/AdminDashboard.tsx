@@ -212,6 +212,16 @@ export default function AdminDashboard() {
       const eventsWithZeroFavs = submissions.filter(s => !favCounts[s.id]).length;
       const newUsersInPeriod = profiles.length;
 
+      // 7. Neighborhoods Comparison (Events vs Favorites)
+      const neighborhoodComparison = Object.entries(neighborhoodCounts)
+        .map(([name, events]) => ({
+          name,
+          events,
+          favorites: neighborhoodFavs[name] || 0
+        }))
+        .sort((a, b) => (b.events + b.favorites) - (a.events + a.favorites))
+        .slice(0, 8);
+
       return {
         kpis: {
           totalUsers,
@@ -236,6 +246,7 @@ export default function AdminDashboard() {
           eventsByCategory,
           eventStatusFunnel,
           newUsersEvolution,
+          neighborhoodComparison
         },
         rankings: {
           topEvents,
