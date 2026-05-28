@@ -14,7 +14,8 @@ import {
   User,
   Settings,
   ShieldCheck,
-  Crown
+  Crown,
+  Trophy
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserBadge, UserStatus } from "@/hooks/useUserBadge";
@@ -83,7 +84,8 @@ export function SidebarMenu({ onClose }: Props) {
       title: "Master",
       roles: ["master"],
       items: [
-        { label: "Painel Master", path: "/admin/master", icon: Crown },
+        { label: "Visão Geral", path: "/admin/master", icon: Crown },
+        { label: "Ranking Divulgadores", path: "/ranking", icon: Trophy },
         { label: "Newsletter", path: "/admin/newsletter", icon: Mail },
         { label: "Logs de Auditoria", path: "/admin/audit", icon: History },
       ]

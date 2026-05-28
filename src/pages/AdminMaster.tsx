@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Header from "@/components/Header";
+import { Separator } from "@/components/ui/separator";
 import {
   Crown,
   Shield,
@@ -30,6 +30,7 @@ import {
 import { toast } from "sonner";
 
 import AdminDashboard from "@/components/admin-dashboard/AdminDashboard";
+import Header from "@/components/Header";
 
 interface AdminUser {
   id: string;
@@ -398,10 +399,10 @@ export default function AdminMaster() {
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-display font-semibold text-foreground">
-                Painel Master
+                Visão Geral
               </h1>
               <p className="text-sm text-muted-foreground">
-                Controle e Inteligência da Plataforma
+                Inteligência Analítica da Plataforma
               </p>
             </div>
           </div>
@@ -424,16 +425,10 @@ export default function AdminMaster() {
         <Tabs defaultValue="intelligence" className="space-y-8">
           <TabsList className="bg-white/50 border border-white/60 p-1 h-auto flex flex-wrap">
             <TabsTrigger value="intelligence" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
-              <LayoutDashboard className="h-4 w-4" /> Inteligência
+              <LayoutDashboard className="h-4 w-4" /> Inteligência Analítica
             </TabsTrigger>
             <TabsTrigger value="management" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
-              <Shield className="h-4 w-4" /> Gestão
-            </TabsTrigger>
-            <TabsTrigger value="newsletter" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
-              <Mail className="h-4 w-4" /> Newsletter
-            </TabsTrigger>
-            <TabsTrigger value="ranking" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
-              <Trophy className="h-4 w-4" /> Ranking
+              <Shield className="h-4 w-4" /> Gestão de Administradores
             </TabsTrigger>
           </TabsList>
 
