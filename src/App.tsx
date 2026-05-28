@@ -104,8 +104,8 @@ const AppRoutes = () => (
         <Route path="/artista/:id" element={<ArtistProfile />} />
 
         {/* Envio de Evento / Artista */}
-        <Route path="/configurar-artista" element={<ProtectedRoute><ArtistSetup /></ProtectedRoute>} />
-        <Route path="/enviar-evento" element={<ProtectedRoute><SubmitEvent /></ProtectedRoute>} />
+        <Route path="/configurar-artista" element={<ProtectedRoute><Header /><ArtistSetup /></ProtectedRoute>} />
+        <Route path="/enviar-evento" element={<ProtectedRoute><Header /><SubmitEvent /></ProtectedRoute>} />
 
         {/* Administrativas */}
         <Route path="/admin/events" element={
@@ -121,7 +121,7 @@ const AppRoutes = () => (
           <ProtectedRoute masterOnly={true} requiredPermission="roles.manage"><AdminPinGate><Header /><AdminMaster /></AdminPinGate></ProtectedRoute>
         } />
         <Route path="/admin/newsletter" element={
-          <ProtectedRoute requiredPermission="users.read"><AdminNewsletter /></ProtectedRoute>
+          <ProtectedRoute requiredPermission="users.read"><Header /><AdminNewsletter /></ProtectedRoute>
         } />
         <Route path="/admin/artists" element={
           <ProtectedRoute requiredPermission="users.read"><Header /><AdminArtists /></ProtectedRoute>
@@ -130,7 +130,7 @@ const AppRoutes = () => (
           <ProtectedRoute requiredPermission="events.read"><Header /><AdminMedia /></ProtectedRoute>
         } />
         <Route path="/admin/audit" element={
-          <ProtectedRoute masterOnly={true} requiredPermission="audit_logs.read"><AdminAuditLogs /></ProtectedRoute>
+          <ProtectedRoute masterOnly={true} requiredPermission="audit_logs.read"><Header /><AdminAuditLogs /></ProtectedRoute>
         } />
         <Route path="/ranking" element={<ProtectedRoute><Header /><Ranking /></ProtectedRoute>} />
 
