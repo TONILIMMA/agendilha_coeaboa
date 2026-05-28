@@ -1035,6 +1035,7 @@ export type Database = {
     Functions: {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       contains_bad_words: { Args: { text_to_check: string }; Returns: boolean }
+      get_user_permissions: { Args: { p_user_id: string }; Returns: string[] }
       has_app_permission: {
         Args: { p_permission_name: string; p_user_id: string }
         Returns: boolean
