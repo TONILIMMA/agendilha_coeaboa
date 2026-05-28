@@ -50,7 +50,7 @@ import {
     eventImageUrlWhatsapp: z.string().optional(),
     // 1. Identificação do Divulgador
     nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
-    basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
+    basicPhone: z.string().trim().min(10, "WhatsApp inválido").max(16),
 
     // 2. Dados Profissionais
     companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
@@ -692,7 +692,10 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                             <FormLabel className="text-sm">WhatsApp de Contato <span className="text-accent">*</span></FormLabel>
                             <FormControl>
                               <IMaskInput
-                                mask="(00) 00000-0000"
+                                 mask={[
+                                  { mask: "(00) 00000-0000" },
+                                  { mask: "+55 (00) 00000-0000" }
+                                ]}
                                 definitions={{
                                   '0': /[0-9]/
                                 }}
@@ -860,7 +863,7 @@ function CepField({ control, onCepFound }: { control: any; onCepFound: (data: Vi
                      
                      <div className="grid grid-cols-2 gap-4">
                        <TextField control={form.control} name="startTime" label="Início" type="time" />
-                       <TextField control={form.control} name="endTime" label="Término" type="time" />
+                       <TextField control={form.control} name="endTime" label="Término" type="time" required={false} />
                      </div>
                    </div>
                  </div>
