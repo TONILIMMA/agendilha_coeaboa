@@ -82,7 +82,7 @@ export default function AdminAuditLogs() {
       <div className="container max-w-6xl mx-auto px-4 space-y-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/admin/master">
+            <Link to="/master/dashboard">
               <Button variant="ghost" size="icon" className="rounded-full">
                 <ArrowLeft className="h-5 w-5" />
               </Button>

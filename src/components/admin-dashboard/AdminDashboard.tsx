@@ -12,7 +12,7 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function AdminDashboard() {
+export function MasterPanel() {
   const { user } = useAuth();
   const [filters, setFilters] = useState({
     period: "month",
@@ -93,8 +93,8 @@ export default function AdminDashboard() {
   if (error) {
     return (
       <ErrorState 
-        title="Ocorreu uma falha no carregamento"
-        message={`Não foi possível conectar ao serviço de inteligência: ${(error as any)?.message || "Internal RPC Error"}`}
+        title="Dashboard Temporariamente Indisponível"
+        message="Estamos com dificuldades para conectar ao banco de dados. A estrutura do painel permanece ativa, mas os dados analíticos não puderam ser carregados no momento."
         onRetry={() => refetch()}
       />
     );

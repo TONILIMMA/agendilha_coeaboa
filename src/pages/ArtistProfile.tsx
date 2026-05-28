@@ -1,55 +1,53 @@
- import { useParams, Link } from "react-router-dom";
- import { useQuery } from "@tanstack/react-query";
- import { supabase } from "@/integrations/supabase/client";
- import { Button } from "@/components/ui/button";
- import { Badge } from "@/components/ui/badge";
- import { 
-   Globe, 
-   Play, 
-   Video, 
-   Calendar, 
-   MapPin, 
-   Users, 
-   Music,
-   MessageCircle,
-   ChevronLeft,
-   CheckCircle2,
-   Share2,
-   Heart
- } from "lucide-react";
- import { cn } from "@/lib/utils";
- import Header from "@/components/Header";
- 
- export default function ArtistProfile() {
-   const { id } = useParams();
- 
-   const { data: artist, isLoading } = useQuery({
-     queryKey: ["artist", id],
-     queryFn: async () => {
-       const { data, error } = await supabase
-         .from("artist_profiles")
-         .select(`
-           *,
-           artist_media (*)
-         `)
-         .eq("id", id)
-         .single();
-       if (error) throw error;
-       return data;
-     },
-   });
- 
-   if (isLoading) return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
-   if (!artist) return <div className="min-h-screen flex items-center justify-center">Artista não encontrado.</div>;
- 
-   const videos = artist.artist_media?.filter(m => m.media_type === "video") || [];
-   const images = artist.artist_media?.filter(m => m.media_type === "image") || [];
- 
-   return (
-     <div className="min-h-screen bg-background pb-20">
-       <Header />
-       
-       {/* Hero Section */}
+import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Globe, 
+  Play, 
+  Video, 
+  Calendar, 
+  MapPin, 
+  Users, 
+  Music,
+  MessageCircle,
+  ChevronLeft,
+  CheckCircle2,
+  Share2,
+  Heart
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+export default function ArtistProfile() {
+  const { id } = useParams();
+
+  const { data: artist, isLoading } = useQuery({
+    queryKey: ["artist", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("artist_profiles")
+        .select(`
+          *,
+          artist_media (*)
+        `)
+        .eq("id", id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
+  if (!artist) return <div className="min-h-screen flex items-center justify-center">Artista não encontrado.</div>;
+
+  const videos = artist.artist_media?.filter((m: any) => m.media_type === "video") || [];
+  const images = artist.artist_media?.filter((m: any) => m.media_type === "image") || [];
+
+  return (
+    <div className="min-h-screen bg-background pb-20">
+      
+      {/* Hero Section */}
        <div className="relative h-[40vh] md:h-[50vh] w-full overflow-hidden">
          <div 
            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"

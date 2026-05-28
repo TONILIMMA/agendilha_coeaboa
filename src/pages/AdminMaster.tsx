@@ -22,7 +22,7 @@ import { handleError } from "@/lib/error-handler";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import AdminDashboard from "@/components/admin-dashboard/AdminDashboard";
+import { MasterPanel } from "@/components/admin-dashboard/AdminDashboard";
 
 interface AdminUser {
   id: string;
@@ -129,7 +129,7 @@ export default function AdminMaster() {
 
   if (authLoading || !badgeLoaded) return <LoadingState fullPage message="Autenticando acesso master..." />;
   if (!user) return <Navigate to="/auth" replace />;
-  if (status !== "master" && status !== "admin") return <Navigate to="/" replace />;
+  if (status !== "master") return <Navigate to="/" replace />;
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
@@ -169,7 +169,7 @@ export default function AdminMaster() {
         </TabsList>
 
         <TabsContent value="intelligence" className="mt-0 focus-visible:outline-none">
-          <AdminDashboard />
+          <MasterPanel />
         </TabsContent>
 
         <TabsContent value="management" className="space-y-8 focus-visible:outline-none">

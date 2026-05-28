@@ -23,7 +23,6 @@ import { BasicInfoForm } from "@/components/artist-setup/BasicInfoForm";
 import { PresentationForm } from "@/components/artist-setup/PresentationForm";
 import { SocialLinksForm } from "@/components/artist-setup/SocialLinksForm";
 import { MediaUploadForm } from "@/components/artist-setup/MediaUploadForm";
-import Header from "@/components/Header";
 
 export default function ArtistSetup() {
   const { user } = useAuth();
@@ -160,7 +159,7 @@ export default function ArtistSetup() {
 
   return (
     <div className="min-h-screen bg-slate-50/50">
-      <Header />
+      
       
       <main className="container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">

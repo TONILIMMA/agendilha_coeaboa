@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -88,7 +87,6 @@ export default function EventDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
           <Skeleton className="h-[400px] w-full rounded-3xl" />
           <div className="space-y-4">
@@ -103,7 +101,6 @@ export default function EventDetail() {
   if (error || !event) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <Header />
         <div className="flex-1 flex flex-col items-center justify-center p-4 text-center space-y-4">
           <Info className="h-16 w-16 text-muted-foreground opacity-20" />
           <h1 className="text-2xl font-black">Evento não encontrado</h1>
@@ -126,7 +123,7 @@ export default function EventDetail() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <Header />
+
       
       {/* Hero Section with Image */}
       <div className="relative w-full h-[40vh] md:h-[60vh] overflow-hidden">
