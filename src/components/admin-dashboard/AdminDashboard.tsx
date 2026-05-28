@@ -37,7 +37,7 @@ export default function AdminDashboard() {
         kpis: stats.kpis,
         charts: {
           ...stats.charts,
-          // Fill in missing charts with empty data or derived data
+          // Use real data from RPC
           usersByType: [
             { name: 'Público', value: stats.kpis.publicUsers },
             { name: 'Divulgadores', value: stats.kpis.promoters },
@@ -48,23 +48,23 @@ export default function AdminDashboard() {
             { name: 'Aprovado', value: stats.kpis.approvedEvents },
             { name: 'Cancelado', value: stats.kpis.cancelledEvents },
           ],
-          // Placeholders for time-series charts (could be improved by adding to RPC)
-          eventsByPeriod: [], 
-          newUsersEvolution: [],
+          eventsByPeriod: stats.charts.eventsByPeriod || [], 
+          newUsersEvolution: stats.charts.newUsersEvolution || [],
           neighborhoodComparison: stats.charts.eventsByNeighborhood.map((n: any) => ({
             name: n.name,
             events: n.value,
-            favorites: 0 // Placeholder
+            favorites: 0 // Still placeholder for now unless I add it to RPC
           }))
         },
         rankings: {
           topEvents: stats.rankings.topEvents || [],
           topEventsByViews: [], // Need to add views to RPC if needed
           topNeighborhoods: stats.charts.eventsByNeighborhood.map((n: any) => ({ name: n.name, count: n.value })),
-          topPlaces: [], // Add to RPC
-          topArtists: [], // Add to RPC
+          topPlaces: stats.rankings.topPlaces || [],
+          topArtists: stats.rankings.topArtists || [],
           topPromoters: stats.rankings.topPromoters || []
         },
+
         metrics: {
           approvalRate: stats.kpis.totalEvents > 0 ? Math.round((stats.kpis.approvedEvents / stats.kpis.totalEvents) * 100) : 0,
           rejectionRate: stats.kpis.totalEvents > 0 ? Math.round((stats.kpis.cancelledEvents / stats.kpis.totalEvents) * 100) : 0,
