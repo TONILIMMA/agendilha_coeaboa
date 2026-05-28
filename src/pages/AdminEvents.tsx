@@ -215,7 +215,7 @@ export default function AdminEvents() {
   if (!user || !hasPermission('events.read')) return <Navigate to="/" replace />;
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="animate-fade-in">
       <div className="mx-auto max-w-7xl px-4 py-8">
          {/* Header Area */}
          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
