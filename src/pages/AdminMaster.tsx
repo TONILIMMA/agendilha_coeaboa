@@ -6,7 +6,7 @@ import { useUserBadge } from "@/hooks/useUserBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -25,8 +25,11 @@ import {
   Pencil,
   Mail,
   History as HistoryIcon,
+  LayoutDashboard,
 } from "lucide-react";
 import { toast } from "sonner";
+
+import AdminDashboard from "@/components/admin-dashboard/AdminDashboard";
 
 interface AdminUser {
   id: string;
@@ -398,304 +401,336 @@ export default function AdminMaster() {
                 Painel Master
               </h1>
               <p className="text-sm text-muted-foreground">
-                Controle total da plataforma
+                Controle e Inteligência da Plataforma
               </p>
             </div>
           </div>
-          <Button
-            onClick={bootstrapToniLima}
-            disabled={bootstrapping}
-            className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-sm"
-          >
-            {bootstrapping ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <UserPlus className="h-4 w-4" />
-            )}
-            Cadastrar TONI LIMA como Master
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={bootstrapToniLima}
+              disabled={bootstrapping}
+              className="gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-sm"
+            >
+              {bootstrapping ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <UserPlus className="h-4 w-4" />
+              )}
+              TONI LIMA
+            </Button>
+          </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { icon: Users, label: "Usuários", value: stats.users, tone: "text-primary bg-primary/10 border-primary/20" },
-            { icon: Shield, label: "Admins", value: stats.admins, tone: "text-secondary bg-secondary/10 border-secondary/20" },
-            { icon: CalendarCheck, label: "Eventos", value: stats.approved, tone: "text-emerald-700 bg-emerald-500/10 border-emerald-500/20" },
-            { icon: Mail, label: "Newsletter", value: stats.newsletter, tone: "text-orange-700 bg-orange-500/10 border-orange-500/20" },
-          ].map((s) => (
-            <Card
-              key={s.label}
-              className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm transition-transform hover:scale-[1.01]"
-            >
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className={`h-12 w-12 rounded-xl border flex items-center justify-center ${s.tone}`}>
-                  <s.icon className="h-5 w-5" />
+        <Tabs defaultValue="intelligence" className="space-y-8">
+          <TabsList className="bg-white/50 border border-white/60 p-1 h-auto flex flex-wrap">
+            <TabsTrigger value="intelligence" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
+              <LayoutDashboard className="h-4 w-4" /> Inteligência
+            </TabsTrigger>
+            <TabsTrigger value="management" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
+              <Shield className="h-4 w-4" /> Gestão
+            </TabsTrigger>
+            <TabsTrigger value="newsletter" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
+              <Mail className="h-4 w-4" /> Newsletter
+            </TabsTrigger>
+            <TabsTrigger value="ranking" className="gap-2 py-2 px-4 data-[state=active]:bg-primary data-[state=active]:text-white">
+              <Trophy className="h-4 w-4" /> Ranking
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="intelligence" className="space-y-8">
+            <AdminDashboard />
+          </TabsContent>
+
+          <TabsContent value="management" className="space-y-8">
+            {/* Stats Summary - Mini version */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { icon: Users, label: "Usuários", value: stats.users, tone: "text-primary bg-primary/10 border-primary/20" },
+                { icon: Shield, label: "Admins", value: stats.admins, tone: "text-secondary bg-secondary/10 border-secondary/20" },
+                { icon: CalendarCheck, label: "Eventos", value: stats.approved, tone: "text-emerald-700 bg-emerald-500/10 border-emerald-500/20" },
+                { icon: Mail, label: "Newsletter", value: stats.newsletter, tone: "text-orange-700 bg-orange-500/10 border-orange-500/20" },
+              ].map((s) => (
+                <Card
+                  key={s.label}
+                  className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm transition-transform hover:scale-[1.01]"
+                >
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <div className={`h-12 w-12 rounded-xl border flex items-center justify-center ${s.tone}`}>
+                      <s.icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground font-mono">
+                        {s.label}
+                      </div>
+                      <div className="text-2xl font-display font-semibold text-foreground">
+                        {loading ? "—" : s.value}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Newsletter Subscribers */}
+            <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Mail className="h-5 w-5 text-orange-600" />
+                    Inscritos na Newsletter
+                  </CardTitle>
+                  <Link to="/admin/newsletter">
+                    <Button variant="ghost" size="sm" className="text-xs text-primary font-bold">Ver Painel Completo</Button>
+                  </Link>
+                  <Link to="/admin/audit">
+                    <Button variant="ghost" size="sm" className="text-xs text-secondary font-bold flex items-center gap-1">
+                      <HistoryIcon className="h-3 w-3" /> Logs de Auditoria
+                    </Button>
+                  </Link>
                 </div>
-                <div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground font-mono">
-                    {s.label}
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {loading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
                   </div>
-                  <div className="text-2xl font-display font-semibold text-foreground">
-                    {loading ? "—" : s.value}
+                ) : (
+                  <div className="max-h-[300px] overflow-y-auto space-y-2 pr-2 scrollbar-thin">
+                    {subscribers.length === 0 && (
+                      <p className="text-sm text-muted-foreground">Nenhum inscrito ainda.</p>
+                    )}
+                    {subscribers.map((s) => (
+                      <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-white/50 border border-white/60">
+                        <div className="min-w-0">
+                          <div className="font-medium text-foreground truncate">{s.name || "Sem nome"}</div>
+                          <div className="text-xs text-muted-foreground truncate">{s.email}</div>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground font-mono">
+                          {new Date(s.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  Gestão de administradores
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {loading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  </div>
+                ) : (
+                  <>
+                    {admins.length === 0 && (
+                      <p className="text-sm text-muted-foreground">Nenhum administrador.</p>
+                    )}
+                    {admins.map((u) => (
+                      <div
+                        key={u.id}
+                        className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-white/50 border border-white/60"
+                      >
+                        <div className="min-w-0">
+                          <div className="font-medium text-foreground truncate flex items-center gap-2">
+                            {u.responsible_name || u.email}
+                            {u.is_master && (
+                              <Badge className="bg-secondary/15 text-secondary border-secondary/30 hover:bg-secondary/15">
+                                <Crown className="h-3 w-3 mr-1" /> Master
+                              </Badge>
+                            )}
+                            {u.is_admin && !u.is_master && (
+                              <Badge variant="outline" className="border-primary/30 text-primary">
+                                Admin
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">{u.email}</div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openEdit(u)}
+                          >
+                            <Pencil className="h-3.5 w-3.5 mr-1" /> Editar
+                          </Button>
+                          {!u.is_master && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={busyId === u.id}
+                              onClick={() => promoteToMaster(u.id)}
+                            >
+                              <Crown className="h-3.5 w-3.5 mr-1" /> Tornar Master
+                            </Button>
+                          )}
+                          {u.is_admin && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              disabled={busyId === u.id || u.id === user.id}
+                              onClick={() => removeAdmin(u.id)}
+                            >
+                              <ShieldOff className="h-3.5 w-3.5 mr-1" /> Remover Admin
+                            </Button>
+                          )}
+                          {u.is_master && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              disabled={busyId === u.id || u.id === user.id || masterCount <= 1}
+                              onClick={() => removeMaster(u.id)}
+                            >
+                              <ShieldOff className="h-3.5 w-3.5 mr-1" /> Remover Master
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                <div className="pt-4 border-t border-white/60">
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground font-mono mb-2">
+                    Promover usuário a Admin / Editar
+                  </div>
+                  <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                    {allUsers.filter((u) => !u.is_admin && !u.is_master).map((u) => (
+                      <div
+                        key={u.id}
+                        className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white/40 border border-white/50"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium text-foreground truncate">
+                            {u.responsible_name || "Sem nome"}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {u.phone || u.email}
+                          </div>
+                        </div>
+                        <div className="flex gap-1.5 shrink-0">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => openEdit(u)}
+                            className="h-8 px-2"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={busyId === u.id}
+                            onClick={() => promoteToAdmin(u.id)}
+                            className="h-8"
+                          >
+                            <ShieldPlus className="h-3.5 w-3.5 mr-1" /> Admin
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    {allUsers.filter((u) => !u.is_admin && !u.is_master).length === 0 && (
+                      <p className="text-sm text-muted-foreground">Sem usuários elegíveis.</p>
+                    )}
                   </div>
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+          </TabsContent>
 
-        {/* Admin management */}
-        {/* Newsletter Subscribers */}
-        <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Mail className="h-5 w-5 text-orange-600" />
-                Inscritos na Newsletter
-              </CardTitle>
-              <Link to="/admin/newsletter">
-                <Button variant="ghost" size="sm" className="text-xs text-primary font-bold">Ver Painel Completo</Button>
-              </Link>
-              <Link to="/admin/audit">
-                <Button variant="ghost" size="sm" className="text-xs text-secondary font-bold flex items-center gap-1">
-                  <HistoryIcon className="h-3 w-3" /> Logs de Auditoria
+          <TabsContent value="newsletter" className="space-y-8">
+             <Link to="/admin/newsletter">
+                <Button className="w-full h-20 text-xl font-black gradient-sunset rounded-2xl shadow-lg">
+                  <Mail className="h-8 w-8 mr-4" /> Acessar Painel da Newsletter
                 </Button>
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {loading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : (
-              <div className="max-h-[300px] overflow-y-auto space-y-2 pr-2 scrollbar-thin">
-                {subscribers.length === 0 && (
-                  <p className="text-sm text-muted-foreground">Nenhum inscrito ainda.</p>
-                )}
-                {subscribers.map((s) => (
-                  <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-white/50 border border-white/60">
-                    <div className="min-w-0">
-                      <div className="font-medium text-foreground truncate">{s.name || "Sem nome"}</div>
-                      <div className="text-xs text-muted-foreground truncate">{s.email}</div>
-                    </div>
-                    <div className="text-[10px] text-muted-foreground font-mono">
-                      {new Date(s.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+             </Link>
+          </TabsContent>
 
-        <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              Gestão de administradores
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {loading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : (
-              <>
-                {admins.length === 0 && (
-                  <p className="text-sm text-muted-foreground">Nenhum administrador.</p>
-                )}
-                {admins.map((u) => (
-                  <div
-                    key={u.id}
-                    className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-white/50 border border-white/60"
-                  >
-                    <div className="min-w-0">
-                      <div className="font-medium text-foreground truncate flex items-center gap-2">
-                        {u.responsible_name || u.email}
-                        {u.is_master && (
-                          <Badge className="bg-secondary/15 text-secondary border-secondary/30 hover:bg-secondary/15">
-                            <Crown className="h-3 w-3 mr-1" /> Master
-                          </Badge>
-                        )}
-                        {u.is_admin && !u.is_master && (
-                          <Badge variant="outline" className="border-primary/30 text-primary">
-                            Admin
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted-foreground truncate">{u.email}</div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openEdit(u)}
-                      >
-                        <Pencil className="h-3.5 w-3.5 mr-1" /> Editar
-                      </Button>
-                      {!u.is_master && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={busyId === u.id}
-                          onClick={() => promoteToMaster(u.id)}
-                        >
-                          <Crown className="h-3.5 w-3.5 mr-1" /> Tornar Master
-                        </Button>
-                      )}
-                      {u.is_admin && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={busyId === u.id || u.id === user.id}
-                          onClick={() => removeAdmin(u.id)}
-                        >
-                          <ShieldOff className="h-3.5 w-3.5 mr-1" /> Remover Admin
-                        </Button>
-                      )}
-                      {u.is_master && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={busyId === u.id || u.id === user.id || masterCount <= 1}
-                          onClick={() => removeMaster(u.id)}
-                        >
-                          <ShieldOff className="h-3.5 w-3.5 mr-1" /> Remover Master
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-
-            {/* Promote a non-admin */}
-            <div className="pt-4 border-t border-white/60">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground font-mono mb-2">
-                Promover usuário a Admin / Editar
-              </div>
-              <div className="space-y-1.5 max-h-64 overflow-y-auto">
-                {allUsers.filter((u) => !u.is_admin && !u.is_master).map((u) => (
-                  <div
-                    key={u.id}
-                    className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white/40 border border-white/50"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-foreground truncate">
-                        {u.responsible_name || "Sem nome"}
-                      </div>
-                      <div className="text-xs text-muted-foreground truncate">
-                        {u.phone || u.email}
-                      </div>
-                    </div>
-                    <div className="flex gap-1.5 shrink-0">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => openEdit(u)}
-                        className="h-8 px-2"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={busyId === u.id}
-                        onClick={() => promoteToAdmin(u.id)}
-                        className="h-8"
-                      >
-                        <ShieldPlus className="h-3.5 w-3.5 mr-1" /> Admin
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                {allUsers.filter((u) => !u.is_admin && !u.is_master).length === 0 && (
-                  <p className="text-sm text-muted-foreground">Sem usuários elegíveis.</p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Ranking */}
-        <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
-          <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-secondary" />
-              Ranking de divulgadores
-            </CardTitle>
-            <div className="flex flex-wrap items-center gap-2">
-              <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-                <TabsList>
-                  {(Object.keys(periodLabels) as Period[]).map((p) => (
-                    <TabsTrigger key={p} value={p}>
-                      {periodLabels[p]}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="h-9 w-[160px] rounded-full bg-white/70 border-white/60 text-xs">
-                  <SelectValue placeholder="Categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categoryOptions.map((c) => (
-                    <SelectItem key={c.value} value={c.value} className="text-sm">
-                      {c.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {ranking.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">
-                Sem dados para o período.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {ranking.map((r, i) => (
-                  <div
-                    key={r.user_id}
-                    className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/50 border border-white/60 transition-transform hover:scale-[1.01]"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
+          <TabsContent value="ranking" className="space-y-8">
+            <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-sm">
+              <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-secondary" />
+                  Ranking de divulgadores
+                </CardTitle>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
+                    <TabsList>
+                      {(Object.keys(periodLabels) as Period[]).map((p) => (
+                        <TabsTrigger key={p} value={p}>
+                          {periodLabels[p]}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </Tabs>
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger className="h-9 w-[160px] rounded-full bg-white/70 border-white/60 text-xs">
+                      <SelectValue placeholder="Categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categoryOptions.map((c) => (
+                        <SelectItem key={c.value} value={c.value} className="text-sm">
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {ranking.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">
+                    Sem dados para o período.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {ranking.map((r, i) => (
                       <div
-                        className={`h-9 w-9 rounded-full flex items-center justify-center font-display font-semibold text-sm ${
-                          i === 0
-                            ? "bg-secondary text-secondary-foreground"
-                            : i < 3
-                            ? "bg-primary/15 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}
+                        key={r.user_id}
+                        className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/50 border border-white/60 transition-transform hover:scale-[1.01]"
                       >
-                        {i + 1}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-medium text-foreground truncate">{r.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {r.other} pendentes/reprovados
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`h-9 w-9 rounded-full flex items-center justify-center font-display font-semibold text-sm ${
+                              i === 0
+                                ? "bg-secondary text-secondary-foreground"
+                                : i < 3
+                                ? "bg-primary/15 text-primary"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {i + 1}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-medium text-foreground truncate">{r.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {r.other} pendentes/reprovados
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-display font-semibold text-primary">
+                            {r.approved}
+                          </div>
+                          <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">
+                            aprovados
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-display font-semibold text-primary">
-                        {r.approved}
-                      </div>
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">
-                        aprovados
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Edit user dialog */}
@@ -741,3 +776,4 @@ export default function AdminMaster() {
     </div>
   );
 }
+
