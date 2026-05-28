@@ -129,7 +129,7 @@ export default function AdminMaster() {
 
   if (authLoading || !badgeLoaded) return <LoadingState fullPage message="Autenticando acesso master..." />;
   if (!user) return <Navigate to="/auth" replace />;
-  if (status !== "master" && status !== "admin") return <Navigate to="/" replace />;
+  if (status !== "master") return <Navigate to="/" replace />;
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
