@@ -50,7 +50,7 @@ import {
     eventImageUrlWhatsapp: z.string().optional(),
     // 1. Identificação do Divulgador
     nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
-    basicPhone: z.string().trim().min(14, "WhatsApp inválido").max(15),
+    basicPhone: z.string().trim().min(10, "WhatsApp inválido").max(16),
 
     // 2. Dados Profissionais
     companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),

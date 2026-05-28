@@ -72,7 +72,13 @@ export default function Auth() {
   if (user) return <Navigate to={redirect} replace />;
 
   function formatPhoneDisplay(value: string) {
-    const digits = value.replace(/\D/g, "");
+    let digits = value.replace(/\D/g, "");
+    
+    // If it starts with 55 and has more than 11 digits, it's likely the prefix
+    if (digits.startsWith("55") && digits.length > 11) {
+      digits = digits.slice(2);
+    }
+
     if (digits.length <= 2) return digits;
     if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
     if (digits.length <= 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
@@ -80,15 +86,19 @@ export default function Auth() {
   }
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const digits = e.target.value.replace(/\D/g, "");
-    if (digits.length <= 11) {
+    const value = e.target.value;
+    const digits = value.replace(/\D/g, "");
+    
+    // Accept up to 13 digits (allowing +55) but format normally
+    if (digits.length <= 13) {
       setPhone(formatPhoneDisplay(digits));
     }
   }
 
   function isValidPhone(value: string) {
     const digits = value.replace(/\D/g, "");
-    return /^\d{2}9\d{8}$/.test(digits);
+    // Accepts 10 or 11 digits (with or without prefix already handled by handlePhoneChange)
+    return digits.length >= 10 && digits.length <= 11;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -103,7 +113,7 @@ export default function Auth() {
 
     if (!isValidPhone(phone)) {
       toast.error("Número inválido", {
-        description: "Por favor, insira um número de WhatsApp válido com DDD. Exemplo: (21) 98765-4321",
+        description: "Por favor, insira um número de WhatsApp válido. Exemplo: (21) 98765-4321",
       });
       return;
     }
