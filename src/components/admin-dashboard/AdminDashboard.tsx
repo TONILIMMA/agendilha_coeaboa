@@ -73,11 +73,11 @@ export default function AdminDashboard() {
       const publicUsersCount = totalUsers - adminsCount - promotersCount;
 
       const totalEvents = submissions.length;
-      const pendingEvents = submissions.filter(s => s.status === 'pending' || s.status === 'analysis').length;
-      const approvedEvents = submissions.filter(s => s.status === 'approved' || s.status === 'published').length;
-      const cancelledEvents = submissions.filter(s => s.status === 'rejected' || s.status === 'blocked').length;
+      const pendingEvents = submissions.filter(s => s.status === 'pendente' || s.status === 'em_revisao').length;
+      const approvedEvents = submissions.filter(s => s.status === 'aprovado' || s.status === 'publicado' || s.status === 'divulgado').length;
+      const cancelledEvents = submissions.filter(s => s.status === 'cancelado' || s.status === 'blocked').length;
 
-      const neighborhoodsWithEvents = new Set(submissions.filter(s => s.status === 'approved' || s.status === 'published').map(s => s.address_neighborhood)).size;
+      const neighborhoodsWithEvents = new Set(submissions.filter(s => s.status === 'aprovado' || s.status === 'publicado' || s.status === 'divulgado').map(s => s.address_neighborhood)).size;
 
       // Charts Data
       // 1. Users by Type

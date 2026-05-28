@@ -488,35 +488,47 @@ export default function AdminEvents() {
                         </Tooltip>
 
                         {/* Aprovar/Rejeitar/Publicar (Dinâmico) */}
-                        {sub.status === 'pending' || sub.status === 'analysis' ? (
+                        {sub.status === 'pendente' || sub.status === 'em_revisao' ? (
                           <>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button size="icon" variant="outline" className="h-9 w-9 bg-white border-border hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'approved')}>
+                                <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'aprovado')}>
                                   <CheckCircle className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Aprovar</TooltipContent>
                             </Tooltip>
+                            
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button size="icon" variant="outline" className="h-9 w-9 bg-white border-border hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'rejected')}>
-                                  <XCircle className="h-4 w-4" />
+                                <Button size="icon" variant="outline" className="h-9 w-9 bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" onClick={() => handleApproveAndPublish(sub.id)}>
+                                  <Globe className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Rejeitar</TooltipContent>
+                              <TooltipContent>Aprovar e Publicar</TooltipContent>
                             </Tooltip>
                           </>
-                        ) : sub.status === 'approved' ? (
+                        ) : (sub.status === 'aprovado' || sub.status === 'agendado_para_divulgacao') ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button size="icon" variant="outline" className="h-9 w-9 bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'published')}>
+                              <Button size="icon" variant="outline" className="h-9 w-9 bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'publicado')}>
                                 <Send className="h-4 w-4" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>Publicar na Agenda</TooltipContent>
                           </Tooltip>
                         ) : null}
+
+                        {sub.slug && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button size="icon" variant="outline" className="h-9 w-9 bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm" onClick={() => window.open(`/evento/${sub.slug}`, '_blank')}>
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Ver Página Pública</TooltipContent>
+                          </Tooltip>
+                        )}
 
                         {/* Destacar */}
                         <Tooltip>
@@ -545,9 +557,23 @@ export default function AdminEvents() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-56">
                             <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Distribuição</div>
+                            <DropdownMenuItem onClick={() => sub.short_copy && copyToClipboard(sub.short_copy, "Texto curto")} disabled={!sub.short_copy} className="cursor-pointer">
+                              <MessageCircle className="h-4 w-4 mr-2" /> Copiar Texto Curto
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => sub.long_copy && copyToClipboard(sub.long_copy, "Texto longo")} disabled={!sub.long_copy} className="cursor-pointer">
+                              <MessageCircle className="h-4 w-4 mr-2" /> Copiar Texto Longo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => sub.short_copy && openWhatsApp(sub.short_copy)} disabled={!sub.short_copy} className="cursor-pointer">
+                              <Phone className="h-4 w-4 mr-2" /> Abrir no WhatsApp
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => exportSingleEventPdf(sub)} className="cursor-pointer">
                               <FileDown className="h-4 w-4 mr-2" /> Exportar PDF
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDelete(sub.id)} className="cursor-pointer text-rose-600 hover:text-rose-700 hover:bg-rose-50">
+                              <Trash2 className="h-4 w-4 mr-2" /> Excluir Evento
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
                             <DropdownMenuItem onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")} className="cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50 font-bold">
                               <MessageCircle className="h-4 w-4 mr-2" /> Divulgar WhatsApp
                             </DropdownMenuItem>
