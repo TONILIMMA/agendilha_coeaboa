@@ -3,6 +3,7 @@ import {
   generateTempPassword,
   normalizePhone,
   buildWhatsappUrl,
+  isValidBrazilianMobile,
 } from "../_shared/temp-password.ts";
 
 const corsHeaders = {
@@ -21,8 +22,10 @@ Deno.serve(async (req) => {
 
   try {
     const { phone } = await req.json();
-    if (typeof phone !== "string" || phone.replace(/\D/g, "").length < 10) {
-      return new Response(JSON.stringify({ error: "Telefone inválido" }), {
+    if (typeof phone !== "string" || !isValidBrazilianMobile(phone)) {
+      return new Response(JSON.stringify({
+        error: "WhatsApp inválido. Use um celular brasileiro no formato (DDD) 9XXXX-XXXX.",
+      }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -90,10 +93,26 @@ Deno.serve(async (req) => {
       .update({ must_change_password: true })
       .eq("user_id", user.id);
 
-    const whatsappUrl = buildWhatsappUrl(normalized, tempPassword);
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("responsible_name, nick_name")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const recipientName =
+      profile?.responsible_name || profile?.nick_name || null;
+
+    const whatsappUrl = buildWhatsappUrl(normalized, tempPassword, {
+      recipientName,
+    });
 
     return new Response(
-      JSON.stringify({ success: true, tempPassword, whatsappUrl }),
+      JSON.stringify({
+        success: true,
+        tempPassword,
+        whatsappUrl,
+        phone: normalized,
+        recipientName,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
