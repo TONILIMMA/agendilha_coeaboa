@@ -36,11 +36,22 @@ import {
   MapPin, 
   Music, 
   UserMinus,
-  ChevronDown
+  ChevronDown,
+  KeyRound,
+  Copy,
+  MessageCircle
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { LoadingState } from "@/components/ui/LoadingState";
@@ -92,6 +103,13 @@ export default function AdminUsers() {
   const [showAdminConfirm, setShowAdminConfirm] = useState<UserWithRole | null>(null);
   const [showMasterConfirm, setShowMasterConfirm] = useState<UserWithRole | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<UserWithRole | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState<UserWithRole | null>(null);
+  const [resetting, setResetting] = useState<string | null>(null);
+  const [resetResult, setResetResult] = useState<{
+    user: UserWithRole;
+    tempPassword: string;
+    whatsappUrl: string | null;
+  } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -300,6 +318,41 @@ export default function AdminUsers() {
     setDeleting(null);
   }
 
+  async function resetPassword(targetUser: UserWithRole) {
+    setResetting(targetUser.id);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast.error("Sessão expirada.");
+        setResetting(null);
+        return;
+      }
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-reset-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ user_id: targetUser.id }),
+        }
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data?.error || `Erro ${response.status}`);
+      setResetResult({
+        user: targetUser,
+        tempPassword: data.tempPassword,
+        whatsappUrl: data.whatsappUrl,
+      });
+      toast.success("Senha temporária gerada");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao resetar senha");
+    }
+    setResetting(null);
+  }
+
   if (authLoading) return <LoadingState fullPage message="Verificando permissões..." />;
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
@@ -434,6 +487,16 @@ export default function AdminUsers() {
                     >
                       {deleting === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      disabled={resetting === u.id}
+                      title="Resetar senha"
+                      className="h-9 w-9 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-full"
+                      onClick={() => setShowResetConfirm(u)}
+                    >
+                      {resetting === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+                    </Button>
                   </div>
 
                   {/* Mobile Mobile Action Trigger (Dropdown style) */}
@@ -453,6 +516,11 @@ export default function AdminUsers() {
                             {u.status === "master" ? "Remover Master" : "Tornar Master"}
                           </DropdownMenuItem>
                         )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => setShowResetConfirm(u)}>
+                          <KeyRound className="h-4 w-4 mr-2" />
+                          Resetar senha
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => setShowDeleteConfirm(u)} disabled={u.id === user?.id} className="text-rose-600 font-bold">
                           Excluir Usuário
@@ -506,6 +574,89 @@ export default function AdminUsers() {
         confirmText="Excluir Permanentemente"
         variant="destructive"
       />
+
+      <ConfirmModal
+        isOpen={!!showResetConfirm}
+        onClose={() => setShowResetConfirm(null)}
+        onConfirm={() => {
+          if (showResetConfirm) resetPassword(showResetConfirm);
+          setShowResetConfirm(null);
+        }}
+        title="Resetar senha do usuário"
+        description={`Será gerada uma senha temporária para ${showResetConfirm?.responsible_name || showResetConfirm?.email}. A senha atual deixará de funcionar imediatamente e o usuário precisará trocá-la no próximo login.`}
+        confirmText="Gerar senha temporária"
+      />
+
+      <Dialog
+        open={!!resetResult}
+        onOpenChange={(open) => !open && setResetResult(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-primary" />
+              Senha temporária gerada
+            </DialogTitle>
+            <DialogDescription>
+              Copie ou envie pelo WhatsApp agora. Por segurança, esta senha
+              só aparece uma vez.
+            </DialogDescription>
+          </DialogHeader>
+
+          {resetResult && (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
+                  Para: {resetResult.user.responsible_name || resetResult.user.email}
+                </p>
+                <p className="text-2xl font-bold tracking-widest text-center text-foreground font-mono py-2 select-all break-all">
+                  {resetResult.tempPassword}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    navigator.clipboard.writeText(resetResult.tempPassword);
+                    toast.success("Senha copiada!");
+                  }}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copiar senha
+                </Button>
+              </div>
+
+              {resetResult.whatsappUrl ? (
+                <Button
+                  asChild
+                  className="w-full h-11 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-bold"
+                >
+                  <a
+                    href={resetResult.whatsappUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Enviar pelo WhatsApp
+                  </a>
+                </Button>
+              ) : (
+                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  Este usuário não tem telefone cadastrado — envie a senha por
+                  outro canal.
+                </p>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setResetResult(null)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

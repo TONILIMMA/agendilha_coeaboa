@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
- import { LogOut, User as UserIcon, Settings, Shield, Crown } from "lucide-react";
+import { LogOut, User as UserIcon, Settings, Shield, Crown, KeyRound } from "lucide-react";
  import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserBadge } from "@/hooks/useUserBadge";
@@ -172,6 +172,12 @@ interface Props {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+          <Link to="/configuracoes">
+            <KeyRound className="h-4 w-4 mr-2" />
+            Senha e conta
+          </Link>
+        </DropdownMenuItem>
         {(status === "admin" || status === "master") && (
           <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
             <Link to="/admin/users">
