@@ -652,26 +652,96 @@ export default function AdminUsers() {
                 </Button>
               </div>
 
-              {resetResult.whatsappUrl ? (
-                <Button
-                  asChild
-                  className="w-full h-11 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-bold"
-                >
-                  <a
-                    href={resetResult.whatsappUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Enviar pelo WhatsApp
-                  </a>
-                </Button>
-              ) : (
-                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
-                  Este usuário não tem telefone cadastrado — envie a senha por
-                  outro canal.
+              <div className="rounded-lg border border-border bg-muted/20 p-3 text-xs space-y-1">
+                <p className="flex items-center gap-1">
+                  <strong>WhatsApp:</strong>{" "}
+                  {resetResult.phone
+                    ? formatPhoneDisplay(resetResult.phone)
+                    : "—"}{" "}
+                  {resetResult.phoneIsValid ? (
+                    <span className="text-emerald-600 inline-flex items-center gap-0.5">
+                      <CheckCircle2 className="h-3 w-3" /> válido
+                    </span>
+                  ) : (
+                    <span className="text-destructive inline-flex items-center gap-0.5">
+                      <AlertCircle className="h-3 w-3" /> inválido
+                    </span>
+                  )}
                 </p>
-              )}
+                {!resetResult.phoneIsValid && (
+                  <p className="text-amber-700">
+                    Telefone ausente ou fora do padrão BR (DDD + 9XXXX-XXXX).
+                    Envie por outro canal ou atualize o cadastro.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium">
+                  Instruções extras (opcional)
+                </label>
+                <Input
+                  value={resetResult.customNote}
+                  maxLength={500}
+                  placeholder="Ex.: Use até hoje 18h. Dúvidas: fale com Daniel."
+                  onChange={(e) => {
+                    const customNote = e.target.value;
+                    setResetResult({
+                      ...resetResult,
+                      customNote,
+                      message: buildTempPasswordMessage({
+                        tempPassword: resetResult.tempPassword,
+                        recipientName: resetResult.recipientName,
+                        customNote,
+                      }),
+                    });
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium">
+                  Mensagem (edite se quiser)
+                </label>
+                <Textarea
+                  rows={7}
+                  value={resetResult.message}
+                  onChange={(e) =>
+                    setResetResult({ ...resetResult, message: e.target.value })
+                  }
+                  className="text-xs font-mono bg-muted/30"
+                />
+              </div>
+
+              {(() => {
+                const liveUrl = resetResult.phone
+                  ? buildWhatsappUrl(resetResult.phone, resetResult.message)
+                  : null;
+                return liveUrl ? (
+                  <Button
+                    asChild
+                    className="w-full h-11 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-bold"
+                  >
+                    <a href={liveUrl} target="_blank" rel="noreferrer">
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      Enviar pelo WhatsApp
+                    </a>
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-11"
+                    onClick={() => {
+                      navigator.clipboard.writeText(resetResult.message);
+                      toast.success("Mensagem copiada — envie por outro canal");
+                    }}
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copiar mensagem
+                  </Button>
+                );
+              })()}
             </div>
           )}
 
