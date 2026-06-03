@@ -687,6 +687,7 @@ export type Database = {
           home_location: string | null
           id: string
           musical_preferences: string[] | null
+          must_change_password: boolean
           nick_name: string | null
           notification_frequency: string | null
           onboarding_completed: boolean | null
@@ -717,6 +718,7 @@ export type Database = {
           home_location?: string | null
           id?: string
           musical_preferences?: string[] | null
+          must_change_password?: boolean
           nick_name?: string | null
           notification_frequency?: string | null
           onboarding_completed?: boolean | null
@@ -747,6 +749,7 @@ export type Database = {
           home_location?: string | null
           id?: string
           musical_preferences?: string[] | null
+          must_change_password?: boolean
           nick_name?: string | null
           notification_frequency?: string | null
           onboarding_completed?: boolean | null
