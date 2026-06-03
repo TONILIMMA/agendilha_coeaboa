@@ -41,6 +41,8 @@ const ArtistFeed = lazy(() => import("./pages/ArtistFeed"));
 const AdminMedia = lazy(() => import("./pages/AdminMedia"));
 const AdminAuditLogs = lazy(() => import("./pages/AdminAuditLogs"));
 const EventDetail = lazy(() => import("./pages/EventDetail"));
+const Settings = lazy(() => import("./pages/Settings"));
+const MustChangePassword = lazy(() => import("./pages/MustChangePassword"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,7 +92,7 @@ export function ProtectedRoute({
   requiredPermission?: PermissionName;
   masterOnly?: boolean;
 }) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, mustChangePassword } = useAuth();
   const { hasPermission, isMaster, loading: permsLoading } = useAppPermissions();
   const location = useLocation();
   
@@ -104,6 +106,10 @@ export function ProtectedRoute({
   
   if (!user) {
     return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  if (mustChangePassword && location.pathname !== "/trocar-senha") {
+    return <Navigate to="/trocar-senha" replace />;
   }
 
   if (masterOnly && !isMaster) {
@@ -156,6 +162,10 @@ export const AppRoutes = () => (
         </Route>
 
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/trocar-senha" element={<ProtectedRoute><MustChangePassword /></ProtectedRoute>} />
+        <Route element={<AppShell maxWidth="md"><Outlet /></AppShell>}>
+          <Route path="/configuracoes" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        </Route>
         <Route path="/coeaboa" element={<Navigate to="/agenda" replace />} />
         <Route path="/lp" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />

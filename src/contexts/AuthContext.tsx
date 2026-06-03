@@ -7,6 +7,8 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
+  mustChangePassword: boolean;
+  refreshMustChangePassword: () => Promise<void>;
    signUp: (phone: string, password: string, name?: string, additionalData?: any, role?: string) => Promise<{ error: Error | null }>;
   signIn: (phone: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -19,6 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -29,6 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(null);
         setUser(null);
         setIsAdmin(false);
+        setMustChangePassword(false);
         setLoading(false);
         return;
       }
@@ -36,8 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         setTimeout(() => checkAdmin(session.user.id), 0);
+        setTimeout(() => checkMustChangePassword(session.user.id), 0);
       } else {
         setIsAdmin(false);
+        setMustChangePassword(false);
       }
       setLoading(false);
     });
@@ -47,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         checkAdmin(session.user.id);
+        checkMustChangePassword(session.user.id);
       }
       setLoading(false);
     });
@@ -76,6 +83,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     setIsAdmin(!!legacyAdmin || !!legacyMaster || !!hasNewRole);
+  }
+
+  async function checkMustChangePassword(userId: string) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("must_change_password")
+      .eq("user_id", userId)
+      .maybeSingle();
+    setMustChangePassword(!!data?.must_change_password);
+  }
+
+  async function refreshMustChangePassword() {
+    if (user?.id) await checkMustChangePassword(user.id);
   }
 
   const formatPhoneToEmail = (phone: string): string => {
@@ -142,7 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, mustChangePassword, refreshMustChangePassword, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
