@@ -355,10 +355,21 @@ export default function AdminUsers() {
       );
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data?.error || `Erro ${response.status}`);
+      const recipientName: string | null =
+        data.recipientName ?? targetUser.responsible_name ?? null;
+      const message = buildTempPasswordMessage({
+        tempPassword: data.tempPassword,
+        recipientName,
+      });
       setResetResult({
         user: targetUser,
         tempPassword: data.tempPassword,
         whatsappUrl: data.whatsappUrl,
+        phone: data.phone ?? null,
+        phoneIsValid: !!data.phoneIsValid,
+        recipientName,
+        customNote: "",
+        message,
       });
       toast.success("Senha temporária gerada");
     } catch (err: any) {
