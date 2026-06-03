@@ -39,11 +39,20 @@ import {
   ChevronDown,
   KeyRound,
   Copy,
-  MessageCircle
+  MessageCircle,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { toast } from "sonner";
+import {
+  isValidBrazilianMobile,
+  formatPhoneDisplay,
+  buildTempPasswordMessage,
+  buildWhatsappUrl,
+} from "@/lib/whatsapp";
 import {
   Dialog,
   DialogContent,
