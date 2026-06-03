@@ -2,6 +2,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   generateTempPassword,
   buildWhatsappUrl,
+  isValidBrazilianMobile,
+  normalizePhone,
 } from "../_shared/temp-password.ts";
 
 const corsHeaders = {
@@ -48,13 +50,20 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { user_id } = await req.json();
+    const { user_id, customNote } = await req.json();
     if (typeof user_id !== "string" || !user_id) {
       return new Response(JSON.stringify({ error: "user_id é obrigatório" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    if (customNote != null && typeof customNote !== "string") {
+      return new Response(JSON.stringify({ error: "customNote inválido" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const safeNote = (customNote ?? "").slice(0, 500);
 
     const admin = createClient(supabaseUrl, serviceRoleKey);
 
@@ -77,7 +86,7 @@ Deno.serve(async (req) => {
     // Lookup target user's phone (from profile, or fallback to placeholder email digits)
     const { data: profile } = await admin
       .from("profiles")
-      .select("phone")
+      .select("phone, responsible_name, nick_name")
       .eq("user_id", user_id)
       .maybeSingle();
 
@@ -94,6 +103,9 @@ Deno.serve(async (req) => {
       const emailLocal = targetUserData.user.email?.split("@")[0] ?? "";
       if (/^\d+$/.test(emailLocal)) phone = emailLocal;
     }
+    const phoneIsValid = !!phone && isValidBrazilianMobile(phone);
+    const recipientName =
+      profile?.responsible_name || profile?.nick_name || null;
 
     const tempPassword = generateTempPassword(10);
 
@@ -122,8 +134,11 @@ Deno.serve(async (req) => {
       reason: "Admin gerou senha temporária",
     });
 
-    const whatsappUrl = phone
-      ? buildWhatsappUrl(phone, tempPassword)
+    const whatsappUrl = phoneIsValid
+      ? buildWhatsappUrl(phone, tempPassword, {
+          recipientName,
+          customNote: safeNote || null,
+        })
       : null;
 
     return new Response(
@@ -131,7 +146,9 @@ Deno.serve(async (req) => {
         success: true,
         tempPassword,
         whatsappUrl,
-        phone: phone || null,
+        phone: phoneIsValid ? normalizePhone(phone) : phone || null,
+        phoneIsValid,
+        recipientName,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
