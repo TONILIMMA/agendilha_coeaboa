@@ -118,6 +118,11 @@ export default function AdminUsers() {
     user: UserWithRole;
     tempPassword: string;
     whatsappUrl: string | null;
+    phone: string | null;
+    phoneIsValid: boolean;
+    recipientName: string | null;
+    customNote: string;
+    message: string;
   } | null>(null);
 
   useEffect(() => {
