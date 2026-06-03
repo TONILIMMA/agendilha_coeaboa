@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
   Loader2,
@@ -12,7 +13,15 @@ import {
   Copy,
   ShieldCheck,
   MessageCircle,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
+import {
+  isValidBrazilianMobile,
+  formatPhoneDisplay,
+  buildTempPasswordMessage,
+  buildWhatsappUrl,
+} from "@/lib/whatsapp";
 
 type Step = "phone" | "done";
 
@@ -21,34 +30,21 @@ export default function ForgotPassword() {
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [tempPassword, setTempPassword] = useState("");
-  const [whatsappUrl, setWhatsappUrl] = useState("");
+  const [recipientName, setRecipientName] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
 
-  function formatPhoneDisplay(value: string) {
-    let d = value.replace(/\D/g, "");
-    if (d.startsWith("55") && d.length > 11) d = d.slice(2);
-    if (d.length <= 2) return d;
-    if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
-    return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7, 11)}`;
-  }
+  const phoneOk = isValidBrazilianMobile(phone);
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const d = e.target.value.replace(/\D/g, "");
     if (d.length <= 11) setPhone(formatPhoneDisplay(d));
   }
 
-  function isValidPhone(value: string) {
-    const d = value.replace(/\D/g, "");
-    return (
-      (d.length >= 10 && d.length <= 11) ||
-      (d.startsWith("55") && d.length >= 12 && d.length <= 13)
-    );
-  }
-
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
-    if (!isValidPhone(phone)) {
-      toast.error("Número inválido", {
-        description: "Use o formato (21) 98765-4321",
+    if (!phoneOk) {
+      toast.error("WhatsApp inválido", {
+        description: "Use um celular brasileiro: (DDD) 9XXXX-XXXX",
       });
       return;
     }
@@ -66,7 +62,13 @@ export default function ForgotPassword() {
       return;
     }
     setTempPassword(data.tempPassword);
-    setWhatsappUrl(data.whatsappUrl);
+    setRecipientName(data.recipientName ?? null);
+    setMessage(
+      buildTempPasswordMessage({
+        tempPassword: data.tempPassword,
+        recipientName: data.recipientName,
+      }),
+    );
     setStep("done");
   }
 
@@ -74,6 +76,8 @@ export default function ForgotPassword() {
     navigator.clipboard.writeText(tempPassword);
     toast.success("Senha copiada!");
   }
+
+  const whatsappUrl = buildWhatsappUrl(phone, message);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background px-4 py-8">
@@ -108,12 +112,29 @@ export default function ForgotPassword() {
                 required
                 placeholder="(21) 98765-4321"
                 className="h-12 bg-muted/30 focus-visible:ring-primary/20"
+                aria-invalid={phone.length > 0 && !phoneOk}
               />
+              {phone.length > 0 && (
+                <p
+                  className={`flex items-center gap-1 text-[11px] ${
+                    phoneOk ? "text-emerald-600" : "text-destructive"
+                  }`}
+                >
+                  {phoneOk ? (
+                    <CheckCircle2 className="h-3 w-3" />
+                  ) : (
+                    <AlertCircle className="h-3 w-3" />
+                  )}
+                  {phoneOk
+                    ? "Número válido"
+                    : "Use celular BR com DDD e 9 inicial"}
+                </p>
+              )}
             </div>
 
             <Button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !phoneOk}
               className="w-full h-12 gradient-sunset text-primary-foreground font-display font-black uppercase tracking-wider"
             >
               {submitting ? (
@@ -133,6 +154,7 @@ export default function ForgotPassword() {
                 <ShieldCheck className="h-4 w-4" />
                 <p className="text-xs font-bold uppercase tracking-wider">
                   Senha gerada
+                  {recipientName ? ` · ${recipientName.split(" ")[0]}` : ""}
                 </p>
               </div>
               <p className="text-2xl font-bold tracking-widest text-center text-foreground font-mono py-2 select-all break-all">
@@ -154,11 +176,40 @@ export default function ForgotPassword() {
               </p>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="msg" className="text-xs">
+                Mensagem que será enviada (você pode personalizar)
+              </Label>
+              <Textarea
+                id="msg"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={8}
+                className="text-xs font-mono bg-muted/30"
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Destinatário: <strong>{formatPhoneDisplay(phone)}</strong>{" "}
+                {phoneOk ? (
+                  <span className="text-emerald-600">✓ válido</span>
+                ) : (
+                  <span className="text-destructive">✗ inválido</span>
+                )}
+              </p>
+            </div>
+
             <Button
               asChild
-              className="w-full h-12 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-bold"
+              disabled={!whatsappUrl}
+              className="w-full h-12 bg-[#25D366] hover:bg-[#1ebe5b] text-white font-bold disabled:opacity-50"
             >
-              <a href={whatsappUrl} target="_blank" rel="noreferrer">
+              <a
+                href={whatsappUrl ?? "#"}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => {
+                  if (!whatsappUrl) e.preventDefault();
+                }}
+              >
                 <MessageCircle className="mr-2 h-4 w-4" />
                 Enviar para meu WhatsApp
               </a>
