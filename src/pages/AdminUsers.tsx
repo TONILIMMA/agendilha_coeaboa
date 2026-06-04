@@ -141,38 +141,40 @@ export default function AdminUsers() {
   const [filterSearch, setFilterSearch] = useState<string>("");
   const [filterPeriod, setFilterPeriod] = useState<string>("all"); // all, today, week, month
 
-  const filteredUsers = users.filter((u) => {
-    // Hierarquia de Master
-    if (!isMaster && (u.status === 'admin' || u.status === 'master')) return false;
+  const filteredUsers = useMemo(() => {
+    return users.filter((u) => {
+      // Hierarquia de Master
+      if (!isMaster && (u.status === 'admin' || u.status === 'master')) return false;
 
-    // Filtro de Busca (Nome ou Email)
-    if (filterSearch && !u.responsible_name?.toLowerCase().includes(filterSearch.toLowerCase()) && !u.email?.toLowerCase().includes(filterSearch.toLowerCase())) return false;
+      // Filtro de Busca (Nome ou Email)
+      if (filterSearch && !u.responsible_name?.toLowerCase().includes(filterSearch.toLowerCase()) && !u.email?.toLowerCase().includes(filterSearch.toLowerCase())) return false;
 
-    // Filtro de Tipo
-    if (filterType !== "all" && u.user_type !== filterType) return false;
+      // Filtro de Tipo
+      if (filterType !== "all" && u.user_type !== filterType) return false;
 
-    // Filtro de Status
-    if (filterStatus !== "all" && u.status !== filterStatus) return false;
+      // Filtro de Status
+      if (filterStatus !== "all" && u.status !== filterStatus) return false;
 
-    // Filtro de Período
-    if (filterPeriod !== "all") {
-      const createdAt = new Date(u.created_at);
-      const now = new Date();
-      if (filterPeriod === "today") {
-        if (createdAt.toDateString() !== now.toDateString()) return false;
-      } else if (filterPeriod === "week") {
-        const weekAgo = new Date();
-        weekAgo.setDate(now.getDate() - 7);
-        if (createdAt < weekAgo) return false;
-      } else if (filterPeriod === "month") {
-        const monthAgo = new Date();
-        monthAgo.setMonth(now.getMonth() - 1);
-        if (createdAt < monthAgo) return false;
+      // Filtro de Período
+      if (filterPeriod !== "all") {
+        const createdAt = new Date(u.created_at);
+        const now = new Date();
+        if (filterPeriod === "today") {
+          if (createdAt.toDateString() !== now.toDateString()) return false;
+        } else if (filterPeriod === "week") {
+          const weekAgo = new Date();
+          weekAgo.setDate(now.getDate() - 7);
+          if (createdAt < weekAgo) return false;
+        } else if (filterPeriod === "month") {
+          const monthAgo = new Date();
+          monthAgo.setMonth(now.getMonth() - 1);
+          if (createdAt < monthAgo) return false;
+        }
       }
-    }
 
-    return true;
-  });
+      return true;
+    });
+  }, [users, isMaster, filterSearch, filterType, filterStatus, filterPeriod]);
 
   const exportToPDF = async () => {
     toast.info("Preparando PDF...");
