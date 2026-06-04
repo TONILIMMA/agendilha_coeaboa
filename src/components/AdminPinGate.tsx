@@ -28,7 +28,11 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
   const [isDefaultPin, setIsDefaultPin] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      sessionStorage.removeItem(SESSION_KEY);
+      setUnlocked(false);
+      return;
+    }
     if (sessionStorage.getItem(SESSION_KEY) === user.id) {
       setUnlocked(true);
     }
