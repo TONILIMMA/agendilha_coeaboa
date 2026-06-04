@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +45,8 @@ import {
   MessageCircle,
   AlertCircle,
   CheckCircle2,
+  Download,
+  Share2
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -119,6 +123,39 @@ export default function AdminUsers() {
     message: string;
   } | null>(null);
   const [updatingType, setUpdatingType] = useState<string | null>(null);
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const tableColumn = ["Nome", "Email", "Telefone", "Tipo", "Status", "Criado em"];
+    const tableRows = users.map(u => [
+      u.responsible_name || "N/A",
+      u.email || "N/A",
+      formatPhone(u.phone),
+      u.user_type || "usuario",
+      u.status || "user",
+      new Date(u.created_at).toLocaleDateString("pt-BR")
+    ]);
+
+    doc.text("Relatório de Usuários - Agendilha", 14, 15);
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+    doc.save(`usuarios_agendilha_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success("PDF gerado com sucesso!");
+  };
+
+  const shareOnWhatsapp = () => {
+    const text = `Relatório de Usuários Agendilha (${new Date().toLocaleDateString("pt-BR")}):\n\n` + 
+      users.slice(0, 10).map(u => 
+        `• ${u.responsible_name || u.email}: ${u.user_type || 'usuario'} (${formatPhone(u.phone)})`
+      ).join("\n") + 
+      (users.length > 10 ? `\n\n... e mais ${users.length - 10} usuários.` : "");
+    
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
 
   async function updateUserType(targetUser: UserWithRole, newType: string) {
     setUpdatingType(targetUser.id);
@@ -399,9 +436,31 @@ export default function AdminUsers() {
         title="Gestão de Usuários" 
         subtitle="Controle de acessos, papéis administrativos e moderação da comunidade."
         rightElement={
-          <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-full border border-border">
-            <Users className="h-4 w-4 text-primary" />
-            <span className="text-sm font-bold">{users.length} usuários</span>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="rounded-full gap-2 border-primary/20 hover:border-primary/50"
+                onClick={exportToPDF}
+              >
+                <Download className="h-4 w-4" />
+                PDF
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="rounded-full gap-2 border-emerald-500/20 hover:border-emerald-500/50 text-emerald-600"
+                onClick={shareOnWhatsapp}
+              >
+                <Share2 className="h-4 w-4" />
+                WhatsApp
+              </Button>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-full border border-border">
+              <Users className="h-4 w-4 text-primary" />
+              <span className="text-sm font-bold">{users.length} usuários</span>
+            </div>
           </div>
         }
       />
