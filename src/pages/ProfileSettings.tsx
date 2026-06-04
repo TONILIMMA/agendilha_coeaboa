@@ -25,9 +25,7 @@ import {
   Globe, 
   Music, 
   Save, 
-  Loader2,
-  Instagram,
-  Facebook
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
