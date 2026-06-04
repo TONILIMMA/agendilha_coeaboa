@@ -62,6 +62,17 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
     
     setBusy(true);
     try {
+      // Se ainda não há PIN definido, aceita o PIN padrão "0000" e força a troca
+      if (isDefaultPin) {
+        if (pin === "0000") {
+          setMustChange(true);
+        } else {
+          toast.error("PIN incorreto. Use o PIN padrão 0000 no primeiro acesso.");
+          setPin("");
+        }
+        return;
+      }
+
       const { data, error } = await supabase.rpc('verify_admin_pin', { input_pin: pin });
       
       if (error) throw error;
@@ -69,11 +80,6 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       if (!data) {
         toast.error("PIN incorreto");
         setPin("");
-        return;
-      }
-
-      if (isDefaultPin && pin === '0000') {
-        setMustChange(true);
         return;
       }
 
