@@ -48,7 +48,7 @@ export default function EventDetail() {
       setLoading(true);
       
       const { data, error } = await supabase
-        .from("submissions")
+        .from("public_submissions")
         .select("*")
         .eq("slug", slug)
         .maybeSingle();
