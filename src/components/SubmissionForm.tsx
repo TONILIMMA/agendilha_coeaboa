@@ -9,7 +9,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
 import { z } from "zod";
-import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -83,6 +83,8 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+const DRAFT_KEY = "agendilha_event_submission_draft";
+
 export default function SubmissionForm() {
   const [eventImage, setEventImage] = useState<File | string | null>(null);
   const [imageSource, setImageSource] = useState<"upload" | "ai" | null>(null);
@@ -92,7 +94,7 @@ export default function SubmissionForm() {
   const { addSubmission } = useSubmissions();
   const { user } = useAuth();
   const { isCollaborator, isPromoter } = usePermissions();
-  const { profile, loaded, saveProfile } = useProfile();
+  const { profile, loaded } = useProfile();
   const [currentStep, setCurrentStep] = useState(1);
 
   const form = useForm<FormData>({
@@ -107,20 +109,46 @@ export default function SubmissionForm() {
     mode: "onChange",
   });
 
+  // Load profile data into form when ready
   useEffect(() => {
     if (loaded && profile) {
-      form.reset({
-        ...form.getValues(),
-        nickName: profile.responsible_name || "",
-        basicPhone: profile.phone || "",
-        companyName: profile.company_name || profile.responsible_name || "",
-        email: profile.email || "",
-        addressZip: profile.address_zip || "",
-        addressStreet: profile.address_street || "",
-        addressNumber: profile.address_number || "",
-      });
+      const currentValues = form.getValues();
+      // Only fill if they are empty
+      if (!currentValues.nickName) form.setValue("nickName", profile.responsible_name || "");
+      if (!currentValues.basicPhone) form.setValue("basicPhone", profile.phone || "");
+      if (!currentValues.companyName) form.setValue("companyName", profile.company_name || profile.responsible_name || "");
+      if (!currentValues.email) form.setValue("email", profile.email || "");
+      if (!currentValues.addressZip) form.setValue("addressZip", profile.address_zip || "");
+      if (!currentValues.addressStreet) form.setValue("addressStreet", profile.address_street || "");
+      if (!currentValues.addressNumber) form.setValue("addressNumber", profile.address_number || "");
     }
   }, [loaded, profile, form]);
+
+  // Handle draft loading
+  useEffect(() => {
+    const saved = localStorage.getItem(DRAFT_KEY);
+    if (saved) {
+      try {
+        const { data, step } = JSON.parse(saved);
+        form.reset(data);
+        setCurrentStep(step || 1);
+        toast.info("Rascunho do evento recuperado.");
+      } catch (e) {
+        console.error("Error loading event draft", e);
+      }
+    }
+  }, []);
+
+  // Save draft on change
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        data: value,
+        step: currentStep
+      }));
+    });
+    return () => subscription.unsubscribe();
+  }, [form.watch, currentStep]);
 
   const steps = [
     { id: 1, title: "Identificação" },
@@ -184,6 +212,7 @@ export default function SubmissionForm() {
       } as any);
 
       setSubmitted(true);
+      localStorage.removeItem(DRAFT_KEY);
       toast.success("Evento enviado!", { description: "Ele será analisado pela nossa equipe." });
       setTimeout(() => navigate("/agenda"), 3000);
     } catch (error) {
@@ -191,6 +220,18 @@ export default function SubmissionForm() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const resetDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    form.reset({
+      nickName: profile?.responsible_name || "",
+      basicPhone: profile?.phone || "",
+      companyName: profile?.company_name || profile?.responsible_name || "",
+      email: profile?.email || "",
+    });
+    setCurrentStep(1);
+    toast.success("Rascunho limpo.");
   };
 
   if (submitted) {
@@ -206,7 +247,18 @@ export default function SubmissionForm() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <StepIndicator steps={steps} currentStep={currentStep} />
+      <div className="flex justify-between items-center mb-6">
+        <StepIndicator steps={steps} currentStep={currentStep} />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={resetDraft}
+          className="text-muted-foreground hover:text-destructive gap-1"
+        >
+          <RotateCcw className="h-3 w-3" />
+          <span className="text-[10px] uppercase font-bold tracking-widest">Limpar Rascunho</span>
+        </Button>
+      </div>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-8">
