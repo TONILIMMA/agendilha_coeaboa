@@ -176,10 +176,9 @@ export default function AdminUsers() {
     });
   }, [users, isMaster, filterSearch, filterType, filterStatus, filterPeriod]);
 
-  const exportToPDF = async () => {
+  const exportToPDF = useCallback(async () => {
     toast.info("Preparando PDF...");
     try {
-      // Importação dinâmica para reduzir bundle inicial
       const { default: jsPDF } = await import("jspdf");
       const { default: autoTable } = await import("jspdf-autotable");
       
@@ -206,10 +205,10 @@ export default function AdminUsers() {
       console.error("Erro ao gerar PDF:", error);
       toast.error("Erro ao carregar gerador de PDF");
     }
-  };
+  }, [filteredUsers]);
 
-  const shareOnWhatsapp = () => {
-    const MAX_USERS = 50; // Limite configurável para evitar que a URL fique muito longa
+  const shareOnWhatsapp = useCallback(() => {
+    const MAX_USERS = 50;
     const selectedUsers = filteredUsers.slice(0, MAX_USERS);
     
     let text = `*Relatório de Usuários Agendilha (${new Date().toLocaleDateString("pt-BR")})*\n`;
@@ -225,7 +224,7 @@ export default function AdminUsers() {
     
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
-  };
+  }, [filteredUsers]);
 
   async function updateUserType(targetUser: UserWithRole, newType: string) {
     setUpdatingType(targetUser.id);
