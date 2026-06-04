@@ -585,6 +585,7 @@ export default function AdminUsers() {
             <SelectItem value="promotor">Promotor</SelectItem>
             <SelectItem value="divulgador">Divulgador</SelectItem>
             <SelectItem value="estabelecimento">Estabelecimento</SelectItem>
+            <SelectItem value="artist">Músico / Artista</SelectItem>
           </SelectContent>
         </Select>
 
