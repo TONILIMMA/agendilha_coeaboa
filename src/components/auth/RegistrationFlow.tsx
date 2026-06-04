@@ -22,8 +22,6 @@ import {
   ArrowLeft, 
   CheckCircle2,
   Loader2,
-  Instagram,
-  Facebook,
   Globe,
   MapPin,
   Sparkles
