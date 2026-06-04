@@ -20,32 +20,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { RegistrationFlow } from "@/components/auth/RegistrationFlow";
 
-const NEIGHBORHOODS = [
-  "Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia",
-  "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras",
-  "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"
-].sort();
-
-const MUSICAL_INTERESTS = [
-  { id: "samba", label: "Samba & Pagode" },
-  { id: "rock", label: "Rock" },
-  { id: "mpb", label: "MPB" },
-  { id: "pop", label: "Pop" },
-  { id: "funk", label: "Funk" },
-  { id: "eletronico", label: "Eletrônico" },
-  { id: "sertanejo", label: "Sertanejo" },
-  { id: "jazz", label: "Jazz & Blues" }
-];
-
-const EVENT_TYPES = [
-  { id: "show", label: "Shows" },
-  { id: "teatro", label: "Teatro" },
-  { id: "gastronomia", label: "Gastronomia" },
-  { id: "feira", label: "Feiras" },
-  { id: "esporte", label: "Esportes" },
-  { id: "infantil", label: "Infantil" }
-];
-
 export default function Auth() {
   const { user, loading } = useAuth();
   const [searchParams] = useSearchParams();
@@ -57,14 +31,8 @@ export default function Auth() {
       : "/";
 
    const [mode, setMode] = useState<"login" | "signup">("login");
-   const [role, setRole] = useState<"public" | "artist">("public");
-  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [homeLocation, setHomeLocation] = useState("");
-  const [workNeighborhood, setWorkNeighborhood] = useState("");
-  const [musicalInterests, setMusicalInterests] = useState<string[]>([]);
-  const [eventTypeInterests, setEventTypeInterests] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const { signIn, signUp } = useAuth();
 
