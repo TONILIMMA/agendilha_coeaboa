@@ -181,6 +181,13 @@ export type Database = {
             referencedRelation: "artist_profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "artist_media_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "public_artist_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       artist_profiles: {
@@ -447,6 +454,13 @@ export type Database = {
             foreignKeyName: "event_reports_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "public_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_reports_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "submissions"
             referencedColumns: ["id"]
           },
@@ -484,6 +498,13 @@ export type Database = {
           user_name?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "event_reviews_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "public_submissions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "event_reviews_event_id_fkey"
             columns: ["event_id"]
@@ -976,6 +997,13 @@ export type Database = {
             referencedRelation: "artist_profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "submissions_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "public_artist_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_activity_logs: {
@@ -1029,6 +1057,13 @@ export type Database = {
             foreignKeyName: "user_favorites_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "public_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "submissions"
             referencedColumns: ["id"]
           },
@@ -1068,7 +1103,299 @@ export type Database = {
             foreignKeyName: "event_reviews_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
+            referencedRelation: "public_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_reviews_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_artist_profiles: {
+        Row: {
+          artist_type: string | null
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          cover_url: string | null
+          created_at: string | null
+          differentials: string | null
+          genre: string | null
+          id: string | null
+          instagram: string | null
+          is_approved: boolean | null
+          is_verified: boolean | null
+          member_count: number | null
+          moderation_status: string | null
+          name: string | null
+          neighborhood: string | null
+          rejection_reason: string | null
+          spotify: string | null
+          spotify_url: string | null
+          styles: string[] | null
+          updated_at: string | null
+          user_id: string | null
+          website_url: string | null
+          work_description: string | null
+          youtube: string | null
+        }
+        Insert: {
+          artist_type?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          differentials?: string | null
+          genre?: string | null
+          id?: string | null
+          instagram?: string | null
+          is_approved?: boolean | null
+          is_verified?: boolean | null
+          member_count?: number | null
+          moderation_status?: string | null
+          name?: string | null
+          neighborhood?: string | null
+          rejection_reason?: string | null
+          spotify?: string | null
+          spotify_url?: string | null
+          styles?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          website_url?: string | null
+          work_description?: string | null
+          youtube?: string | null
+        }
+        Update: {
+          artist_type?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          differentials?: string | null
+          genre?: string | null
+          id?: string | null
+          instagram?: string | null
+          is_approved?: boolean | null
+          is_verified?: boolean | null
+          member_count?: number | null
+          moderation_status?: string | null
+          name?: string | null
+          neighborhood?: string | null
+          rejection_reason?: string | null
+          spotify?: string | null
+          spotify_url?: string | null
+          styles?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          website_url?: string | null
+          work_description?: string | null
+          youtube?: string | null
+        }
+        Relationships: []
+      }
+      public_submissions: {
+        Row: {
+          additional_details: string | null
+          address_city: string | null
+          address_neighborhood: string | null
+          address_number: string | null
+          address_state: string | null
+          address_street: string | null
+          address_zip: string | null
+          age_rating: string | null
+          ai_moderation_labels: string[] | null
+          ai_moderation_score: number | null
+          approved_at: string | null
+          approved_by: string | null
+          artist_id: string | null
+          atrativo_name: string | null
+          atrativo_style: string | null
+          atrativo_type: string | null
+          category: string | null
+          commission: string | null
+          company_name: string | null
+          concept_description: string | null
+          created_at: string | null
+          date: string | null
+          deleted_at: string | null
+          description: string | null
+          end_time: string | null
+          event_title: string | null
+          id: string | null
+          image_url: string | null
+          image_url_story: string | null
+          image_url_whatsapp: string | null
+          is_highlight: boolean | null
+          is_suitable_for_minors: boolean | null
+          latitude: number | null
+          legal_acceptance: boolean | null
+          legal_acceptance_date: string | null
+          location: string | null
+          location_type: string | null
+          long_copy: string | null
+          longitude: number | null
+          maintenance_cost: string | null
+          moderation_status: string | null
+          predicted_duration: string | null
+          promotion_rules: string | null
+          promotion_type: string | null
+          published_at: string | null
+          rejection_reason: string | null
+          report_count: number | null
+          sale_price: string | null
+          shares_count: number | null
+          short_copy: string | null
+          slug: string | null
+          stage: string | null
+          start_time: string | null
+          status: string | null
+          subscription_info: string | null
+          target_audience: string | null
+          user_id: string | null
+          video_link: string | null
+          views_count: number | null
+        }
+        Insert: {
+          additional_details?: string | null
+          address_city?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          age_rating?: string | null
+          ai_moderation_labels?: string[] | null
+          ai_moderation_score?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          artist_id?: string | null
+          atrativo_name?: string | null
+          atrativo_style?: string | null
+          atrativo_type?: string | null
+          category?: string | null
+          commission?: string | null
+          company_name?: string | null
+          concept_description?: string | null
+          created_at?: string | null
+          date?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          end_time?: string | null
+          event_title?: string | null
+          id?: string | null
+          image_url?: string | null
+          image_url_story?: string | null
+          image_url_whatsapp?: string | null
+          is_highlight?: boolean | null
+          is_suitable_for_minors?: boolean | null
+          latitude?: number | null
+          legal_acceptance?: boolean | null
+          legal_acceptance_date?: string | null
+          location?: string | null
+          location_type?: string | null
+          long_copy?: string | null
+          longitude?: number | null
+          maintenance_cost?: string | null
+          moderation_status?: string | null
+          predicted_duration?: string | null
+          promotion_rules?: string | null
+          promotion_type?: string | null
+          published_at?: string | null
+          rejection_reason?: string | null
+          report_count?: number | null
+          sale_price?: string | null
+          shares_count?: number | null
+          short_copy?: string | null
+          slug?: string | null
+          stage?: string | null
+          start_time?: string | null
+          status?: string | null
+          subscription_info?: string | null
+          target_audience?: string | null
+          user_id?: string | null
+          video_link?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          additional_details?: string | null
+          address_city?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          age_rating?: string | null
+          ai_moderation_labels?: string[] | null
+          ai_moderation_score?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          artist_id?: string | null
+          atrativo_name?: string | null
+          atrativo_style?: string | null
+          atrativo_type?: string | null
+          category?: string | null
+          commission?: string | null
+          company_name?: string | null
+          concept_description?: string | null
+          created_at?: string | null
+          date?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          end_time?: string | null
+          event_title?: string | null
+          id?: string | null
+          image_url?: string | null
+          image_url_story?: string | null
+          image_url_whatsapp?: string | null
+          is_highlight?: boolean | null
+          is_suitable_for_minors?: boolean | null
+          latitude?: number | null
+          legal_acceptance?: boolean | null
+          legal_acceptance_date?: string | null
+          location?: string | null
+          location_type?: string | null
+          long_copy?: string | null
+          longitude?: number | null
+          maintenance_cost?: string | null
+          moderation_status?: string | null
+          predicted_duration?: string | null
+          promotion_rules?: string | null
+          promotion_type?: string | null
+          published_at?: string | null
+          rejection_reason?: string | null
+          report_count?: number | null
+          sale_price?: string | null
+          shares_count?: number | null
+          short_copy?: string | null
+          slug?: string | null
+          stage?: string | null
+          start_time?: string | null
+          status?: string | null
+          subscription_info?: string | null
+          target_audience?: string | null
+          user_id?: string | null
+          video_link?: string | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artist_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "public_artist_profiles"
             referencedColumns: ["id"]
           },
         ]
