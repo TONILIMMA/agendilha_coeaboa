@@ -209,9 +209,12 @@ export type Database = {
           name: string
           neighborhood: string | null
           rejection_reason: string | null
+          representative_name: string | null
+          representative_phone: string | null
           spotify: string | null
           spotify_url: string | null
           styles: string[] | null
+          technical_needs: string | null
           updated_at: string
           user_id: string
           website_url: string | null
@@ -237,9 +240,12 @@ export type Database = {
           name: string
           neighborhood?: string | null
           rejection_reason?: string | null
+          representative_name?: string | null
+          representative_phone?: string | null
           spotify?: string | null
           spotify_url?: string | null
           styles?: string[] | null
+          technical_needs?: string | null
           updated_at?: string
           user_id: string
           website_url?: string | null
@@ -265,9 +271,12 @@ export type Database = {
           name?: string
           neighborhood?: string | null
           rejection_reason?: string | null
+          representative_name?: string | null
+          representative_phone?: string | null
           spotify?: string | null
           spotify_url?: string | null
           styles?: string[] | null
+          technical_needs?: string | null
           updated_at?: string
           user_id?: string
           website_url?: string | null
@@ -700,6 +709,7 @@ export type Database = {
           company_name: string | null
           company_type: string | null
           contact_social: string | null
+          coverage_area: string[] | null
           created_at: string
           email: string | null
           email_notifications_enabled: boolean | null
@@ -717,6 +727,7 @@ export type Database = {
           push_notifications_enabled: boolean | null
           responsible_name: string | null
           role: string | null
+          social_links: Json | null
           updated_at: string
           user_id: string
           user_type: string | null
@@ -733,6 +744,7 @@ export type Database = {
           company_name?: string | null
           company_type?: string | null
           contact_social?: string | null
+          coverage_area?: string[] | null
           created_at?: string
           email?: string | null
           email_notifications_enabled?: boolean | null
@@ -750,6 +762,7 @@ export type Database = {
           push_notifications_enabled?: boolean | null
           responsible_name?: string | null
           role?: string | null
+          social_links?: Json | null
           updated_at?: string
           user_id: string
           user_type?: string | null
@@ -766,6 +779,7 @@ export type Database = {
           company_name?: string | null
           company_type?: string | null
           contact_social?: string | null
+          coverage_area?: string[] | null
           created_at?: string
           email?: string | null
           email_notifications_enabled?: boolean | null
@@ -783,6 +797,7 @@ export type Database = {
           push_notifications_enabled?: boolean | null
           responsible_name?: string | null
           role?: string | null
+          social_links?: Json | null
           updated_at?: string
           user_id?: string
           user_type?: string | null

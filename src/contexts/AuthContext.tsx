@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return `${fullNumber}@phone.agendilha.app`;
   };
 
-   const signUp = async (phone: string, password: string, name?: string, additionalData: any = {}, role: string = 'public') => {
+  const signUp = async (phone: string, password: string, name?: string, additionalData: any = {}, role: string = 'public') => {
     const cleanName = name?.trim();
     const digits = phone.replace(/\D/g, "");
     const fullPhone = digits.startsWith("55") ? `+${digits}` : `+55${digits}`;
@@ -126,29 +126,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: error as Error | null };
     }
 
-     const profilePayload = {
-       responsible_name: cleanName,
-       phone: fullPhone,
-       role,
-       ...additionalData
-     };
+    // Prepare profile data
+    const profilePayload = {
+      responsible_name: cleanName,
+      phone: fullPhone,
+      role: role === 'artist' ? 'public' : role, // Use 'public' for artists in roles table if needed, but 'artist' in user_type
+      user_type: role,
+      onboarding_completed: true,
+      ...additionalData.profile
+    };
 
-    const { data: existingProfile, error: profileLookupError } = await supabase
+    const { error: profileError } = await supabase
       .from("profiles")
-      .select("id")
-      .eq("user_id", data.user.id)
-      .maybeSingle();
+      .upsert({ 
+        user_id: data.user.id, 
+        ...profilePayload 
+      }, { onConflict: 'user_id' });
 
-    if (profileLookupError) {
-      return { error: profileLookupError as Error };
+    if (profileError) return { error: profileError as Error };
+
+    // If it's an artist, also create artist_profile
+    if (role === 'artist' && additionalData.artist) {
+      const { error: artistError } = await supabase
+        .from("artist_profiles")
+        .upsert({
+          user_id: data.user.id,
+          name: additionalData.artist.name || cleanName,
+          ...additionalData.artist
+        }, { onConflict: 'user_id' });
+      
+      if (artistError) return { error: artistError as Error };
     }
 
-    const profileRequest = existingProfile
-      ? supabase.from("profiles").update(profilePayload).eq("user_id", data.user.id)
-      : supabase.from("profiles").insert({ user_id: data.user.id, ...profilePayload });
-
-    const { error: profileError } = await profileRequest;
-    return { error: (profileError ?? error) as Error | null };
+    return { error: null };
   };
 
   const signIn = async (phone: string, password: string) => {
