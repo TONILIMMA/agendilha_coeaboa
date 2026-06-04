@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 
 export default function ArtistProfile() {
   const { id } = useParams();
+  const { user } = useAuth();
 
   const { data: artist, isLoading } = useQuery({
     queryKey: ["artist", id],
@@ -34,6 +36,21 @@ export default function ArtistProfile() {
         .eq("id", id)
         .single();
       if (error) throw error;
+      return data;
+    },
+  });
+
+  // WhatsApp contact is gated behind authentication to protect artists' personal data.
+  const { data: contact } = useQuery({
+    queryKey: ["artist-contact", id, user?.id],
+    enabled: !!user && !!id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("artist_profiles")
+        .select("whatsapp")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) return null;
       return data;
     },
   });
@@ -220,8 +237,8 @@ export default function ArtistProfile() {
                       </Button>
                     </a>
                   )}
-                {artist.whatsapp && (
-                  <a href={`https://wa.me/55${artist.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">
+                {contact?.whatsapp && (
+                  <a href={`https://wa.me/55${contact.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">
                     <Button className="w-full justify-start gap-3 rounded-xl bg-green-600 hover:bg-green-700 text-white transition-all shadow-md">
                       <MessageCircle className="h-4 w-4" /> WhatsApp Profissional
                     </Button>
