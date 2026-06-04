@@ -396,7 +396,9 @@ export default function AdminUsers() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {users.map((u) => (
+          {users
+            .filter(u => isMaster || (u.status !== 'admin' && u.status !== 'master'))
+            .map((u) => (
             <Card key={u.id} className="group hover:shadow-md transition-all duration-300 border-border bg-card overflow-hidden">
               <CardContent className="p-0">
                 <div className="flex flex-col md:flex-row md:items-center p-4 sm:p-6 gap-6 relative">
@@ -432,7 +434,7 @@ export default function AdminUsers() {
                             </h3>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {u.status && <StatusBadge role={u.status} />}
-                              {isMaster && (
+                              {(isMaster || (!u.is_admin && u.status !== 'master')) && (
                                 <Button
                                   size="icon"
                                   variant="ghost"
@@ -471,15 +473,17 @@ export default function AdminUsers() {
 
                   {/* Desktop Actions */}
                   <div className="hidden md:flex items-center gap-2 justify-end shrink-0">
-                    <Button
-                      size="sm"
-                      variant={u.is_admin ? "destructive" : "outline"}
-                      disabled={toggling === u.id || u.id === user?.id}
-                      className="rounded-full px-4 h-9 font-bold text-xs"
-                      onClick={() => setShowAdminConfirm(u)}
-                    >
-                      {toggling === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.is_admin ? "Remover Admin" : "Tornar Admin"}
-                    </Button>
+                    {isMaster && (
+                      <Button
+                        size="sm"
+                        variant={u.is_admin ? "destructive" : "outline"}
+                        disabled={toggling === u.id || u.id === user?.id}
+                        className="rounded-full px-4 h-9 font-bold text-xs"
+                        onClick={() => setShowAdminConfirm(u)}
+                      >
+                        {toggling === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.is_admin ? "Remover Admin" : "Tornar Admin"}
+                      </Button>
+                    )}
 
                     {isMaster && (
                       <Button
@@ -496,7 +500,7 @@ export default function AdminUsers() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      disabled={u.id === user?.id || deleting === u.id}
+                      disabled={u.id === user?.id || deleting === u.id || (!isMaster && (u.is_admin || u.status === 'master'))}
                       className="h-9 w-9 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-full"
                       onClick={() => setShowDeleteConfirm(u)}
                     >
@@ -505,7 +509,7 @@ export default function AdminUsers() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      disabled={resetting === u.id}
+                      disabled={resetting === u.id || (!isMaster && (u.is_admin || u.status === 'master'))}
                       title="Resetar senha"
                       className="h-9 w-9 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-full"
                       onClick={() => setShowResetConfirm(u)}
@@ -523,9 +527,11 @@ export default function AdminUsers() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuItem onClick={() => setShowAdminConfirm(u)} disabled={u.id === user?.id}>
-                          {u.is_admin ? "Remover Admin" : "Tornar Admin"}
-                        </DropdownMenuItem>
+                        {isMaster && (
+                          <DropdownMenuItem onClick={() => setShowAdminConfirm(u)} disabled={u.id === user?.id}>
+                            {u.is_admin ? "Remover Admin" : "Tornar Admin"}
+                          </DropdownMenuItem>
+                        )}
                         {isMaster && (
                           <DropdownMenuItem onClick={() => setShowMasterConfirm(u)} disabled={u.id === user?.id}>
                             {u.status === "master" ? "Remover Master" : "Tornar Master"}

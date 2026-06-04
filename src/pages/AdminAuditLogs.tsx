@@ -46,12 +46,23 @@ export default function AdminAuditLogs() {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
+      const { data: isMaster } = await supabase.rpc('is_master', { _user_id: session.user.id });
+
+      let query = supabase
         .from('audit_logs')
         .select(`
           *,
           actor:profiles!audit_logs_actor_id_fkey(responsible_name)
-        `)
+        `);
+      
+      if (!isMaster) {
+        query = query.eq('actor_id', session.user.id);
+      }
+
+      const { data, error } = await query
         .order('created_at', { ascending: false })
         .limit(100);
 
