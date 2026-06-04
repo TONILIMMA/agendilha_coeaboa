@@ -514,21 +514,91 @@ export default function AdminUsers() {
         }
       />
 
+      {/* Filtros */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-card border border-border rounded-xl shadow-sm">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder="Buscar por nome ou email..." 
+            className="pl-9"
+            value={filterSearch}
+            onChange={(e) => setFilterSearch(e.target.value)}
+          />
+        </div>
+        
+        <Select value={filterType} onValueChange={setFilterType}>
+          <SelectTrigger className="w-full">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <SelectValue placeholder="Tipo de Usuário" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os Tipos</SelectItem>
+            <SelectItem value="usuario">Usuário</SelectItem>
+            <SelectItem value="promotor">Promotor</SelectItem>
+            <SelectItem value="divulgador">Divulgador</SelectItem>
+            <SelectItem value="estabelecimento">Estabelecimento</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-full">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <SelectValue placeholder="Status/Papel" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os Status</SelectItem>
+            <SelectItem value="user">Público</SelectItem>
+            <SelectItem value="collaborator">Divulgador</SelectItem>
+            <SelectItem value="artist">Artista</SelectItem>
+            {isMaster && (
+              <>
+                <SelectItem value="admin">Administrador</SelectItem>
+                <SelectItem value="master">Admin Master</SelectItem>
+              </>
+            )}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterPeriod} onValueChange={setFilterPeriod}>
+          <SelectTrigger className="w-full">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <SelectValue placeholder="Período" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todo o Período</SelectItem>
+            <SelectItem value="today">Hoje</SelectItem>
+            <SelectItem value="week">Última Semana</SelectItem>
+            <SelectItem value="month">Último Mês</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {loading ? (
         <LoadingState message="Carregando lista de usuários..." />
-      ) : users.length === 0 ? (
+      ) : filteredUsers.length === 0 ? (
         <EmptyState 
           icon={Users}
           title="Nenhum usuário encontrado"
-          description="Ainda não há usuários cadastrados ou houve um erro na busca."
-          actionLabel="Recarregar"
-          onAction={() => fetchUsers()}
+          description={filterSearch || filterType !== "all" || filterStatus !== "all" || filterPeriod !== "all" 
+            ? "Tente ajustar os filtros para encontrar o que procura." 
+            : "Ainda não há usuários cadastrados ou houve um erro na busca."}
+          actionLabel="Limpar Filtros"
+          onAction={() => {
+            setFilterSearch("");
+            setFilterType("all");
+            setFilterStatus("all");
+            setFilterPeriod("all");
+          }}
         />
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {users
-            .filter(u => isMaster || (u.status !== 'admin' && u.status !== 'master'))
-            .map((u) => (
+          {filteredUsers.map((u) => (
             <Card key={u.id} className="group hover:shadow-md transition-all duration-300 border-border bg-card overflow-hidden">
               <CardContent className="p-0">
                 <div className="flex flex-col md:flex-row md:items-center p-4 sm:p-6 gap-6 relative">
