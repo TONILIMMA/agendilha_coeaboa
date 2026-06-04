@@ -345,7 +345,7 @@ function buildUberLink(ev: Event): string {
      queryKey: ["artists-approved"],
      queryFn: async () => {
        const { data, error } = await supabase
-         .from("artist_profiles")
+          .from("public_artist_profiles")
          .select(`
            *,
            artist_media (*)
@@ -402,7 +402,7 @@ function buildUberLink(ev: Event): string {
         setLoading(true);
         try {
           const { data, error } = await supabase
-            .from("submissions")
+            .from("public_submissions")
             .select("*")
             .in('status', ['published', 'approved'])
             .neq('moderation_status', 'blocked');
