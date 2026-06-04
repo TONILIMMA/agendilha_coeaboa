@@ -31,7 +31,6 @@ interface Event {
   description: string | null;
   category: string | null;
   company_name: string | null;
-  phone: string | null;
    is_highlight: boolean;
 }
 
@@ -66,8 +65,8 @@ export default function CoeABoa() {
   useEffect(() => {
     async function load() {
       const { data } = await supabase
-        .from("submissions")
-        .select("id, event_title, date, start_time, end_time, location, address_neighborhood, description, category, company_name, phone, is_highlight")
+        .from("public_submissions")
+        .select("id, event_title, date, start_time, end_time, location, address_neighborhood, description, category, company_name, is_highlight")
         .eq("status", "approved")
         .order("date", { ascending: true, nullsFirst: false });
       setEvents((data as Event[]) || []);
