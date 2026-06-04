@@ -43,6 +43,7 @@ const AdminAuditLogs = lazy(() => import("./pages/AdminAuditLogs"));
 const EventDetail = lazy(() => import("./pages/EventDetail"));
 const Settings = lazy(() => import("./pages/Settings"));
 const MustChangePassword = lazy(() => import("./pages/MustChangePassword"));
+const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
