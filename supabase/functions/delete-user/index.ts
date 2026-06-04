@@ -85,7 +85,8 @@ Deno.serve(async (req) => {
     // Delete user from auth (cascades to profiles and user_roles via FK)
     const { error } = await adminClient.auth.admin.deleteUser(targetUserId);
 
-    if (error) {
+    // Tolerate "User not found" — may be an orphaned profile row without an auth user
+    if (error && !/not found/i.test(error.message)) {
       return new Response(JSON.stringify({ error: error.message }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
