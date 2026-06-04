@@ -99,14 +99,27 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
   build: {
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 800,
+    reportCompressedSize: false, // Otimiza build
+    cssCodeSplit: true,
+    minify: 'terser', // Melhor minificação
+    terserOptions: {
+      compress: {
+        drop_console: mode === 'production',
+        drop_debugger: mode === 'production',
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['framer-motion', '@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-popover'],
-          'data-vendor': ['@supabase/supabase-js', '@tanstack/react-query'],
-          'utils-vendor': ['date-fns', 'zod', 'react-hook-form', '@hookform/resolvers'],
+          'react-core': ['react', 'react-dom'],
+          'router': ['react-router-dom'],
+          'ui-primitives': ['@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-popover', '@radix-ui/react-dropdown-menu'],
+          'animation': ['framer-motion'],
+          'db-client': ['@supabase/supabase-js', '@tanstack/react-query'],
+          'pdf-gen': ['jspdf', 'jspdf-autotable'],
+          'icons': ['lucide-react'],
+          'utils': ['date-fns', 'zod', 'react-hook-form'],
         },
       },
     },
