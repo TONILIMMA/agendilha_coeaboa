@@ -107,6 +107,21 @@ export default function SubmissionForm() {
     mode: "onChange",
   });
 
+  useEffect(() => {
+    if (loaded && profile) {
+      form.reset({
+        ...form.getValues(),
+        nickName: profile.responsible_name || "",
+        basicPhone: profile.phone || "",
+        companyName: profile.company_name || profile.responsible_name || "",
+        email: profile.email || "",
+        addressZip: profile.address_zip || "",
+        addressStreet: profile.address_street || "",
+        addressNumber: profile.address_number || "",
+      });
+    }
+  }, [loaded, profile, form]);
+
   const steps = [
     { id: 1, title: "Identificação" },
     { id: 2, title: "Profissional" },
