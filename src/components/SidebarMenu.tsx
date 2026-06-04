@@ -102,7 +102,8 @@ export function SidebarMenu({ onClose }: Props) {
             icon: ClipboardList, 
             badge: savedCount > 0 ? savedCount : undefined 
           },
-          { label: "Configurar Perfil", path: "/configurar-artista", icon: Settings },
+          { label: "Meu Perfil", path: "/perfil", icon: User },
+          { label: "Senha e Conta", path: "/configuracoes", icon: Settings },
         ]
       }
     ];
