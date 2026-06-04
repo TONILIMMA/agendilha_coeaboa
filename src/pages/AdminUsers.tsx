@@ -177,9 +177,30 @@ export default function AdminUsers() {
         }
       }
 
-      return true;
+    return true;
     });
   }, [users, isMaster, filterSearch, filterType, filterStatus, filterPeriod]);
+
+  // Resetar página ao filtrar
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterSearch, filterType, filterStatus, filterPeriod]);
+
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredUsers.slice(start, start + itemsPerPage);
+  }, [filteredUsers, currentPage]);
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+  // Virtualização para a lista paginada (caso os itens individuais sejam complexos)
+  const parentRef = useRef<HTMLDivElement>(null);
+  const rowVirtualizer = useVirtualizer({
+    count: paginatedUsers.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 140, // Altura estimada de cada card
+    overscan: 5,
+  });
 
   const exportToPDF = useCallback(async () => {
     toast.info("Preparando PDF...");
