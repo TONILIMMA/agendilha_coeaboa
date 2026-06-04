@@ -124,6 +124,39 @@ export default function AdminUsers() {
   } | null>(null);
   const [updatingType, setUpdatingType] = useState<string | null>(null);
 
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const tableColumn = ["Nome", "Email", "Telefone", "Tipo", "Status", "Criado em"];
+    const tableRows = users.map(u => [
+      u.responsible_name || "N/A",
+      u.email || "N/A",
+      formatPhone(u.phone),
+      u.user_type || "usuario",
+      u.status || "user",
+      new Date(u.created_at).toLocaleDateString("pt-BR")
+    ]);
+
+    doc.text("Relatório de Usuários - Agendilha", 14, 15);
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+    doc.save(`usuarios_agendilha_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success("PDF gerado com sucesso!");
+  };
+
+  const shareOnWhatsapp = () => {
+    const text = `Relatório de Usuários Agendilha (${new Date().toLocaleDateString("pt-BR")}):\n\n` + 
+      users.slice(0, 10).map(u => 
+        `• ${u.responsible_name || u.email}: ${u.user_type || 'usuario'} (${formatPhone(u.phone)})`
+      ).join("\n") + 
+      (users.length > 10 ? `\n\n... e mais ${users.length - 10} usuários.` : "");
+    
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
   async function updateUserType(targetUser: UserWithRole, newType: string) {
     setUpdatingType(targetUser.id);
     try {
