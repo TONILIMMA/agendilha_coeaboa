@@ -406,7 +406,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         <Label>Redes Sociais</Label>
         <div className="space-y-2">
           <div className="relative">
-            <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               className="pl-10"
               placeholder="Instagram (ex: @meuevento)"
@@ -415,7 +415,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
             />
           </div>
           <div className="relative">
-            <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               className="pl-10"
               placeholder="Facebook (Link da página)"
