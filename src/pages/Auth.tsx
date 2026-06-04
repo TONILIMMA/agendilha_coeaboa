@@ -181,153 +181,35 @@ export default function Auth() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === "signup" && (
-            <div className="space-y-4 border-b border-border pb-6">
-              <div className="flex p-1 bg-muted rounded-lg mb-4">
-                <button
-                  type="button"
-                  onClick={() => setRole("public")}
-                  className={cn(
-                    "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
-                    role === "public" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
-                  )}
-                >
-                  Público Geral
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole("artist")}
-                  className={cn(
-                    "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
-                    role === "artist" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
-                  )}
-                >
-                  Músico / Banda
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome Completo</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  placeholder="Digite seu nome completo"
-                />
-              </div>
-
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <MapPin className="h-3 w-3" /> Onde mora?
-                  </Label>
-                  <Select value={homeLocation} onValueChange={setHomeLocation}>
-                    <SelectTrigger className="bg-muted/30 border-none">
-                      <SelectValue placeholder="Bairro" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {NEIGHBORHOODS.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <MapPin className="h-3 w-3" /> Onde trabalha?
-                  </Label>
-                  <Select value={workNeighborhood} onValueChange={setWorkNeighborhood}>
-                    <SelectTrigger className="bg-muted/30 border-none">
-                      <SelectValue placeholder="Bairro" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="outros">Fora da Ilha / Home Office</SelectItem>
-                      {NEIGHBORHOODS.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Label className="flex items-center gap-2">
-                  <Sparkles className="h-3 w-3 text-primary" /> Estilos Musicais
-                </Label>
-                <div className="flex flex-wrap gap-2">
-                  {MUSICAL_INTERESTS.map(style => (
-                    <Badge
-                      key={style.id}
-                      variant="outline"
-                      className={cn(
-                        "cursor-pointer px-3 py-1 rounded-full transition-all",
-                        musicalInterests.includes(style.id) 
-                          ? "bg-primary text-primary-foreground border-primary" 
-                          : "hover:bg-primary/10"
-                      )}
-                      onClick={() => {
-                        setMusicalInterests(prev => 
-                          prev.includes(style.id) ? prev.filter(id => id !== style.id) : [...prev, style.id]
-                        );
-                      }}
-                    >
-                      {style.label}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Label>Tipos de Evento</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {EVENT_TYPES.map(type => (
-                    <div key={type.id} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`type-${type.id}`} 
-                        checked={eventTypeInterests.includes(type.id)}
-                        onCheckedChange={(checked) => {
-                          setEventTypeInterests(prev => 
-                            checked ? [...prev, type.id] : prev.filter(id => id !== type.id)
-                          );
-                        }}
-                      />
-                      <label htmlFor={`type-${type.id}`} className="text-xs font-medium leading-none cursor-pointer">
-                        {type.label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
+        {mode === "login" ? (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="flex items-center gap-2">
+                <Phone className="h-3.5 w-3.5 text-primary" />
+                WhatsApp (Identificador da Conta)
+              </Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={handlePhoneChange}
+                required
+                placeholder="(21) 98765-4321"
+                className="h-11 sm:h-12 bg-muted/30 focus-visible:ring-primary/20"
+              />
+              <p className="text-[10px] text-muted-foreground">O DDD é obrigatório. Ex: 21 para o Rio. Prefixo +55 opcional.</p>
             </div>
-          )}
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="flex items-center gap-2">
-              <Phone className="h-3.5 w-3.5 text-primary" />
-              WhatsApp (Identificador da Conta)
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={phone}
-              onChange={handlePhoneChange}
-              required
-              placeholder="(21) 98765-4321"
-              className="h-11 sm:h-12 bg-muted/30 focus-visible:ring-primary/20"
-            />
-            <p className="text-[10px] text-muted-foreground">O DDD é obrigatório. Ex: 21 para o Rio. Prefixo +55 opcional.</p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <PasswordInput
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              placeholder="Mínimo 6 caracteres"
-            />
-          </div>
-          {mode === "login" && (
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <PasswordInput
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
             <div className="text-right">
               <a
                 href="/forgot-password"
@@ -336,22 +218,22 @@ export default function Auth() {
                 Recuperar acesso pelo WhatsApp
               </a>
             </div>
-          )}
-          <Button
-            type="submit"
-            disabled={submitting}
-            className="w-full gradient-sunset text-primary-foreground font-display font-semibold"
-          >
-            {submitting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : mode === "login" ? (
-              <LogIn className="mr-2 h-4 w-4" />
-            ) : (
-              <UserPlus className="mr-2 h-4 w-4" />
-            )}
-            {mode === "login" ? "Entrar" : "Cadastrar Agora"}
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="w-full gradient-sunset text-primary-foreground font-display font-semibold"
+            >
+              {submitting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <LogIn className="mr-2 h-4 w-4" />
+              )}
+              Entrar
+            </Button>
+          </form>
+        ) : (
+          <RegistrationFlow onComplete={() => setMode("login")} />
+        )}
 
         <p className="text-center text-sm text-muted-foreground">
           {mode === "login" ? "Não tem conta?" : "Já tem conta?"}{" "}
