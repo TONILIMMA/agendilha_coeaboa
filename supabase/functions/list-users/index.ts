@@ -129,6 +129,8 @@ Deno.serve(async (req) => {
         is_admin: isAdminRole,
         is_master: isMaster,
         status,
+        user_type: profile?.user_type || 'usuario',
+        company_type: profile?.company_type || null,
         responsible_name,
         phone,
       };

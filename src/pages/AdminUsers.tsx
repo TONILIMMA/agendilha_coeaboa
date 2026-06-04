@@ -69,6 +69,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 type UserStatus = "master" | "admin" | "collaborator" | "user" | "artist";
+type UserCategory = "usuario" | "promotor" | "divulgador" | "estabelecimento";
 
 interface UserWithRole {
   id: string;
@@ -77,6 +78,8 @@ interface UserWithRole {
   is_admin: boolean;
   is_master?: boolean;
   status?: UserStatus;
+  user_type?: string;
+  company_type?: string | null;
   responsible_name: string | null;
   phone: string | null;
   address_neighborhood?: string | null;
@@ -434,6 +437,11 @@ export default function AdminUsers() {
                             </h3>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {u.status && <StatusBadge role={u.status} />}
+                              {u.user_type && u.user_type !== 'usuario' && (
+                                <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-widest px-2 py-0">
+                                  {u.user_type}
+                                </Badge>
+                              )}
                               {(isMaster || (!u.is_admin && u.status !== 'master')) && (
                                 <Button
                                   size="icon"
