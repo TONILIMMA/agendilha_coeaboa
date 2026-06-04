@@ -15,15 +15,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/AlertDialog";
+} from "@/components/ui/alert-dialog";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
-} from "@/DropdownMenu";
-import { Badge } from "@/Badge";
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { 
   ShieldCheck, 
   ShieldOff, 
