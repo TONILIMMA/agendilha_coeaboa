@@ -123,11 +123,50 @@ export default function AdminUsers() {
     message: string;
   } | null>(null);
   const [updatingType, setUpdatingType] = useState<string | null>(null);
+  
+  // Filtros
+  const [filterType, setFilterType] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterSearch, setFilterSearch] = useState<string>("");
+  const [filterPeriod, setFilterPeriod] = useState<string>("all"); // all, today, week, month
+
+  const filteredUsers = users.filter((u) => {
+    // Hierarquia de Master
+    if (!isMaster && (u.status === 'admin' || u.status === 'master')) return false;
+
+    // Filtro de Busca (Nome ou Email)
+    if (filterSearch && !u.responsible_name?.toLowerCase().includes(filterSearch.toLowerCase()) && !u.email?.toLowerCase().includes(filterSearch.toLowerCase())) return false;
+
+    // Filtro de Tipo
+    if (filterType !== "all" && u.user_type !== filterType) return false;
+
+    // Filtro de Status
+    if (filterStatus !== "all" && u.status !== filterStatus) return false;
+
+    // Filtro de Período
+    if (filterPeriod !== "all") {
+      const createdAt = new Date(u.created_at);
+      const now = new Date();
+      if (filterPeriod === "today") {
+        if (createdAt.toDateString() !== now.toDateString()) return false;
+      } else if (filterPeriod === "week") {
+        const weekAgo = new Date();
+        weekAgo.setDate(now.getDate() - 7);
+        if (createdAt < weekAgo) return false;
+      } else if (filterPeriod === "month") {
+        const monthAgo = new Date();
+        monthAgo.setMonth(now.getMonth() - 1);
+        if (createdAt < monthAgo) return false;
+      }
+    }
+
+    return true;
+  });
 
   const exportToPDF = () => {
     const doc = new jsPDF();
     const tableColumn = ["Nome", "Email", "Telefone", "Tipo", "Status", "Criado em"];
-    const tableRows = users.map(u => [
+    const tableRows = filteredUsers.map(u => [
       u.responsible_name || "N/A",
       u.email || "N/A",
       formatPhone(u.phone),
@@ -148,10 +187,10 @@ export default function AdminUsers() {
 
   const shareOnWhatsapp = () => {
     const text = `Relatório de Usuários Agendilha (${new Date().toLocaleDateString("pt-BR")}):\n\n` + 
-      users.slice(0, 10).map(u => 
+      filteredUsers.slice(0, 10).map(u => 
         `• ${u.responsible_name || u.email}: ${u.user_type || 'usuario'} (${formatPhone(u.phone)})`
       ).join("\n") + 
-      (users.length > 10 ? `\n\n... e mais ${users.length - 10} usuários.` : "");
+      (filteredUsers.length > 10 ? `\n\n... e mais ${filteredUsers.length - 10} usuários.` : "");
     
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
