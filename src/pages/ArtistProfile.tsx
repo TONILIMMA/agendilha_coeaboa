@@ -26,7 +26,7 @@ export default function ArtistProfile() {
     queryKey: ["artist", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("artist_profiles")
+        .from("public_artist_profiles")
         .select(`
           *,
           artist_media (*)
