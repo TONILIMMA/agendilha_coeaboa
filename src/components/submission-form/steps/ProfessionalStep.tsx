@@ -1,8 +1,9 @@
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { Building2, Mail } from "lucide-react";
+import { Building2, Mail, Info } from "lucide-react";
 import { CepField } from "../FormFields";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function ProfessionalStep({ form }: { form: UseFormReturn<any> }) {
   const onCepFound = (data: any) => {
@@ -22,6 +23,13 @@ export function ProfessionalStep({ form }: { form: UseFormReturn<any> }) {
         <p className="text-sm text-muted-foreground">Informações para emissão e organização.</p>
       </div>
 
+      <Alert variant="default" className="bg-primary/5 border-primary/20">
+        <Info className="h-4 w-4 text-primary" />
+        <AlertDescription className="text-xs text-primary/80">
+          Como promotor logado, seus dados foram vinculados automaticamente. Você pode alterá-los se este evento pertencer a outra organização.
+        </AlertDescription>
+      </Alert>
+
       <FormField
         control={form.control}
         name="companyName"
@@ -31,6 +39,9 @@ export function ProfessionalStep({ form }: { form: UseFormReturn<any> }) {
             <FormControl>
               <Input placeholder="Ex: Agência de Eventos LTDA" className="h-12" {...field} />
             </FormControl>
+            <FormDescription className="text-[10px]">
+              O promotor responsável será vinculado a este nome.
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
