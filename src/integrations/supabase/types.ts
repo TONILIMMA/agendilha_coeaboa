@@ -698,6 +698,7 @@ export type Database = {
           address_zip: string | null
           city: string | null
           company_name: string | null
+          company_type: string | null
           contact_social: string | null
           created_at: string
           email: string | null
@@ -718,6 +719,7 @@ export type Database = {
           role: string | null
           updated_at: string
           user_id: string
+          user_type: string | null
           work_neighborhood: string | null
         }
         Insert: {
@@ -729,6 +731,7 @@ export type Database = {
           address_zip?: string | null
           city?: string | null
           company_name?: string | null
+          company_type?: string | null
           contact_social?: string | null
           created_at?: string
           email?: string | null
@@ -749,6 +752,7 @@ export type Database = {
           role?: string | null
           updated_at?: string
           user_id: string
+          user_type?: string | null
           work_neighborhood?: string | null
         }
         Update: {
@@ -760,6 +764,7 @@ export type Database = {
           address_zip?: string | null
           city?: string | null
           company_name?: string | null
+          company_type?: string | null
           contact_social?: string | null
           created_at?: string
           email?: string | null
@@ -780,6 +785,7 @@ export type Database = {
           role?: string | null
           updated_at?: string
           user_id?: string
+          user_type?: string | null
           work_neighborhood?: string | null
         }
         Relationships: []

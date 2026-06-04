@@ -21,6 +21,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { 
   ShieldCheck, 
   ShieldOff, 
@@ -69,6 +70,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 type UserStatus = "master" | "admin" | "collaborator" | "user" | "artist";
+type UserCategory = "usuario" | "promotor" | "divulgador" | "estabelecimento";
 
 interface UserWithRole {
   id: string;
@@ -77,6 +79,8 @@ interface UserWithRole {
   is_admin: boolean;
   is_master?: boolean;
   status?: UserStatus;
+  user_type?: string;
+  company_type?: string | null;
   responsible_name: string | null;
   phone: string | null;
   address_neighborhood?: string | null;
@@ -114,6 +118,24 @@ export default function AdminUsers() {
     customNote: string;
     message: string;
   } | null>(null);
+  const [updatingType, setUpdatingType] = useState<string | null>(null);
+
+  async function updateUserType(targetUser: UserWithRole, newType: string) {
+    setUpdatingType(targetUser.id);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ user_type: newType })
+        .eq("user_id", targetUser.id);
+      
+      if (error) throw error;
+      toast.success("Tipo de usuário atualizado");
+      await fetchUsers();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao atualizar tipo");
+    }
+    setUpdatingType(null);
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -434,6 +456,11 @@ export default function AdminUsers() {
                             </h3>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {u.status && <StatusBadge role={u.status} />}
+                              {u.user_type && u.user_type !== 'usuario' && (
+                                <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-widest px-2 py-0">
+                                  {u.user_type}
+                                </Badge>
+                              )}
                               {(isMaster || (!u.is_admin && u.status !== 'master')) && (
                                 <Button
                                   size="icon"
@@ -473,6 +500,26 @@ export default function AdminUsers() {
 
                   {/* Desktop Actions */}
                   <div className="hidden md:flex items-center gap-2 justify-end shrink-0">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="rounded-full px-4 h-9 font-bold text-xs gap-2"
+                          disabled={updatingType === u.id}
+                        >
+                          {updatingType === u.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Users className="h-3 w-3" />}
+                          Tipo: {u.user_type || 'usuario'}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'usuario')}>Usuário</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'promotor')}>Promotor</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'divulgador')}>Divulgador</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'estabelecimento')}>Estabelecimento</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
                     {isMaster && (
                       <Button
                         size="sm"
@@ -527,6 +574,13 @@ export default function AdminUsers() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem disabled className="text-[10px] font-bold uppercase tracking-wider opacity-50">Alterar Tipo</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'usuario')}>Tornar Usuário</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'promotor')}>Tornar Promotor</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'divulgador')}>Tornar Divulgador</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'estabelecimento')}>Tornar Estabelecimento</DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         {isMaster && (
                           <DropdownMenuItem onClick={() => setShowAdminConfirm(u)} disabled={u.id === user?.id}>
                             {u.is_admin ? "Remover Admin" : "Tornar Admin"}
