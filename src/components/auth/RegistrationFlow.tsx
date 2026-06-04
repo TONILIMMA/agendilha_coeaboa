@@ -96,12 +96,14 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
 
       if (type === "public") {
         additionalData.profile = {
+          user_type: "usuario",
           home_location: formData.homeLocation,
           musical_preferences: formData.musicalInterests,
           event_type_preferences: formData.eventTypeInterests,
         };
       } else if (type === "promoter") {
         additionalData.profile = {
+          user_type: formData.promoterType,
           email: formData.email,
           company_type: formData.promoterType,
           coverage_area: formData.coverageArea,
@@ -112,6 +114,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         };
       } else if (type === "artist") {
         additionalData.profile = {
+          user_type: "artist",
           email: formData.email,
         };
         additionalData.artist = {
@@ -129,7 +132,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         formData.password,
         formData.name,
         additionalData,
-        type === "public" ? "public" : (type === "promoter" ? formData.promoterType : "artist")
+        type === "public" ? "usuario" : (type === "promoter" ? formData.promoterType : "artist")
       );
 
       if (error) {
