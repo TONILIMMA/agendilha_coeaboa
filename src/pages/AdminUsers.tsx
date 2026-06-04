@@ -1,7 +1,8 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { Button } from "@/components/ui/button";
 // Movido para export dinâmico
 // import jsPDF from "jspdf";
@@ -135,6 +136,10 @@ export default function AdminUsers() {
   } | null>(null);
   const [updatingType, setUpdatingType] = useState<string | null>(null);
   
+  // Paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+  
   // Filtros
   const [filterType, setFilterType] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -172,9 +177,30 @@ export default function AdminUsers() {
         }
       }
 
-      return true;
+    return true;
     });
   }, [users, isMaster, filterSearch, filterType, filterStatus, filterPeriod]);
+
+  // Resetar página ao filtrar
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterSearch, filterType, filterStatus, filterPeriod]);
+
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredUsers.slice(start, start + itemsPerPage);
+  }, [filteredUsers, currentPage]);
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+  // Virtualização para a lista paginada (caso os itens individuais sejam complexos)
+  const parentRef = useRef<HTMLDivElement>(null);
+  const rowVirtualizer = useVirtualizer({
+    count: paginatedUsers.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 140, // Altura estimada de cada card
+    overscan: 5,
+  });
 
   const exportToPDF = useCallback(async () => {
     toast.info("Preparando PDF...");
@@ -617,8 +643,30 @@ export default function AdminUsers() {
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {filteredUsers.map((u) => (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-4" ref={parentRef}>
+            <div
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const u = paginatedUsers[virtualRow.index];
+                return (
+                  <div
+                    key={virtualRow.key}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: `${virtualRow.size}px`,
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                    className="pb-4"
+                  >
             <Card key={u.id} className="group hover:shadow-md transition-all duration-300 border-border bg-card overflow-hidden">
               <CardContent className="p-0">
                 <div className="flex flex-col md:flex-row md:items-center p-4 sm:p-6 gap-6 relative">
@@ -804,7 +852,50 @@ export default function AdminUsers() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Paginação */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                  .map((p, i, arr) => (
+                    <div key={p} className="flex items-center">
+                      {i > 0 && arr[i-1] !== p - 1 && <span className="px-1">...</span>}
+                      <Button
+                        variant={currentPage === p ? "default" : "outline"}
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => setCurrentPage(p)}
+                      >
+                        {p}
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Próxima
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
