@@ -241,11 +241,15 @@ export default function ProfileSettings() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="flex items-center gap-2"><Globe className="h-4 w-4" /> Instagram</Label>
+                <Label className="flex items-center gap-2">
+                  <span className="text-pink-500 font-bold">IG</span> Instagram
+                </Label>
                 <Input value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="@seuinsta" />
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-2"><Globe className="h-4 w-4" /> Facebook</Label>
+                <Label className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-blue-500" /> Facebook
+                </Label>
                 <Input value={facebook} onChange={(e) => setFacebook(e.target.value)} placeholder="Link da página" />
               </div>
             </div>
