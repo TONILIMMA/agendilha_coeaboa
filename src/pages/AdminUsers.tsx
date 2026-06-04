@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+// Movido para export dinâmico
+// import jsPDF from "jspdf";
+// import autoTable from "jspdf-autotable";
 import {
   AlertDialog,
   AlertDialogAction,
