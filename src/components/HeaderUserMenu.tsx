@@ -173,6 +173,12 @@ interface Props {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+          <Link to="/perfil">
+            <UserIcon className="h-4 w-4 mr-2" />
+            Meu Perfil
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
           <Link to="/configuracoes">
             <KeyRound className="h-4 w-4 mr-2" />
             Senha e conta
