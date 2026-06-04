@@ -43,6 +43,7 @@ const AdminAuditLogs = lazy(() => import("./pages/AdminAuditLogs"));
 const EventDetail = lazy(() => import("./pages/EventDetail"));
 const Settings = lazy(() => import("./pages/Settings"));
 const MustChangePassword = lazy(() => import("./pages/MustChangePassword"));
+const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -165,6 +166,7 @@ export const AppRoutes = () => (
         <Route path="/trocar-senha" element={<ProtectedRoute><MustChangePassword /></ProtectedRoute>} />
         <Route element={<AppShell maxWidth="md"><Outlet /></AppShell>}>
           <Route path="/configuracoes" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/perfil" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
         </Route>
         <Route path="/coeaboa" element={<Navigate to="/agenda" replace />} />
         <Route path="/lp" element={<Navigate to="/" replace />} />

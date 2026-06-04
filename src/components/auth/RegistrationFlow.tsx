@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,9 @@ import {
   Loader2,
   Globe,
   MapPin,
-  Sparkles
+  Sparkles,
+  Search,
+  Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -57,6 +59,8 @@ const EVENT_TYPES = [
 
 type RegistrationType = "public" | "promoter" | "artist";
 
+const STORAGE_KEY = "agendilha_draft_registration";
+
 export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
   const { signUp } = useAuth();
   const [step, setStep] = useState(1);
@@ -74,7 +78,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
     musicalInterests: [] as string[],
     eventTypeInterests: [] as string[],
     // Promoter specific
-    promoterType: "promoter", // promoter or divulgador
+    promoterType: "promoter" as "promoter" | "divulgador",
     socialInstagram: "",
     socialFacebook: "",
     coverageArea: [] as string[],
@@ -85,6 +89,35 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
     genre: "",
     techNeeds: "",
   });
+
+  // Load draft from local storage
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const { data, lastStep, savedType } = JSON.parse(saved);
+        setFormData(data);
+        setStep(lastStep || 1);
+        setType(savedType || null);
+        toast.info("Retomando cadastro de onde você parou.");
+      } catch (e) {
+        console.error("Error loading draft", e);
+      }
+    }
+  }, []);
+
+  // Save draft to local storage
+  useEffect(() => {
+    if (step < 4) { // Don't save after completion
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        data: formData,
+        lastStep: step,
+        savedType: type
+      }));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, [formData, step, type]);
 
   const nextStep = () => setStep((s) => s + 1);
   const prevStep = () => setStep((s) => s - 1);
@@ -139,7 +172,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         toast.error("Erro no cadastro", { description: error.message });
       } else {
         toast.success("Conta criada com sucesso!");
-        setStep(4); // Success step
+        setStep(5); // Success step (moved from 4 to 5 because of summary)
       }
     } catch (err: any) {
       toast.error("Erro inesperado", { description: err.message });
@@ -154,7 +187,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         return (
           <div className="space-y-6">
             <div className="text-center space-y-2">
-              <h2 className="text-xl font-bold">Como você quer usar o AgendIlha?</h2>
+              <h2 className="text-xl font-bold font-display">Como você quer usar o AgendIlha?</h2>
               <p className="text-sm text-muted-foreground">Escolha o perfil que melhor descreve você.</p>
             </div>
             <div className="grid gap-4">
@@ -187,7 +220,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         return (
           <div className="space-y-4">
             <div className="text-center space-y-2">
-              <h2 className="text-xl font-bold">Informações Básicas</h2>
+              <h2 className="text-xl font-bold font-display">Informações Básicas</h2>
               <p className="text-sm text-muted-foreground">Precisamos desses dados para criar sua conta.</p>
             </div>
             <div className="space-y-3">
@@ -253,13 +286,66 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         return (
           <div className="space-y-4">
             <div className="text-center space-y-2">
-              <h2 className="text-xl font-bold">Personalize seu Perfil</h2>
+              <h2 className="text-xl font-bold font-display">Personalize seu Perfil</h2>
               <p className="text-sm text-muted-foreground">Conte-nos um pouco mais sobre você.</p>
             </div>
             
             {type === "public" && renderUserSpecific()}
             {type === "promoter" && renderPromoterSpecific()}
             {type === "artist" && renderArtistSpecific()}
+
+            <div className="flex gap-3 pt-4">
+              <Button variant="outline" className="flex-1" onClick={prevStep}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <Button 
+                className="flex-1" 
+                onClick={nextStep}
+              >
+                Revisar Cadastro <Search className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        );
+
+      case 4: // Summary Review Step
+        return (
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-bold font-display">Resumo do Cadastro</h2>
+              <p className="text-sm text-muted-foreground">Confira seus dados antes de finalizar.</p>
+            </div>
+            
+            <div className="bg-muted/50 rounded-xl p-4 space-y-4 text-sm border border-border">
+              <div className="grid grid-cols-2 gap-y-3">
+                <SummaryItem label="Perfil" value={type === 'public' ? 'Participante' : type === 'artist' ? 'Músico/Artista' : formData.promoterType === 'promoter' ? 'Promotor' : 'Divulgador'} />
+                <SummaryItem label="Nome" value={formData.name} />
+                <SummaryItem label="WhatsApp" value={formData.phone} />
+                {formData.email && <SummaryItem label="E-mail" value={formData.email} />}
+                
+                {type === 'public' && (
+                  <>
+                    <SummaryItem label="Bairro" value={formData.homeLocation || "Não informado"} />
+                    <SummaryItem label="Interesses" value={formData.musicalInterests.length ? formData.musicalInterests.map(id => MUSICAL_INTERESTS.find(m => m.id === id)?.label).join(", ") : "Nenhum selecionado"} full />
+                  </>
+                )}
+
+                {type === 'promoter' && (
+                  <>
+                    <SummaryItem label="Instagram" value={formData.socialInstagram || "Não informado"} />
+                    <SummaryItem label="Área de Cobertura" value={formData.coverageArea.length ? formData.coverageArea.join(", ") : "Não informada"} full />
+                  </>
+                )}
+
+                {type === 'artist' && (
+                  <>
+                    <SummaryItem label="Nome Artístico" value={formData.artisticName} />
+                    <SummaryItem label="Gênero" value={MUSICAL_INTERESTS.find(m => m.id === formData.genre)?.label || "Não informado"} />
+                    <SummaryItem label="Necessidades" value={formData.techNeeds || "Não informado"} full />
+                  </>
+                )}
+              </div>
+            </div>
 
             <div className="flex gap-3 pt-4">
               <Button variant="outline" className="flex-1" onClick={prevStep}>
@@ -276,7 +362,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
           </div>
         );
 
-      case 4:
+      case 5:
         return (
           <div className="text-center space-y-6 py-8">
             <div className="flex justify-center">
@@ -285,7 +371,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
               </div>
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold">Bem-vindo ao AgendIlha!</h2>
+              <h2 className="text-2xl font-bold font-display">Bem-vindo ao AgendIlha!</h2>
               <p className="text-muted-foreground">Sua conta foi criada com sucesso. Aproveite o melhor da Ilha do Governador.</p>
             </div>
             <Button className="w-full" onClick={onComplete}>
@@ -530,7 +616,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
     <div className="w-full max-w-md mx-auto">
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3, 4].map((i) => (
             <div 
               key={i}
               className={cn(
@@ -541,9 +627,10 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
           ))}
         </div>
         <div className="flex justify-between px-1">
-          <span className="text-[10px] font-bold uppercase text-muted-foreground">Perfil</span>
-          <span className="text-[10px] font-bold uppercase text-muted-foreground">Básico</span>
-          <span className="text-[10px] font-bold uppercase text-muted-foreground">Detalhes</span>
+          <span className="text-[9px] font-bold uppercase text-muted-foreground">Perfil</span>
+          <span className="text-[9px] font-bold uppercase text-muted-foreground">Básico</span>
+          <span className="text-[9px] font-bold uppercase text-muted-foreground">Detalhes</span>
+          <span className="text-[9px] font-bold uppercase text-muted-foreground">Revisão</span>
         </div>
       </div>
 
@@ -567,20 +654,29 @@ function CardOption({ icon, title, description, selected, onClick }: any) {
     <button
       onClick={onClick}
       className={cn(
-        "flex items-start p-4 rounded-xl border-2 text-left transition-all hover:border-primary/50",
+        "flex items-start p-4 rounded-xl border-2 text-left transition-all hover:border-primary/50 group",
         selected ? "border-primary bg-primary/5 shadow-md" : "border-border bg-card"
       )}
     >
       <div className={cn(
-        "p-2 rounded-lg mr-4",
-        selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+        "p-2 rounded-lg mr-4 transition-colors",
+        selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:bg-primary/10"
       )}>
         {icon}
       </div>
       <div>
-        <h3 className="font-bold text-sm">{title}</h3>
+        <h3 className="font-bold text-sm font-display">{title}</h3>
         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{description}</p>
       </div>
     </button>
+  );
+}
+
+function SummaryItem({ label, value, full }: { label: string, value: string, full?: boolean }) {
+  return (
+    <div className={cn("space-y-1", full ? "col-span-2" : "col-span-1")}>
+      <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">{label}</span>
+      <p className="font-medium text-foreground">{value}</p>
+    </div>
   );
 }
