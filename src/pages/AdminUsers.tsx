@@ -136,6 +136,10 @@ export default function AdminUsers() {
   } | null>(null);
   const [updatingType, setUpdatingType] = useState<string | null>(null);
   
+  // Paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+  
   // Filtros
   const [filterType, setFilterType] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
