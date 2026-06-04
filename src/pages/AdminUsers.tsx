@@ -196,11 +196,19 @@ export default function AdminUsers() {
   };
 
   const shareOnWhatsapp = () => {
-    const text = `Relatório de Usuários Agendilha (${new Date().toLocaleDateString("pt-BR")}):\n\n` + 
-      filteredUsers.slice(0, 10).map(u => 
-        `• ${u.responsible_name || u.email}: ${u.user_type || 'usuario'} (${formatPhone(u.phone)})`
-      ).join("\n") + 
-      (filteredUsers.length > 10 ? `\n\n... e mais ${filteredUsers.length - 10} usuários.` : "");
+    const MAX_USERS = 50; // Limite configurável para evitar que a URL fique muito longa
+    const selectedUsers = filteredUsers.slice(0, MAX_USERS);
+    
+    let text = `*Relatório de Usuários Agendilha (${new Date().toLocaleDateString("pt-BR")})*\n`;
+    text += `Total filtrado: ${filteredUsers.length} usuários\n\n`;
+    
+    text += selectedUsers.map((u, index) => 
+      `${index + 1}. *${u.responsible_name || u.email}*\n   Tipo: ${u.user_type || 'usuario'}\n   Tel: ${formatPhone(u.phone)}`
+    ).join("\n\n");
+    
+    if (filteredUsers.length > MAX_USERS) {
+      text += `\n\n... e mais ${filteredUsers.length - MAX_USERS} usuários (limite de envio atingido).`;
+    }
     
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
