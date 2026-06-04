@@ -118,6 +118,24 @@ export default function AdminUsers() {
     customNote: string;
     message: string;
   } | null>(null);
+  const [updatingType, setUpdatingType] = useState<string | null>(null);
+
+  async function updateUserType(targetUser: UserWithRole, newType: string) {
+    setUpdatingType(targetUser.id);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ user_type: newType })
+        .eq("user_id", targetUser.id);
+      
+      if (error) throw error;
+      toast.success("Tipo de usuário atualizado");
+      await fetchUsers();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao atualizar tipo");
+    }
+    setUpdatingType(null);
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -482,6 +500,26 @@ export default function AdminUsers() {
 
                   {/* Desktop Actions */}
                   <div className="hidden md:flex items-center gap-2 justify-end shrink-0">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="rounded-full px-4 h-9 font-bold text-xs gap-2"
+                          disabled={updatingType === u.id}
+                        >
+                          {updatingType === u.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Users className="h-3 w-3" />}
+                          Tipo: {u.user_type || 'usuario'}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'usuario')}>Usuário</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'promotor')}>Promotor</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'divulgador')}>Divulgador</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'estabelecimento')}>Estabelecimento</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
                     {isMaster && (
                       <Button
                         size="sm"
@@ -536,6 +574,13 @@ export default function AdminUsers() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem disabled className="text-[10px] font-bold uppercase tracking-wider opacity-50">Alterar Tipo</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'usuario')}>Tornar Usuário</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'promotor')}>Tornar Promotor</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'divulgador')}>Tornar Divulgador</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateUserType(u, 'estabelecimento')}>Tornar Estabelecimento</DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         {isMaster && (
                           <DropdownMenuItem onClick={() => setShowAdminConfirm(u)} disabled={u.id === user?.id}>
                             {u.is_admin ? "Remover Admin" : "Tornar Admin"}
