@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+// Movido para export dinâmico
+// import jsPDF from "jspdf";
+// import autoTable from "jspdf-autotable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -140,63 +141,74 @@ export default function AdminUsers() {
   const [filterSearch, setFilterSearch] = useState<string>("");
   const [filterPeriod, setFilterPeriod] = useState<string>("all"); // all, today, week, month
 
-  const filteredUsers = users.filter((u) => {
-    // Hierarquia de Master
-    if (!isMaster && (u.status === 'admin' || u.status === 'master')) return false;
+  const filteredUsers = useMemo(() => {
+    return users.filter((u) => {
+      // Hierarquia de Master
+      if (!isMaster && (u.status === 'admin' || u.status === 'master')) return false;
 
-    // Filtro de Busca (Nome ou Email)
-    if (filterSearch && !u.responsible_name?.toLowerCase().includes(filterSearch.toLowerCase()) && !u.email?.toLowerCase().includes(filterSearch.toLowerCase())) return false;
+      // Filtro de Busca (Nome ou Email)
+      if (filterSearch && !u.responsible_name?.toLowerCase().includes(filterSearch.toLowerCase()) && !u.email?.toLowerCase().includes(filterSearch.toLowerCase())) return false;
 
-    // Filtro de Tipo
-    if (filterType !== "all" && u.user_type !== filterType) return false;
+      // Filtro de Tipo
+      if (filterType !== "all" && u.user_type !== filterType) return false;
 
-    // Filtro de Status
-    if (filterStatus !== "all" && u.status !== filterStatus) return false;
+      // Filtro de Status
+      if (filterStatus !== "all" && u.status !== filterStatus) return false;
 
-    // Filtro de Período
-    if (filterPeriod !== "all") {
-      const createdAt = new Date(u.created_at);
-      const now = new Date();
-      if (filterPeriod === "today") {
-        if (createdAt.toDateString() !== now.toDateString()) return false;
-      } else if (filterPeriod === "week") {
-        const weekAgo = new Date();
-        weekAgo.setDate(now.getDate() - 7);
-        if (createdAt < weekAgo) return false;
-      } else if (filterPeriod === "month") {
-        const monthAgo = new Date();
-        monthAgo.setMonth(now.getMonth() - 1);
-        if (createdAt < monthAgo) return false;
+      // Filtro de Período
+      if (filterPeriod !== "all") {
+        const createdAt = new Date(u.created_at);
+        const now = new Date();
+        if (filterPeriod === "today") {
+          if (createdAt.toDateString() !== now.toDateString()) return false;
+        } else if (filterPeriod === "week") {
+          const weekAgo = new Date();
+          weekAgo.setDate(now.getDate() - 7);
+          if (createdAt < weekAgo) return false;
+        } else if (filterPeriod === "month") {
+          const monthAgo = new Date();
+          monthAgo.setMonth(now.getMonth() - 1);
+          if (createdAt < monthAgo) return false;
+        }
       }
-    }
 
-    return true;
-  });
-
-  const exportToPDF = () => {
-    const doc = new jsPDF();
-    const tableColumn = ["Nome", "Email", "Telefone", "Tipo", "Status", "Criado em"];
-    const tableRows = filteredUsers.map(u => [
-      u.responsible_name || "N/A",
-      u.email || "N/A",
-      formatPhone(u.phone),
-      u.user_type || "usuario",
-      u.status || "user",
-      new Date(u.created_at).toLocaleDateString("pt-BR")
-    ]);
-
-    doc.text("Relatório de Usuários - Agendilha", 14, 15);
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 20,
+      return true;
     });
-    doc.save(`usuarios_agendilha_${new Date().toISOString().split('T')[0]}.pdf`);
-    toast.success("PDF gerado com sucesso!");
-  };
+  }, [users, isMaster, filterSearch, filterType, filterStatus, filterPeriod]);
 
-  const shareOnWhatsapp = () => {
-    const MAX_USERS = 50; // Limite configurável para evitar que a URL fique muito longa
+  const exportToPDF = useCallback(async () => {
+    toast.info("Preparando PDF...");
+    try {
+      const { default: jsPDF } = await import("jspdf");
+      const { default: autoTable } = await import("jspdf-autotable");
+      
+      const doc = new jsPDF();
+      const tableColumn = ["Nome", "Email", "Telefone", "Tipo", "Status", "Criado em"];
+      const tableRows = filteredUsers.map(u => [
+        u.responsible_name || "N/A",
+        u.email || "N/A",
+        formatPhone(u.phone),
+        u.user_type || "usuario",
+        u.status || "user",
+        new Date(u.created_at).toLocaleDateString("pt-BR")
+      ]);
+
+      doc.text("Relatório de Usuários - Agendilha", 14, 15);
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 20,
+      });
+      doc.save(`usuarios_agendilha_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success("PDF gerado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast.error("Erro ao carregar gerador de PDF");
+    }
+  }, [filteredUsers]);
+
+  const shareOnWhatsapp = useCallback(() => {
+    const MAX_USERS = 50;
     const selectedUsers = filteredUsers.slice(0, MAX_USERS);
     
     let text = `*Relatório de Usuários Agendilha (${new Date().toLocaleDateString("pt-BR")})*\n`;
@@ -212,7 +224,7 @@ export default function AdminUsers() {
     
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
-  };
+  }, [filteredUsers]);
 
   async function updateUserType(targetUser: UserWithRole, newType: string) {
     setUpdatingType(targetUser.id);
