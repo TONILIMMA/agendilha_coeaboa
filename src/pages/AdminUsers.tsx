@@ -643,8 +643,30 @@ export default function AdminUsers() {
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {filteredUsers.map((u) => (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-4" ref={parentRef}>
+            <div
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const u = paginatedUsers[virtualRow.index];
+                return (
+                  <div
+                    key={virtualRow.key}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: `${virtualRow.size}px`,
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                    className="pb-4"
+                  >
             <Card key={u.id} className="group hover:shadow-md transition-all duration-300 border-border bg-card overflow-hidden">
               <CardContent className="p-0">
                 <div className="flex flex-col md:flex-row md:items-center p-4 sm:p-6 gap-6 relative">
