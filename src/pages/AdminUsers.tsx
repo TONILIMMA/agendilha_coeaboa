@@ -85,17 +85,7 @@ interface UserWithRole {
 
 function formatPhone(phone: string | null): string {
   if (!phone) return "Não informado";
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length === 13 && digits.startsWith("55")) {
-    const ddd = digits.slice(2, 4);
-    const part1 = digits.slice(4, 9);
-    const part2 = digits.slice(9);
-    return `(${ddd}) ${part1}-${part2}`;
-  }
-  if (digits.length === 11) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-  }
-  return phone;
+  return formatPhoneDisplay(phone);
 }
 
 export default function AdminUsers() {
