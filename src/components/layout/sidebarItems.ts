@@ -12,12 +12,11 @@ import {
   Trophy,
   PlusCircle,
   LayoutDashboard,
-  UserPlus,
   LogIn,
   Eye,
-  Settings,
-  Activity
+  UserPlus
 } from "lucide-react";
+import { ROUTES } from "@/routes/config";
 
 export type Role = "public_guest" | "public_registered" | "promoter" | "admin" | "master";
 
