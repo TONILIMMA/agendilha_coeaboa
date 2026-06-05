@@ -21,7 +21,7 @@ export function AppShell({
 }: AppShellProps) {
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { isAdmin, isMaster } = useAppPermissions();
+  const { isAdmin, isMaster, isPromoter } = useAppPermissions();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
