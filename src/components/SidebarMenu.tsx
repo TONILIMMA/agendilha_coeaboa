@@ -76,7 +76,7 @@ export function SidebarMenu({ onClose }: Props) {
     { id: "artists", label: "Artistas Locais", path: "/artistas", icon: Users, roles: ["public_guest", "public_registered"] },
     
     // Operação
-    { id: "my_submissions", label: "Meus Envios", path: "/envios", icon: ClipboardList, roles: ["promoter"], badge: savedCount > 0 ? savedCount : undefined },
+    { id: "my_submissions", label: "Meus Envios", path: "/envios", icon: ClipboardList, roles: ["promoter"], badge: savedCount > 0 ? savedCount : undefined, hideIfNoRoute: true },
     { id: "send_event", label: "Enviar Evento", path: "/enviar-evento", icon: PlusCircle, roles: ["promoter"] },
     { id: "manage_events", label: "Gerenciar Eventos", path: "/admin/events", icon: ShieldCheck, roles: ["admin", "master"] },
     { id: "flyer_moderator", label: "Moderador de Flyers", path: "/admin/media", icon: Shield, roles: ["admin", "master"] },
@@ -148,7 +148,7 @@ export function SidebarMenu({ onClose }: Props) {
     return (
       <Badge variant="outline" className={cn("px-2 py-0.5 text-[10px] font-black uppercase tracking-widest gap-1 border animate-in fade-in slide-in-from-top-1", variants[currentRole] || "bg-muted text-muted-foreground border-border")}>
         <Icon className="h-2.5 w-2.5" />
-        {roleLabel || (currentRole === 'promoter' ? 'Promotor' : 'Usuário')}
+        {roleDescriptions[currentRole]}
       </Badge>
     );
   };
