@@ -47,7 +47,7 @@ export const sidebarConfig: SidebarSection[] = [
       { 
         id: "events", 
         label: "Eventos", 
-        path: "/agenda", 
+        path: ROUTES.AGENDA, 
         icon: CalendarDays, 
         roles: ["public_guest", "public_registered", "promoter", "admin", "master"],
         exact: true
@@ -55,21 +55,21 @@ export const sidebarConfig: SidebarSection[] = [
       { 
         id: "favorites", 
         label: "Meus Favoritos", 
-        path: "/agenda?view=favorites", 
+        path: `${ROUTES.AGENDA}?view=favorites`, 
         icon: Heart, 
         roles: ["public_registered"] 
       },
       { 
         id: "artists", 
         label: "Artistas Locais", 
-        path: "/artistas", 
+        path: ROUTES.ARTISTAS, 
         icon: Users, 
         roles: ["public_guest", "public_registered"] 
       },
       { 
         id: "promoter_ranking", 
         label: "Ranking de Promotores", 
-        path: "/ranking", 
+        path: ROUTES.RANKING, 
         icon: Trophy, 
         roles: ["admin", "master"] 
       },
@@ -83,28 +83,28 @@ export const sidebarConfig: SidebarSection[] = [
       { 
         id: "my_submissions", 
         label: "Meus Envios", 
-        path: "/envios", 
+        path: "/envios", // This one isn't in ROUTES yet, testing if it gets hidden
         icon: ClipboardList, 
         roles: ["promoter"] 
       },
       { 
         id: "send_event", 
         label: "Enviar Evento", 
-        path: "/enviar-evento", 
+        path: ROUTES.ENVIAR_EVENTO, 
         icon: PlusCircle, 
         roles: ["promoter"] 
       },
       { 
         id: "manage_events", 
         label: "Gerenciar Eventos", 
-        path: "/admin/events", 
+        path: ROUTES.ADMIN_EVENTS, 
         icon: ShieldCheck, 
         roles: ["admin", "master"] 
       },
       { 
         id: "flyer_moderator", 
         label: "Moderador de Flyers", 
-        path: "/admin/media", 
+        path: ROUTES.ADMIN_MEDIA, 
         icon: Shield, 
         roles: ["admin", "master"] 
       },
@@ -118,25 +118,25 @@ export const sidebarConfig: SidebarSection[] = [
       { 
         id: "admin_dashboard", 
         label: "Dashboard Admin", 
-        path: "/admin/events", 
+        path: ROUTES.ADMIN_EVENTS, 
         icon: LayoutDashboard, 
         roles: ["admin"] 
       },
       { 
         id: "master_panel", 
         label: "Painel Master", 
-        path: "/master/dashboard", 
+        path: ROUTES.MASTER_DASHBOARD, 
         icon: Crown, 
         roles: ["master"],
         children: [
-          { id: "master_overview", label: "Visão Geral", path: "/master/dashboard", icon: Eye, roles: ["master"] },
-          { id: "audit_logs", label: "Logs de Auditoria", path: "/master/logs", icon: History, roles: ["master"] }
+          { id: "master_overview", label: "Visão Geral", path: ROUTES.MASTER_DASHBOARD, icon: Eye, roles: ["master"] },
+          { id: "audit_logs", label: "Logs de Auditoria", path: ROUTES.MASTER_LOGS, icon: History, roles: ["master"] }
         ]
       },
       { 
         id: "manage_users", 
         label: "Gerenciar Usuários", 
-        path: "/master/usuarios", 
+        path: ROUTES.MASTER_USUARIOS, 
         icon: Users, 
         roles: ["master"] 
       },
@@ -150,21 +150,21 @@ export const sidebarConfig: SidebarSection[] = [
       { 
         id: "profile", 
         label: "Meu Perfil", 
-        path: "/perfil", 
+        path: ROUTES.PERFIL, 
         icon: User, 
         roles: ["public_registered", "promoter", "admin", "master"] 
       },
       { 
         id: "login", 
         label: "Entrar", 
-        path: "/auth", 
+        path: ROUTES.AUTH, 
         icon: LogIn, 
         roles: ["public_guest"] 
       },
       { 
         id: "register", 
         label: "Criar conta", 
-        path: "/auth?mode=signup", 
+        path: `${ROUTES.AUTH}?mode=signup`, 
         icon: UserPlus, 
         roles: ["public_guest"] 
       },
