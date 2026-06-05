@@ -3,11 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LogOut,
   User,
-  Search,
   ChevronDown,
-  ChevronRight,
-  Menu,
-  X
+  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserBadge } from "@/hooks/useUserBadge";
@@ -207,39 +204,6 @@ export function SidebarMenu({ onClose }: Props) {
           </div>
         )}
         <div className="mt-4 text-center">
-          <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground/30">
-            © {new Date().getFullYear()} AgendIlha · Coé a Boa?
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-      {/* Footer */}
-      <div className="p-4 mt-auto border-t border-sidebar-border bg-sidebar-accent/10">
-        {user ? (
-          <Button 
-            variant="ghost" 
-            size="lg" 
-            className="w-full justify-start gap-3 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-all duration-300 group"
-            onClick={() => {
-              signOut();
-              if (onClose) onClose();
-            }}
-          >
-            <LogOut className="h-4 w-4 text-muted-foreground group-hover:text-destructive transition-colors" />
-            <span className="font-bold text-sm tracking-tight">Sair da Conta</span>
-          </Button>
-        ) : (
-          <div className="px-3 py-2">
-            <p className="text-[10px] text-muted-foreground font-medium text-center italic">
-              Entre para salvar favoritos e enviar eventos!
-            </p>
-          </div>
-        )}
-        <div className="mt-2 md:mt-4 text-center">
           <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground/30">
             © {new Date().getFullYear()} AgendIlha · Coé a Boa?
           </p>
