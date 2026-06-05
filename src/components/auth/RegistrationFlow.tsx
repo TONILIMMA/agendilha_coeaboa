@@ -247,7 +247,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
               </div>
               {(type === "promoter" || type === "artist") && (
                 <div className="space-y-2">
-                  <Label htmlFor="email">E-mail (Opcional)</Label>
+                  <Label htmlFor="email">E-mail (Para contato comercial)</Label>
                   <Input
                     id="email"
                     type="email"
@@ -321,7 +321,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
                 <SummaryItem label="Perfil" value={type === 'public' ? 'Participante' : type === 'artist' ? 'Músico/Artista' : formData.promoterType === 'promoter' ? 'Promotor' : 'Divulgador'} />
                 <SummaryItem label="Nome" value={formData.name} />
                 <SummaryItem label="WhatsApp" value={formData.phone} />
-                {formData.email && <SummaryItem label="E-mail" value={formData.email} />}
+                {formData.email && <SummaryItem label={type === 'public' ? 'WhatsApp (Fique por dentro)' : 'E-mail'} value={formData.email} />}
                 
                 {type === 'public' && (
                   <>
@@ -458,6 +458,30 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
               </label>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="space-y-4 pt-2">
+        <div className="flex items-center space-x-2 bg-primary/5 p-4 rounded-xl border border-primary/10">
+          <Checkbox 
+            id="opt-in-whatsapp" 
+            checked={!!formData.email} // Reusing email field to store "agreed to whatsapp updates" if needed, or just visual
+            onCheckedChange={(checked) => {
+              // We'll use the existing phone for the updates if checked
+              setFormData({
+                ...formData,
+                email: checked ? formData.phone : ""
+              });
+            }}
+          />
+          <div className="grid gap-1.5 leading-none">
+            <label htmlFor="opt-in-whatsapp" className="text-sm font-bold cursor-pointer">
+              Fique por dentro da Ilha
+            </label>
+            <p className="text-[10px] text-muted-foreground">
+              Receber a agenda cultural semanal e novidades direto no meu WhatsApp.
+            </p>
+          </div>
         </div>
       </div>
     </div>

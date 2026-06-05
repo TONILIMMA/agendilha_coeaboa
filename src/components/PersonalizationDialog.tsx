@@ -138,8 +138,8 @@ export function PersonalizationDialog({ open, onOpenChange }: PersonalizationDia
               
               <div className="flex items-center justify-between border-t border-border/50 pt-4">
                 <div className="space-y-0.5">
-                  <Label className="text-base font-bold">Newsletter Semanal</Label>
-                  <p className="text-xs text-muted-foreground">Agenda completa por e-mail</p>
+                  <Label className="text-base font-bold">Resumo por WhatsApp</Label>
+                  <p className="text-xs text-muted-foreground">Agenda completa no seu WhatsApp</p>
                 </div>
                 <Switch checked={emailEnabled} onCheckedChange={setEmailEnabled} />
               </div>
