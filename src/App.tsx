@@ -107,16 +107,16 @@ export function ProtectedRoute({
     return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   }
 
-  if (mustChangePassword && location.pathname !== "/trocar-senha") {
-    return <Navigate to="/trocar-senha" replace />;
+  if (mustChangePassword && location.pathname !== ROUTES.TROCAR_SENHA) {
+    return <Navigate to={ROUTES.TROCAR_SENHA} replace />;
   }
 
   if (masterOnly && !isMaster) {
-    return <Navigate to="/agenda" replace />;
+    return <Navigate to={ROUTES.AGENDA} replace />;
   }
 
   if (requiredPermission && !hasPermission(requiredPermission)) {
-    return <Navigate to="/agenda" replace />;
+    return <Navigate to={ROUTES.AGENDA} replace />;
   }
 
   return <>{children}</>;
@@ -127,47 +127,47 @@ export const AppRoutes = () => (
     <Suspense fallback={<PageFallback />}>
       <Routes>
         {/* Públicas */}
-        <Route path="/" element={<Landing />} />
+        <Route path={ROUTES.LANDING} element={<Landing />} />
         
         {/* App Wrapper for standard pages */}
         <Route element={<AppShell maxWidth="md"><Outlet /></AppShell>}>
-          <Route path="/agenda" element={<AgendaCultural />} />
-          <Route path="/artistas" element={<ArtistFeed />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/configurar-artista" element={<ProtectedRoute><ArtistSetup /></ProtectedRoute>} />
-          <Route path="/enviar-evento" element={<ProtectedRoute><SubmitEvent /></ProtectedRoute>} />
-          <Route path="/eventos" element={<ProtectedRoute><Eventos /></ProtectedRoute>} />
+          <Route path={ROUTES.AGENDA} element={<AgendaCultural />} />
+          <Route path={ROUTES.ARTISTAS} element={<ArtistFeed />} />
+          <Route path={ROUTES.AUTH} element={<Auth />} />
+          <Route path={ROUTES.CONFIGURAR_ARTISTA} element={<ProtectedRoute><ArtistSetup /></ProtectedRoute>} />
+          <Route path={ROUTES.ENVIAR_EVENTO} element={<ProtectedRoute><SubmitEvent /></ProtectedRoute>} />
+          <Route path={ROUTES.EVENTOS} element={<ProtectedRoute><Eventos /></ProtectedRoute>} />
         </Route>
 
         {/* Full width detail pages */}
         <Route element={<AppShell maxWidth="lg"><Outlet /></AppShell>}>
-          <Route path="/artista/:id" element={<ArtistProfile />} />
-          <Route path="/evento/:slug" element={<EventDetail />} />
+          <Route path={ROUTES.ARTISTA_PROFILE} element={<ArtistProfile />} />
+          <Route path={ROUTES.EVENTO_DETAIL} element={<EventDetail />} />
         </Route>
 
         {/* Admin/Master Pages - Full sidebar integration */}
         <Route element={<ProtectedRoute requiredPermission="events.read"><AppShell showSidebar={true} maxWidth="xl"><Outlet /></AppShell></ProtectedRoute>}>
-          <Route path="/admin/events" element={<AdminEvents />} />
-          <Route path="/admin/users" element={<AdminPinGate><AdminUsers /></AdminPinGate>} />
-          <Route path="/admin/collaborators" element={<AdminCollaborators />} />
-          <Route path="/master/dashboard" element={<ProtectedRoute masterOnly><AdminPinGate><AdminMaster /></AdminPinGate></ProtectedRoute>} />
-          <Route path="/master/usuarios" element={<ProtectedRoute masterOnly><AdminPinGate><AdminUsers /></AdminPinGate></ProtectedRoute>} />
-          <Route path="/master/logs" element={<ProtectedRoute masterOnly><AdminPinGate><AdminAuditLogs /></AdminPinGate></ProtectedRoute>} />
-          <Route path="/admin/newsletter" element={<AdminNewsletter />} />
-          <Route path="/admin/artists" element={<AdminArtists />} />
-          <Route path="/admin/media" element={<AdminMedia />} />
-          <Route path="/admin/audit" element={<ProtectedRoute masterOnly><AdminAuditLogs /></ProtectedRoute>} />
-          <Route path="/ranking" element={<ProtectedRoute masterOnly><Ranking /></ProtectedRoute>} />
+          <Route path={ROUTES.ADMIN_EVENTS} element={<AdminEvents />} />
+          <Route path={ROUTES.ADMIN_USERS} element={<AdminPinGate><AdminUsers /></AdminPinGate>} />
+          <Route path={ROUTES.ADMIN_COLLABORATORS} element={<AdminCollaborators />} />
+          <Route path={ROUTES.MASTER_DASHBOARD} element={<ProtectedRoute masterOnly><AdminPinGate><AdminMaster /></AdminPinGate></ProtectedRoute>} />
+          <Route path={ROUTES.MASTER_USUARIOS} element={<ProtectedRoute masterOnly><AdminPinGate><AdminUsers /></AdminPinGate></ProtectedRoute>} />
+          <Route path={ROUTES.MASTER_LOGS} element={<ProtectedRoute masterOnly><AdminPinGate><AdminAuditLogs /></AdminPinGate></ProtectedRoute>} />
+          <Route path={ROUTES.ADMIN_NEWSLETTER} element={<AdminNewsletter />} />
+          <Route path={ROUTES.ADMIN_ARTISTS} element={<AdminArtists />} />
+          <Route path={ROUTES.ADMIN_MEDIA} element={<AdminMedia />} />
+          <Route path={ROUTES.ADMIN_AUDIT} element={<ProtectedRoute masterOnly><AdminAuditLogs /></ProtectedRoute>} />
+          <Route path={ROUTES.RANKING} element={<ProtectedRoute masterOnly><Ranking /></ProtectedRoute>} />
         </Route>
 
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/trocar-senha" element={<ProtectedRoute><MustChangePassword /></ProtectedRoute>} />
+        <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
+        <Route path={ROUTES.TROCAR_SENHA} element={<ProtectedRoute><MustChangePassword /></ProtectedRoute>} />
         <Route element={<AppShell maxWidth="md"><Outlet /></AppShell>}>
-          <Route path="/configuracoes" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/perfil" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+          <Route path={ROUTES.CONFIGURACOES} element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path={ROUTES.PERFIL} element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
         </Route>
-        <Route path="/coeaboa" element={<Navigate to="/agenda" replace />} />
-        <Route path="/lp" element={<Navigate to="/" replace />} />
+        <Route path="/coeaboa" element={<Navigate to={ROUTES.AGENDA} replace />} />
+        <Route path="/lp" element={<Navigate to={ROUTES.LANDING} replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
