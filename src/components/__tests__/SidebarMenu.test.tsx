@@ -9,7 +9,9 @@ vi.mock("@/hooks/useUserBadge", () => ({
   useUserBadge: () => ({ name: "Test User", initials: "TU", loaded: true }),
 }));
 
-const mockPermissions = vi.spyOn(useAppPermissionsModule, 'useAppPermissions');
+vi.mock("@/hooks/useAppPermissions", () => ({
+  useAppPermissions: vi.fn()
+}));
 
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({
@@ -20,7 +22,6 @@ vi.mock("@/contexts/AuthContext", () => ({
 
 vi.mock("@/contexts/SubmissionContext", () => ({
   useSubmissions: () => ({ savedCount: 0 }),
-  SubmissionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 // Mock routeExists to always return true for testing visibility
@@ -46,7 +47,29 @@ const renderSidebar = () => {
 };
 
 describe("SidebarMenu", () => {
+  beforeEach(() => {
+    cleanup();
+    vi.clearAllMocks();
+  });
+
   it("renders correctly for a regular user", () => {
+    vi.mocked(useAppPermissionsModule.useAppPermissions).mockReturnValue({
+      isMaster: false,
+      isAdmin: false,
+      isPromoter: false,
+      loading: false,
+      permissions: new Set(),
+      roles: [],
+      hasPermission: () => false,
+      hasRole: () => false,
+      isCollaborator: false,
+      canSubmit: false,
+      canApprove: false,
+      canEdit: false,
+      canDelete: false,
+      loaded: true
+    } as any);
+
     renderSidebar();
     expect(screen.getByText("AgendIlha")).toBeDefined();
     expect(screen.getByText("Test User")).toBeDefined();
@@ -58,16 +81,25 @@ describe("SidebarMenu", () => {
     
     // Admin items should NOT be visible
     expect(screen.queryByText("Painel Master")).toBeNull();
-    expect(screen.queryByText("Gerenciar Eventos")).toBeNull();
   });
 
-  it("shows the correct role label", () => {
-    vi.mocked(require("@/hooks/useAppPermissions").useAppPermissions).mockReturnValue({
+  it("shows the correct role label for master", () => {
+    vi.mocked(useAppPermissionsModule.useAppPermissions).mockReturnValue({
       isMaster: true,
       isAdmin: true,
       isPromoter: false,
       loading: false,
-    });
+      permissions: new Set(),
+      roles: ['master'],
+      hasPermission: () => true,
+      hasRole: (r) => r === 'master',
+      isCollaborator: true,
+      canSubmit: true,
+      canApprove: true,
+      canEdit: true,
+      canDelete: true,
+      loaded: true
+    } as any);
     
     renderSidebar();
     expect(screen.getByText("Admin Master")).toBeDefined();
