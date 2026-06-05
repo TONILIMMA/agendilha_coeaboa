@@ -148,7 +148,7 @@ export default function AdminMaster() {
               {bootstrapping ? <Loader2 className="h-3 w-3 animate-spin" /> : <UserPlus className="h-3 w-3" />}
               Admin Padrão
             </Button>
-            <Link to="/admin/audit">
+            <Link to="/master/logs">
               <Button variant="outline" size="sm" className="gap-2 rounded-full">
                 <HistoryIcon className="h-3 w-3" />
                 Logs
