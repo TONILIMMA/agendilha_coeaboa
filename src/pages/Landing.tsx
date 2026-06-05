@@ -23,9 +23,11 @@ import {
   Heart,
   Share2,
   Mail,
-   ArrowRightCircle,
-   Loader2
- } from "lucide-react";
+  ArrowRightCircle,
+  Loader2,
+  Phone,
+  CheckCircle2
+} from "lucide-react";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -137,8 +139,10 @@ export default function Landing() {
     const saved = localStorage.getItem("agendilha_favorites");
     return saved ? JSON.parse(saved) : [];
   });
-  const [subscriberEmail, setSubscriberEmail] = useState("");
+  const [subscriberPhone, setSubscriberPhone] = useState("");
   const [subscriberName, setSubscriberName] = useState("");
+  const [subscriberNeighborhood, setSubscriberNeighborhood] = useState("");
+  const [whatsappConsent, setWhatsappConsent] = useState(true);
   const [isSubscribing, setIsSubmitting] = useState(false);
   const [personalizationOpen, setPersonalizationOpen] = useState(false);
   const [shareData, setShareData] = useState<{ title: string; text: string; url: string; eventId?: string } | null>(null);
@@ -154,32 +158,42 @@ export default function Landing() {
 
   const handleNewsletterSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!subscriberEmail) return;
+    if (!subscriberPhone) return;
+    
+    if (!whatsappConsent) {
+      toast.error("É necessário autorizar o contato pelo WhatsApp.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      // Standardize phone
+      const cleanPhone = subscriberPhone.replace(/\D/g, "");
+      
       const { error } = await supabase
         .from("newsletter_subscribers")
         .insert({ 
-          email: subscriberEmail, 
+          email: `${cleanPhone}@whatsapp.agendilha.app`,
           name: subscriberName,
-          neighborhood: (window as any)._last_neighborhood || null
-        });
+          neighborhood: subscriberNeighborhood || null
+        } as any); // Cast to any to avoid strict type mismatch with existing supabase types
 
       if (error) {
         if (error.code === "23505") {
-          toast.info("Você já está cadastrado!");
+          toast.info("Este número já está cadastrado!");
         } else {
           throw error;
         }
       } else {
-        toast.success("Inscrição realizada com sucesso!", {
-          description: "Você receberá as novidades de shows e eventos."
+        toast.success("Cadastro realizado!", {
+          description: "Você receberá as novidades da Ilha no seu WhatsApp."
         });
-        setSubscriberEmail("");
+        setSubscriberPhone("");
         setSubscriberName("");
+        setSubscriberNeighborhood("");
       }
      } catch (err) {
-       handleError(err, "Erro ao realizar inscrição.");
+       handleError(err, "Erro ao realizar cadastro.");
      } finally {
       setIsSubmitting(false);
     }
@@ -452,27 +466,35 @@ export default function Landing() {
               </p>
               <form onSubmit={handleNewsletterSubscribe} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Input 
-                    placeholder="Seu nome" 
-                    value={subscriberName}
-                    onChange={(e) => setSubscriberName(e.target.value)}
-                    className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm"
-                  />
-                  <Input 
-                    type="email" 
-                    placeholder="Seu e-mail" 
-                    value={subscriberEmail}
-                    onChange={(e) => setSubscriberEmail(e.target.value)}
-                    required
-                    className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm"
-                  />
+                  <div className="space-y-1">
+                    <Input 
+                      placeholder="Seu nome" 
+                      value={subscriberName}
+                      onChange={(e) => setSubscriberName(e.target.value)}
+                      className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm focus:ring-secondary/20"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Input 
+                      type="tel" 
+                      placeholder="WhatsApp (DDD + Número)" 
+                      value={subscriberPhone}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        if (val.length <= 11) setSubscriberPhone(val);
+                      }}
+                      required
+                      className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm focus:ring-secondary/20"
+                    />
+                  </div>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex-1">
-                    <Select onValueChange={(val) => {
-                      (window as any)._last_neighborhood = val;
-                    }}>
-                      <SelectTrigger className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm">
+                    <Select 
+                      value={subscriberNeighborhood}
+                      onValueChange={setSubscriberNeighborhood}
+                    >
+                      <SelectTrigger className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm focus:ring-secondary/20">
                         <SelectValue placeholder="Seu bairro (opcional)" />
                       </SelectTrigger>
                       <SelectContent>
@@ -482,12 +504,33 @@ export default function Landing() {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="flex flex-col justify-center px-4">
+                    <div className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        id="whatsapp-consent-landing" 
+                        checked={whatsappConsent}
+                        onChange={(e) => setWhatsappConsent(e.target.checked)}
+                        className="h-4 w-4 rounded border-gray-300 text-secondary focus:ring-secondary/20 accent-secondary"
+                      />
+                      <label htmlFor="whatsapp-consent-landing" className="text-[11px] sm:text-xs font-medium text-foreground/70 leading-tight cursor-pointer">
+                        Autorizo receber notificações, sugestões e promoções pelo WhatsApp.
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-2">
                   <Button 
                     type="submit" 
                     disabled={isSubscribing}
-                    className="h-14 px-10 rounded-2xl font-black text-lg gradient-sunset shadow-lg"
+                    className="w-full h-14 rounded-2xl font-black text-lg bg-[#25D366] hover:bg-[#20ba5a] text-white shadow-lg shadow-green-200/50 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95"
                   >
-                    {isSubscribing ? "Salvando..." : "Cadastrar"}
+                    {isSubscribing ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <MessageCircle className="h-6 w-6 fill-white" />
+                    )}
+                    {isSubscribing ? "Cadastrando..." : "Cadastrar"}
                   </Button>
                 </div>
               </form>
