@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LogOut,
   User,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Menu,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserBadge } from "@/hooks/useUserBadge";
@@ -16,6 +18,8 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 import { sidebarConfig, SidebarItem, Role } from "./layout/sidebarItems";
+import { routeExists } from "@/routes/config";
+import { useMobile } from "@/hooks/use-mobile";
 
 interface Props {
   onClose?: () => void;
