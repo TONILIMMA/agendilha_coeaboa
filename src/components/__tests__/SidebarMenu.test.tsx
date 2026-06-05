@@ -104,4 +104,32 @@ describe("SidebarMenu", () => {
     renderSidebar();
     expect(screen.getByText("Admin Master")).toBeDefined();
   });
+
+  it("hides items whose routes do not exist", () => {
+    const routeConfig = require("@/routes/config");
+    vi.mocked(routeConfig.routeExists).mockReturnValue(false);
+
+    vi.mocked(useAppPermissionsModule.useAppPermissions).mockReturnValue({
+      isMaster: true,
+      isAdmin: true,
+      isPromoter: true,
+      loading: false,
+      permissions: new Set(),
+      roles: ['master'],
+      hasPermission: () => true,
+      hasRole: () => true,
+      isCollaborator: true,
+      canSubmit: true,
+      canApprove: true,
+      canEdit: true,
+      canDelete: true,
+      loaded: true
+    } as any);
+
+    renderSidebar();
+    
+    // Since all routes return false for routeExists, no items should be shown
+    expect(screen.queryByText("Eventos")).toBeNull();
+    expect(screen.queryByText("Painel Master")).toBeNull();
+  });
 });
