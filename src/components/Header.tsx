@@ -340,8 +340,8 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
               : isAdmin
               ? "Admin"
               : perms.isCollaborator
-              ? "Divulgador"
-              : "Divulgador";
+              ? "Promotor"
+              : "Usuário";
 
             // Role-aware icon for the trigger
             const RoleIcon = isMaster ? Crown : isAdmin ? Shield : UserCog;

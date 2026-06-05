@@ -115,14 +115,14 @@ interface Props {
             Ver agenda
           </Button>
         </Link>
-        <Button
+         <Button
           size="lg"
           variant="outline"
           className="w-full rounded-full bg-white/70"
           onClick={handleLogout}
         >
           <LogOut className="h-4 w-4 mr-1.5" />
-          Sair
+          Sair da Conta
         </Button>
       </div>
     );
