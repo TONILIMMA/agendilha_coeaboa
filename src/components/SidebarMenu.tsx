@@ -170,9 +170,9 @@ export function SidebarMenu({ onClose }: Props) {
           <Separator className="bg-sidebar-border/50" />
         </div>
         
-        <div className="flex flex-col gap-3 p-4 rounded-2xl bg-white/40 border border-white/60 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+        <div className="flex flex-col gap-3 p-3 md:p-4 rounded-2xl bg-white/40 border border-white/60 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
           <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground flex items-center justify-center font-display text-base font-bold shrink-0 shadow-lg ring-2 ring-white/50">
+            <div className="h-10 w-10 md:h-11 md:w-11 rounded-full bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground flex items-center justify-center font-display text-base font-bold shrink-0 shadow-lg ring-2 ring-white/50">
               {user ? initials : <User className="h-5 w-5" />}
             </div>
             <div className="flex-1 min-w-0">
