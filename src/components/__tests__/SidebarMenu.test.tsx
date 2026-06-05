@@ -1,30 +1,21 @@
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { render, screen, cleanup } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SidebarMenu } from "../SidebarMenu";
 import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { SubmissionProvider } from "@/contexts/SubmissionContext";
+import * as useAppPermissionsModule from "@/hooks/useAppPermissions";
 
 // Mock hooks
 vi.mock("@/hooks/useUserBadge", () => ({
   useUserBadge: () => ({ name: "Test User", initials: "TU", loaded: true }),
 }));
 
-vi.mock("@/hooks/useAppPermissions", () => ({
-  useAppPermissions: () => ({
-    isMaster: false,
-    isAdmin: false,
-    isPromoter: false,
-    loading: false,
-  }),
-}));
+const mockPermissions = vi.spyOn(useAppPermissionsModule, 'useAppPermissions');
 
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({
     user: { id: "123", email: "test@example.com" },
     signOut: vi.fn(),
   }),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock("@/contexts/SubmissionContext", () => ({
