@@ -113,6 +113,15 @@ export function SidebarMenu({ onClose }: Props) {
     }
   ].filter(section => section.items.length > 0);
 
+  // Map each role to a friendly description
+  const roleDescriptions: Record<Role, string> = {
+    public_guest: "Visitante",
+    public_registered: "Usuário",
+    promoter: "Promotor / Divulgador",
+    admin: "Administrador",
+    master: "Admin Master"
+  };
+
   const getStatusBadge = () => {
     if (!user) return (
       <Badge variant="outline" className="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest gap-1 border bg-muted text-muted-foreground border-border">

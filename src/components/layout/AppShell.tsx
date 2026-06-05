@@ -45,7 +45,7 @@ export function AppShell({
     <div className="flex min-h-screen bg-background text-foreground selection:bg-primary/10 overflow-x-hidden">
       {/* Sidebar for Desktop */}
       {effectiveShowSidebar && !isMobile && user && (
-        <aside className="w-64 fixed inset-y-0 left-0 z-40 border-r border-border bg-sidebar shadow-sm">
+        <aside className="w-72 fixed inset-y-0 left-0 z-40 border-r border-border bg-sidebar shadow-sm">
           <SidebarMenu />
         </aside>
       )}
@@ -53,7 +53,7 @@ export function AppShell({
       {/* Main Container */}
       <div className={cn(
         "flex-1 flex flex-col min-w-0 transition-all duration-300 w-full",
-        effectiveShowSidebar && !isMobile && user ? "md:pl-64" : "pl-0"
+        effectiveShowSidebar && !isMobile && user ? "md:pl-72" : "pl-0"
       )}>
         {/* Unified Header */}
         <Header onMobileMenuToggle={() => setMobileMenuOpen(true)} />
