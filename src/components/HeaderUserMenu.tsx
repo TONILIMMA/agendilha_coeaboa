@@ -186,9 +186,9 @@ interface Props {
         </DropdownMenuItem>
         {(status === "admin" || status === "master") && (
           <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-            <Link to="/admin/users">
+            <Link to="/admin/events">
               <Settings className="h-4 w-4 mr-2" />
-              Painel admin
+              Gestão de Eventos
             </Link>
           </DropdownMenuItem>
         )}

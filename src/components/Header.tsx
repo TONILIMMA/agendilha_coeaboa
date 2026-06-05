@@ -28,7 +28,7 @@ import { useSubmissions } from "@/contexts/SubmissionContext";
  import { useAuth } from "@/contexts/AuthContext";
  import { useTheme } from "@/hooks/useTheme";
 import { useProfile } from "@/hooks/useProfile";
-import { usePermissions } from "@/hooks/usePermissions";
+import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { useUserBadge } from "@/hooks/useUserBadge";
  import { Badge } from "@/components/ui/badge";
   import { HeaderUserMenu } from "@/components/HeaderUserMenu";
@@ -134,7 +134,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
    const { user, signOut, isAdmin } = useAuth();
    const { theme, toggleTheme } = useTheme();
   const { profile } = useProfile();
-  const perms = usePermissions();
+  const perms = useAppPermissions();
   const { status, name: badgeName } = useUserBadge();
   const isMaster = status === "master";
   const navigate = useNavigate();
@@ -216,8 +216,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                 size="icon" 
                 onClick={onMobileMenuToggle} 
                 className={cn(
-                  "h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm transition-all",
-                  !(isMaster || isAdmin) && "md:hidden"
+                  "h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm transition-all"
                 )}
               >
                 <Menu className="h-5 w-5 text-foreground" />
@@ -235,11 +234,8 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-white/95 backdrop-blur-xl transition-all duration-300 shadow-sm">
           <div className="mx-auto flex h-16 sm:h-18 max-w-5xl items-center justify-between px-4 sm:px-6 gap-2">
             <div className="flex items-center gap-2">
-              {/* Mobile Menu Trigger for Agenda - Always show for Master/Admin for quick navigation */}
-              <div className={cn(
-                "flex items-center",
-                !(isMaster || isAdmin) && "md:hidden"
-              )}>
+              {/* Mobile Menu Trigger for Agenda - Always show trigger */}
+              <div className="flex items-center">
                 <Button 
                   variant="ghost" 
                   size="icon" 
@@ -295,11 +291,8 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 gap-2">
           {/* Left: Brand + date */}
           <div className="flex items-center gap-3">
-             {/* Mobile menu trigger - Always show for Master/Admin as a quick access even on desktop */}
-             <div className={cn(
-               "flex items-center",
-               !(isMaster || isAdmin) && "md:hidden"
-             )}>
+             {/* Mobile menu trigger - Always show trigger */}
+             <div className="flex items-center">
                <Button 
                  variant="ghost" 
                  size="icon" 

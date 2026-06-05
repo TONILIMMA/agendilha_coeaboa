@@ -21,12 +21,12 @@ export function AppShell({
 }: AppShellProps) {
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { isAdmin, isMaster } = useAppPermissions();
+  const { isAdmin, isMaster, isPromoter } = useAppPermissions();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   // Automatically show sidebar for admins/masters if not explicitly false
-  const effectiveShowSidebar = showSidebar || (isAdmin || isMaster);
+  const effectiveShowSidebar = showSidebar || (isAdmin || isMaster || isPromoter);
   
   // Close mobile menu when route changes
   useEffect(() => {
@@ -42,7 +42,7 @@ export function AppShell({
   };
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground selection:bg-primary/10 overflow-x-hidden">
+    <div className="flex min-h-screen bg-background text-foreground selection:bg-primary/10 overflow-x-hidden relative">
       {/* Sidebar for Desktop */}
       {effectiveShowSidebar && !isMobile && user && (
         <aside className="w-72 fixed inset-y-0 left-0 z-40 border-r border-border bg-sidebar shadow-sm">
