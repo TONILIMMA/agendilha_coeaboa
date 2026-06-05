@@ -64,20 +64,36 @@ export function SidebarMenu({ onClose }: Props) {
     return fullPath === item.path || pathname.startsWith(item.path);
   };
 
-  const filterItemsByRole = (items: SidebarItem[]) => {
-    return items.filter(item => item.roles.includes(currentRole));
+  const filterItemsByRoleAndRoute = (items: SidebarItem[]) => {
+    return items.filter(item => {
+      // Rule 1: Role check
+      const hasRole = item.roles.includes(currentRole);
+      if (!hasRole) return false;
+
+      // Rule 2: Route existence check (prevent broken links)
+      return routeExists(item.path);
+    });
   };
 
   const filteredSections = sidebarConfig.map(section => ({
     ...section,
-    items: filterItemsByRole(section.items)
+    items: filterItemsByRoleAndRoute(section.items)
   })).filter(section => section.items.length > 0);
 
   const renderItem = (item: SidebarItem, depth = 0) => {
     const Icon = item.icon;
     const isActive = isItemActive(item);
-    const hasChildren = item.children && filterItemsByRole(item.children).length > 0;
-    const isOpen = openSubmenus[item.id] || (hasChildren && item.children?.some(child => isItemActive(child)));
+    const validChildren = item.children ? filterItemsByRoleAndRoute(item.children) : [];
+    const hasChildren = validChildren.length > 0;
+    
+    // Auto-open if child is active
+    useEffect(() => {
+      if (hasChildren && validChildren.some(child => isItemActive(child))) {
+        setOpenSubmenus(prev => ({ ...prev, [item.id]: true }));
+      }
+    }, [pathname, item.id, hasChildren]);
+
+    const isOpen = openSubmenus[item.id];
 
     const itemBadge = item.id === "my_submissions" && savedCount > 0 ? savedCount : item.badge;
 
