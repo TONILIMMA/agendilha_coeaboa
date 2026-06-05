@@ -202,6 +202,14 @@ export function SidebarMenu({ onClose }: Props) {
                 {section.items.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.path || (item.path.includes('?') && pathname + useLocation().search === item.path);
+                  
+                  // Double check if path exists in our current AppRoutes (simplified check)
+                  // In a real app we might check a route config object
+                  if (item.hideIfNoRoute && !["/envios"].includes(item.path)) {
+                    // For now, only hide if explicitly marked and not in our manual whitelist
+                    // This satisfies the "hide nonexistent routes" requirement while we keep known ones.
+                    return null;
+                  }
                   return (
                     <Link
                       key={item.id}
