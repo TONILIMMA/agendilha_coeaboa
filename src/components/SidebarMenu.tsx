@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 import { sidebarConfig, SidebarItem, Role } from "./layout/sidebarItems";
 import { routeExists } from "@/routes/config";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Props {
   onClose?: () => void;
@@ -33,6 +33,7 @@ export function SidebarMenu({ onClose }: Props) {
   const { name, initials, loaded: badgeLoaded } = useUserBadge();
   const { isMaster, isAdmin, isPromoter, loading: permsLoading } = useAppPermissions();
   const { savedCount } = useSubmissions();
+  const isMobile = useIsMobile();
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
 
   // Map system status to our Sidebar roles
