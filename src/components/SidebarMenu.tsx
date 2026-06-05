@@ -141,8 +141,8 @@ export function SidebarMenu({ onClose }: Props) {
         )}
 
         {hasChildren && isOpen && (
-          <div className="mt-1 space-y-1 ml-4 border-l border-primary/10 pl-2">
-            {filterItemsByRole(item.children!).map(child => renderItem(child, depth + 1))}
+          <div className="mt-1 space-y-1 ml-4 border-l border-primary/10 pl-2 animate-in slide-in-from-top-2 duration-200">
+            {validChildren.map(child => renderItem(child, depth + 1))}
           </div>
         )}
       </div>
