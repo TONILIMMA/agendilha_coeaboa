@@ -241,13 +241,13 @@ export function SidebarMenu({ onClose }: Props) {
           <Button 
             variant="ghost" 
             size="lg" 
-            className="w-full justify-start gap-3 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-all duration-300"
+            className="w-full justify-start gap-3 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-all duration-300 group"
             onClick={() => {
               signOut();
               if (onClose) onClose();
             }}
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4 text-muted-foreground group-hover:text-destructive transition-colors" />
             <span className="font-bold text-sm tracking-tight">Sair da Conta</span>
           </Button>
         ) : (
@@ -257,7 +257,7 @@ export function SidebarMenu({ onClose }: Props) {
             </p>
           </div>
         )}
-        <div className="mt-4 text-center">
+        <div className="mt-2 md:mt-4 text-center">
           <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground/30">
             © {new Date().getFullYear()} AgendIlha · Coé a Boa?
           </p>
