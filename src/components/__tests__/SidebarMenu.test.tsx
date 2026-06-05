@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SidebarMenu } from "../SidebarMenu";
 import { BrowserRouter } from "react-router-dom";
 import * as useAppPermissionsModule from "@/hooks/useAppPermissions";
+import * as routeConfig from "@/routes/config";
 
 // Mock hooks
 vi.mock("@/hooks/useUserBadge", () => ({
@@ -24,9 +25,9 @@ vi.mock("@/contexts/SubmissionContext", () => ({
   useSubmissions: () => ({ savedCount: 0 }),
 }));
 
-// Mock routeExists to always return true for testing visibility
+// Mock routeExists 
 vi.mock("@/routes/config", () => ({
-  routeExists: () => true,
+  routeExists: vi.fn(),
   ROUTES: {
     LANDING: "/",
     AGENDA: "/agenda",
@@ -53,6 +54,7 @@ describe("SidebarMenu", () => {
   });
 
   it("renders correctly for a regular user", () => {
+    vi.mocked(routeConfig.routeExists).mockReturnValue(true);
     vi.mocked(useAppPermissionsModule.useAppPermissions).mockReturnValue({
       isMaster: false,
       isAdmin: false,
@@ -84,6 +86,7 @@ describe("SidebarMenu", () => {
   });
 
   it("shows the correct role label for master", () => {
+    vi.mocked(routeConfig.routeExists).mockReturnValue(true);
     vi.mocked(useAppPermissionsModule.useAppPermissions).mockReturnValue({
       isMaster: true,
       isAdmin: true,
@@ -106,7 +109,6 @@ describe("SidebarMenu", () => {
   });
 
   it("hides items whose routes do not exist", () => {
-    const routeConfig = require("@/routes/config");
     vi.mocked(routeConfig.routeExists).mockReturnValue(false);
 
     vi.mocked(useAppPermissionsModule.useAppPermissions).mockReturnValue({
