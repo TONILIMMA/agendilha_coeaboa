@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LogOut,
   User,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserBadge } from "@/hooks/useUserBadge";
@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
 import { sidebarConfig, SidebarItem, Role } from "./layout/sidebarItems";
+import { routeExists } from "@/routes/config";
 
 interface Props {
   onClose?: () => void;
@@ -31,7 +32,6 @@ export function SidebarMenu({ onClose }: Props) {
   const { savedCount } = useSubmissions();
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
 
-  // Map system status to our Sidebar roles
   const getCurrentRole = (): Role => {
     if (!user) return "public_guest";
     if (isMaster) return "master";
@@ -50,82 +50,26 @@ export function SidebarMenu({ onClose }: Props) {
     master: "Admin Master"
   };
 
-  const toggleSubmenu = (id: string) => {
-    setOpenSubmenus(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
   const isItemActive = (item: SidebarItem) => {
     if (item.exact) return pathname === item.path;
     return fullPath === item.path || pathname.startsWith(item.path);
   };
 
-  const filterItemsByRole = (items: SidebarItem[]) => {
-    return items.filter(item => item.roles.includes(currentRole));
+  const filterItemsByRoleAndRoute = (items: SidebarItem[]) => {
+    return items.filter(item => {
+      const hasRole = item.roles.includes(currentRole);
+      if (!hasRole) return false;
+      return routeExists(item.path);
+    });
   };
 
   const filteredSections = sidebarConfig.map(section => ({
     ...section,
-    items: filterItemsByRole(section.items)
+    items: filterItemsByRoleAndRoute(section.items)
   })).filter(section => section.items.length > 0);
 
-  const renderItem = (item: SidebarItem, depth = 0) => {
-    const Icon = item.icon;
-    const isActive = isItemActive(item);
-    const hasChildren = item.children && filterItemsByRole(item.children).length > 0;
-    const isOpen = openSubmenus[item.id] || (hasChildren && item.children?.some(child => isItemActive(child)));
-
-    const itemBadge = item.id === "my_submissions" && savedCount > 0 ? savedCount : item.badge;
-
-    return (
-      <div key={item.id} className="w-full">
-        {hasChildren ? (
-          <button
-            onClick={() => toggleSubmenu(item.id)}
-            className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative",
-              isActive 
-                ? "bg-primary/10 text-primary font-bold" 
-                : "hover:bg-primary/5 text-muted-foreground hover:text-primary"
-            )}
-          >
-            <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-primary/70 group-hover:text-primary")} />
-            <span className="text-sm flex-1 text-left tracking-tight font-medium">{item.label}</span>
-            {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </button>
-        ) : (
-          <Link
-            to={item.path}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative",
-              isActive 
-                ? "bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20 scale-[1.02]" 
-                : "hover:bg-primary/5 text-muted-foreground hover:text-primary",
-              depth > 0 && "ml-4 py-2"
-            )}
-            onClick={() => {
-              if (onClose && !hasChildren) onClose();
-            }}
-          >
-            <Icon className={cn("h-4 w-4 shrink-0 transition-all duration-300", isActive ? "text-primary-foreground" : "text-primary group-hover:scale-110")} />
-            <span className={cn("text-sm flex-1 tracking-tight font-medium", depth > 0 ? "text-xs" : "text-sm")}>{item.label}</span>
-            {itemBadge && (
-              <Badge variant={isActive ? "secondary" : "default"} className="h-5 min-w-[20px] px-1.5 bg-primary/20 text-primary border-none text-[10px] font-bold">
-                {itemBadge}
-              </Badge>
-            )}
-            {isActive && depth === 0 && (
-              <div className="absolute left-1 w-1 h-5 bg-white/40 rounded-full" />
-            )}
-          </Link>
-        )}
-
-        {hasChildren && isOpen && (
-          <div className="mt-1 space-y-1 ml-4 border-l border-primary/10 pl-2">
-            {filterItemsByRole(item.children!).map(child => renderItem(child, depth + 1))}
-          </div>
-        )}
-      </div>
-    );
+  const toggleSubmenu = (id: string) => {
+    setOpenSubmenus(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   return (
@@ -175,13 +119,26 @@ export function SidebarMenu({ onClose }: Props) {
             </div>
             
             <div className="space-y-1">
-              {section.items.map(item => renderItem(item))}
+              {section.items.map(item => (
+                <SidebarNavigationItem 
+                  key={item.id}
+                  item={item} 
+                  depth={0} 
+                  pathname={pathname}
+                  fullPath={fullPath}
+                  savedCount={savedCount}
+                  openSubmenus={openSubmenus}
+                  toggleSubmenu={toggleSubmenu}
+                  onClose={onClose}
+                  filterFn={filterItemsByRoleAndRoute}
+                />
+              ))}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Footer */}
+      {/* Footer - Sair da Conta is isolated here */}
       <div className="p-4 mt-auto border-t border-sidebar-border bg-sidebar-accent/5">
         {user ? (
           <Button 
@@ -209,6 +166,112 @@ export function SidebarMenu({ onClose }: Props) {
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function SidebarNavigationItem({ 
+  item, 
+  depth, 
+  pathname, 
+  fullPath, 
+  savedCount, 
+  openSubmenus, 
+  toggleSubmenu, 
+  onClose,
+  filterFn
+}: { 
+  item: SidebarItem; 
+  depth: number; 
+  pathname: string;
+  fullPath: string;
+  savedCount: number;
+  openSubmenus: Record<string, boolean>;
+  toggleSubmenu: (id: string) => void;
+  onClose?: () => void;
+  filterFn: (items: SidebarItem[]) => SidebarItem[];
+}) {
+  const isItemActive = (it: SidebarItem) => {
+    if (it.exact) return pathname === it.path;
+    return fullPath === it.path || pathname.startsWith(it.path);
+  };
+
+  const Icon = item.icon;
+  const isActive = isItemActive(item);
+  const validChildren = item.children ? filterFn(item.children) : [];
+  const hasChildren = validChildren.length > 0;
+  
+  // Auto-open if child is active
+  useEffect(() => {
+    if (hasChildren && validChildren.some(child => isItemActive(child)) && !openSubmenus[item.id]) {
+      toggleSubmenu(item.id);
+    }
+  }, [pathname, item.id, hasChildren]);
+
+  const isOpen = openSubmenus[item.id];
+  const itemBadge = item.id === "my_submissions" && savedCount > 0 ? savedCount : item.badge;
+
+  return (
+    <div className="w-full">
+      {hasChildren ? (
+        <button
+          onClick={() => toggleSubmenu(item.id)}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative",
+            isActive 
+              ? "bg-primary/10 text-primary font-bold" 
+              : "hover:bg-primary/5 text-muted-foreground hover:text-primary"
+          )}
+        >
+          <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-primary/70 group-hover:text-primary")} />
+          <span className="text-sm flex-1 text-left tracking-tight font-medium">{item.label}</span>
+          {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        </button>
+      ) : (
+        <Link
+          to={item.path}
+          className={cn(
+            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative",
+            isActive 
+              ? "bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20 scale-[1.02]" 
+              : "hover:bg-primary/5 text-muted-foreground hover:text-primary",
+            depth > 0 && "ml-4 py-2"
+          )}
+          onClick={() => {
+            if (onClose && !hasChildren) onClose();
+          }}
+        >
+          <Icon className={cn("h-4 w-4 shrink-0 transition-all duration-300", isActive ? "text-primary-foreground" : "text-primary group-hover:scale-110")} />
+          <span className={cn("text-sm flex-1 tracking-tight font-medium", depth > 0 ? "text-xs" : "text-sm")}>{item.label}</span>
+          {itemBadge && (
+            <Badge variant={isActive ? "secondary" : "default"} className="h-5 min-w-[20px] px-1.5 bg-primary/20 text-primary border-none text-[10px] font-bold">
+              {itemBadge}
+            </Badge>
+          )}
+          {isActive && depth === 0 && (
+            <div className="absolute left-1 w-1 h-5 bg-white/40 rounded-full" />
+          )}
+        </Link>
+      )}
+
+      {hasChildren && isOpen && (
+        <div className="mt-1 space-y-1 ml-4 border-l border-primary/10 pl-2 animate-in slide-in-from-top-2 duration-200">
+          {validChildren.map(child => (
+            <SidebarNavigationItem 
+              key={child.id}
+              item={child} 
+              depth={depth + 1} 
+              pathname={pathname}
+              fullPath={fullPath}
+              savedCount={savedCount}
+              openSubmenus={openSubmenus}
+              toggleSubmenu={toggleSubmenu}
+              onClose={onClose}
+              filterFn={filterFn}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
