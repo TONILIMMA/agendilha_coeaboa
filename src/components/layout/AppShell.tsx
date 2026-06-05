@@ -26,7 +26,7 @@ export function AppShell({
   const location = useLocation();
 
   // Automatically show sidebar for admins/masters if not explicitly false
-  const effectiveShowSidebar = showSidebar || (isAdmin || isMaster);
+  const effectiveShowSidebar = showSidebar || (isAdmin || isMaster || isPromoter);
   
   // Close mobile menu when route changes
   useEffect(() => {
