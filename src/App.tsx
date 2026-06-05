@@ -12,8 +12,7 @@ import { useAppPermissions, PermissionName } from "@/hooks/usePermissions";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { AppShell } from "@/components/layout/AppShell";
 import { handleError } from "@/lib/error-handler";
-
-
+import { ROUTES } from "@/routes/config";
 
 // Critical (above-the-fold) — keep eager
 import Landing from "./pages/Landing";
@@ -25,7 +24,6 @@ const Auth = lazy(() => import("./pages/Auth"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminEvents = lazy(() => import("./pages/AdminEvents"));
-const CoeABoa = lazy(() => import("./pages/CoeABoa"));
 const AgendaCultural = lazy(() => import("./pages/AgendaCultural"));
 const Eventos = lazy(() => import("./pages/Eventos"));
 const AdminCollaborators = lazy(() => import("./pages/AdminCollaborators"));
