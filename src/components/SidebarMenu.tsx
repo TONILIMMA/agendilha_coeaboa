@@ -38,6 +38,7 @@ interface SidebarItem {
   icon: React.ElementType;
   badge?: string | number;
   roles: Role[];
+  hideIfNoRoute?: boolean;
 }
 
 interface SidebarSection {
@@ -123,32 +124,31 @@ export function SidebarMenu({ onClose }: Props) {
     const variants: Record<string, string> = {
       master: "bg-secondary text-secondary-foreground border-secondary shadow-lg shadow-secondary/20",
       admin: "bg-accent text-accent-foreground border-accent shadow-md shadow-accent/10",
-      collaborator: "bg-primary/20 text-primary border-primary/30",
+      promoter: "bg-primary/20 text-primary border-primary/30",
     };
 
     const icons: Record<string, React.ElementType> = {
       master: Star,
       admin: ShieldCheck,
-      collaborator: User,
+      promoter: Crown,
       user: Heart,
-      artist: Users
     };
 
-    const Icon = icons[status || "user"] || User;
+    const Icon = icons[currentRole] || User;
 
     return (
-      <Badge variant="outline" className={cn("px-2 py-0.5 text-[10px] font-black uppercase tracking-widest gap-1 border animate-in fade-in slide-in-from-top-1", variants[status || "user"] || "bg-muted text-muted-foreground border-border")}>
+      <Badge variant="outline" className={cn("px-2 py-0.5 text-[10px] font-black uppercase tracking-widest gap-1 border animate-in fade-in slide-in-from-top-1", variants[currentRole] || "bg-muted text-muted-foreground border-border")}>
         <Icon className="h-2.5 w-2.5" />
-        {roleLabel || "Usuário"}
+        {roleLabel || (currentRole === 'promoter' ? 'Promotor' : 'Usuário')}
       </Badge>
     );
   };
 
   return (
-    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border w-64 shadow-xl">
+    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border w-full max-w-[280px] shadow-xl overflow-hidden">
       {/* Header Profile */}
-      <div className="p-6 pb-2">
-        <div className="flex flex-col gap-4 mb-6">
+      <div className="p-4 md:p-6 pb-2 shrink-0">
+        <div className="flex flex-col gap-4 mb-4 md:mb-6">
           <div className="flex items-center gap-2.5 group cursor-pointer px-1" onClick={() => navigate("/")}>
             <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all">
               <img src={logoCoeABoa} alt="AgendIlha" className="h-8 w-8 rounded-full ring-2 ring-white/20" />
