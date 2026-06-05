@@ -148,7 +148,7 @@ export const AppRoutes = () => (
         </Route>
 
         {/* Admin/Master Pages - Full sidebar integration */}
-        <Route element={<ProtectedRoute><AppShell showSidebar={true} maxWidth="xl"><Outlet /></AppShell></ProtectedRoute>}>
+        <Route element={<ProtectedRoute requiredPermission="events.read"><AppShell showSidebar={true} maxWidth="xl"><Outlet /></AppShell></ProtectedRoute>}>
           <Route path="/admin/events" element={<AdminEvents />} />
           <Route path="/admin/users" element={<AdminPinGate><AdminUsers /></AdminPinGate>} />
           <Route path="/admin/collaborators" element={<AdminCollaborators />} />
@@ -159,7 +159,7 @@ export const AppRoutes = () => (
           <Route path="/admin/artists" element={<AdminArtists />} />
           <Route path="/admin/media" element={<AdminMedia />} />
           <Route path="/admin/audit" element={<ProtectedRoute masterOnly><AdminAuditLogs /></ProtectedRoute>} />
-          <Route path="/ranking" element={<Ranking />} />
+          <Route path="/ranking" element={<ProtectedRoute masterOnly><Ranking /></ProtectedRoute>} />
         </Route>
 
         <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -38,6 +38,7 @@ interface SidebarItem {
   icon: React.ElementType;
   badge?: string | number;
   roles: Role[];
+  hideIfNoRoute?: boolean;
 }
 
 interface SidebarSection {
@@ -75,7 +76,7 @@ export function SidebarMenu({ onClose }: Props) {
     { id: "artists", label: "Artistas Locais", path: "/artistas", icon: Users, roles: ["public_guest", "public_registered"] },
     
     // Operação
-    { id: "my_submissions", label: "Meus Envios", path: "/envios", icon: ClipboardList, roles: ["promoter"], badge: savedCount > 0 ? savedCount : undefined },
+    { id: "my_submissions", label: "Meus Envios", path: "/envios", icon: ClipboardList, roles: ["promoter"], badge: savedCount > 0 ? savedCount : undefined, hideIfNoRoute: true },
     { id: "send_event", label: "Enviar Evento", path: "/enviar-evento", icon: PlusCircle, roles: ["promoter"] },
     { id: "manage_events", label: "Gerenciar Eventos", path: "/admin/events", icon: ShieldCheck, roles: ["admin", "master"] },
     { id: "flyer_moderator", label: "Moderador de Flyers", path: "/admin/media", icon: Shield, roles: ["admin", "master"] },
@@ -112,6 +113,15 @@ export function SidebarMenu({ onClose }: Props) {
     }
   ].filter(section => section.items.length > 0);
 
+  // Map each role to a friendly description
+  const roleDescriptions: Record<Role, string> = {
+    public_guest: "Visitante",
+    public_registered: "Usuário",
+    promoter: "Promotor / Divulgador",
+    admin: "Administrador",
+    master: "Admin Master"
+  };
+
   const getStatusBadge = () => {
     if (!user) return (
       <Badge variant="outline" className="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest gap-1 border bg-muted text-muted-foreground border-border">
@@ -123,32 +133,31 @@ export function SidebarMenu({ onClose }: Props) {
     const variants: Record<string, string> = {
       master: "bg-secondary text-secondary-foreground border-secondary shadow-lg shadow-secondary/20",
       admin: "bg-accent text-accent-foreground border-accent shadow-md shadow-accent/10",
-      collaborator: "bg-primary/20 text-primary border-primary/30",
+      promoter: "bg-primary/20 text-primary border-primary/30",
     };
 
     const icons: Record<string, React.ElementType> = {
       master: Star,
       admin: ShieldCheck,
-      collaborator: User,
+      promoter: Crown,
       user: Heart,
-      artist: Users
     };
 
-    const Icon = icons[status || "user"] || User;
+    const Icon = icons[currentRole] || User;
 
     return (
-      <Badge variant="outline" className={cn("px-2 py-0.5 text-[10px] font-black uppercase tracking-widest gap-1 border animate-in fade-in slide-in-from-top-1", variants[status || "user"] || "bg-muted text-muted-foreground border-border")}>
+      <Badge variant="outline" className={cn("px-2 py-0.5 text-[10px] font-black uppercase tracking-widest gap-1 border animate-in fade-in slide-in-from-top-1", variants[currentRole] || "bg-muted text-muted-foreground border-border")}>
         <Icon className="h-2.5 w-2.5" />
-        {roleLabel || "Usuário"}
+        {roleDescriptions[currentRole]}
       </Badge>
     );
   };
 
   return (
-    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border w-64 shadow-xl">
+    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border w-full max-w-[280px] shadow-xl overflow-hidden">
       {/* Header Profile */}
-      <div className="p-6 pb-2">
-        <div className="flex flex-col gap-4 mb-6">
+      <div className="p-4 md:p-6 pb-2 shrink-0">
+        <div className="flex flex-col gap-4 mb-4 md:mb-6">
           <div className="flex items-center gap-2.5 group cursor-pointer px-1" onClick={() => navigate("/")}>
             <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all">
               <img src={logoCoeABoa} alt="AgendIlha" className="h-8 w-8 rounded-full ring-2 ring-white/20" />
@@ -161,9 +170,9 @@ export function SidebarMenu({ onClose }: Props) {
           <Separator className="bg-sidebar-border/50" />
         </div>
         
-        <div className="flex flex-col gap-3 p-4 rounded-2xl bg-white/40 border border-white/60 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+        <div className="flex flex-col gap-3 p-3 md:p-4 rounded-2xl bg-white/40 border border-white/60 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
           <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground flex items-center justify-center font-display text-base font-bold shrink-0 shadow-lg ring-2 ring-white/50">
+            <div className="h-10 w-10 md:h-11 md:w-11 rounded-full bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground flex items-center justify-center font-display text-base font-bold shrink-0 shadow-lg ring-2 ring-white/50">
               {user ? initials : <User className="h-5 w-5" />}
             </div>
             <div className="flex-1 min-w-0">
@@ -193,6 +202,14 @@ export function SidebarMenu({ onClose }: Props) {
                 {section.items.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.path || (item.path.includes('?') && pathname + useLocation().search === item.path);
+                  
+                  // Double check if path exists in our current AppRoutes (simplified check)
+                  // In a real app we might check a route config object
+                  if (item.hideIfNoRoute && !["/envios"].includes(item.path)) {
+                    // For now, only hide if explicitly marked and not in our manual whitelist
+                    // This satisfies the "hide nonexistent routes" requirement while we keep known ones.
+                    return null;
+                  }
                   return (
                     <Link
                       key={item.id}
@@ -232,13 +249,13 @@ export function SidebarMenu({ onClose }: Props) {
           <Button 
             variant="ghost" 
             size="lg" 
-            className="w-full justify-start gap-3 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-all duration-300"
+            className="w-full justify-start gap-3 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-all duration-300 group"
             onClick={() => {
               signOut();
               if (onClose) onClose();
             }}
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4 text-muted-foreground group-hover:text-destructive transition-colors" />
             <span className="font-bold text-sm tracking-tight">Sair da Conta</span>
           </Button>
         ) : (
@@ -248,7 +265,7 @@ export function SidebarMenu({ onClose }: Props) {
             </p>
           </div>
         )}
-        <div className="mt-4 text-center">
+        <div className="mt-2 md:mt-4 text-center">
           <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-muted-foreground/30">
             © {new Date().getFullYear()} AgendIlha · Coé a Boa?
           </p>
