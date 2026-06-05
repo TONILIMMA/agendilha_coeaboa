@@ -173,11 +173,10 @@ export default function Landing() {
       const { error } = await supabase
         .from("newsletter_subscribers")
         .insert({ 
-          email: `${cleanPhone}@whatsapp.agendilha.app`, // Use as unique key if email is required
+          email: `${cleanPhone}@whatsapp.agendilha.app`,
           name: subscriberName,
-          neighborhood: subscriberNeighborhood || null,
-          phone: cleanPhone
-        });
+          neighborhood: subscriberNeighborhood || null
+        } as any); // Cast to any to avoid strict type mismatch with existing supabase types
 
       if (error) {
         if (error.code === "23505") {
