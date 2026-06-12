@@ -14,7 +14,6 @@ import {
   Globe2,
   MessageCircle,
   ArrowRight,
-  Search,
   Map as MapIcon,
   TrendingUp,
   Music,
@@ -52,11 +51,11 @@ const sitelinks = [
 ];
 
 const genres = [
-  { id: "musica", label: "Shows & Música", icon: Music, color: "bg-blue-500" },
-  { id: "cultura", label: "Cultura & Arte", icon: Sparkles, color: "bg-purple-500" },
-  { id: "gastronomia", label: "Gastronomia", icon: Globe2, color: "bg-orange-500" },
-  { id: "outros", label: "Outros", icon: Megaphone, color: "bg-pink-500" },
-  { id: "esporte", label: "Esportes", icon: Calendar, color: "bg-green-500" },
+  { id: "musica", label: "Música", icon: Music },
+  { id: "cultura", label: "Cultura", icon: Sparkles },
+  { id: "gastronomia", label: "Gastronomia", icon: Globe2 },
+  { id: "esporte", label: "Esporte", icon: Calendar },
+  { id: "outros", label: "Outros", icon: Megaphone },
 ];
 
 const marqueeWords = ["Música", "Teatro", "Gastronomia", "Arte", "Workshops", "Feiras", "Cinema", "Literatura", "Dança", "Cultura local"];
@@ -134,7 +133,6 @@ export default function Landing() {
        fetchNextPage();
      }
    }, [loadMoreInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem("agendilha_favorites");
     return saved ? JSON.parse(saved) : [];
@@ -262,42 +260,17 @@ export default function Landing() {
             </div>
          </div>
  
-         <form 
-           onSubmit={(e) => {
-             e.preventDefault();
-             if (searchQuery.trim()) navigate(`/agenda?search=${encodeURIComponent(searchQuery)}`);
-           }}
-           className="relative mb-16 max-w-3xl mx-auto reveal"
-         >
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary/60" />
-          <Input 
-            placeholder="O que você está procurando? (shows, festas, bares...)" 
-            className="h-14 pl-12 pr-4 rounded-full border-2 border-primary/10 bg-white shadow-lg text-lg focus:border-primary/30 transition-all"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Button 
-            type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 rounded-full bg-primary text-white font-bold px-6 hidden sm:flex"
-          >
-            Buscar
-          </Button>
-        </form>
-
-        {/* Categories */}
-        <div className="flex gap-4 overflow-x-auto pb-6 mb-8 scrollbar-none">
+        {/* Categories — minimal, monochrome chips */}
+        <div className="flex gap-2 overflow-x-auto pb-6 mb-10 scrollbar-none">
           {genres.map((g) => (
-             <Button 
-               key={g.id} 
-               variant="outline" 
-               className="rounded-full gap-2 px-5 sm:px-6 h-12 shadow-sm shrink-0 border-border/50 hover:bg-primary/5 hover:border-primary/20 transition-all"
-               onClick={() => navigate(`/agenda?category=${g.id}`)}
-             >
-               <div className={cn("p-1.5 rounded-full text-white", g.color)}>
-                 <g.icon className="h-3.5 w-3.5" />
-               </div>
-               <span className="text-xs sm:text-sm font-bold">{g.label}</span>
-             </Button>
+            <button
+              key={g.id}
+              onClick={() => navigate(`/agenda?category=${g.id}`)}
+              className="group inline-flex items-center gap-2 shrink-0 h-10 px-4 rounded-full border border-foreground/12 bg-transparent text-foreground/80 hover:text-foreground hover:border-foreground/30 transition-colors"
+            >
+              <g.icon className="h-3.5 w-3.5 opacity-70 group-hover:opacity-100" strokeWidth={1.75} />
+              <span className="text-sm font-medium tracking-tight">{g.label}</span>
+            </button>
           ))}
         </div>
 
