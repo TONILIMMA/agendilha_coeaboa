@@ -617,26 +617,26 @@ export default function AdminEvents() {
                           <>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'aprovado')}>
-                                  <CheckCircle className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Aprovar</TooltipContent>
-                            </Tooltip>
-                            
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => handleReject(sub.id)}>
-                                  <XCircle className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Rejeitar</TooltipContent>
-                            </Tooltip>
+                                 <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'approved')}>
+                                   <CheckCircle className="h-4 w-4" />
+                                 </Button>
+                               </TooltipTrigger>
+                               <TooltipContent>Aprovar</TooltipContent>
+                             </Tooltip>
+                             
+                             <Tooltip>
+                               <TooltipTrigger asChild>
+                                 <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'rejected')}>
+                                   <XCircle className="h-4 w-4" />
+                                 </Button>
+                               </TooltipTrigger>
+                               <TooltipContent>Rejeitar</TooltipContent>
+                             </Tooltip>
                           </>
                         ) : sub.status === 'aprovado' ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => handleReject(sub.id)}>
+                               <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'rejected')}>
                                 <XCircle className="h-4 w-4" />
                               </Button>
                             </TooltipTrigger>
@@ -645,7 +645,7 @@ export default function AdminEvents() {
                         ) : sub.status === 'rejeitado' ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'aprovado')}>
+                               <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'approved')}>
                                 <CheckCircle className="h-4 w-4" />
                               </Button>
                             </TooltipTrigger>
@@ -783,10 +783,10 @@ export default function AdminEvents() {
                           )}
                           <div className="pt-4 flex flex-wrap gap-2 border-t border-border/50">
                             {sub.status !== 'aprovado' && (
-                              <Button size="sm" variant="default" onClick={() => handleStatusChange(sub.id, 'aprovado')} className="bg-emerald-600 hover:bg-emerald-700"><CheckCircle className="h-4 w-4 mr-2" /> Aprovar e Publicar</Button>
+                             <Button size="sm" variant="default" onClick={() => openReview(sub, 'approved')} className="bg-emerald-600 hover:bg-emerald-700"><CheckCircle className="h-4 w-4 mr-2" /> Aprovar e Publicar</Button>
                             )}
                             {sub.status !== 'rejeitado' && (
-                              <Button size="sm" variant="outline" onClick={() => handleReject(sub.id)} className="text-rose-600 border-rose-200 hover:bg-rose-50"><XCircle className="h-4 w-4 mr-2" /> Rejeitar</Button>
+                             <Button size="sm" variant="outline" onClick={() => openReview(sub, 'rejected')} className="text-rose-600 border-rose-200 hover:bg-rose-50"><XCircle className="h-4 w-4 mr-2" /> Rejeitar</Button>
                             )}
                             <Button size="sm" variant={sub.is_highlight ? 'secondary' : 'outline'} className={sub.is_highlight ? 'bg-amber-100 text-amber-700' : ''} onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)}><Star className={`h-4 w-4 mr-2 ${sub.is_highlight ? 'fill-amber-500' : ''}`} /> {sub.is_highlight ? 'Remover Destaque' : 'Marcar Destaque'}</Button>
                             <Button size="sm" variant="ghost" className="text-muted-foreground ml-auto"><History className="h-4 w-4 mr-2" /> Histórico</Button>
