@@ -102,21 +102,19 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const addSubmission = useCallback(async (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "status" | "rejection_reason"> & { status?: string }) => {
-    if (!user) return false;
-    const { error } = await supabase
+    if (!user) return null;
+    const { data: inserted, error } = await supabase
       .from("submissions")
-      .insert({ ...data, user_id: user.id } as any);
+      .insert({ ...data, user_id: user.id } as any)
+      .select("id")
+      .single();
 
-    if (error) {
-      toast.error("Erro ao salvar envio", { description: error.message });
-      return false;
+    if (error || !inserted) {
+      toast.error("Erro ao salvar envio", { description: error?.message });
+      return null;
     }
-    toast.success("✅ Recebemos seu evento com sucesso!", {
-      description: "Está em análise para divulgação. Você pode acompanhar o status em 'Envios' no menu.",
-      duration: 6000,
-    });
     await fetchSubmissions();
-    return true;
+    return { id: (inserted as any).id as string };
   }, [user, fetchSubmissions]);
 
   const deleteSubmission = useCallback(async (id: string) => {
