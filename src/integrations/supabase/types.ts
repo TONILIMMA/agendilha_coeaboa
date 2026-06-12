@@ -286,6 +286,68 @@ export type Database = {
         }
         Relationships: []
       }
+      artistas: {
+        Row: {
+          cache_faixa: string | null
+          categoria: string | null
+          contato_id: string
+          created_at: string
+          genero: string | null
+          id: string
+          instagram: string | null
+          necessidades_tecnicas: string | null
+          nome_artistico: string
+          portfolio_url: string | null
+          possui_estrutura: boolean | null
+          quantidade_integrantes: number | null
+          release_curto: string | null
+          tempo_apresentacao: string | null
+          updated_at: string
+        }
+        Insert: {
+          cache_faixa?: string | null
+          categoria?: string | null
+          contato_id: string
+          created_at?: string
+          genero?: string | null
+          id?: string
+          instagram?: string | null
+          necessidades_tecnicas?: string | null
+          nome_artistico: string
+          portfolio_url?: string | null
+          possui_estrutura?: boolean | null
+          quantidade_integrantes?: number | null
+          release_curto?: string | null
+          tempo_apresentacao?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cache_faixa?: string | null
+          categoria?: string | null
+          contato_id?: string
+          created_at?: string
+          genero?: string | null
+          id?: string
+          instagram?: string | null
+          necessidades_tecnicas?: string | null
+          nome_artistico?: string
+          portfolio_url?: string | null
+          possui_estrutura?: boolean | null
+          quantidade_integrantes?: number | null
+          release_curto?: string | null
+          tempo_apresentacao?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artistas_contato_id_fkey"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       atrativos: {
         Row: {
           contact_whatsapp: string | null
@@ -402,6 +464,89 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      contatos: {
+        Row: {
+          bairro: string
+          created_at: string
+          endereco: string | null
+          id: string
+          nome: string
+          status: string
+          tipo_perfil: Database["public"]["Enums"]["tipo_perfil_cadastro"]
+          updated_at: string
+          user_id: string | null
+          whatsapp: string
+        }
+        Insert: {
+          bairro: string
+          created_at?: string
+          endereco?: string | null
+          id?: string
+          nome: string
+          status?: string
+          tipo_perfil: Database["public"]["Enums"]["tipo_perfil_cadastro"]
+          updated_at?: string
+          user_id?: string | null
+          whatsapp: string
+        }
+        Update: {
+          bairro?: string
+          created_at?: string
+          endereco?: string | null
+          id?: string
+          nome?: string
+          status?: string
+          tipo_perfil?: Database["public"]["Enums"]["tipo_perfil_cadastro"]
+          updated_at?: string
+          user_id?: string | null
+          whatsapp?: string
+        }
+        Relationships: []
+      }
+      divulgadores: {
+        Row: {
+          contato_id: string
+          cpf: string
+          created_at: string
+          id: string
+          instagram: string | null
+          nome_projeto: string | null
+          observacoes: string | null
+          updated_at: string
+          validado: boolean
+        }
+        Insert: {
+          contato_id: string
+          cpf: string
+          created_at?: string
+          id?: string
+          instagram?: string | null
+          nome_projeto?: string | null
+          observacoes?: string | null
+          updated_at?: string
+          validado?: boolean
+        }
+        Update: {
+          contato_id?: string
+          cpf?: string
+          created_at?: string
+          id?: string
+          instagram?: string | null
+          nome_projeto?: string | null
+          observacoes?: string | null
+          updated_at?: string
+          validado?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "divulgadores_contato_id_fkey"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_audit_log: {
         Row: {
@@ -805,6 +950,33 @@ export type Database = {
         }
         Relationships: []
       }
+      segmentos_notificacao: {
+        Row: {
+          ativo: boolean
+          bairro: string
+          categoria_evento: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          bairro: string
+          categoria_evento: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          bairro?: string
+          categoria_evento?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       submissions: {
         Row: {
           additional_details: string | null
@@ -1110,6 +1282,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      usuarios_publicos: {
+        Row: {
+          aceita_notificacoes: boolean
+          contato_id: string
+          created_at: string
+          frequencia_notificacao: string
+          id: string
+          interesses: string[]
+          origem_cadastro: string | null
+          updated_at: string
+        }
+        Insert: {
+          aceita_notificacoes?: boolean
+          contato_id: string
+          created_at?: string
+          frequencia_notificacao?: string
+          id?: string
+          interesses?: string[]
+          origem_cadastro?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aceita_notificacoes?: boolean
+          contato_id?: string
+          created_at?: string
+          frequencia_notificacao?: string
+          id?: string
+          interesses?: string[]
+          origem_cadastro?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usuarios_publicos_contato_id_fkey"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -1469,6 +1682,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "master"
+      tipo_perfil_cadastro: "publico" | "divulgador" | "artista"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1597,6 +1811,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "master"],
+      tipo_perfil_cadastro: ["publico", "divulgador", "artista"],
     },
   },
 } as const
