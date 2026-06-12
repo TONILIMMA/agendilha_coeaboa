@@ -233,36 +233,36 @@ export default function Landing() {
       <Header />
       
        {/* ── Hero Discovery ── */}
-       <section className="pt-24 sm:pt-40 pb-12 px-4 max-w-6xl mx-auto">
-         <div className="text-center mb-14 sm:mb-20 animate-in fade-in slide-in-from-top-4 duration-1000">
-           <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 mb-8 shadow-sm">
-             <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-primary/70">Curadoria local da Ilha</span>
+       <section className="pt-24 sm:pt-36 pb-16 sm:pb-24 px-4 max-w-5xl mx-auto">
+         <div className="text-center mb-16 sm:mb-24 animate-in fade-in slide-in-from-top-4 duration-1000">
+           <div className="inline-flex items-center justify-center px-3.5 py-1 rounded-full border border-accent mb-10">
+             <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.22em] text-secondary">Curadoria local da Ilha</span>
            </div>
-           <h1 className="text-4xl xs:text-5xl sm:text-7xl font-black mb-7 font-display text-primary tracking-tightest leading-[1.05] sm:leading-[0.95] max-w-4xl mx-auto text-balance">
+           <h1 className="text-[2.5rem] xs:text-5xl sm:text-7xl font-bold mb-6 font-display text-foreground tracking-tight leading-[1.05] max-w-4xl mx-auto text-balance">
              O melhor da Ilha,<br className="hidden sm:block" /> <span className="text-secondary">em um só lugar.</span>
            </h1>
-           <p className="text-muted-foreground text-base sm:text-xl font-normal max-w-xl mx-auto mb-10 text-balance leading-relaxed">
+           <p className="text-secondary/80 text-base sm:text-lg font-light max-w-xl mx-auto mb-10 text-balance leading-relaxed">
              Eventos, gastronomia e experiências selecionadas para o seu dia, com mais praticidade e menos ruído.
            </p>
 
-            <div className="flex flex-col items-center gap-5 max-w-lg mx-auto">
+            <div className="flex flex-col items-center gap-6 max-w-lg mx-auto">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
                 <Button
                   onClick={() => navigate("/agenda")}
-                  className="w-full sm:flex-1 h-14 rounded-full font-black text-base sm:text-lg gradient-sunset shadow-xl hover:scale-[1.03] active:scale-95 transition-all uppercase tracking-wider"
+                  className="w-full sm:w-auto sm:px-10 h-12 sm:h-13 rounded-full font-semibold text-base bg-foreground text-background hover:bg-secondary shadow-card transition-all"
                 >
                   Explorar agenda
                 </Button>
                 <Button
                   variant="ghost"
                   onClick={() => navigate("/agenda?view=today")}
-                  className="w-full sm:flex-1 h-14 rounded-full font-semibold text-base sm:text-lg text-primary hover:bg-primary/5 transition-all"
+                  className="w-full sm:w-auto sm:px-10 h-12 sm:h-13 rounded-full font-medium text-base text-foreground border border-accent hover:bg-muted transition-all"
                 >
                   Ver o que tem hoje
                 </Button>
               </div>
 
-              <p className="text-xs sm:text-sm text-muted-foreground/80 max-w-md text-balance leading-relaxed">
+              <p className="text-xs text-secondary/60 max-w-md text-balance leading-relaxed">
                 Descubra programas perto de você com uma seleção simples, bonita e atual.
               </p>
             </div>
