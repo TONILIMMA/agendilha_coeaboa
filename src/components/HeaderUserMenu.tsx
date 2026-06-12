@@ -47,20 +47,17 @@ interface Props {
    if (!user) {
      return (
        <div className={variant === "mobile" ? "flex flex-col gap-2.5" : "flex items-center gap-2"}>
-         {!isAgenda && (
-           <Link to="/agenda" onClick={onNavigate}>
-             <Button
-               size={variant === "mobile" ? "lg" : "sm"}
-               className={
-                 variant === "mobile"
-                   ? "w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold"
-                   : "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-6 font-bold shadow-sm"
-               }
-             >
-               Ver agenda
-             </Button>
-           </Link>
-         )}
+          {variant === "mobile" && !isAgenda && (
+            <Link to="/agenda" onClick={onNavigate}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full rounded-full border-foreground/15 bg-transparent text-foreground hover:bg-foreground/5 font-medium"
+              >
+                Ver agenda
+              </Button>
+            </Link>
+          )}
          <Link to="/auth" onClick={onNavigate}>
            <Button
              size="sm"
