@@ -49,6 +49,8 @@ const CadastroDivulgador = lazy(() => import("./pages/cadastro/CadastroDivulgado
 const CadastroArtista = lazy(() => import("./pages/cadastro/CadastroArtista"));
 const CadastroSucesso = lazy(() => import("./pages/cadastro/CadastroSucesso"));
 const Carrossel = lazy(() => import("./pages/Carrossel"));
+const EventoEnviado = lazy(() => import("./pages/EventoEnviado"));
+const MeusEventos = lazy(() => import("./pages/MeusEventos"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
