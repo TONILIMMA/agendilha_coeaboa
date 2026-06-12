@@ -117,6 +117,13 @@ export const sidebarConfig: SidebarSection[] = [
         icon: Megaphone,
         roles: ["admin", "master"]
       },
+      {
+        id: "carrossel",
+        label: "Carrossel WhatsApp",
+        path: "/carrossel",
+        icon: Images,
+        roles: ["admin", "master"]
+      },
     ]
   },
   {
