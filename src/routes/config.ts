@@ -32,6 +32,7 @@ export const ROUTES = {
   CARROSSEL: "/carrossel",
   EVENTO_ENVIADO: "/evento-enviado/:id",
   MEUS_EVENTOS: "/meus-eventos",
+  ADMIN_WHATSAPP_TEMPLATES: "/admin/whatsapp-templates",
 };
 
 export const VALID_ROUTES = Object.values(ROUTES);
