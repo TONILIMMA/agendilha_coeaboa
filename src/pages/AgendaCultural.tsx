@@ -578,15 +578,15 @@ function buildUberLink(ev: Event): string {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                   {nearYouEvents.length > 0 && (
                     <div className="space-y-4">
-                      <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
-                        <MapPin className="h-5 w-5 text-secondary" />
+                      <h3 className="flex items-center gap-2 text-base font-semibold uppercase tracking-[0.18em] text-foreground/70 px-2">
+                        <MapPin className="h-4 w-4 text-secondary" />
                         Hoje perto de você
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
                          {nearYouEvents.map(ev => (
                              <Card
                                key={ev.id}
-                               className="overflow-hidden border-none shadow-sm bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer group event-card"
+                               className="overflow-hidden border border-border bg-card hover:bg-muted/50 hover:border-accent transition-all duration-300 cursor-pointer group event-card rounded-2xl shadow-none"
                                data-event-id={ev.id}
                                onClick={() => setSelectedEvent(ev)}
                              >
@@ -595,7 +595,7 @@ function buildUberLink(ev: Event): string {
                                    src={ev.image_url} 
                                    alt={ev.event_title} 
                                    category={ev.category} 
-                                   className="h-16 w-16 rounded-xl shrink-0 event-image"
+                                   className="h-16 w-16 rounded-xl shrink-0 event-image ring-1 ring-border"
                                    icon={CalendarDays}
                                  />
                                 <div className="min-w-0 flex-1">
@@ -607,7 +607,7 @@ function buildUberLink(ev: Event): string {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
+                                    className="h-8 w-8 rounded-full border border-border bg-background/80 backdrop-blur-md text-foreground hover:bg-background"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);
@@ -628,15 +628,15 @@ function buildUberLink(ev: Event): string {
 
                   {trendingEvents.length > 0 && (
                     <div className="space-y-4">
-                      <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
-                        <Trophy className="h-5 w-5 text-secondary" />
+                      <h3 className="flex items-center gap-2 text-base font-semibold uppercase tracking-[0.18em] text-foreground/70 px-2">
+                        <Trophy className="h-4 w-4 text-secondary" />
                         Bombando agora
                       </h3>
                       <div className="grid grid-cols-1 gap-3">
                          {trendingEvents.map(ev => (
                              <Card
                                key={ev.id}
-                               className="overflow-hidden border-none shadow-sm bg-orange-500/5 hover:bg-orange-500/10 transition-colors cursor-pointer group event-card"
+                               className="overflow-hidden border border-border bg-card hover:bg-muted/50 hover:border-accent transition-all duration-300 cursor-pointer group event-card rounded-2xl shadow-none"
                                data-event-id={ev.id}
                                onClick={() => setSelectedEvent(ev)}
                              >
@@ -645,7 +645,7 @@ function buildUberLink(ev: Event): string {
                                    src={ev.image_url} 
                                    alt={ev.event_title} 
                                    category={ev.category} 
-                                   className="h-16 w-16 rounded-xl shrink-0 event-image"
+                                   className="h-16 w-16 rounded-xl shrink-0 event-image ring-1 ring-border"
                                    icon={Play}
                                  />
                                 <div className="min-w-0 flex-1">
@@ -657,7 +657,7 @@ function buildUberLink(ev: Event): string {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
+                                    className="h-8 w-8 rounded-full border border-border bg-background/80 backdrop-blur-md text-foreground hover:bg-background"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);
@@ -677,15 +677,15 @@ function buildUberLink(ev: Event): string {
 
                  {recommendedEvents.length > 0 && (
                    <div className="space-y-4">
-                     <h3 className="flex items-center gap-2 text-xl font-black text-primary px-2">
-                       <Sparkles className="h-5 w-5 text-secondary" />
+                     <h3 className="flex items-center gap-2 text-base font-semibold uppercase tracking-[0.18em] text-foreground/70 px-2">
+                       <Sparkles className="h-4 w-4 text-secondary" />
                        Você pode gostar
                      </h3>
                      <div className="grid grid-cols-1 gap-3">
                          {recommendedEvents.map(ev => (
                              <Card 
                                key={ev.id} 
-                               className="overflow-hidden border-none shadow-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer group event-card" 
+                               className="overflow-hidden border border-border bg-card hover:bg-muted/50 hover:border-accent transition-all duration-300 cursor-pointer group event-card rounded-2xl shadow-none" 
                                data-event-id={ev.id}
                                onClick={() => setSelectedEvent(ev)}
                              >
@@ -694,7 +694,7 @@ function buildUberLink(ev: Event): string {
                                    src={ev.image_url} 
                                    alt={ev.event_title} 
                                    category={ev.category} 
-                                   className="h-16 w-16 rounded-xl shrink-0 event-image"
+                                   className="h-16 w-16 rounded-xl shrink-0 event-image ring-1 ring-border"
                                    icon={MusicIcon}
                                  />
                                  <div className="min-w-0 flex-1">
@@ -706,7 +706,7 @@ function buildUberLink(ev: Event): string {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 shadow-sm"
+                                    className="h-8 w-8 rounded-full border border-border bg-background/80 backdrop-blur-md text-foreground hover:bg-background"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       const data = getShareData(ev);

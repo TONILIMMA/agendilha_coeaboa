@@ -25,14 +25,20 @@ interface Event {
   is_suitable_for_minors?: boolean;
 }
 
-const CATEGORY_MAP: Record<string, { label: string; icon: any; color: string; bg: string; border: string }> = {
-  musica: { label: "Música / Show", icon: Music, color: "#2F5D46", bg: "#F6EEEA", border: "#E6D6CF" },
-  gastronomia: { label: "Gastronomia", icon: Utensils, color: "#7C2D12", bg: "#FFF7ED", border: "#FFEDD5" },
-  cultura: { label: "Cultura / Arte", icon: Theater, color: "#4C1D95", bg: "#F5F3FF", border: "#EDE9FE" },
-  esporte: { label: "Esporte", icon: Trophy, color: "#1E3A8A", bg: "#EFF6FF", border: "#DBEAFE" },
-  promocoes: { label: "Promoções", icon: Tag, color: "#991B1B", bg: "#FEF2F2", border: "#FEE2E2" },
-  outros: { label: "Outros", icon: MoreHorizontal, color: "#374151", bg: "#F9FAFB", border: "#F3F4F6" },
+const CATEGORY_MAP: Record<string, { label: string; icon: any }> = {
+  musica:      { label: "Música",      icon: Music },
+  gastronomia: { label: "Gastronomia", icon: Utensils },
+  cultura:     { label: "Cultura",     icon: Theater },
+  esporte:     { label: "Esporte",     icon: Trophy },
+  promocoes:   { label: "Promoções",   icon: Tag },
+  outros:      { label: "Outros",      icon: MoreHorizontal },
 };
+
+function isToday(d?: string | null) {
+  if (!d) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return d.slice(0, 10) === today;
+}
 
 export const DiscoveryEventCard = memo(({
   event,
@@ -74,7 +80,7 @@ export const DiscoveryEventCard = memo(({
       <Card
         onClick={onClick}
         className={cn(
-          "group cursor-pointer overflow-hidden border-none bg-transparent transition-all hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none",
+          "group cursor-pointer overflow-hidden border-none bg-transparent transition-all duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground/20 focus-visible:ring-offset-2 outline-none",
           isHorizontal ? "w-full" : 
             !className?.includes('w-') && (
               isLarge ? "w-[260px] xs:w-[280px] sm:w-[320px]" :
@@ -85,7 +91,7 @@ export const DiscoveryEventCard = memo(({
         )}
       >
          <div className={cn(
-           "relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] shadow-xl bg-muted/20",
+           "relative aspect-[4/5] w-full overflow-hidden rounded-[1.5rem] shadow-card bg-muted ring-1 ring-foreground/[0.04]",
            isHorizontal && "aspect-[16/9]",
           isCompact && "aspect-square h-[220px] xs:h-[240px]"
          )}>
@@ -112,11 +118,11 @@ export const DiscoveryEventCard = memo(({
                 setIsLoaded(true);
               }}
               className={cn(
-                "h-full w-full object-cover transition-all duration-700 group-hover:scale-110",
+               "h-full w-full object-cover transition-all duration-[1200ms] ease-out group-hover:scale-[1.06]",
                 !isLoaded ? "opacity-0 scale-105 blur-sm" : "opacity-100 scale-100 blur-0"
               )}
             />
-           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+           <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/15 to-transparent pointer-events-none" />
            
            {/* Top Badges Left */}
            <div className="absolute left-4 top-4 flex flex-wrap gap-2 z-20">
@@ -124,22 +130,21 @@ export const DiscoveryEventCard = memo(({
                const cat = CATEGORY_MAP[event.category || "outros"] || CATEGORY_MAP.outros;
                const Icon = cat.icon;
                return (
-                 <Badge 
-                    style={{ backgroundColor: cat.bg, color: cat.color, borderColor: cat.border }}
-                    className="border shadow-sm text-[10px] font-bold uppercase tracking-wider py-1.5 px-3.5 rounded-full flex items-center gap-1.5"
-                 >
-                   <Icon className="h-3 w-3" strokeWidth={2.5} />
+                 <Badge className="bg-background/90 backdrop-blur-md text-foreground border border-foreground/5 text-[10px] font-semibold uppercase tracking-[0.18em] py-1 px-3 rounded-full flex items-center gap-1.5 shadow-none">
+                   <Icon className="h-3 w-3" strokeWidth={2} />
                    {cat.label}
                  </Badge>
                );
              })()}
              
-             {event.age_rating && (
-               <Badge className={cn(
-                 "backdrop-blur-md text-white font-black text-[10px] py-1 px-3 rounded-full border border-white/30 shadow-sm",
-                 event.age_rating === '18+' ? "bg-red-500/60" : "bg-green-500/60"
-               )}>
-                 {event.age_rating}
+             {event.age_rating === '18+' && (
+               <Badge className="bg-destructive/90 text-destructive-foreground backdrop-blur-md font-semibold text-[10px] py-1 px-2.5 rounded-full border-none">
+                 18+
+               </Badge>
+             )}
+             {isToday(event.date) && (
+               <Badge className="bg-foreground text-background backdrop-blur-md font-semibold text-[10px] uppercase tracking-[0.18em] py-1 px-3 rounded-full border-none">
+                 Hoje
                </Badge>
              )}
            </div>
@@ -150,56 +155,56 @@ export const DiscoveryEventCard = memo(({
                 variant="ghost" 
                 size="icon" 
                 className={cn(
-                  "h-10 w-10 rounded-full backdrop-blur-md border border-white/20 transition-all active:scale-90",
-                  isFavorite ? "bg-primary text-white" : "bg-black/20 text-white hover:bg-white/20"
+                  "h-9 w-9 rounded-full backdrop-blur-md border-none transition-all active:scale-90",
+                  isFavorite ? "bg-background text-foreground" : "bg-background/70 text-foreground hover:bg-background"
                 )}
                 onClick={(e) => {
                   e.stopPropagation();
                   onFavoriteToggle?.(e);
                 }}
              >
-               <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
+               <Heart className={cn("h-4 w-4", isFavorite && "fill-current")} strokeWidth={2} />
              </Button>
   
              <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-10 w-10 rounded-full backdrop-blur-md border border-white/20 bg-black/20 text-white hover:bg-white/20 transition-all active:scale-90"
+                className="h-9 w-9 rounded-full backdrop-blur-md border-none bg-background/70 text-foreground hover:bg-background transition-all active:scale-90"
                 onClick={(e) => {
                   e.stopPropagation();
                   onShare?.(e);
                 }}
              >
-               <Share2 className="h-5 w-5" />
+               <Share2 className="h-4 w-4" strokeWidth={2} />
              </Button>
   
              {event.rating && event.rating.total > 0 && (
-               <Badge className="bg-yellow-400/90 text-black font-black py-1 px-3 rounded-full flex items-center gap-1 h-10">
-                 <Star className="h-3 w-3 fill-current" />
+               <Badge className="bg-background/90 backdrop-blur-md text-foreground font-semibold py-1 px-2.5 rounded-full flex items-center gap-1 h-9 border-none">
+                 <Star className="h-3 w-3 fill-current text-foreground" />
                  {event.rating.average.toFixed(1)}
                </Badge>
              )}
            </div>
              <div className={cn(
-               "absolute bottom-0 left-0 right-0 p-4 xs:p-6 text-white bg-gradient-to-t from-black/90 via-black/40 to-transparent",
+               "absolute bottom-0 left-0 right-0 p-5 xs:p-6 text-background",
                isCompact && "p-3 xs:p-4"
              )}>
                <div className={cn(
-                 "flex items-center gap-2 text-[10px] xs:text-xs font-mono uppercase tracking-widest text-white/90 mb-1 xs:mb-2",
+                 "flex items-center gap-1.5 text-[10px] xs:text-[11px] font-semibold uppercase tracking-[0.22em] text-background/85 mb-2",
                  isCompact && "mb-1"
                )}>
-                 <Calendar className="h-3 w-3 text-primary" />
-                 {formatBrazilianDate(event.date)} {event.start_time && `• ${event.start_time}`}
+                 <Calendar className="h-3 w-3" strokeWidth={2} />
+                 <span>{formatBrazilianDate(event.date)}{event.start_time && ` · ${event.start_time}`}</span>
                </div>
                <h3 className={cn(
-                 "font-display font-black leading-tight mb-1 xs:mb-2 group-hover:text-primary transition-colors line-clamp-2",
+                 "font-display font-semibold tracking-tight leading-[1.15] mb-2 line-clamp-2 text-background",
                  isLarge ? "text-xl xs:text-2xl" : "text-base xs:text-lg",
                  isCompact && "text-sm xs:text-base mb-1"
                )}>
                  {event.event_title}
                </h3>
-               <div className="flex items-center gap-1.5 text-[10px] xs:text-sm font-medium text-white/60">
-                 <MapPin className="h-3 w-3 xs:h-4 xs:w-4 text-primary shrink-0" />
+               <div className="flex items-center gap-1.5 text-[11px] xs:text-sm font-normal text-background/70">
+                 <MapPin className="h-3 w-3 xs:h-3.5 xs:w-3.5 shrink-0" strokeWidth={2} />
                  <span className="truncate">{event.location}</span>
                </div>
              </div>
