@@ -57,7 +57,9 @@ interface SubmissionEntry {
    submissions: SubmissionEntry[];
    loading: boolean;
    fetchSubmissions: () => Promise<void>;
-   addSubmission: (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "stage" | "status" | "rejection_reason"> & { stage?: string }) => Promise<boolean>;
+  addSubmission: (
+    data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "stage" | "status" | "rejection_reason"> & { stage?: string }
+  ) => Promise<{ id: string } | null>;
    deleteSubmission: (id: string) => Promise<void>;
    resubmit: (id: string) => Promise<void>;
    updateStatus: (id: string, status: "pending" | "approved" | "rejected", reason?: string | null) => Promise<void>;
