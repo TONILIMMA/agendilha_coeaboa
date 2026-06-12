@@ -28,7 +28,10 @@ import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { handleError } from "@/lib/error-handler";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { buildWhatsappUrl, isValidBrazilianMobile, formatPhoneDisplay } from "@/lib/whatsapp";
+import { buildWhatsappUrl, validateBrazilianMobile, formatPhoneDisplay, renderTemplate } from "@/lib/whatsapp";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 
 interface Submission {
@@ -147,23 +150,21 @@ function buildRejectionMessage(sub: Submission, reason?: string | null): string 
   );
 }
 
-function notifyDivulgador(sub: Submission, kind: "approved" | "rejected", reason?: string | null) {
-  if (!sub.phone || !isValidBrazilianMobile(sub.phone)) {
-    toast.warning("Divulgador sem WhatsApp válido — aviso manual não enviado.");
-    return;
-  }
-  const message = kind === "approved" ? buildApprovalMessage(sub) : buildRejectionMessage(sub, reason);
-  const url = buildWhatsappUrl(sub.phone, message);
-  if (!url) {
-    toast.warning("Não foi possível montar o link do WhatsApp.");
-    return;
-  }
-  const win = window.open(url, "_blank", "noopener,noreferrer");
-  if (!win) {
-    toast.info("Pop-up bloqueado. Libere o pop-up para enviar pelo WhatsApp.");
-    return;
-  }
-  toast.success(`WhatsApp aberto para ${formatPhoneDisplay(sub.phone)} — confira a mensagem e envie.`);
+function buildTemplateVars(sub: Submission, reason?: string | null): Record<string, string> {
+  const name = (sub.responsible_name || "").trim().split(" ")[0] || "";
+  const url = sub.slug
+    ? `${window.location.origin}/evento/${sub.slug}`
+    : `${window.location.origin}/agenda`;
+  return {
+    nome: name,
+    titulo: sub.event_title || "",
+    data: formatEventDate(sub.date),
+    hora: sub.start_time || "--:--",
+    local: sub.location || "",
+    url,
+    motivo: (reason || "").trim(),
+    meus_eventos_url: `${window.location.origin}/meus-eventos`,
+  };
 }
 
 export default function AdminEvents() {
@@ -177,6 +178,17 @@ export default function AdminEvents() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [templates, setTemplates] = useState<{ approved: string; rejected: string }>({
+    approved: "",
+    rejected: "",
+  });
+  const [review, setReview] = useState<{
+    sub: Submission;
+    kind: "approved" | "rejected";
+    reason: string;
+    message: string;
+    submitting: boolean;
+  } | null>(null);
 
   async function fetchAll() {
     setLoading(true);
@@ -196,6 +208,19 @@ export default function AdminEvents() {
   useEffect(() => {
     if (hasPermission('events.read')) fetchAll();
   }, [hasPermission]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("whatsapp_templates")
+        .select("kind, body");
+      const next = { approved: "", rejected: "" };
+      (data || []).forEach((r: any) => {
+        if (r.kind === "approved" || r.kind === "rejected") (next as any)[r.kind] = r.body;
+      });
+      setTemplates(next);
+    })();
+  }, []);
 
   async function handleDelete(id: string) {
     const { error } = await supabase.from("submissions").delete().eq("id", id);
@@ -230,49 +255,72 @@ export default function AdminEvents() {
       handleError(error, "Erro ao atualizar status");
     } else {
       toast.success(`Status atualizado para ${newStatus}`);
-      const sub = submissions.find((s) => s.id === id);
-      if (sub && newStatus === "aprovado") {
-        notifyDivulgador({ ...sub, status: "aprovado" }, "approved");
-      } else if (sub && newStatus === "rejeitado") {
-        notifyDivulgador(sub, "rejected");
-      }
       fetchAll(); // Refresh to get generated slugs/copies
     }
   }
 
-  async function handleApproveAndPublish(id: string) {
-    const { error } = await supabase.from("submissions").update({
-      status: 'aprovado',
-      approved_at: new Date().toISOString(),
-      approved_by: user?.id,
-    }).eq("id", id);
-
-    if (error) {
-      handleError(error, "Erro ao aprovar");
-    } else {
-      toast.success("Evento aprovado e publicado na agenda!");
-      const sub = submissions.find((s) => s.id === id);
-      if (sub) notifyDivulgador({ ...sub, status: "aprovado" }, "approved");
-      fetchAll();
+  function openReview(sub: Submission, kind: "approved" | "rejected") {
+    const template = templates[kind];
+    if (!template) {
+      toast.error("Template do WhatsApp ainda não carregado. Tente novamente em alguns segundos.");
+      return;
     }
+    const initial = renderTemplate(template, buildTemplateVars(sub, ""));
+    setReview({ sub, kind, reason: "", message: initial, submitting: false });
   }
 
-  async function handleReject(id: string) {
-    const reason = window.prompt("Motivo da rejeição (opcional, será compartilhado com o divulgador no WhatsApp):") ?? "";
-    const { error } = await supabase.from("submissions").update({
-      status: 'rejeitado',
-      rejected_at: new Date().toISOString(),
-      rejected_by: user?.id,
-      admin_notes: reason || null,
-    }).eq("id", id);
+  function updateReviewReason(reason: string) {
+    setReview((prev) => {
+      if (!prev) return prev;
+      const message = renderTemplate(templates[prev.kind], buildTemplateVars(prev.sub, reason));
+      return { ...prev, reason, message };
+    });
+  }
+
+  async function confirmReview() {
+    if (!review) return;
+    const { sub, kind, reason, message } = review;
+    setReview({ ...review, submitting: true });
+
+    const payload: any =
+      kind === "approved"
+        ? {
+            status: "aprovado",
+            approved_at: new Date().toISOString(),
+            approved_by: user?.id,
+            rejected_at: null,
+            rejected_by: null,
+          }
+        : {
+            status: "rejeitado",
+            rejected_at: new Date().toISOString(),
+            rejected_by: user?.id,
+            admin_notes: reason || null,
+          };
+
+    const { error } = await supabase.from("submissions").update(payload).eq("id", sub.id);
     if (error) {
-      handleError(error, "Erro ao rejeitar evento");
-    } else {
-      toast.success("Evento rejeitado.");
-      const sub = submissions.find((s) => s.id === id);
-      if (sub) notifyDivulgador(sub, "rejected", reason);
-      fetchAll();
+      handleError(error, "Erro ao atualizar status");
+      setReview({ ...review, submitting: false });
+      return;
     }
+
+    toast.success(kind === "approved" ? "Evento aprovado." : "Evento rejeitado.");
+
+    const phoneCheck = validateBrazilianMobile(sub.phone || "");
+    if (phoneCheck.valid) {
+      const url = buildWhatsappUrl(sub.phone || "", message);
+      if (url) {
+        const win = window.open(url, "_blank", "noopener,noreferrer");
+        if (!win) toast.info("Pop-up bloqueado. Libere para enviar pelo WhatsApp.");
+        else toast.success(`WhatsApp aberto para ${phoneCheck.display}.`);
+      }
+    } else {
+      toast.warning(`Sem WhatsApp válido: ${(phoneCheck as { reason: string }).reason}`);
+    }
+
+    setReview(null);
+    fetchAll();
   }
 
   const copyToClipboard = (text: string, label: string) => {
@@ -569,26 +617,26 @@ export default function AdminEvents() {
                           <>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'aprovado')}>
-                                  <CheckCircle className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Aprovar</TooltipContent>
-                            </Tooltip>
-                            
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => handleReject(sub.id)}>
-                                  <XCircle className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Rejeitar</TooltipContent>
-                            </Tooltip>
+                                 <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'approved')}>
+                                   <CheckCircle className="h-4 w-4" />
+                                 </Button>
+                               </TooltipTrigger>
+                               <TooltipContent>Aprovar</TooltipContent>
+                             </Tooltip>
+                             
+                             <Tooltip>
+                               <TooltipTrigger asChild>
+                                 <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'rejected')}>
+                                   <XCircle className="h-4 w-4" />
+                                 </Button>
+                               </TooltipTrigger>
+                               <TooltipContent>Rejeitar</TooltipContent>
+                             </Tooltip>
                           </>
                         ) : sub.status === 'aprovado' ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => handleReject(sub.id)}>
+                               <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'rejected')}>
                                 <XCircle className="h-4 w-4" />
                               </Button>
                             </TooltipTrigger>
@@ -597,7 +645,7 @@ export default function AdminEvents() {
                         ) : sub.status === 'rejeitado' ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'aprovado')}>
+                               <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'approved')}>
                                 <CheckCircle className="h-4 w-4" />
                               </Button>
                             </TooltipTrigger>
@@ -735,10 +783,10 @@ export default function AdminEvents() {
                           )}
                           <div className="pt-4 flex flex-wrap gap-2 border-t border-border/50">
                             {sub.status !== 'aprovado' && (
-                              <Button size="sm" variant="default" onClick={() => handleStatusChange(sub.id, 'aprovado')} className="bg-emerald-600 hover:bg-emerald-700"><CheckCircle className="h-4 w-4 mr-2" /> Aprovar e Publicar</Button>
+                             <Button size="sm" variant="default" onClick={() => openReview(sub, 'approved')} className="bg-emerald-600 hover:bg-emerald-700"><CheckCircle className="h-4 w-4 mr-2" /> Aprovar e Publicar</Button>
                             )}
                             {sub.status !== 'rejeitado' && (
-                              <Button size="sm" variant="outline" onClick={() => handleReject(sub.id)} className="text-rose-600 border-rose-200 hover:bg-rose-50"><XCircle className="h-4 w-4 mr-2" /> Rejeitar</Button>
+                             <Button size="sm" variant="outline" onClick={() => openReview(sub, 'rejected')} className="text-rose-600 border-rose-200 hover:bg-rose-50"><XCircle className="h-4 w-4 mr-2" /> Rejeitar</Button>
                             )}
                             <Button size="sm" variant={sub.is_highlight ? 'secondary' : 'outline'} className={sub.is_highlight ? 'bg-amber-100 text-amber-700' : ''} onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)}><Star className={`h-4 w-4 mr-2 ${sub.is_highlight ? 'fill-amber-500' : ''}`} /> {sub.is_highlight ? 'Remover Destaque' : 'Marcar Destaque'}</Button>
                             <Button size="sm" variant="ghost" className="text-muted-foreground ml-auto"><History className="h-4 w-4 mr-2" /> Histórico</Button>
@@ -763,6 +811,85 @@ export default function AdminEvents() {
         confirmText="Excluir Agora"
         variant="destructive"
       />
+
+      <Dialog open={!!review} onOpenChange={(o) => !o && !review?.submitting && setReview(null)}>
+        <DialogContent className="max-w-2xl">
+          {review && (() => {
+            const phoneCheck = validateBrazilianMobile(review.sub.phone || "");
+            const isApprove = review.kind === "approved";
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    {isApprove ? (
+                      <><CheckCircle className="h-5 w-5 text-emerald-600" /> Aprovar evento</>
+                    ) : (
+                      <><XCircle className="h-5 w-5 text-rose-600" /> Rejeitar evento</>
+                    )}
+                  </DialogTitle>
+                  <DialogDescription className="text-sm">
+                    <span className="font-bold text-foreground">{review.sub.event_title}</span>
+                    {review.sub.responsible_name && <> — {review.sub.responsible_name}</>}
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+                  <div className={`rounded-lg border p-3 text-xs ${phoneCheck.valid ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
+                    {phoneCheck.valid ? (
+                      <>📱 WhatsApp do divulgador validado: <strong>{phoneCheck.display}</strong> — a mensagem abrirá em uma nova aba para você revisar e enviar.</>
+                    ) : (
+                      <>⚠️ Telefone inválido: {(phoneCheck as { reason: string }).reason} A ação ocorre normalmente, mas o WhatsApp não será aberto.</>
+                    )}
+                  </div>
+
+                  {!isApprove && (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold uppercase tracking-wide">Motivo da rejeição (opcional)</Label>
+                      <Textarea
+                        rows={2}
+                        value={review.reason}
+                        onChange={(e) => updateReviewReason(e.target.value.slice(0, 400))}
+                        placeholder="Ex.: Faltam dados de localização e horário de término."
+                      />
+                      <p className="text-[10px] text-muted-foreground">Será incluído como observação interna e na mensagem do WhatsApp.</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold uppercase tracking-wide flex items-center gap-2">
+                      <Eye className="h-3.5 w-3.5" /> Pré-visualização da mensagem
+                    </Label>
+                    <Textarea
+                      rows={10}
+                      value={review.message}
+                      onChange={(e) => setReview({ ...review, message: e.target.value.slice(0, 1500) })}
+                      className="font-mono text-xs leading-relaxed"
+                    />
+                    <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                      <span>Você pode editar a mensagem antes de enviar.</span>
+                      <span>{review.message.length} / 1500</span>
+                    </div>
+                  </div>
+                </div>
+
+                <DialogFooter className="gap-2">
+                  <Button variant="outline" onClick={() => setReview(null)} disabled={review.submitting}>
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={confirmReview}
+                    disabled={review.submitting}
+                    className={isApprove ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700"}
+                  >
+                    {review.submitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : (isApprove ? <CheckCircle className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2" />)}
+                    {isApprove ? "Aprovar e enviar WhatsApp" : "Rejeitar e enviar WhatsApp"}
+                  </Button>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

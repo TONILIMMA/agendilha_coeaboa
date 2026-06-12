@@ -16,7 +16,8 @@ import {
   Eye,
   UserPlus,
   Megaphone,
-  Images
+  Images,
+  MessageSquare
 } from "lucide-react";
 import { ROUTES } from "@/routes/config";
 
@@ -122,6 +123,13 @@ export const sidebarConfig: SidebarSection[] = [
         label: "Carrossel WhatsApp",
         path: "/carrossel",
         icon: Images,
+        roles: ["admin", "master"]
+      },
+      {
+        id: "whatsapp_templates",
+        label: "Templates WhatsApp",
+        path: ROUTES.ADMIN_WHATSAPP_TEMPLATES,
+        icon: MessageSquare,
         roles: ["admin", "master"]
       },
     ]

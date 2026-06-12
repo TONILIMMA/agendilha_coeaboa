@@ -1333,6 +1333,33 @@ export type Database = {
           },
         ]
       }
+      whatsapp_templates: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          kind: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       event_ratings_summary: {
