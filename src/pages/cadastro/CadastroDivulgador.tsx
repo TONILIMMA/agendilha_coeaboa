@@ -6,11 +6,11 @@ import { NeighborhoodSelect } from "@/components/registration/NeighborhoodSelect
 import { isBairroValido } from "@/lib/neighborhoods";
 import {
   isCpfValido,
-  isWhatsappValido,
   maskCpf,
   maskPhone,
   saveDivulgador,
 } from "@/lib/registration";
+import { validateBrazilianMobile } from "@/lib/whatsapp";
 import { handleError } from "@/lib/error-handler";
 
 const TOTAL = 3;
@@ -35,8 +35,8 @@ export default function CadastroDivulgador() {
     if (s === 1) {
       if (!nome.trim() || nome.trim().length < 3)
         e.nome = "Informe seu nome completo.";
-      if (!isWhatsappValido(whatsapp))
-        e.whatsapp = "WhatsApp inválido. Use DDD + número.";
+      const v = validateBrazilianMobile(whatsapp);
+      if (v.valid === false) e.whatsapp = v.reason;
     }
     if (s === 2) {
       if (!isCpfValido(cpf)) e.cpf = "CPF inválido.";

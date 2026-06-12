@@ -2,6 +2,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { User, Phone } from "lucide-react";
+import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 
 export function ContactStep({ form }: { form: UseFormReturn<any> }) {
   return (
@@ -31,7 +32,10 @@ export function ContactStep({ form }: { form: UseFormReturn<any> }) {
       <FormField
         control={form.control}
         name="basicPhone"
-        render={({ field }) => (
+        render={({ field }) => {
+          const v = validateBrazilianMobile(field.value);
+          const showOk = field.value && v.valid;
+          return (
           <FormItem>
             <FormLabel className="flex items-center gap-2">
               <Phone className="h-4 w-4" />
@@ -39,18 +43,27 @@ export function ContactStep({ form }: { form: UseFormReturn<any> }) {
             </FormLabel>
             <FormControl>
               <Input 
-                placeholder="11999999999" 
+                placeholder="(11) 99999-9999"
+                inputMode="tel"
+                maxLength={16}
                 className="h-12" 
                 {...field} 
                 onChange={(e) => {
-                  const val = e.target.value.replace(/[^\d+]/g, "");
-                  field.onChange(val);
+                  field.onChange(formatPhoneDisplay(e.target.value));
                 }}
               />
             </FormControl>
+            {showOk ? (
+              <p className="text-xs text-emerald-600">✓ Celular válido para receber WhatsApp.</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Use DDD + 9 + 8 dígitos. Apenas celulares brasileiros recebem WhatsApp.
+              </p>
+            )}
             <FormMessage />
           </FormItem>
-        )}
+          );
+        }}
       />
     </div>
   );

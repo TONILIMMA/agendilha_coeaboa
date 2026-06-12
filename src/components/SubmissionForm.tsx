@@ -18,7 +18,7 @@ import {
   ContactStep, ProfessionalStep, EventStep, AtrativoStep, 
   LocationStep, MediaStep, LegalStep, ReviewStep 
 } from "./submission-form/steps";
-import { phoneSchema } from "@/lib/validations";
+import { validateBrazilianMobile } from "@/lib/whatsapp";
 
 const formSchema = z.object({
   imageSource: z.enum(["upload", "ai"]).optional(),
@@ -31,7 +31,12 @@ const formSchema = z.object({
   eventImageUrlWhatsapp: z.string().optional(),
   
   nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
-  basicPhone: phoneSchema,
+  basicPhone: z.string().trim().min(1, "Informe o WhatsApp").superRefine((val, ctx) => {
+    const v = validateBrazilianMobile(val);
+    if (v.valid === false) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
+    }
+  }),
 
   companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
   email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
