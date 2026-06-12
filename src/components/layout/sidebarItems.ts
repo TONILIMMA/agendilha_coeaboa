@@ -14,7 +14,8 @@ import {
   LayoutDashboard,
   LogIn,
   Eye,
-  UserPlus
+  UserPlus,
+  Megaphone
 } from "lucide-react";
 import { ROUTES } from "@/routes/config";
 
@@ -107,6 +108,13 @@ export const sidebarConfig: SidebarSection[] = [
         path: ROUTES.ADMIN_MEDIA, 
         icon: Shield, 
         roles: ["admin", "master"] 
+      },
+      {
+        id: "agenda_informa",
+        label: "AgendIlha Informa",
+        path: ROUTES.ADMIN_AGENDA_INFORMA,
+        icon: Megaphone,
+        roles: ["admin", "master"]
       },
     ]
   },

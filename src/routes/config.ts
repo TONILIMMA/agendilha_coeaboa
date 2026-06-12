@@ -18,6 +18,7 @@ export const ROUTES = {
   ADMIN_ARTISTS: "/admin/artists",
   ADMIN_MEDIA: "/admin/media",
   ADMIN_AUDIT: "/admin/audit",
+  ADMIN_AGENDA_INFORMA: "/admin/agenda-informa",
   RANKING: "/ranking",
   FORGOT_PASSWORD: "/forgot-password",
   TROCAR_SENHA: "/trocar-senha",

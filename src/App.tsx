@@ -38,6 +38,7 @@ const AdminArtists = lazy(() => import("./pages/AdminArtists"));
 const ArtistFeed = lazy(() => import("./pages/ArtistFeed"));
 const AdminMedia = lazy(() => import("./pages/AdminMedia"));
 const AdminAuditLogs = lazy(() => import("./pages/AdminAuditLogs"));
+const AdminAgendaInforma = lazy(() => import("./pages/AdminAgendaInforma"));
 const EventDetail = lazy(() => import("./pages/EventDetail"));
 const Settings = lazy(() => import("./pages/Settings"));
 const MustChangePassword = lazy(() => import("./pages/MustChangePassword"));
@@ -169,6 +170,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_ARTISTS} element={<AdminArtists />} />
           <Route path={ROUTES.ADMIN_MEDIA} element={<AdminMedia />} />
           <Route path={ROUTES.ADMIN_AUDIT} element={<ProtectedRoute masterOnly><AdminAuditLogs /></ProtectedRoute>} />
+          <Route path={ROUTES.ADMIN_AGENDA_INFORMA} element={<AdminAgendaInforma />} />
           <Route path={ROUTES.RANKING} element={<ProtectedRoute masterOnly><Ranking /></ProtectedRoute>} />
         </Route>
 
