@@ -183,6 +183,7 @@ export const AppRoutes = () => (
         </Route>
         <Route path="/coeaboa" element={<Navigate to={ROUTES.AGENDA} replace />} />
         <Route path="/lp" element={<Navigate to={ROUTES.LANDING} replace />} />
+        <Route path="/carrossel" element={<Carrossel />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
