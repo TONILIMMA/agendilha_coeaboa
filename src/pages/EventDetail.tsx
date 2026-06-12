@@ -122,137 +122,115 @@ export default function EventDetail() {
   ].filter(Boolean).join(", ");
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-
-      
-      {/* Hero Section with Image */}
-      <div className="relative w-full h-[40vh] md:h-[60vh] overflow-hidden">
-        <img 
-          src={event.image_url || fallbackImage} 
+    <div className="min-h-screen bg-background pb-24">
+      {/* Hero */}
+      <div className="relative w-full h-[44vh] md:h-[64vh] overflow-hidden">
+        <img
+          src={event.image_url || fallbackImage}
           alt={event.event_title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        
-        <div className="absolute top-4 left-4">
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            className="rounded-full bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/30"
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 from-[8%] via-foreground/35 via-[42%] to-transparent to-[78%] pointer-events-none" />
+
+        <div className="absolute top-5 left-5">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full bg-background/80 backdrop-blur-md border border-foreground/5 text-foreground hover:bg-background font-medium tracking-tight"
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
+            <ArrowLeft className="h-4 w-4 mr-1.5" strokeWidth={2} /> Voltar
           </Button>
         </div>
 
-        <div className="absolute bottom-6 left-6 right-6">
-          <div className="container max-w-4xl mx-auto p-0">
-            <Badge className="mb-3 bg-primary text-primary-foreground border-none font-black uppercase tracking-wider">
+        <div className="absolute bottom-8 md:bottom-12 left-0 right-0">
+          <div className="container max-w-4xl mx-auto px-5 md:px-8">
+            <Badge className="mb-4 bg-background/90 backdrop-blur-md text-foreground border border-foreground/5 font-semibold uppercase tracking-[0.2em] text-[10px] rounded-full px-3 py-1 shadow-none">
               {event.category || 'Geral'}
             </Badge>
-            <h1 className="text-3xl md:text-5xl font-black text-white leading-tight drop-shadow-lg">
+            <h1 className="font-display font-semibold tracking-[-0.02em] text-background leading-[1.05] text-3xl md:text-5xl max-w-3xl">
               {event.event_title}
             </h1>
           </div>
         </div>
       </div>
 
-      <div className="container max-w-4xl mx-auto px-4 -mt-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Main Info */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-card p-6 md:p-8 rounded-[2rem] border border-border shadow-xl space-y-6">
-              <div className="flex flex-wrap gap-4 md:gap-8">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                    <CalendarDays className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Data</p>
-                    <p className="font-bold">{formatBrazilianDate(event.date || '')}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                    <Clock className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Horário</p>
-                    <p className="font-bold">{event.start_time}{event.end_time ? ` às ${event.end_time}` : ''}</p>
-                  </div>
-                </div>
+      <div className="container max-w-4xl mx-auto px-5 md:px-8 mt-10 md:mt-14">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-14">
+          {/* Main */}
+          <article className="lg:col-span-2 space-y-10">
+            {/* Meta strip */}
+            <dl className="grid grid-cols-1 sm:grid-cols-3 gap-y-6 sm:gap-x-8 pb-8 border-b border-foreground/10">
+              <div>
+                <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 mb-1.5">Data</dt>
+                <dd className="font-display text-base font-medium text-foreground tracking-tight">{formatBrazilianDate(event.date || '')}</dd>
               </div>
-
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                  <MapPin className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Localização</p>
-                  <p className="font-bold leading-tight">{event.location}</p>
-                  <p className="text-sm text-muted-foreground">{fullAddress}</p>
-                </div>
+              <div>
+                <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 mb-1.5">Horário</dt>
+                <dd className="font-display text-base font-medium text-foreground tracking-tight">
+                  {event.start_time || '—'}{event.end_time ? ` – ${event.end_time}` : ''}
+                </dd>
               </div>
-
-              <div className="pt-4 border-t border-border">
-                <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-4">Sobre o Evento</h3>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                  {event.description || "Nenhuma descrição fornecida para este evento."}
-                </div>
+              <div>
+                <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 mb-1.5">Local</dt>
+                <dd className="font-display text-base font-medium text-foreground tracking-tight leading-snug">{event.location || '—'}</dd>
+                {fullAddress && (
+                  <dd className="text-xs text-foreground/55 mt-0.5 leading-snug">{fullAddress}</dd>
+                )}
               </div>
-            </div>
+            </dl>
 
-            {/* Map Placeholder or Actual Map would go here */}
-            {/* ... */}
-          </div>
+            {/* About */}
+            <section>
+              <h2 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 mb-4">Sobre o evento</h2>
+              <div className="text-[15px] md:text-base leading-[1.75] text-foreground/85 whitespace-pre-wrap max-w-prose">
+                {event.description || "Nenhuma descrição fornecida para este evento."}
+              </div>
+            </section>
+          </article>
 
-          {/* Sidebar Actions */}
-          <div className="space-y-4">
-            <div className="bg-card p-6 rounded-[2rem] border border-border shadow-lg sticky top-24">
-              <div className="space-y-4">
-                <div className="flex gap-2">
-                  <FavoriteButton 
-                    eventId={event.id} 
-                    className="flex-1 h-12 rounded-2xl font-bold bg-muted/50 hover:bg-muted border-border"
-                  />
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-12 w-12 rounded-2xl border-border"
-                    onClick={handleShare}
-                  >
-                    <Share2 className="h-5 w-5" />
-                  </Button>
-                </div>
-                
-                <Button 
-                  className="w-full h-14 rounded-2xl font-black text-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
-                  onClick={() => {
-                    const msg = `Olá! Tenho interesse no evento "${event.event_title}" que vi no AgendIlha.`;
-                    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-                  }}
+          {/* Aside */}
+          <aside className="space-y-6">
+            <div className="lg:sticky lg:top-24 space-y-5 lg:bg-card lg:p-6 lg:rounded-3xl lg:ring-1 lg:ring-foreground/[0.06] lg:shadow-none">
+              <Button
+                className="w-full h-12 rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight shadow-none"
+                onClick={() => {
+                  const msg = `Olá! Tenho interesse no evento "${event.event_title}" que vi no AgendIlha.`;
+                  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                }}
+              >
+                <MessageCircle className="h-4 w-4 mr-2" strokeWidth={2} /> Tenho interesse
+              </Button>
+
+              <div className="flex gap-2">
+                <FavoriteButton
+                  eventId={event.id}
+                  className="flex-1 h-11 rounded-full bg-transparent border border-foreground/15 text-foreground hover:bg-foreground/5 font-medium"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-11 w-11 rounded-full border border-foreground/15 bg-transparent hover:bg-foreground/5"
+                  onClick={handleShare}
+                  aria-label="Compartilhar"
                 >
-                  <MessageCircle className="h-5 w-5 mr-2" /> Tenho Interesse
+                  <Share2 className="h-4 w-4" strokeWidth={2} />
                 </Button>
-
-                <Separator className="my-4" />
-
-                <Link to="/agenda" className="group flex items-center justify-between text-sm font-bold text-muted-foreground hover:text-primary transition-colors">
-                  Ver agenda completa
-                  <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
               </div>
+
+              <Link
+                to="/agenda"
+                className="group flex items-center justify-between text-xs font-semibold uppercase tracking-[0.18em] text-foreground/55 hover:text-foreground transition-colors pt-2"
+              >
+                Ver agenda completa
+                <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
             </div>
 
-            {/* Event Meta */}
-            <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 text-[10px] text-muted-foreground space-y-1">
-              <p>Publicado no AgendIlha</p>
-              <p>ID do Evento: {event.id.slice(0, 8)}</p>
-            </div>
-          </div>
-
+            <p className="text-[10px] uppercase tracking-[0.2em] text-foreground/40 px-1">
+              Publicado no AgendIlha · #{event.id.slice(0, 6)}
+            </p>
+          </aside>
         </div>
       </div>
     </div>
