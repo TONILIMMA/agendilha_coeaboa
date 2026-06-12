@@ -1,14 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { EventWhatsAppCardExport, type FlyerEvent } from "@/components/EventWhatsAppCard";
+import {
+  EventWhatsAppCard,
+  EventWhatsAppCardExport,
+  type FlyerEvent,
+} from "@/components/EventWhatsAppCard";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Package } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toPng } from "html-to-image";
+import JSZip from "jszip";
+import { toast } from "sonner";
+import { useRef } from "react";
 
 export default function Carrossel() {
   const [events, setEvents] = useState<FlyerEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
+  const [zipping, setZipping] = useState(false);
+  const [zipProgress, setZipProgress] = useState(0);
+  const bulkRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -43,6 +54,49 @@ export default function Carrossel() {
     () => (total ? `${index + 1} / ${total}` : "0 / 0"),
     [index, total]
   );
+
+  async function handleDownloadAll() {
+    if (!bulkRef.current || total === 0) return;
+    try {
+      setZipping(true);
+      setZipProgress(0);
+      const zip = new JSZip();
+      const nodes = Array.from(
+        bulkRef.current.querySelectorAll<HTMLElement>("[data-flyer]")
+      );
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        const dataUrl = await toPng(node, {
+          pixelRatio: 1,
+          cacheBust: true,
+          backgroundColor: "#faf8f5",
+        });
+        const blob = await (await fetch(dataUrl)).blob();
+        const slug = (events[i].event_title || `evento-${i + 1}`)
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "")
+          .slice(0, 60);
+        zip.file(`${String(i + 1).padStart(2, "0")}-${slug || "evento"}.png`, blob);
+        setZipProgress(Math.round(((i + 1) / nodes.length) * 100));
+      }
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `carrossel-agendilha-${new Date().toISOString().slice(0, 10)}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`${nodes.length} cards exportados!`);
+    } catch (e) {
+      console.error(e);
+      toast.error("Não foi possível gerar o .zip");
+    } finally {
+      setZipping(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -80,6 +134,27 @@ export default function Carrossel() {
 
             <EventWhatsAppCardExport event={current} />
 
+            <div className="pt-2">
+              <Button
+                onClick={handleDownloadAll}
+                disabled={zipping}
+                variant="outline"
+                className="w-full h-12 rounded-full border-foreground/15 hover:bg-foreground/5 font-semibold"
+              >
+                {zipping ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Gerando… {zipProgress}%
+                  </>
+                ) : (
+                  <>
+                    <Package className="h-4 w-4 mr-2" />
+                    Baixar todos os {total} cards (.zip)
+                  </>
+                )}
+              </Button>
+            </div>
+
             <div className="flex items-center justify-between pt-2">
               <Button
                 variant="outline"
@@ -112,6 +187,27 @@ export default function Carrossel() {
             </div>
           </div>
         )}
+
+        {/* Off-screen renderer used to export all cards as PNG for the .zip */}
+        <div
+          aria-hidden
+          style={{
+            position: "fixed",
+            left: "-100000px",
+            top: 0,
+            width: 1080,
+            pointerEvents: "none",
+            opacity: 0,
+          }}
+        >
+          <div ref={bulkRef}>
+            {events.map((ev) => (
+              <div key={ev.id} data-flyer>
+                <EventWhatsAppCard event={ev} />
+              </div>
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   );
