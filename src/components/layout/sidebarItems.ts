@@ -15,7 +15,8 @@ import {
   LogIn,
   Eye,
   UserPlus,
-  Megaphone
+  Megaphone,
+  Images
 } from "lucide-react";
 import { ROUTES } from "@/routes/config";
 
@@ -114,6 +115,13 @@ export const sidebarConfig: SidebarSection[] = [
         label: "AgendIlha Informa",
         path: ROUTES.ADMIN_AGENDA_INFORMA,
         icon: Megaphone,
+        roles: ["admin", "master"]
+      },
+      {
+        id: "carrossel",
+        label: "Carrossel WhatsApp",
+        path: "/carrossel",
+        icon: Images,
         roles: ["admin", "master"]
       },
     ]
