@@ -52,11 +52,11 @@ const sitelinks = [
 ];
 
 const genres = [
-  { id: "musica", label: "Shows & Música", icon: Music, color: "bg-blue-500" },
-  { id: "cultura", label: "Cultura & Arte", icon: Sparkles, color: "bg-purple-500" },
-  { id: "gastronomia", label: "Gastronomia", icon: Globe2, color: "bg-orange-500" },
-  { id: "outros", label: "Outros", icon: Megaphone, color: "bg-pink-500" },
-  { id: "esporte", label: "Esportes", icon: Calendar, color: "bg-green-500" },
+  { id: "musica", label: "Música", icon: Music },
+  { id: "cultura", label: "Cultura", icon: Sparkles },
+  { id: "gastronomia", label: "Gastronomia", icon: Globe2 },
+  { id: "esporte", label: "Esporte", icon: Calendar },
+  { id: "outros", label: "Outros", icon: Megaphone },
 ];
 
 const marqueeWords = ["Música", "Teatro", "Gastronomia", "Arte", "Workshops", "Feiras", "Cinema", "Literatura", "Dança", "Cultura local"];
