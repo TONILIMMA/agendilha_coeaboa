@@ -30,6 +30,8 @@ export const ROUTES = {
   CADASTRO_ARTISTA: "/cadastro/artista",
   CADASTRO_SUCESSO: "/cadastro/sucesso",
   CARROSSEL: "/carrossel",
+  EVENTO_ENVIADO: "/evento-enviado/:id",
+  MEUS_EVENTOS: "/meus-eventos",
 };
 
 export const VALID_ROUTES = Object.values(ROUTES);
