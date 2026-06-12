@@ -36,7 +36,7 @@ export default function CadastroDivulgador() {
       if (!nome.trim() || nome.trim().length < 3)
         e.nome = "Informe seu nome completo.";
       const v = validateBrazilianMobile(whatsapp);
-      if (!v.valid) e.whatsapp = v.reason;
+      if (v.valid === false) e.whatsapp = v.reason;
     }
     if (s === 2) {
       if (!isCpfValido(cpf)) e.cpf = "CPF inválido.";
