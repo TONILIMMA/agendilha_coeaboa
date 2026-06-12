@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { formatBrazilianDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import { getEventFallbackImage } from "@/lib/event-utils";
+import { EventWhatsAppCardExport } from "@/components/EventWhatsAppCard";
 
 interface Event {
   id: string;
@@ -33,6 +34,8 @@ interface Event {
   is_highlight: boolean;
   slug: string;
   status: string;
+  artist_name?: string | null;
+  music_style?: string | null;
 }
 
 export default function EventDetail() {
@@ -225,6 +228,30 @@ export default function EventDetail() {
                 Ver agenda completa
                 <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
               </Link>
+            </div>
+
+            {/* Shareable flyer */}
+            <div className="space-y-3">
+              <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 px-1">
+                Card para WhatsApp
+              </h3>
+              <EventWhatsAppCardExport
+                event={{
+                  id: event.id,
+                  event_title: event.event_title,
+                  artist_name: event.artist_name,
+                  date: event.date,
+                  start_time: event.start_time,
+                  location: event.location,
+                  address_street: event.address_street,
+                  address_number: event.address_number,
+                  address_neighborhood: event.address_neighborhood,
+                  music_style: event.music_style,
+                  category: event.category,
+                  image_url: event.image_url,
+                  description: event.description,
+                }}
+              />
             </div>
 
             <p className="text-[10px] uppercase tracking-[0.2em] text-foreground/40 px-1">
