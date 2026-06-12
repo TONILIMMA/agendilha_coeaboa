@@ -122,7 +122,7 @@ export const DiscoveryEventCard = memo(({
                 !isLoaded ? "opacity-0 scale-105 blur-sm" : "opacity-100 scale-100 blur-0"
               )}
             />
-           <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/15 to-transparent pointer-events-none" />
+           <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 from-[12%] via-foreground/30 via-[45%] to-transparent to-[78%] pointer-events-none" />
            
            {/* Top Badges Left */}
            <div className="absolute left-4 top-4 flex flex-wrap gap-2 z-20">
@@ -189,16 +189,22 @@ export const DiscoveryEventCard = memo(({
                "absolute bottom-0 left-0 right-0 p-5 xs:p-6 text-background",
                isCompact && "p-3 xs:p-4"
              )}>
-               <div className={cn(
-                 "flex items-center gap-1.5 text-[10px] xs:text-[11px] font-semibold uppercase tracking-[0.22em] text-background/85 mb-2",
-                 isCompact && "mb-1"
-               )}>
-                 <Calendar className="h-3 w-3" strokeWidth={2} />
-                 <span>{formatBrazilianDate(event.date)}{event.start_time && ` · ${event.start_time}`}</span>
-               </div>
+              <div className={cn(
+                "flex items-center gap-2 text-[10px] xs:text-[11px] font-semibold uppercase tracking-[0.24em] text-background/80 mb-2.5",
+                isCompact && "mb-1.5 tracking-[0.18em]"
+              )}>
+                <Calendar className="h-3 w-3" strokeWidth={2} />
+                <span>{formatBrazilianDate(event.date)}</span>
+                {event.start_time && (
+                  <>
+                    <span className="h-px w-3 bg-background/40" aria-hidden />
+                    <span className="tracking-[0.18em]">{event.start_time}</span>
+                  </>
+                )}
+              </div>
                <h3 className={cn(
-                 "font-display font-semibold tracking-tight leading-[1.15] mb-2 line-clamp-2 text-background",
-                 isLarge ? "text-xl xs:text-2xl" : "text-base xs:text-lg",
+                 "font-display font-semibold tracking-[-0.01em] leading-[1.12] mb-2.5 line-clamp-2 text-background",
+                 isLarge ? "text-[22px] xs:text-2xl" : "text-base xs:text-lg",
                  isCompact && "text-sm xs:text-base mb-1"
                )}>
                  {event.event_title}
