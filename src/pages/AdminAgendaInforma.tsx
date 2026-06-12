@@ -65,7 +65,7 @@ export default function AdminAgendaInforma() {
       .select(
         "id, event_title, date, start_time, location, address_neighborhood, category, atrativo_name, atrativo_style, short_copy"
       )
-      .eq("status", "approved")
+      .eq("status", "aprovado")
       .eq("date", date)
       .order("start_time", { ascending: true, nullsFirst: false })
       .then(({ data, error }) => {

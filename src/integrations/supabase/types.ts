@@ -986,6 +986,7 @@ export type Database = {
           address_state: string | null
           address_street: string | null
           address_zip: string | null
+          admin_notes: string | null
           age_rating: string | null
           ai_moderation_labels: string[] | null
           ai_moderation_score: number | null
@@ -1029,6 +1030,8 @@ export type Database = {
           promotion_rules: string | null
           promotion_type: string | null
           published_at: string | null
+          rejected_at: string | null
+          rejected_by: string | null
           rejection_reason: string | null
           report_count: number | null
           responsible_name: string | null
@@ -1054,6 +1057,7 @@ export type Database = {
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          admin_notes?: string | null
           age_rating?: string | null
           ai_moderation_labels?: string[] | null
           ai_moderation_score?: number | null
@@ -1097,6 +1101,8 @@ export type Database = {
           promotion_rules?: string | null
           promotion_type?: string | null
           published_at?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
           rejection_reason?: string | null
           report_count?: number | null
           responsible_name?: string | null
@@ -1122,6 +1128,7 @@ export type Database = {
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          admin_notes?: string | null
           age_rating?: string | null
           ai_moderation_labels?: string[] | null
           ai_moderation_score?: number | null
@@ -1165,6 +1172,8 @@ export type Database = {
           promotion_rules?: string | null
           promotion_type?: string | null
           published_at?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
           rejection_reason?: string | null
           report_count?: number | null
           responsible_name?: string | null

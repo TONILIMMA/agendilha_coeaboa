@@ -208,7 +208,7 @@ export default function SubmissionForm() {
       await addSubmission({
         ...values,
         image_url: imageUrl,
-        status: 'pending',
+        status: 'pendente',
       } as any);
 
       setSubmitted(true);

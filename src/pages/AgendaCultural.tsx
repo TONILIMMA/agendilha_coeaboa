@@ -404,13 +404,13 @@ function buildUberLink(ev: Event): string {
           const { data, error } = await supabase
             .from("public_submissions")
             .select("*")
-            .in('status', ['published', 'approved'])
+            .eq('status', 'aprovado')
             .neq('moderation_status', 'blocked');
           
           if (error) throw error;
           
-          const publishedEvents = (data as any[])?.filter(e => e.status === 'published') || [];
-          setEvents(publishedEvents);
+          const approvedEvents = (data as any[]) || [];
+          setEvents(approvedEvents);
     loadRatings();
 
 
@@ -418,7 +418,7 @@ function buildUberLink(ev: Event): string {
           const params = new URLSearchParams(window.location.search);
           const eventId = params.get('event');
           if (eventId) {
-            const ev = publishedEvents.find(e => e.id === eventId);
+            const ev = approvedEvents.find(e => e.id === eventId);
             if (ev) {
               setSelectedEvent(ev);
               trackView(ev.id);
