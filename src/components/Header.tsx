@@ -189,28 +189,15 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                      navigate("/auth?redirect=/enviar-evento");
                    }
                  }}
-                 className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-black shadow-lg px-6 h-10 border-2 border-primary transition-transform active:scale-95"
+                 className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight px-5 h-10 shadow-none transition-transform active:scale-95"
                >
-                 Divulgar
+                 Divulgar evento
                </Button>
               <HeaderUserMenu variant="desktop" hideContext={true} />
             </div>
 
              {/* Mobile Nav Trigger */}
              <div className="flex items-center gap-2">
-               <Button 
-                 size="sm" 
-                 onClick={() => {
-                   if (user) {
-                     navigate("/enviar-evento");
-                   } else {
-                     navigate("/auth?redirect=/enviar-evento");
-                   }
-                 }}
-                 className="rounded-full bg-primary text-primary-foreground font-black shadow-md px-4 h-9 text-[10px] uppercase tracking-widest hidden sm:flex"
-               >
-                 Divulgar
-               </Button>
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -267,9 +254,9 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                       navigate("/auth?redirect=/enviar-evento");
                     }
                   }}
-                  className="rounded-full text-[10px] sm:text-xs font-black border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all shadow-sm px-4 sm:px-6 h-9 sm:h-10 uppercase tracking-widest active:scale-95"
+                  className="rounded-full text-xs font-semibold tracking-tight border border-foreground/15 text-foreground hover:bg-foreground/5 bg-transparent shadow-none px-5 h-9 sm:h-10 active:scale-95"
                 >
-                  Divulgar
+                  Divulgar evento
                 </Button>
               )}
               
@@ -354,13 +341,14 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                     <SubmissionsPanel>
                       <Button
                         size="sm"
-                        aria-label="Ver meus envios"
-                        className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all text-xs sm:text-sm px-2 sm:px-3"
-                      >
-                        <ClipboardList className="h-4 w-4 mr-1.5" />
-                        <span>Envios</span>
+                       variant="ghost"
+                       aria-label="Ver meus envios"
+                       className="text-foreground/70 hover:text-foreground hover:bg-foreground/5 font-medium text-xs sm:text-sm px-2 sm:px-3"
+                     >
+                       <ClipboardList className="h-4 w-4 mr-1.5" />
+                       <span className="hidden sm:inline">Envios</span>
                         {savedCount > 0 && (
-                          <Badge variant="secondary" className="ml-1 text-xs font-medium bg-white/20 text-white">
+                          <Badge variant="secondary" className="ml-1 text-[10px] font-medium bg-foreground/10 text-foreground border-none">
                             {savedCount}
                           </Badge>
                         )}
@@ -376,11 +364,10 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                  <Button 
                    size="sm" 
                    onClick={() => navigate("/enviar-evento")} 
-                   className="font-display font-semibold gradient-sunset text-primary-foreground shadow-card hover:opacity-90 transition-all text-xs sm:text-sm px-2 sm:px-3"
+                   className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight shadow-none text-xs sm:text-sm px-4 sm:px-5 h-9"
                  >
-                   <Megaphone className="h-4 w-4 mr-1.5" />
-                   <span className="hidden sm:inline">Enviar Evento</span>
-                   <span className="sm:hidden">Enviar</span>
+                   <Megaphone className="h-4 w-4 sm:mr-1.5" />
+                   <span className="hidden sm:inline">Divulgar evento</span>
                  </Button>
                )}
 
