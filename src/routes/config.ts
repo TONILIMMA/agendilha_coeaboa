@@ -23,6 +23,11 @@ export const ROUTES = {
   TROCAR_SENHA: "/trocar-senha",
   CONFIGURACOES: "/configuracoes",
   PERFIL: "/perfil",
+  CADASTRO: "/cadastro",
+  CADASTRO_PUBLICO: "/cadastro/publico",
+  CADASTRO_DIVULGADOR: "/cadastro/divulgador",
+  CADASTRO_ARTISTA: "/cadastro/artista",
+  CADASTRO_SUCESSO: "/cadastro/sucesso",
 };
 
 export const VALID_ROUTES = Object.values(ROUTES);
