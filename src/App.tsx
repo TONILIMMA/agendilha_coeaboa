@@ -48,6 +48,7 @@ const CadastroPublico = lazy(() => import("./pages/cadastro/CadastroPublico"));
 const CadastroDivulgador = lazy(() => import("./pages/cadastro/CadastroDivulgador"));
 const CadastroArtista = lazy(() => import("./pages/cadastro/CadastroArtista"));
 const CadastroSucesso = lazy(() => import("./pages/cadastro/CadastroSucesso"));
+const Carrossel = lazy(() => import("./pages/Carrossel"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -182,6 +183,7 @@ export const AppRoutes = () => (
         </Route>
         <Route path="/coeaboa" element={<Navigate to={ROUTES.AGENDA} replace />} />
         <Route path="/lp" element={<Navigate to={ROUTES.LANDING} replace />} />
+        <Route path="/carrossel" element={<Carrossel />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

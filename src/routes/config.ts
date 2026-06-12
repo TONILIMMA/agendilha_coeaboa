@@ -29,6 +29,7 @@ export const ROUTES = {
   CADASTRO_DIVULGADOR: "/cadastro/divulgador",
   CADASTRO_ARTISTA: "/cadastro/artista",
   CADASTRO_SUCESSO: "/cadastro/sucesso",
+  CARROSSEL: "/carrossel",
 };
 
 export const VALID_ROUTES = Object.values(ROUTES);
