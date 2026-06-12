@@ -51,6 +51,7 @@ const CadastroSucesso = lazy(() => import("./pages/cadastro/CadastroSucesso"));
 const Carrossel = lazy(() => import("./pages/Carrossel"));
 const EventoEnviado = lazy(() => import("./pages/EventoEnviado"));
 const MeusEventos = lazy(() => import("./pages/MeusEventos"));
+const AdminWhatsAppTemplates = lazy(() => import("./pages/AdminWhatsAppTemplates"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -176,6 +177,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_MEDIA} element={<AdminMedia />} />
           <Route path={ROUTES.ADMIN_AUDIT} element={<ProtectedRoute masterOnly><AdminAuditLogs /></ProtectedRoute>} />
           <Route path={ROUTES.ADMIN_AGENDA_INFORMA} element={<AdminAgendaInforma />} />
+          <Route path={ROUTES.ADMIN_WHATSAPP_TEMPLATES} element={<AdminWhatsAppTemplates />} />
           <Route path={ROUTES.RANKING} element={<ProtectedRoute masterOnly><Ranking /></ProtectedRoute>} />
         </Route>
 
