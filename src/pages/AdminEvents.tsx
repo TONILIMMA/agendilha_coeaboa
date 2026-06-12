@@ -28,7 +28,10 @@ import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { handleError } from "@/lib/error-handler";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { buildWhatsappUrl, isValidBrazilianMobile, formatPhoneDisplay } from "@/lib/whatsapp";
+import { buildWhatsappUrl, validateBrazilianMobile, formatPhoneDisplay, renderTemplate } from "@/lib/whatsapp";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 
 interface Submission {
@@ -147,23 +150,21 @@ function buildRejectionMessage(sub: Submission, reason?: string | null): string 
   );
 }
 
-function notifyDivulgador(sub: Submission, kind: "approved" | "rejected", reason?: string | null) {
-  if (!sub.phone || !isValidBrazilianMobile(sub.phone)) {
-    toast.warning("Divulgador sem WhatsApp válido — aviso manual não enviado.");
-    return;
-  }
-  const message = kind === "approved" ? buildApprovalMessage(sub) : buildRejectionMessage(sub, reason);
-  const url = buildWhatsappUrl(sub.phone, message);
-  if (!url) {
-    toast.warning("Não foi possível montar o link do WhatsApp.");
-    return;
-  }
-  const win = window.open(url, "_blank", "noopener,noreferrer");
-  if (!win) {
-    toast.info("Pop-up bloqueado. Libere o pop-up para enviar pelo WhatsApp.");
-    return;
-  }
-  toast.success(`WhatsApp aberto para ${formatPhoneDisplay(sub.phone)} — confira a mensagem e envie.`);
+function buildTemplateVars(sub: Submission, reason?: string | null): Record<string, string> {
+  const name = (sub.responsible_name || "").trim().split(" ")[0] || "";
+  const url = sub.slug
+    ? `${window.location.origin}/evento/${sub.slug}`
+    : `${window.location.origin}/agenda`;
+  return {
+    nome: name,
+    titulo: sub.event_title || "",
+    data: formatEventDate(sub.date),
+    hora: sub.start_time || "--:--",
+    local: sub.location || "",
+    url,
+    motivo: (reason || "").trim(),
+    meus_eventos_url: `${window.location.origin}/meus-eventos`,
+  };
 }
 
 export default function AdminEvents() {
