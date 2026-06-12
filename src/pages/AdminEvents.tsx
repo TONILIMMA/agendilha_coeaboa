@@ -28,6 +28,7 @@ import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { handleError } from "@/lib/error-handler";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { buildWhatsappUrl, isValidBrazilianMobile, formatPhoneDisplay } from "@/lib/whatsapp";
 
 
 interface Submission {
@@ -112,6 +113,58 @@ interface Submission {
     const msg = `🗓️ *${sub.event_title}*\n⏰ ${date} às ${sub.start_time || "--:--"}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: ${url}`;
     return encodeURIComponent(msg);
   }
+
+function buildApprovalMessage(sub: Submission): string {
+  const name = (sub.responsible_name || "").trim().split(" ")[0];
+  const greeting = name ? `Olá, ${name}! 👋` : "Olá! 👋";
+  const url = sub.slug
+    ? `${window.location.origin}/evento/${sub.slug}`
+    : `${window.location.origin}/agenda`;
+  return (
+    `${greeting}\n\n` +
+    `✅ *Seu evento foi aprovado pela curadoria do AgendIlha!*\n\n` +
+    `🎉 *${sub.event_title}*\n` +
+    `📅 ${formatEventDate(sub.date)}${sub.start_time ? ` às ${sub.start_time}` : ""}\n` +
+    (sub.location ? `📍 ${sub.location}\n` : "") +
+    `\nJá está publicado na Agenda Cultural:\n${url}\n\n` +
+    `Acompanhe seus envios em: ${window.location.origin}/meus-eventos`
+  );
+}
+
+function buildRejectionMessage(sub: Submission, reason?: string | null): string {
+  const name = (sub.responsible_name || "").trim().split(" ")[0];
+  const greeting = name ? `Olá, ${name}.` : "Olá.";
+  const reasonLine = reason?.trim()
+    ? `\n📝 *Observação da curadoria:* ${reason.trim()}\n`
+    : "";
+  return (
+    `${greeting}\n\n` +
+    `Sobre o evento *${sub.event_title}* enviado ao AgendIlha:\n\n` +
+    `❌ Infelizmente ele *não foi aprovado* pela curadoria neste momento.${reasonLine}\n` +
+    `Você pode revisar e reenviar a qualquer momento em:\n` +
+    `${window.location.origin}/meus-eventos\n\n` +
+    `Qualquer dúvida, é só responder por aqui. Obrigado!`
+  );
+}
+
+function notifyDivulgador(sub: Submission, kind: "approved" | "rejected", reason?: string | null) {
+  if (!sub.phone || !isValidBrazilianMobile(sub.phone)) {
+    toast.warning("Divulgador sem WhatsApp válido — aviso manual não enviado.");
+    return;
+  }
+  const message = kind === "approved" ? buildApprovalMessage(sub) : buildRejectionMessage(sub, reason);
+  const url = buildWhatsappUrl(sub.phone, message);
+  if (!url) {
+    toast.warning("Não foi possível montar o link do WhatsApp.");
+    return;
+  }
+  const win = window.open(url, "_blank", "noopener,noreferrer");
+  if (!win) {
+    toast.info("Pop-up bloqueado. Libere o pop-up para enviar pelo WhatsApp.");
+    return;
+  }
+  toast.success(`WhatsApp aberto para ${formatPhoneDisplay(sub.phone)} — confira a mensagem e envie.`);
+}
 
 export default function AdminEvents() {
   const { user, loading: authLoading } = useAuth();
