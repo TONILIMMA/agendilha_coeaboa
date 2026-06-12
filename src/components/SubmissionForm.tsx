@@ -31,7 +31,15 @@ const formSchema = z.object({
   eventImageUrlWhatsapp: z.string().optional(),
   
   nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
-  basicPhone: phoneSchema,
+  basicPhone: phoneSchema.superRefine((val, ctx) => {
+    // Strict validation: only Brazilian mobile numbers can receive WhatsApp.
+    // Lazy import avoids circular issues at module load.
+    const { validateBrazilianMobile } = require("@/lib/whatsapp") as typeof import("@/lib/whatsapp");
+    const v = validateBrazilianMobile(val);
+    if (!v.valid) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
+    }
+  }),
 
   companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
   email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
