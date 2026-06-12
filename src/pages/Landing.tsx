@@ -284,20 +284,17 @@ export default function Landing() {
           </Button>
         </form>
 
-        {/* Categories */}
-        <div className="flex gap-4 overflow-x-auto pb-6 mb-8 scrollbar-none">
+        {/* Categories — minimal, monochrome chips */}
+        <div className="flex gap-2 overflow-x-auto pb-6 mb-10 scrollbar-none">
           {genres.map((g) => (
-             <Button 
-               key={g.id} 
-               variant="outline" 
-               className="rounded-full gap-2 px-5 sm:px-6 h-12 shadow-sm shrink-0 border-border/50 hover:bg-primary/5 hover:border-primary/20 transition-all"
-               onClick={() => navigate(`/agenda?category=${g.id}`)}
-             >
-               <div className={cn("p-1.5 rounded-full text-white", g.color)}>
-                 <g.icon className="h-3.5 w-3.5" />
-               </div>
-               <span className="text-xs sm:text-sm font-bold">{g.label}</span>
-             </Button>
+            <button
+              key={g.id}
+              onClick={() => navigate(`/agenda?category=${g.id}`)}
+              className="group inline-flex items-center gap-2 shrink-0 h-10 px-4 rounded-full border border-foreground/12 bg-transparent text-foreground/80 hover:text-foreground hover:border-foreground/30 transition-colors"
+            >
+              <g.icon className="h-3.5 w-3.5 opacity-70 group-hover:opacity-100" strokeWidth={1.75} />
+              <span className="text-sm font-medium tracking-tight">{g.label}</span>
+            </button>
           ))}
         </div>
 
