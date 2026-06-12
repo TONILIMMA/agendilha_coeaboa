@@ -178,6 +178,17 @@ export default function AdminEvents() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [templates, setTemplates] = useState<{ approved: string; rejected: string }>({
+    approved: "",
+    rejected: "",
+  });
+  const [review, setReview] = useState<{
+    sub: Submission;
+    kind: "approved" | "rejected";
+    reason: string;
+    message: string;
+    submitting: boolean;
+  } | null>(null);
 
   async function fetchAll() {
     setLoading(true);
@@ -197,6 +208,19 @@ export default function AdminEvents() {
   useEffect(() => {
     if (hasPermission('events.read')) fetchAll();
   }, [hasPermission]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("whatsapp_templates")
+        .select("kind, body");
+      const next = { approved: "", rejected: "" };
+      (data || []).forEach((r: any) => {
+        if (r.kind === "approved" || r.kind === "rejected") (next as any)[r.kind] = r.body;
+      });
+      setTemplates(next);
+    })();
+  }, []);
 
   async function handleDelete(id: string) {
     const { error } = await supabase.from("submissions").delete().eq("id", id);
@@ -231,49 +255,72 @@ export default function AdminEvents() {
       handleError(error, "Erro ao atualizar status");
     } else {
       toast.success(`Status atualizado para ${newStatus}`);
-      const sub = submissions.find((s) => s.id === id);
-      if (sub && newStatus === "aprovado") {
-        notifyDivulgador({ ...sub, status: "aprovado" }, "approved");
-      } else if (sub && newStatus === "rejeitado") {
-        notifyDivulgador(sub, "rejected");
-      }
       fetchAll(); // Refresh to get generated slugs/copies
     }
   }
 
-  async function handleApproveAndPublish(id: string) {
-    const { error } = await supabase.from("submissions").update({
-      status: 'aprovado',
-      approved_at: new Date().toISOString(),
-      approved_by: user?.id,
-    }).eq("id", id);
-
-    if (error) {
-      handleError(error, "Erro ao aprovar");
-    } else {
-      toast.success("Evento aprovado e publicado na agenda!");
-      const sub = submissions.find((s) => s.id === id);
-      if (sub) notifyDivulgador({ ...sub, status: "aprovado" }, "approved");
-      fetchAll();
+  function openReview(sub: Submission, kind: "approved" | "rejected") {
+    const template = templates[kind];
+    if (!template) {
+      toast.error("Template do WhatsApp ainda não carregado. Tente novamente em alguns segundos.");
+      return;
     }
+    const initial = renderTemplate(template, buildTemplateVars(sub, ""));
+    setReview({ sub, kind, reason: "", message: initial, submitting: false });
   }
 
-  async function handleReject(id: string) {
-    const reason = window.prompt("Motivo da rejeição (opcional, será compartilhado com o divulgador no WhatsApp):") ?? "";
-    const { error } = await supabase.from("submissions").update({
-      status: 'rejeitado',
-      rejected_at: new Date().toISOString(),
-      rejected_by: user?.id,
-      admin_notes: reason || null,
-    }).eq("id", id);
+  function updateReviewReason(reason: string) {
+    setReview((prev) => {
+      if (!prev) return prev;
+      const message = renderTemplate(templates[prev.kind], buildTemplateVars(prev.sub, reason));
+      return { ...prev, reason, message };
+    });
+  }
+
+  async function confirmReview() {
+    if (!review) return;
+    const { sub, kind, reason, message } = review;
+    setReview({ ...review, submitting: true });
+
+    const payload: any =
+      kind === "approved"
+        ? {
+            status: "aprovado",
+            approved_at: new Date().toISOString(),
+            approved_by: user?.id,
+            rejected_at: null,
+            rejected_by: null,
+          }
+        : {
+            status: "rejeitado",
+            rejected_at: new Date().toISOString(),
+            rejected_by: user?.id,
+            admin_notes: reason || null,
+          };
+
+    const { error } = await supabase.from("submissions").update(payload).eq("id", sub.id);
     if (error) {
-      handleError(error, "Erro ao rejeitar evento");
-    } else {
-      toast.success("Evento rejeitado.");
-      const sub = submissions.find((s) => s.id === id);
-      if (sub) notifyDivulgador(sub, "rejected", reason);
-      fetchAll();
+      handleError(error, "Erro ao atualizar status");
+      setReview({ ...review, submitting: false });
+      return;
     }
+
+    toast.success(kind === "approved" ? "Evento aprovado." : "Evento rejeitado.");
+
+    const phoneCheck = validateBrazilianMobile(sub.phone || "");
+    if (phoneCheck.valid) {
+      const url = buildWhatsappUrl(sub.phone || "", message);
+      if (url) {
+        const win = window.open(url, "_blank", "noopener,noreferrer");
+        if (!win) toast.info("Pop-up bloqueado. Libere para enviar pelo WhatsApp.");
+        else toast.success(`WhatsApp aberto para ${phoneCheck.display}.`);
+      }
+    } else {
+      toast.warning(`Sem WhatsApp válido: ${phoneCheck.reason}`);
+    }
+
+    setReview(null);
+    fetchAll();
   }
 
   const copyToClipboard = (text: string, label: string) => {
