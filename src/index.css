@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Figtree:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,68 +6,68 @@
 
 @layer base {
   :root {
-    /* ── Palette: Ivory · Moss · Terracotta · Ink ── */
-    --background: 40 30% 96%;          /* ivory / bone */
-    --foreground: 150 18% 12%;         /* deep ink-green */
+    /* ── Editorial Warm Sand · Premium Local ── */
+    --background: 40 33% 97%;          /* #faf8f5 ivory sand */
+    --foreground: 24 12% 15%;          /* #2b2622 ink */
 
-    --card: 40 25% 98%;
-    --card-foreground: 150 18% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 24 12% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 150 18% 12%;
+    --popover-foreground: 24 12% 15%;
 
-    --primary: 150 35% 22%;            /* moss / forest */
-    --primary-foreground: 40 30% 96%;
+    --primary: 24 12% 15%;             /* ink — primary CTA */
+    --primary-foreground: 40 33% 97%;
 
-    --secondary: 18 55% 56%;           /* terracotta */
-    --secondary-foreground: 40 30% 98%;
+    --secondary: 30 24% 44%;           /* #8b7355 warm sand */
+    --secondary-foreground: 40 33% 97%;
 
-    --muted: 40 18% 92%;
-    --muted-foreground: 150 8% 40%;
+    --muted: 36 27% 92%;               /* #f0ebe3 surface alt */
+    --muted-foreground: 30 24% 44%;
 
-    --accent: 18 55% 56%;              /* terracotta accent */
-    --accent-foreground: 40 30% 98%;
+    --accent: 36 31% 70%;              /* #c9b99a sand accent */
+    --accent-foreground: 24 12% 15%;
 
-    --destructive: 0 70% 52%;
-    --destructive-foreground: 40 30% 98%;
+    --destructive: 0 60% 48%;
+    --destructive-foreground: 40 33% 97%;
 
-    --border: 40 15% 86%;
-    --input: 40 15% 86%;
-    --ring: 150 35% 22%;
+    --border: 36 27% 92%;
+    --input: 36 27% 92%;
+    --ring: 36 31% 70%;
 
-     --radius: 1rem;
+    --radius: 1rem;
 
-    --sidebar-background: 40 30% 96%;
-    --sidebar-foreground: 150 18% 18%;
-    --sidebar-primary: 150 35% 22%;
-    --sidebar-primary-foreground: 40 30% 96%;
-    --sidebar-accent: 40 18% 92%;
-    --sidebar-accent-foreground: 150 18% 18%;
-    --sidebar-border: 40 15% 86%;
-    --sidebar-ring: 150 35% 22%;
+    --sidebar-background: 40 33% 97%;
+    --sidebar-foreground: 24 12% 20%;
+    --sidebar-primary: 24 12% 15%;
+    --sidebar-primary-foreground: 40 33% 97%;
+    --sidebar-accent: 36 27% 92%;
+    --sidebar-accent-foreground: 24 12% 15%;
+    --sidebar-border: 36 27% 92%;
+    --sidebar-ring: 36 31% 70%;
 
-    /* Refined gradients — Cinza + Abóbora/Terracota */
-    --gradient-eco: linear-gradient(160deg, hsl(30 20% 94%) 0%, hsl(25 35% 88%) 45%, hsl(20 12% 82%) 100%);
-    --gradient-eco-deep: linear-gradient(135deg, hsl(220 8% 28%) 0%, hsl(20 35% 38%) 55%, hsl(22 55% 52%) 100%);
-    --gradient-warm: linear-gradient(135deg, hsl(30 25% 94%) 0%, hsl(20 50% 86%) 100%);
-    --gradient-sunset: linear-gradient(135deg, hsl(28 85% 58%) 0%, hsl(22 75% 50%) 50%, hsl(18 65% 42%) 100%);
-    --gradient-pumpkin-strip: linear-gradient(90deg, hsl(30 25% 96% / 0) 0%, hsl(28 70% 88% / 0.8) 25%, hsl(22 80% 72%) 50%, hsl(28 70% 88% / 0.8) 75%, hsl(30 25% 96% / 0) 100%);
+    /* Refined editorial gradients — sand layering */
+    --gradient-eco: linear-gradient(160deg, hsl(40 33% 97%) 0%, hsl(36 27% 92%) 60%, hsl(36 31% 84%) 100%);
+    --gradient-eco-deep: linear-gradient(135deg, hsl(24 12% 15%) 0%, hsl(30 18% 26%) 60%, hsl(30 24% 44%) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(40 33% 97%) 0%, hsl(36 27% 92%) 100%);
+    --gradient-sunset: linear-gradient(135deg, hsl(36 31% 70%) 0%, hsl(30 24% 44%) 100%);
+    --gradient-pumpkin-strip: linear-gradient(90deg, hsl(40 33% 97% / 0) 0%, hsl(36 27% 92% / 0.8) 25%, hsl(36 31% 70%) 50%, hsl(36 27% 92% / 0.8) 75%, hsl(40 33% 97% / 0) 100%);
     --gradient-mesh:
-      radial-gradient(at 12% 18%, hsl(220 12% 82% / 0.65) 0px, transparent 55%),
-      radial-gradient(at 88% 14%, hsl(25 60% 82% / 0.7) 0px, transparent 55%),
-      radial-gradient(at 65% 88%, hsl(20 65% 70% / 0.45) 0px, transparent 55%);
+      radial-gradient(at 12% 18%, hsl(36 31% 80% / 0.45) 0px, transparent 55%),
+      radial-gradient(at 88% 14%, hsl(36 27% 88% / 0.55) 0px, transparent 55%),
+      radial-gradient(at 65% 88%, hsl(30 24% 60% / 0.25) 0px, transparent 55%);
 
-     --shadow-card: 0 2px 4px hsl(150 15% 10% / 0.05), 0 12px 32px -12px hsl(150 15% 10% / 0.15);
-     --shadow-elevated: 0 8px 24px -4px hsl(150 15% 10% / 0.08), 0 32px 72px -20px hsl(150 15% 10% / 0.22);
-     --shadow-glass: 0 1px 0 0 hsl(0 0% 100% / 0.4) inset, 0 16px 48px -12px hsl(150 30% 12% / 0.2);
+    --shadow-card: 0 1px 2px hsl(24 12% 12% / 0.04), 0 8px 24px -12px hsl(24 12% 12% / 0.10);
+    --shadow-elevated: 0 4px 16px -4px hsl(24 12% 12% / 0.06), 0 24px 56px -20px hsl(24 12% 12% / 0.15);
+    --shadow-glass: 0 1px 0 0 hsl(0 0% 100% / 0.5) inset, 0 12px 36px -12px hsl(24 12% 12% / 0.12);
 
-    --glass-bg: hsl(40 30% 98% / 0.55);
+    --glass-bg: hsl(40 33% 97% / 0.7);
     --glass-border: hsl(0 0% 100% / 0.55);
 
-    --font-display: 'Bricolage Grotesque', 'Instrument Serif', system-ui, sans-serif;
+    --font-display: 'Outfit', 'Instrument Serif', system-ui, sans-serif;
     --font-serif: 'Instrument Serif', 'Times New Roman', serif;
-    --font-body: 'Geist', 'Inter', system-ui, sans-serif;
-     --font-mono: 'Geist Mono', ui-monospace, monospace;
+    --font-body: 'Figtree', 'Inter', system-ui, sans-serif;
+    --font-mono: 'Geist Mono', ui-monospace, monospace;
    }
  
 
@@ -88,7 +88,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: -0.025em;
   }
 }
