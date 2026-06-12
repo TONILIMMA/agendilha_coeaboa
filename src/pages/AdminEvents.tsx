@@ -81,18 +81,11 @@ interface Submission {
    outros: "Outros",
  };
  
-    const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string; border: string }> = {
-      rascunho: { label: "Rascunho", color: "text-slate-600", bg: "bg-slate-100", border: "border-slate-200", icon: History },
-      pendente: { label: "Pendente", color: "text-amber-700", bg: "bg-amber-100", border: "border-amber-200", icon: Clock3 },
-      em_revisao: { label: "Em revisão", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200", icon: Search },
-      aprovado: { label: "Aprovado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
-      publicado: { label: "Publicado", color: "text-indigo-700", bg: "bg-indigo-100", border: "border-indigo-300", icon: Globe },
-      agendado_para_divulgacao: { label: "Agendado", color: "text-purple-700", bg: "bg-purple-100", border: "border-purple-300", icon: Clock },
-      divulgado: { label: "Divulgado", color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-300", icon: Megaphone },
-      cancelado: { label: "Cancelado", color: "text-rose-700", bg: "bg-rose-100", border: "border-rose-200", icon: XCircle },
-      flagged: { label: "Sinalizado", color: "text-orange-700", bg: "bg-orange-100", border: "border-orange-300", icon: AlertCircle },
-      blocked: { label: "Bloqueado", color: "text-red-700", bg: "bg-red-100", border: "border-red-300", icon: ShieldAlert },
-    };
+     const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string; border: string }> = {
+       pendente:  { label: "Pendente",  color: "text-amber-700",   bg: "bg-amber-100",   border: "border-amber-200",   icon: Clock3 },
+       aprovado:  { label: "Aprovado",  color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
+       rejeitado: { label: "Rejeitado", color: "text-rose-700",    bg: "bg-rose-100",    border: "border-rose-200",    icon: XCircle },
+     };
  
  function formatSubmissionDate(iso: string) {
    if (!iso) return "—";
@@ -171,8 +164,11 @@ export default function AdminEvents() {
     if (newStatus === 'aprovado') {
       updateData.approved_at = new Date().toISOString();
       updateData.approved_by = user?.id;
-    } else if (newStatus === 'publicado') {
-      updateData.published_at = new Date().toISOString();
+      updateData.rejected_at = null;
+      updateData.rejected_by = null;
+    } else if (newStatus === 'rejeitado') {
+      updateData.rejected_at = new Date().toISOString();
+      updateData.rejected_by = user?.id;
     }
 
     const { error } = await supabase.from("submissions").update(updateData).eq("id", id);
@@ -188,20 +184,34 @@ export default function AdminEvents() {
 
   async function handleApproveAndPublish(id: string) {
     const { error } = await supabase.from("submissions").update({ 
-      status: 'publicado',
+      status: 'aprovado',
       approved_at: new Date().toISOString(),
       approved_by: user?.id,
-      published_at: new Date().toISOString(),
-      additional_details: `Aprovado e publicado por ${user?.email}`
     }).eq("id", id);
     
     if (error) {
-      handleError(error, "Erro ao aprovar e publicar");
+      handleError(error, "Erro ao aprovar");
     } else {
-      toast.success("Evento aprovado e publicado com sucesso!");
+      toast.success("Evento aprovado e publicado na agenda!");
       fetchAll();
     }
 
+  }
+
+  async function handleReject(id: string) {
+    const reason = window.prompt("Motivo da rejeição (opcional, fica como observação interna):") ?? "";
+    const { error } = await supabase.from("submissions").update({
+      status: 'rejeitado',
+      rejected_at: new Date().toISOString(),
+      rejected_by: user?.id,
+      admin_notes: reason || null,
+    }).eq("id", id);
+    if (error) {
+      handleError(error, "Erro ao rejeitar evento");
+    } else {
+      toast.success("Evento rejeitado.");
+      fetchAll();
+    }
   }
 
   const copyToClipboard = (text: string, label: string) => {
@@ -241,10 +251,8 @@ export default function AdminEvents() {
     return {
       total: submissions.length,
       pending: submissions.filter(s => s.status === 'pendente').length,
-      in_review: submissions.filter(s => s.status === 'em_revisao').length,
       approved: submissions.filter(s => s.status === 'aprovado').length,
-      published: submissions.filter(s => s.status === 'publicado').length,
-      divulgado: submissions.filter(s => s.status === 'divulgado').length,
+      rejected: submissions.filter(s => s.status === 'rejeitado').length,
     };
   }, [submissions]);
 
@@ -287,7 +295,7 @@ export default function AdminEvents() {
                   size="sm"
                   className="h-9 sm:h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 text-[10px] sm:text-xs px-3 sm:px-4"
                  onClick={() => {
-                   const approved = submissions.filter(s => s.status === 'aprovado' || s.status === 'publicado' || s.status === 'divulgado');
+                    const approved = submissions.filter(s => s.status === 'aprovado');
                    if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
                    window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
                  }}
@@ -302,10 +310,8 @@ export default function AdminEvents() {
               {[
                 { label: 'Total', value: kpis.total, color: 'text-slate-600', bg: 'bg-white' },
                 { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-white' },
-                { label: 'Em Revisão', value: kpis.in_review, color: 'text-blue-600', bg: 'bg-white' },
                 { label: 'Aprovados', value: kpis.approved, color: 'text-emerald-600', bg: 'bg-white' },
-                { label: 'Divulgados', value: kpis.divulgado, color: 'text-emerald-600', bg: 'bg-white' },
-                { label: 'Publicados', value: kpis.published, color: 'text-indigo-600', bg: 'bg-white' },
+                { label: 'Rejeitados', value: kpis.rejected, color: 'text-rose-600', bg: 'bg-white' },
               ].map((kpi) => (
              <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm hover:shadow-md transition-all`}>
                <CardContent className="p-4">
@@ -456,7 +462,7 @@ export default function AdminEvents() {
                     {/* Status */}
                     <div className="col-span-2">
                       {(() => {
-                        const cfg = statusConfig[sub.status] || statusConfig.pending;
+                         const cfg = statusConfig[sub.status] || statusConfig.pendente;
                         const StatusIcon = cfg.icon;
                         return (
                           <div className="flex flex-col gap-1.5 items-start">
@@ -464,7 +470,7 @@ export default function AdminEvents() {
                               <StatusIcon className="h-3.5 w-3.5" />
                               {cfg.label.toUpperCase()}
                             </Badge>
-                            {sub.status === 'published' && (
+                            {sub.status === 'aprovado' && (
                               <span className="text-[10px] font-bold text-indigo-600 flex items-center gap-1.5 ml-1">
                                 <Globe className="h-3 w-3" />
                                 NA AGENDA
@@ -498,7 +504,7 @@ export default function AdminEvents() {
                         </Tooltip>
 
                         {/* Aprovar/Rejeitar/Publicar (Dinâmico) */}
-                        {sub.status === 'pendente' || sub.status === 'em_revisao' ? (
+                        {sub.status === 'pendente' ? (
                           <>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -511,21 +517,30 @@ export default function AdminEvents() {
                             
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button size="icon" variant="outline" className="h-9 w-9 bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" onClick={() => handleApproveAndPublish(sub.id)}>
-                                  <Globe className="h-4 w-4" />
+                                <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => handleReject(sub.id)}>
+                                  <XCircle className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Aprovar e Publicar</TooltipContent>
+                              <TooltipContent>Rejeitar</TooltipContent>
                             </Tooltip>
                           </>
-                        ) : (sub.status === 'aprovado' || sub.status === 'agendado_para_divulgacao') ? (
+                        ) : sub.status === 'aprovado' ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button size="icon" variant="outline" className="h-9 w-9 bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'publicado')}>
-                                <Send className="h-4 w-4" />
+                              <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => handleReject(sub.id)}>
+                                <XCircle className="h-4 w-4" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Publicar na Agenda</TooltipContent>
+                            <TooltipContent>Rejeitar</TooltipContent>
+                          </Tooltip>
+                        ) : sub.status === 'rejeitado' ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => handleStatusChange(sub.id, 'aprovado')}>
+                                <CheckCircle className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Reverter para Aprovado</TooltipContent>
                           </Tooltip>
                         ) : null}
 
@@ -658,7 +673,12 @@ export default function AdminEvents() {
                             </div>
                           )}
                           <div className="pt-4 flex flex-wrap gap-2 border-t border-border/50">
-                            <Button size="sm" variant={sub.status === 'published' ? 'default' : 'outline'} onClick={() => handleStatusChange(sub.id, 'published')} className={sub.status === 'published' ? 'bg-indigo-600' : ''}><Send className="h-4 w-4 mr-2" /> Publicar na Agenda</Button>
+                            {sub.status !== 'aprovado' && (
+                              <Button size="sm" variant="default" onClick={() => handleStatusChange(sub.id, 'aprovado')} className="bg-emerald-600 hover:bg-emerald-700"><CheckCircle className="h-4 w-4 mr-2" /> Aprovar e Publicar</Button>
+                            )}
+                            {sub.status !== 'rejeitado' && (
+                              <Button size="sm" variant="outline" onClick={() => handleReject(sub.id)} className="text-rose-600 border-rose-200 hover:bg-rose-50"><XCircle className="h-4 w-4 mr-2" /> Rejeitar</Button>
+                            )}
                             <Button size="sm" variant={sub.is_highlight ? 'secondary' : 'outline'} className={sub.is_highlight ? 'bg-amber-100 text-amber-700' : ''} onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)}><Star className={`h-4 w-4 mr-2 ${sub.is_highlight ? 'fill-amber-500' : ''}`} /> {sub.is_highlight ? 'Remover Destaque' : 'Marcar Destaque'}</Button>
                             <Button size="sm" variant="ghost" className="text-muted-foreground ml-auto"><History className="h-4 w-4 mr-2" /> Histórico</Button>
                           </div>
