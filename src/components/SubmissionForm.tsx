@@ -205,16 +205,16 @@ export default function SubmissionForm() {
         imageUrl = publicUrl;
       }
 
-      await addSubmission({
+      const result = await addSubmission({
         ...values,
         image_url: imageUrl,
         status: 'pendente',
       } as any);
 
-      setSubmitted(true);
+      if (!result) return; // toast already shown by ctx
+
       localStorage.removeItem(DRAFT_KEY);
-      toast.success("Evento enviado!", { description: "Ele será analisado pela nossa equipe." });
-      setTimeout(() => navigate("/agenda"), 3000);
+      navigate(`/evento-enviado/${result.id}`, { replace: true });
     } catch (error) {
       handleError(error);
     } finally {
