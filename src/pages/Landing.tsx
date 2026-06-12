@@ -510,7 +510,7 @@ export default function Landing() {
                   <Button 
                     type="submit" 
                     disabled={isSubscribing}
-                    className="w-full h-14 rounded-2xl font-black text-lg bg-[#25D366] hover:bg-[#20ba5a] text-white shadow-lg shadow-green-200/50 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95"
+                    className="w-full h-14 rounded-2xl font-semibold text-base tracking-tight bg-foreground hover:bg-secondary text-background shadow-card flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
                   >
                     {isSubscribing ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
