@@ -316,7 +316,7 @@ export default function AdminEvents() {
         else toast.success(`WhatsApp aberto para ${phoneCheck.display}.`);
       }
     } else {
-      toast.warning(`Sem WhatsApp válido: ${phoneCheck.reason}`);
+      toast.warning(`Sem WhatsApp válido: ${(phoneCheck as { reason: string }).reason}`);
     }
 
     setReview(null);
