@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   EventWhatsAppCard,
@@ -11,7 +11,6 @@ import { Link } from "react-router-dom";
 import { toPng } from "html-to-image";
 import JSZip from "jszip";
 import { toast } from "sonner";
-import { useRef } from "react";
 
 export default function Carrossel() {
   const [events, setEvents] = useState<FlyerEvent[]>([]);
