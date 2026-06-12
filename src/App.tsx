@@ -42,6 +42,11 @@ const EventDetail = lazy(() => import("./pages/EventDetail"));
 const Settings = lazy(() => import("./pages/Settings"));
 const MustChangePassword = lazy(() => import("./pages/MustChangePassword"));
 const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
+const CadastroEscolha = lazy(() => import("./pages/cadastro/CadastroEscolha"));
+const CadastroPublico = lazy(() => import("./pages/cadastro/CadastroPublico"));
+const CadastroDivulgador = lazy(() => import("./pages/cadastro/CadastroDivulgador"));
+const CadastroArtista = lazy(() => import("./pages/cadastro/CadastroArtista"));
+const CadastroSucesso = lazy(() => import("./pages/cadastro/CadastroSucesso"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -128,6 +133,13 @@ export const AppRoutes = () => (
       <Routes>
         {/* Públicas */}
         <Route path={ROUTES.LANDING} element={<Landing />} />
+
+        {/* Cadastro por perfil (sem AppShell, fullscreen mobile-first) */}
+        <Route path={ROUTES.CADASTRO} element={<CadastroEscolha />} />
+        <Route path={ROUTES.CADASTRO_PUBLICO} element={<CadastroPublico />} />
+        <Route path={ROUTES.CADASTRO_DIVULGADOR} element={<CadastroDivulgador />} />
+        <Route path={ROUTES.CADASTRO_ARTISTA} element={<CadastroArtista />} />
+        <Route path={ROUTES.CADASTRO_SUCESSO} element={<CadastroSucesso />} />
         
         {/* App Wrapper for standard pages */}
         <Route element={<AppShell maxWidth="md"><Outlet /></AppShell>}>
