@@ -262,28 +262,6 @@ export default function Landing() {
             </div>
          </div>
  
-         <form 
-           onSubmit={(e) => {
-             e.preventDefault();
-             if (searchQuery.trim()) navigate(`/agenda?search=${encodeURIComponent(searchQuery)}`);
-           }}
-           className="relative mb-16 max-w-3xl mx-auto reveal"
-         >
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary/60" />
-          <Input 
-            placeholder="O que você está procurando? (shows, festas, bares...)" 
-            className="h-14 pl-12 pr-4 rounded-full border-2 border-primary/10 bg-white shadow-lg text-lg focus:border-primary/30 transition-all"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Button 
-            type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 rounded-full bg-primary text-white font-bold px-6 hidden sm:flex"
-          >
-            Buscar
-          </Button>
-        </form>
-
         {/* Categories — minimal, monochrome chips */}
         <div className="flex gap-2 overflow-x-auto pb-6 mb-10 scrollbar-none">
           {genres.map((g) => (
