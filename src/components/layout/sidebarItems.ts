@@ -15,7 +15,8 @@ import {
   LogIn,
   Eye,
   UserPlus,
-  Megaphone
+  Megaphone,
+  Images
 } from "lucide-react";
 import { ROUTES } from "@/routes/config";
 
