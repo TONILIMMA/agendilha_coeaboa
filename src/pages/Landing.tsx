@@ -234,50 +234,37 @@ export default function Landing() {
       
        {/* ── Hero Discovery ── */}
        <section className="pt-24 sm:pt-40 pb-12 px-4 max-w-6xl mx-auto">
-         <div className="text-center mb-10 animate-in fade-in slide-in-from-top-4 duration-1000">
-           <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 mb-6 shadow-sm">
-             <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-primary/70">AgendIlha · Coé a Boa?</span>
+         <div className="text-center mb-14 sm:mb-20 animate-in fade-in slide-in-from-top-4 duration-1000">
+           <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 mb-8 shadow-sm">
+             <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-primary/70">Curadoria local da Ilha</span>
            </div>
-           <h1 className="text-3xl xs:text-4xl sm:text-7xl font-black mb-6 font-display text-primary tracking-tightest leading-[1.1] sm:leading-[0.9]">
-             O que tem pra<br /><span className="text-secondary">hoje na Ilha?</span> 🌴
+           <h1 className="text-4xl xs:text-5xl sm:text-7xl font-black mb-7 font-display text-primary tracking-tightest leading-[1.05] sm:leading-[0.95] max-w-4xl mx-auto text-balance">
+             O melhor da Ilha,<br className="hidden sm:block" /> <span className="text-secondary">em um só lugar.</span>
            </h1>
-           <p className="text-muted-foreground text-base sm:text-xl font-medium max-w-xl mx-auto mb-8 text-balance leading-relaxed">
-             A agenda cultural definitiva da Ilha do Governador. Shows, gastronomia e eventos em um só lugar.
+           <p className="text-muted-foreground text-base sm:text-xl font-normal max-w-xl mx-auto mb-10 text-balance leading-relaxed">
+             Eventos, gastronomia e experiências selecionadas para o seu dia, com mais praticidade e menos ruído.
            </p>
-           
-            <div className="flex flex-col items-center gap-4 max-w-lg mx-auto">
+
+            <div className="flex flex-col items-center gap-5 max-w-lg mx-auto">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
-                <Button 
+                <Button
                   onClick={() => navigate("/agenda")}
-                  className="w-full sm:flex-1 h-14 rounded-full font-black text-lg gradient-sunset shadow-xl hover:scale-[1.03] active:scale-95 transition-all uppercase tracking-wider"
+                  className="w-full sm:flex-1 h-14 rounded-full font-black text-base sm:text-lg gradient-sunset shadow-xl hover:scale-[1.03] active:scale-95 transition-all uppercase tracking-wider"
                 >
-                  Explorar Agenda
+                  Explorar agenda
                 </Button>
-                {!user ? (
-                  <Button 
-                    variant="outline"
-                    onClick={() => navigate("/auth")}
-                    className="w-full sm:flex-1 h-14 rounded-full font-bold text-lg border-2 border-primary/20 text-primary bg-white/50 hover:bg-primary/5 transition-all shadow-md"
-                  >
-                    Criar conta
-                  </Button>
-                ) : (
-                  <Button 
-                    variant="outline"
-                    onClick={() => navigate("/enviar-evento")}
-                    className="w-full sm:flex-1 h-14 rounded-full font-bold text-lg border-2 border-primary/20 text-primary bg-white/50 hover:bg-primary/5 transition-all shadow-md"
-                  >
-                    Divulgar Evento
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate("/agenda?view=today")}
+                  className="w-full sm:flex-1 h-14 rounded-full font-semibold text-base sm:text-lg text-primary hover:bg-primary/5 transition-all"
+                >
+                  Ver o que tem hoje
+                </Button>
               </div>
-              
-              <button
-                className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-secondary hover:text-primary transition-colors mt-2 underline underline-offset-4"
-                onClick={() => setPersonalizationOpen(true)}
-              >
-                Personalizar Recomendações
-              </button>
+
+              <p className="text-xs sm:text-sm text-muted-foreground/80 max-w-md text-balance leading-relaxed">
+                Descubra programas perto de você com uma seleção simples, bonita e atual.
+              </p>
             </div>
          </div>
  
