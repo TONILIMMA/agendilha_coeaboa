@@ -409,7 +409,8 @@ function buildUberLink(ev: Event): string {
           
           if (error) throw error;
           
-          setEvents((data as any[]) || []);
+          const approvedEvents = (data as any[]) || [];
+          setEvents(approvedEvents);
     loadRatings();
 
 
@@ -417,7 +418,7 @@ function buildUberLink(ev: Event): string {
           const params = new URLSearchParams(window.location.search);
           const eventId = params.get('event');
           if (eventId) {
-            const ev = publishedEvents.find(e => e.id === eventId);
+            const ev = approvedEvents.find(e => e.id === eventId);
             if (ev) {
               setSelectedEvent(ev);
               trackView(ev.id);
