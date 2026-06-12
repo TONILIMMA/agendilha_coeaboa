@@ -134,7 +134,6 @@ export default function Landing() {
        fetchNextPage();
      }
    }, [loadMoreInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem("agendilha_favorites");
     return saved ? JSON.parse(saved) : [];
