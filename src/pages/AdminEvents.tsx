@@ -225,34 +225,40 @@ export default function AdminEvents() {
     }
 
     const { error } = await supabase.from("submissions").update(updateData).eq("id", id);
-    
+
     if (error) {
       handleError(error, "Erro ao atualizar status");
     } else {
       toast.success(`Status atualizado para ${newStatus}`);
+      const sub = submissions.find((s) => s.id === id);
+      if (sub && newStatus === "aprovado") {
+        notifyDivulgador({ ...sub, status: "aprovado" }, "approved");
+      } else if (sub && newStatus === "rejeitado") {
+        notifyDivulgador(sub, "rejected");
+      }
       fetchAll(); // Refresh to get generated slugs/copies
     }
-
   }
 
   async function handleApproveAndPublish(id: string) {
-    const { error } = await supabase.from("submissions").update({ 
+    const { error } = await supabase.from("submissions").update({
       status: 'aprovado',
       approved_at: new Date().toISOString(),
       approved_by: user?.id,
     }).eq("id", id);
-    
+
     if (error) {
       handleError(error, "Erro ao aprovar");
     } else {
       toast.success("Evento aprovado e publicado na agenda!");
+      const sub = submissions.find((s) => s.id === id);
+      if (sub) notifyDivulgador({ ...sub, status: "aprovado" }, "approved");
       fetchAll();
     }
-
   }
 
   async function handleReject(id: string) {
-    const reason = window.prompt("Motivo da rejeição (opcional, fica como observação interna):") ?? "";
+    const reason = window.prompt("Motivo da rejeição (opcional, será compartilhado com o divulgador no WhatsApp):") ?? "";
     const { error } = await supabase.from("submissions").update({
       status: 'rejeitado',
       rejected_at: new Date().toISOString(),
@@ -263,6 +269,8 @@ export default function AdminEvents() {
       handleError(error, "Erro ao rejeitar evento");
     } else {
       toast.success("Evento rejeitado.");
+      const sub = submissions.find((s) => s.id === id);
+      if (sub) notifyDivulgador(sub, "rejected", reason);
       fetchAll();
     }
   }
