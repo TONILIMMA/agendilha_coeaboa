@@ -397,9 +397,9 @@ export default function Landing() {
           <div className="bg-secondary/10 rounded-[2.5rem] p-8 sm:p-12 overflow-hidden relative">
             <div className="absolute -right-20 -top-20 h-64 w-64 bg-secondary/20 rounded-full blur-3xl" />
             <div className="relative z-10 max-w-2xl">
-              <h2 className="text-3xl font-black font-display mb-4">Fique por dentro da Ilha 🎸</h2>
+              <h2 className="text-3xl font-black font-display mb-4">Receba o rolê da Ilha no WhatsApp 🎸</h2>
               <p className="text-muted-foreground mb-8 text-lg">
-                Não perca nenhum show ou evento cultural. Cadastre-se para receber as novidades semanalmente.
+                Toda semana, uma curadoria com o que está rolando do Galeão à Ribeira — direto no seu Zap.
               </p>
               <form onSubmit={handleNewsletterSubscribe} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -478,8 +478,8 @@ export default function Landing() {
         {/* Map Explorer CTA */}
         <section className="rounded-3xl bg-secondary/5 p-8 flex flex-col sm:flex-row items-center justify-between mb-16 border border-secondary/10 gap-6">
           <div className="text-center sm:text-left">
-            <h3 className="text-xl font-bold mb-2">Explore no Mapa</h3>
-            <p className="text-muted-foreground text-sm">Localize bares, eventos e pontos culturais da Ilha do Governador.</p>
+            <h3 className="text-xl font-bold mb-2">Explore a Ilha no mapa</h3>
+            <p className="text-muted-foreground text-sm">Bares, shows e pontos culturais entre Jardim Guanabara, Cocotá, Cacuia e arredores.</p>
           </div>
           <Button 
             variant="secondary" 
@@ -493,6 +493,13 @@ export default function Landing() {
 
       <footer className="py-16 px-6 border-t border-border/40 bg-card/30">
         <div className="mx-auto max-w-6xl flex flex-col items-center gap-8">
+          <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium text-foreground/70">
+            <Link to="/agenda" className="hover:text-primary transition-colors">Agenda</Link>
+            <Link to="/coe-a-boa" className="hover:text-primary transition-colors">Coé a Boa?</Link>
+            <Link to="/agenda-cultural" className="hover:text-primary transition-colors">Agenda Cultural</Link>
+            <Link to="/auth" className="hover:text-primary transition-colors">Divulgue seu evento</Link>
+            <a href="#contato" className="hover:text-primary transition-colors">Contato</a>
+          </nav>
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="inline-flex items-center gap-3 px-6 py-4 rounded-[2rem] glass border border-white/20 shadow-sm">
               <img src={logo} alt="Coé a Boa?" className="h-8 w-8 rounded-full ring-2 ring-primary/10" />
