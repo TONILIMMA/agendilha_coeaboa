@@ -247,6 +247,18 @@ function ArtistDetailSheet({
   setView: (v: "profile" | "events") => void;
   onClose: () => void;
 }) {
+  const { data: privateContacts } = useQuery({
+    enabled: !!artist?.id,
+    queryKey: ["master-artist-private-contacts", artist?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .rpc("get_artist_private_contacts", { p_artist_id: artist!.id });
+      if (error) return null;
+      const row = Array.isArray(data) ? data[0] : data;
+      return row as { representative_name: string | null; representative_phone: string | null } | null;
+    },
+  });
+
   const { data: events, isLoading } = useQuery({
     enabled: !!artist?.id,
     queryKey: ["master-artist-events", artist?.id],
