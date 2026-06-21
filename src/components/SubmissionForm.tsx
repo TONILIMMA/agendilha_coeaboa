@@ -194,7 +194,7 @@ export default function SubmissionForm() {
       
       if (eventImage instanceof File) {
         const fileExt = eventImage.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
         const filePath = `${user?.id}/${fileName}`;
 
         const { error: uploadError } = await supabaseClient.storage
