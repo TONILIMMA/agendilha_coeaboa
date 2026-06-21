@@ -43,8 +43,6 @@ type Artist = {
   bio: string | null;
   whatsapp: string | null;
   instagram: string | null;
-  representative_name: string | null;
-  representative_phone: string | null;
   work_description: string | null;
   avatar_url: string | null;
 };
