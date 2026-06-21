@@ -423,7 +423,7 @@ export default function AdminEvents() {
              className={cn(
                "cursor-pointer border-2 transition-all shadow-sm hover:shadow-md",
                kpis.pending > 0
-                 ? "bg-amber-50 border-amber-400 ring-2 ring-amber-200 animate-pulse-slow"
+                 ? "bg-amber-50 border-amber-400 ring-2 ring-amber-200 animate-pulse"
                  : "bg-white border-transparent"
              )}
            >

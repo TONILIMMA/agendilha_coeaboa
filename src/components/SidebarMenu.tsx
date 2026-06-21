@@ -257,7 +257,7 @@ function SidebarNavigationItem({
               className={cn(
                 "h-5 min-w-[20px] px-1.5 border-none text-[10px] font-bold",
                 isPending
-                  ? "bg-amber-500 text-white animate-pulse-slow shadow-sm"
+                  ? "bg-amber-500 text-white animate-pulse shadow-sm"
                   : "bg-primary/20 text-primary"
               )}
             >
