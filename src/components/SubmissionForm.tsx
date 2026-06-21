@@ -308,6 +308,7 @@ export default function SubmissionForm() {
       email: profile?.email || "",
     });
     setCurrentStep(1);
+    setDraftSavedAt(null);
     toast.success("Rascunho limpo.");
   };
 
@@ -326,15 +327,23 @@ export default function SubmissionForm() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <StepIndicator steps={steps} currentStep={currentStep} />
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={resetDraft}
-          className="text-muted-foreground hover:text-destructive gap-1"
-        >
-          <RotateCcw className="h-3 w-3" />
-          <span className="text-[10px] uppercase font-bold tracking-widest">Limpar Rascunho</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          {draftSavedAt && (
+            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest text-emerald-600">
+              <Check className="h-3 w-3" />
+              Rascunho salvo {draftSavedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={resetDraft}
+            className="text-muted-foreground hover:text-destructive gap-1"
+          >
+            <RotateCcw className="h-3 w-3" />
+            <span className="text-[10px] uppercase font-bold tracking-widest">Limpar Rascunho</span>
+          </Button>
+        </div>
       </div>
       
       <Form {...form}>
