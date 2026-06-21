@@ -43,8 +43,6 @@ type Artist = {
   bio: string | null;
   whatsapp: string | null;
   instagram: string | null;
-  representative_name: string | null;
-  representative_phone: string | null;
   work_description: string | null;
   avatar_url: string | null;
 };
@@ -75,7 +73,7 @@ export function MasterArtistsPanel() {
       const { data, error } = await supabase
         .from("artist_profiles")
         .select(
-          "id,user_id,name,genre,neighborhood,is_approved,bio,whatsapp,instagram,representative_name,representative_phone,work_description,avatar_url"
+          "id,user_id,name,genre,neighborhood,is_approved,bio,whatsapp,instagram,work_description,avatar_url"
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -247,6 +245,18 @@ function ArtistDetailSheet({
   setView: (v: "profile" | "events") => void;
   onClose: () => void;
 }) {
+  const { data: privateContacts } = useQuery({
+    enabled: !!artist?.id,
+    queryKey: ["master-artist-private-contacts", artist?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .rpc("get_artist_private_contacts", { p_artist_id: artist!.id });
+      if (error) return null;
+      const row = Array.isArray(data) ? data[0] : data;
+      return row as { representative_name: string | null; representative_phone: string | null } | null;
+    },
+  });
+
   const { data: events, isLoading } = useQuery({
     enabled: !!artist?.id,
     queryKey: ["master-artist-events", artist?.id],
@@ -309,12 +319,12 @@ function ArtistDetailSheet({
                   <DetailRow
                     icon={UserIcon}
                     label="Nome completo / responsável"
-                    value={artist.representative_name || "—"}
+                    value={privateContacts?.representative_name || "—"}
                   />
                   <DetailRow
                     icon={Phone}
                     label="Telefone"
-                    value={artist.whatsapp || artist.representative_phone || "—"}
+                    value={artist.whatsapp || privateContacts?.representative_phone || "—"}
                   />
                   <DetailRow icon={AtSign} label="Instagram" value={artist.instagram || "—"} />
                   <div>

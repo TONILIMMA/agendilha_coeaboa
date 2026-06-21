@@ -1509,6 +1509,7 @@ export type Database = {
           updated_at: string | null
           user_id: string | null
           website_url: string | null
+          whatsapp: string | null
           work_description: string | null
           youtube: string | null
         }
@@ -1536,6 +1537,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
           website_url?: string | null
+          whatsapp?: string | null
           work_description?: string | null
           youtube?: string | null
         }
@@ -1563,6 +1565,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
           website_url?: string | null
+          whatsapp?: string | null
           work_description?: string | null
           youtube?: string | null
         }
@@ -1782,6 +1785,13 @@ export type Database = {
           p_period?: string
         }
         Returns: Json
+      }
+      get_artist_private_contacts: {
+        Args: { p_artist_id: string }
+        Returns: {
+          representative_name: string
+          representative_phone: string
+        }[]
       }
       get_pipeline_metrics: { Args: never; Returns: Json }
       get_user_permissions: { Args: { p_user_id: string }; Returns: string[] }
