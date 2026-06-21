@@ -275,15 +275,15 @@ export default function Landing() {
         </div>
 
         {/* Today's Events */}
-        {todayEvents.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold font-display flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                Acontece hoje
-              </h2>
-              <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
-            </div>
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold font-display flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              Acontece hoje na Ilha
+            </h2>
+            <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
+          </div>
+          {todayEvents.length > 0 ? (
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
               {todayEvents.map(ev => (
                 <DiscoveryEventCard 
@@ -300,8 +300,16 @@ export default function Landing() {
                 />
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <div className="bg-muted/30 rounded-3xl p-8 text-center border border-dashed border-primary/15">
+              <Calendar className="h-8 w-8 text-primary/30 mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm mb-4">Hoje a Ilha está em recesso. Veja o que rola nos próximos dias.</p>
+              <Button onClick={() => navigate("/agenda")} variant="outline" className="rounded-full font-bold">
+                Ver próximos dias
+              </Button>
+            </div>
+          )}
+        </section>
 
         {/* Featured Events */}
         <section className="mb-12">
