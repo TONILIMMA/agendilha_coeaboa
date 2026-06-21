@@ -164,6 +164,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
  
     if (isHome) {
       return (
+         <>
         <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${scrolled ? "bg-white/90 backdrop-blur-xl border-b border-white/40 shadow-sm" : "bg-transparent border-b border-transparent"}`}>
           <div className="mx-auto flex h-16 sm:h-20 max-w-6xl items-center justify-between px-4 sm:px-8">
             <Link to="/" className="flex items-center gap-2.5 group shrink-0" aria-label="AgendIlha - Página Inicial">
@@ -207,7 +208,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={onMobileMenuToggle} 
+                onClick={handleMobileMenu} 
                 className={cn(
                   "h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm transition-all"
                 )}
@@ -218,12 +219,21 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
           </div>
         </header>
+         {!onMobileMenuToggle && (
+           <Sheet open={internalMobileOpen} onOpenChange={setInternalMobileOpen}>
+             <SheetContent side="left" className="p-0 w-[280px] sm:w-80 bg-sidebar border-r border-border">
+               <SidebarMenu onClose={() => setInternalMobileOpen(false)} />
+             </SheetContent>
+           </Sheet>
+         )}
+         </>
       );
     }
  
     // Public view for agenda - responsive & polished
     if (isAgenda) {
       return (
+        <>
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-white/95 backdrop-blur-xl transition-all duration-300 shadow-sm">
           <div className="mx-auto flex h-16 sm:h-18 max-w-5xl items-center justify-between px-4 sm:px-6 gap-2">
             <div className="flex items-center gap-2">
@@ -232,7 +242,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  onClick={onMobileMenuToggle} 
+                  onClick={handleMobileMenu} 
                   className="h-10 w-10 text-primary hover:bg-primary/5 active:scale-90 transition-all"
                 >
                   <Menu className="h-6 w-6" />
@@ -271,6 +281,14 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
           </div>
           <div className="h-1 w-full gradient-pumpkin-strip opacity-90" />
         </header>
+        {!onMobileMenuToggle && (
+          <Sheet open={internalMobileOpen} onOpenChange={setInternalMobileOpen}>
+            <SheetContent side="left" className="p-0 w-[280px] sm:w-80 bg-sidebar border-r border-border">
+              <SidebarMenu onClose={() => setInternalMobileOpen(false)} />
+            </SheetContent>
+          </Sheet>
+        )}
+        </>
       );
     }
   const showEventos = isAdmin || (perms.loaded && perms.isCollaborator);
@@ -289,7 +307,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                <Button 
                  variant="ghost" 
                  size="icon" 
-                 onClick={onMobileMenuToggle} 
+                 onClick={handleMobileMenu} 
                  className="h-10 w-10 text-primary hover:bg-primary/5 active:scale-90 transition-all"
                >
                  <Menu className="h-6 w-6" />
@@ -455,6 +473,13 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
       </header>
       {/* Decorative pumpkin/terracotta strip below the header */}
       <div className="sticky top-[var(--header-strip-offset,0)] z-40 h-1 w-full gradient-pumpkin-strip shadow-[0_2px_8px_-2px_hsl(22_70%_55%/0.25)]" aria-hidden="true" />
+      {!onMobileMenuToggle && (
+        <Sheet open={internalMobileOpen} onOpenChange={setInternalMobileOpen}>
+          <SheetContent side="left" className="p-0 w-[280px] sm:w-80 bg-sidebar border-r border-border">
+            <SidebarMenu onClose={() => setInternalMobileOpen(false)} />
+          </SheetContent>
+        </Sheet>
+      )}
     </TooltipProvider>
   );
 }
