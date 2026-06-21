@@ -1536,7 +1536,6 @@ function buildUberLink(ev: Event): string {
             )}
           </DialogContent>
         </Dialog>
-       <SiteFooter className="mt-20" />
     </div>
   );
 }
