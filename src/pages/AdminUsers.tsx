@@ -58,7 +58,10 @@ import {
   Share2,
   Search,
   Filter,
-  Calendar
+  Calendar,
+  MessageSquare,
+  ShieldAlert,
+  UserCheck
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -180,6 +183,37 @@ export default function AdminUsers() {
     return true;
     });
   }, [users, isMaster, filterSearch, filterType, filterStatus, filterPeriod]);
+
+  // KPIs gerais (sobre todos os usuários visíveis para o admin atual)
+  const visibleUsers = useMemo(
+    () => (isMaster ? users : users.filter((u) => u.status !== 'admin' && u.status !== 'master')),
+    [users, isMaster]
+  );
+  const kpis = useMemo(() => ({
+    total: visibleUsers.length,
+    publico: visibleUsers.filter((u) => (u.user_type || 'usuario') === 'usuario' && u.status === 'user').length,
+    divulgadores: visibleUsers.filter((u) => u.status === 'collaborator' || u.user_type === 'divulgador' || u.user_type === 'promotor').length,
+    artistas: visibleUsers.filter((u) => u.status === 'artist' || u.user_type === 'artist').length,
+    admins: visibleUsers.filter((u) => u.status === 'admin' || u.status === 'master').length,
+    semBairro: visibleUsers.filter((u) => !u.address_neighborhood).length,
+  }), [visibleUsers]);
+
+  // Chips de filtro rápido por status/papel
+  const quickStatusChips: Array<{ key: string; label: string; count: number; color: string }> = useMemo(() => {
+    const base = [
+      { key: 'all', label: 'Todos', count: visibleUsers.length, color: 'bg-muted text-foreground' },
+      { key: 'user', label: 'Público', count: visibleUsers.filter((u) => u.status === 'user').length, color: 'bg-blue-500/10 text-blue-700 border-blue-500/30' },
+      { key: 'collaborator', label: 'Divulgador', count: visibleUsers.filter((u) => u.status === 'collaborator').length, color: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30' },
+      { key: 'artist', label: 'Artista', count: visibleUsers.filter((u) => u.status === 'artist').length, color: 'bg-purple-500/10 text-purple-700 border-purple-500/30' },
+    ];
+    if (isMaster) {
+      base.push(
+        { key: 'admin', label: 'Admin', count: visibleUsers.filter((u) => u.status === 'admin').length, color: 'bg-amber-500/10 text-amber-700 border-amber-500/30' },
+        { key: 'master', label: 'Master', count: visibleUsers.filter((u) => u.status === 'master').length, color: 'bg-rose-500/10 text-rose-700 border-rose-500/30' },
+      );
+    }
+    return base;
+  }, [visibleUsers, isMaster]);
 
   // Resetar página ao filtrar
   useEffect(() => {
@@ -560,6 +594,77 @@ export default function AdminUsers() {
         }
       />
 
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <Card className="border-border">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-bold">
+              <Users className="h-3.5 w-3.5" /> Total
+            </div>
+            <div className="text-2xl font-extrabold mt-1">{kpis.total}</div>
+          </CardContent>
+        </Card>
+        <Card className="border-blue-500/30 bg-blue-500/5">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-blue-700 text-xs uppercase tracking-wider font-bold">
+              <User className="h-3.5 w-3.5" /> Público
+            </div>
+            <div className="text-2xl font-extrabold mt-1 text-blue-700">{kpis.publico}</div>
+          </CardContent>
+        </Card>
+        <Card className="border-emerald-500/30 bg-emerald-500/5">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-emerald-700 text-xs uppercase tracking-wider font-bold">
+              <UserCheck className="h-3.5 w-3.5" /> Divulgadores
+            </div>
+            <div className="text-2xl font-extrabold mt-1 text-emerald-700">{kpis.divulgadores}</div>
+          </CardContent>
+        </Card>
+        <Card className="border-purple-500/30 bg-purple-500/5">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-purple-700 text-xs uppercase tracking-wider font-bold">
+              <Music className="h-3.5 w-3.5" /> Artistas
+            </div>
+            <div className="text-2xl font-extrabold mt-1 text-purple-700">{kpis.artistas}</div>
+          </CardContent>
+        </Card>
+        <Card className={cn("border-amber-500/30 bg-amber-500/5", kpis.semBairro > 0 && "ring-1 ring-amber-500/40") }>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-amber-700 text-xs uppercase tracking-wider font-bold">
+              <ShieldAlert className="h-3.5 w-3.5" /> Sem bairro
+            </div>
+            <div className="text-2xl font-extrabold mt-1 text-amber-700">{kpis.semBairro}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Chips de filtro rápido por papel */}
+      <div className="flex flex-wrap gap-2">
+        {quickStatusChips.map((chip) => {
+          const active = filterStatus === chip.key;
+          return (
+            <button
+              key={chip.key}
+              onClick={() => setFilterStatus(chip.key)}
+              className={cn(
+                "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all",
+                active
+                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                  : chip.color + " hover:opacity-80",
+              )}
+            >
+              {chip.label}
+              <span className={cn(
+                "inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold",
+                active ? "bg-primary-foreground/20" : "bg-background/60"
+              )}>
+                {chip.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Filtros */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-card border border-border rounded-xl shadow-sm">
         <div className="relative">
@@ -747,6 +852,17 @@ export default function AdminUsers() {
 
                   {/* Desktop Actions */}
                   <div className="hidden md:flex items-center gap-2 justify-end shrink-0">
+                    {u.phone && isValidBrazilianMobile(u.phone) && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        title="Falar no WhatsApp"
+                        className="h-9 w-9 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full"
+                        onClick={() => window.open(buildWhatsappUrl(u.phone!, `Olá ${u.responsible_name || ''}!`), '_blank')}
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                      </Button>
+                    )}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button 
@@ -822,6 +938,15 @@ export default function AdminUsers() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56">
                         <DropdownMenuSeparator />
+                        {u.phone && isValidBrazilianMobile(u.phone) && (
+                          <>
+                            <DropdownMenuItem onClick={() => window.open(buildWhatsappUrl(u.phone!, `Olá ${u.responsible_name || ''}!`), '_blank')} className="text-emerald-600 font-semibold">
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              Falar no WhatsApp
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                          </>
+                        )}
                         <DropdownMenuItem disabled className="text-[10px] font-bold uppercase tracking-wider opacity-50">Alterar Tipo</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => updateUserType(u, 'usuario')}>Tornar Usuário</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => updateUserType(u, 'promotor')}>Tornar Promotor</DropdownMenuItem>
