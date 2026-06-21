@@ -88,6 +88,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { callEdge } from "@/lib/edge";
+import { exportUsersToPdf } from "@/lib/pdfExportUsers";
 
 type UserStatus = "master" | "admin" | "collaborator" | "user" | "artist";
 type UserCategory = "usuario" | "promotor" | "divulgador" | "estabelecimento";
@@ -240,27 +241,7 @@ export default function AdminUsers() {
   const exportToPDF = useCallback(async () => {
     toast.info("Preparando PDF...");
     try {
-      const { default: jsPDF } = await import("jspdf");
-      const { default: autoTable } = await import("jspdf-autotable");
-      
-      const doc = new jsPDF();
-      const tableColumn = ["Nome", "Email", "Telefone", "Tipo", "Status", "Criado em"];
-      const tableRows = filteredUsers.map(u => [
-        u.responsible_name || "N/A",
-        u.email || "N/A",
-        formatPhone(u.phone),
-        u.user_type || "usuario",
-        u.status || "user",
-        new Date(u.created_at).toLocaleDateString("pt-BR")
-      ]);
-
-      doc.text("Relatório de Usuários - Agendilha", 14, 15);
-      autoTable(doc, {
-        head: [tableColumn],
-        body: tableRows,
-        startY: 20,
-      });
-      doc.save(`usuarios_agendilha_${new Date().toISOString().split('T')[0]}.pdf`);
+      await exportUsersToPdf(filteredUsers);
       toast.success("PDF gerado com sucesso!");
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
