@@ -492,7 +492,7 @@ export default function Landing() {
       </section>
 
       <footer className="py-16 px-6 border-t border-border/40 bg-card/30">
-        <div className="mx-auto max-w-6xl flex flex-col items-center gap-8">
+        <div className="mx-auto max-w-6xl flex flex-col gap-8">
           <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium text-foreground/70">
             <Link to="/agenda" className="hover:text-primary transition-colors">Agenda</Link>
             <Link to="/coe-a-boa" className="hover:text-primary transition-colors">Coé a Boa?</Link>
@@ -500,23 +500,37 @@ export default function Landing() {
             <Link to="/auth" className="hover:text-primary transition-colors">Divulgue seu evento</Link>
             <a href="#contato" className="hover:text-primary transition-colors">Contato</a>
           </nav>
-          <div className="flex flex-col items-center gap-6 text-center">
-            <div className="inline-flex items-center gap-3 px-6 py-4 rounded-[2rem] glass border border-white/20 shadow-sm">
-              <img src={logo} alt="Coé a Boa?" className="h-8 w-8 rounded-full ring-2 ring-primary/10" />
-              <div className="flex flex-col items-start leading-none gap-0.5">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-display text-base font-black text-primary tracking-tight">AgendIlha</span>
-                  <span className="h-1 w-1 rounded-full bg-secondary/40" />
-                  <span className="font-display text-sm font-bold text-secondary tracking-tight">Coé a Boa?</span>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4 pt-6 border-t border-border/40 text-center sm:text-left">
+            {/* Copyright */}
+            <div className="text-xs text-foreground/60 font-medium order-2 sm:order-1">
+              © {new Date().getFullYear()} — Todos os direitos reservados
+            </div>
+
+            {/* Marca / Slogan */}
+            <div className="flex items-center justify-center gap-2 order-1 sm:order-2">
+              <img src={logo} alt="Coé a Boa? — Agendilha" className="h-7 w-7 rounded-full ring-1 ring-primary/15" />
+              <div className="leading-tight">
+                <div className="font-display text-sm font-black text-foreground tracking-tight">
+                  Coé a Boa? <span className="text-foreground/30">•</span> Agendilha
+                </div>
+                <div className="text-[10px] uppercase tracking-[0.25em] text-foreground/40 font-semibold">
+                  Transparência e Cultura
                 </div>
               </div>
             </div>
-            
-            <div className="text-[10px] text-foreground/30 font-mono uppercase tracking-[0.4em]">
-              © {new Date().getFullYear()} — Ilha do Governador, RJ
-            </div>
-            <div className="mt-3 text-[11px] text-foreground/50 font-medium">
-              ©2026 criado por <span className="font-bold text-foreground/80">TONI LIMA</span> — <a href="https://vexo-sistemas.lovable.app" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors hover:underline">Vexo Sistemas</a>
+
+            {/* Créditos */}
+            <div className="text-xs text-foreground/60 font-medium order-3 sm:text-right">
+              Criado por{" "}
+              <a
+                href="https://vexo-sistemas.lovable.app"
+                target="_blank"
+                rel="noreferrer"
+                className="font-bold text-foreground/80 hover:text-primary transition-colors hover:underline"
+              >
+                Vexo Sistemas
+              </a>
             </div>
           </div>
         </div>
