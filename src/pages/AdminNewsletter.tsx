@@ -26,6 +26,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useNewsletterSubscribers } from "@/data";
+import { exportRowsToCsv } from "@/lib/csv";
 
 export default function AdminNewsletter() {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -53,28 +54,16 @@ export default function AdminNewsletter() {
   }, [subscribers, search, neighborhoodFilter]);
 
   const exportToCSV = () => {
-    const headers = ["Nome", "E-mail", "Bairro", "Data de Inscrição"];
-    const rows = filtered.map(s => [
-      s.name || "—",
-      s.email,
-      s.neighborhood || "—",
-      new Date(s.created_at).toLocaleDateString("pt-BR")
-    ]);
-
-    const csvContent = [
-      headers.join(","),
-      ...rows.map(r => r.join(","))
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `inscritos-newsletter-${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportRowsToCsv(
+      `inscritos-newsletter-${new Date().toISOString().split("T")[0]}.csv`,
+      ["Nome", "E-mail", "Bairro", "Data de Inscrição"],
+      filtered.map((s) => [
+        s.name || "—",
+        s.email,
+        s.neighborhood || "—",
+        new Date(s.created_at).toLocaleDateString("pt-BR"),
+      ])
+    );
     toast.success("Exportação concluída!");
   };
 
