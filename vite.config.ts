@@ -23,10 +23,29 @@ export default defineConfig(({ mode }) => ({
      react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: null,
       includeAssets: ['favicon.ico', 'logo.png', 'logo.jpg', 'robots.txt', 'placeholder.svg'],
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp}'],
+        // Don't precache HTML — always fetch fresh navigations so mobile clients
+        // see new builds immediately instead of being stuck on an old shell.
+        globPatterns: ['**/*.{js,css,ico,png,svg,jpg,jpeg,webp}'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        navigateFallback: null,
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
         runtimeCaching: [
+          {
+            // HTML navigations: always try network first, fall back to cache only when offline.
+            urlPattern: ({ request, url }) =>
+              request.mode === 'navigate' && !url.pathname.startsWith('/~oauth'),
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-navigations',
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 },
+            },
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
