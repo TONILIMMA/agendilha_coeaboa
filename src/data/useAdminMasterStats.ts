@@ -25,7 +25,7 @@ export function useAdminMasterStats(enabled = true) {
         supabase
           .from("submissions")
           .select("*", { count: "exact", head: true })
-          .eq("status", "approved"),
+          .in("status", ["aprovado", "publicado", "approved"]),
         supabase
           .from("newsletter_subscribers")
           .select("*", { count: "exact", head: true }),
