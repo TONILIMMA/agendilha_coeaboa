@@ -25,7 +25,7 @@ import {
   Search,
   User as UserIcon,
   CalendarDays,
-  Instagram,
+  AtSign,
   Phone,
   ExternalLink,
   Loader2,
