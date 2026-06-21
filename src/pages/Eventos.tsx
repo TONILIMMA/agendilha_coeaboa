@@ -97,6 +97,8 @@ export default function Eventos() {
       onSoftDelete={actions.handleSoftDelete}
       onRestore={actions.handleRestore}
       onPermanentDelete={actions.handlePermanentDelete}
+      onEditorialChange={actions.handleEditorialChange}
+      onLogPublication={actions.handleLogPublication}
     />
   );
 
