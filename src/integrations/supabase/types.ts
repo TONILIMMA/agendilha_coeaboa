@@ -507,7 +507,9 @@ export type Database = {
       divulgadores: {
         Row: {
           contato_id: string
-          cpf: string
+          cpf: string | null
+          cpf_hash: string | null
+          cpf_last2: string | null
           created_at: string
           id: string
           instagram: string | null
@@ -518,7 +520,9 @@ export type Database = {
         }
         Insert: {
           contato_id: string
-          cpf: string
+          cpf?: string | null
+          cpf_hash?: string | null
+          cpf_last2?: string | null
           created_at?: string
           id?: string
           instagram?: string | null
@@ -529,7 +533,9 @@ export type Database = {
         }
         Update: {
           contato_id?: string
-          cpf?: string
+          cpf?: string | null
+          cpf_hash?: string | null
+          cpf_last2?: string | null
           created_at?: string
           id?: string
           instagram?: string | null
@@ -1672,6 +1678,7 @@ export type Database = {
       }
     }
     Functions: {
+      _cpf_hash: { Args: { _cpf: string }; Returns: string }
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       contains_bad_words: { Args: { text_to_check: string }; Returns: boolean }
       generate_slug: { Args: { title: string }; Returns: string }
