@@ -92,7 +92,7 @@ export default function ProfileSettings() {
     if (!user) return;
     const { data, error } = await supabase
       .from("artist_profiles")
-      .select("*")
+      .select("id,user_id,name,genre,technical_needs,instagram,whatsapp,bio,avatar_url,cover_url,is_approved,is_verified,artist_type,member_count,work_description,styles,differentials,city,neighborhood,youtube,spotify,spotify_url,website_url,moderation_status,rejection_reason")
       .eq("user_id", user.id)
       .maybeSingle();
     
@@ -101,8 +101,12 @@ export default function ProfileSettings() {
       setArtisticName(data.name || "");
       setGenre(data.genre || "");
       setTechNeeds(data.technical_needs || "");
-      setRepName(data.representative_name || "");
-      setRepPhone(data.representative_phone || "");
+      // representative_* are private; fetch through secured RPC.
+      const { data: contacts } = await supabase
+        .rpc("get_artist_private_contacts", { p_artist_id: data.id });
+      const row = Array.isArray(contacts) ? contacts[0] : contacts;
+      setRepName(row?.representative_name || "");
+      setRepPhone(row?.representative_phone || "");
     }
     setArtistLoaded(true);
   }
