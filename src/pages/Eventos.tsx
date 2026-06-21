@@ -11,17 +11,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CalendarDays, CheckCircle, Clock, Copy, FileDown, FileText, Loader2,
-  Megaphone, MessageCircle, Search, Send, Trash2,
+  Megaphone, MessageCircle, Search, Send, Trash2, Kanban, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
 import { buildBulkWhatsAppMessage } from "@/lib/eventWhatsapp";
 import {
-  categoryLabels, getWeekRange, parseEventDate, type Submission,
+  categoryLabels, getWeekRange, parseEventDate, type Submission, EDITORIAL_STAGES, type EditorialStatus,
 } from "@/components/events-admin/types";
 import { EventCard } from "@/components/events-admin/EventCard";
 import { useEventActions } from "@/components/events-admin/useEventActions";
 import { useAuditLogs } from "@/components/events-admin/useAuditLogs";
+import { KanbanBoard } from "@/components/events-admin/KanbanBoard";
 
 export default function Eventos() {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -33,6 +34,7 @@ export default function Eventos() {
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [editorialFilter, setEditorialFilter] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
 
@@ -48,10 +50,12 @@ export default function Eventos() {
   const trashedSubmissions = submissions.filter(s => !!s.deleted_at);
   const pendingEvents = activeSubmissions.filter(s => s.status === "pending");
   const confirmedEvents = activeSubmissions.filter(s => s.status === "approved");
+  const pendingPublish = activeSubmissions.filter(s => (s.editorial_status as string) === "pronto_divulgar");
 
   const getFiltered = (list: Submission[]) => {
     let result = [...list];
     if (categoryFilter !== "all") result = result.filter(s => s.category === categoryFilter);
+    if (editorialFilter !== "all") result = result.filter(s => (s.editorial_status || "recebido") === editorialFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(s =>
@@ -64,9 +68,10 @@ export default function Eventos() {
     return result;
   };
 
-  const filteredPending = useMemo(() => getFiltered(pendingEvents), [pendingEvents, categoryFilter, search]);
-  const filteredConfirmed = useMemo(() => getFiltered(confirmedEvents), [confirmedEvents, categoryFilter, search]);
-  const filteredTrash = useMemo(() => getFiltered(trashedSubmissions), [trashedSubmissions, categoryFilter, search]);
+  const filteredPending = useMemo(() => getFiltered(pendingEvents), [pendingEvents, categoryFilter, editorialFilter, search]);
+  const filteredConfirmed = useMemo(() => getFiltered(confirmedEvents), [confirmedEvents, categoryFilter, editorialFilter, search]);
+  const filteredTrash = useMemo(() => getFiltered(trashedSubmissions), [trashedSubmissions, categoryFilter, editorialFilter, search]);
+  const filteredActive = useMemo(() => getFiltered(activeSubmissions), [activeSubmissions, categoryFilter, editorialFilter, search]);
 
   if (authLoading) {
     return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -169,7 +174,7 @@ export default function Eventos() {
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
           <button
             onClick={() => setActiveTab("pending")}
             className={`text-left rounded-xl border p-3 transition-all hover:scale-[1.02] active:scale-[0.98] ${
@@ -183,6 +188,20 @@ export default function Eventos() {
               <Clock className="h-3.5 w-3.5 text-[hsl(35,90%,40%)]" />
             </div>
             <div className="mt-1 text-2xl font-display font-bold text-foreground">{pendingEvents.length}</div>
+          </button>
+          <button
+            onClick={() => { setActiveTab("kanban"); setEditorialFilter("pronto_divulgar"); }}
+            className={`text-left rounded-xl border p-3 transition-all hover:scale-[1.02] active:scale-[0.98] ${
+              pendingPublish.length > 0
+                ? "bg-orange-100/60 border-orange-400/60 ring-2 ring-orange-400/30 dark:bg-orange-900/20"
+                : "bg-background/60 border-border hover:border-orange-400/30"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Prontos p/ divulgar</span>
+              <AlertTriangle className="h-3.5 w-3.5 text-orange-500" />
+            </div>
+            <div className="mt-1 text-2xl font-display font-bold text-foreground">{pendingPublish.length}</div>
           </button>
           <button
             onClick={() => setActiveTab("confirmed")}
@@ -219,7 +238,7 @@ export default function Eventos() {
 
       <Card className="mb-5 border-border">
         <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -240,12 +259,26 @@ export default function Eventos() {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={editorialFilter} onValueChange={setEditorialFilter}>
+              <SelectTrigger className="w-full sm:w-[200px] h-10">
+                <SelectValue placeholder="Etapa editorial" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas etapas</SelectItem>
+                {EDITORIAL_STAGES.map(s => (
+                  <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4">
+        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-5">
+          <TabsTrigger value="kanban" className="text-xs sm:text-sm">
+            <Kanban className="h-3.5 w-3.5 mr-1" /> Kanban
+          </TabsTrigger>
           <TabsTrigger value="marketing" className="text-xs sm:text-sm">📣 Divulgação</TabsTrigger>
           <TabsTrigger value="pending" className="text-xs sm:text-sm">
             A serem liberados
@@ -262,6 +295,25 @@ export default function Eventos() {
             </TabsTrigger>
           )}
         </TabsList>
+
+        <TabsContent value="kanban">
+          <Card className="border-border">
+            <CardContent className="p-3">
+              <KanbanBoard
+                submissions={filteredActive}
+                selectedId={expandedId}
+                onSelect={(s) => {
+                  setExpandedId(s.id);
+                  fetchAuditLog(s.id);
+                }}
+              />
+            </CardContent>
+          </Card>
+          {expandedId && (() => {
+            const sub = activeSubmissions.find(s => s.id === expandedId);
+            return sub ? <div className="mt-4">{renderCard(sub, { showApproval: sub.status === "pending" })}</div> : null;
+          })()}
+        </TabsContent>
 
         <TabsContent value="marketing" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
