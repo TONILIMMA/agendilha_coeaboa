@@ -1538,21 +1538,7 @@ function buildUberLink(ev: Event): string {
             )}
           </DialogContent>
         </Dialog>
-       <footer className="py-12 px-6 border-t border-border/40 bg-card/30 mt-20">
-         <div className="mx-auto max-w-4xl flex flex-col items-center gap-6">
-           <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-white/50 backdrop-blur-sm border border-white/20 shadow-sm">
-             <img src={logoCoeABoa} alt="AgendIlha" className="h-6 w-6 rounded-full" />
-             <div className="flex items-center gap-2 leading-none">
-               <span className="font-display text-sm font-black text-primary tracking-tight">AgendIlha</span>
-               <span className="h-1 w-1 rounded-full bg-secondary/40" />
-               <span className="font-display text-xs font-bold text-secondary tracking-tight">Coé a Boa?</span>
-             </div>
-           </div>
-           <p className="text-[10px] text-muted-foreground/50 font-mono uppercase tracking-[0.3em]">
-             © {new Date().getFullYear()} — Ilha do Governador, RJ
-           </p>
-         </div>
-       </footer>
+       <SiteFooter className="mt-20" />
     </div>
   );
 }
