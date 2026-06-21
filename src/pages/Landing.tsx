@@ -240,22 +240,22 @@ export default function Landing() {
              O melhor da Ilha,<br className="hidden sm:block" /> <span className="text-secondary">em um só lugar.</span>
            </h1>
            <p className="text-secondary/80 text-base sm:text-lg font-light max-w-xl mx-auto mb-12 text-balance leading-relaxed">
-             Eventos, gastronomia e experiências selecionadas para o seu dia.
+             Agenda curada de eventos, bares e experiências na Ilha do Governador — atualizada todo dia.
            </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-lg mx-auto">
                 <Button
-                  onClick={() => navigate("/agenda")}
-                  className="w-full sm:w-auto sm:px-10 h-12 sm:h-13 rounded-full font-semibold text-base bg-foreground text-background hover:bg-secondary shadow-card transition-all"
+                  onClick={() => navigate("/agenda?view=today")}
+                  className="w-full sm:w-auto sm:px-10 h-12 sm:h-13 rounded-full font-semibold text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-card transition-all"
                 >
-                  Explorar agenda
+                  Ver o que tem hoje
                 </Button>
                 <Button
                   variant="ghost"
-                  onClick={() => navigate("/agenda?view=today")}
+                  onClick={() => navigate("/agenda")}
                   className="w-full sm:w-auto sm:px-10 h-12 sm:h-13 rounded-full font-medium text-base text-foreground border border-accent hover:bg-muted transition-all"
                 >
-                  Ver o que tem hoje
+                  Explorar agenda completa
                 </Button>
             </div>
          </div>
