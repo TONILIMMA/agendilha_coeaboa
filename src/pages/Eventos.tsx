@@ -216,12 +216,8 @@ function buildNotificationMessage(sub: Submission, status: string): string {
 export default function Eventos() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const permissions = usePermissions();
-  const {
-    data: fetchedSubmissions = [],
-    isLoading: loading,
-    refetch,
-  } = useSubmissionsQuery<Submission>({}, { enabled: !!user });
-  const invalidateSubmissions = useInvalidateSubmissions();
+  const { data: fetchedSubmissions = [], isLoading: loading } =
+    useSubmissionsQuery<Submission>({}, { enabled: !!user });
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   useEffect(() => {
     setSubmissions(fetchedSubmissions);
