@@ -140,6 +140,12 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
   const navigate = useNavigate();
   const currentDate = useCurrentDate();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Fallback: when no toggle is provided by the parent (e.g. Landing page),
+  // open an internal Sheet drawer so the hamburger always works.
+  const [internalMobileOpen, setInternalMobileOpen] = useState(false);
+  const handleMobileMenu = onMobileMenuToggle ?? (() => setInternalMobileOpen(true));
+  const { pathname: _p } = useLocation();
+  useEffect(() => { setInternalMobileOpen(false); }, [_p]);
    const { pathname } = useLocation();
    const isHome = pathname === "/" || pathname === "/lp" || pathname === "/landing";
    const isAgenda = pathname === "/agenda";
