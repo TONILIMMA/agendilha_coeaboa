@@ -1509,6 +1509,7 @@ export type Database = {
           updated_at: string | null
           user_id: string | null
           website_url: string | null
+          whatsapp: string | null
           work_description: string | null
           youtube: string | null
         }
@@ -1536,6 +1537,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
           website_url?: string | null
+          whatsapp?: string | null
           work_description?: string | null
           youtube?: string | null
         }
@@ -1563,6 +1565,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
           website_url?: string | null
+          whatsapp?: string | null
           work_description?: string | null
           youtube?: string | null
         }
