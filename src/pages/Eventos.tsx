@@ -23,6 +23,8 @@ import { EventCard } from "@/components/events-admin/EventCard";
 import { useEventActions } from "@/components/events-admin/useEventActions";
 import { useAuditLogs } from "@/components/events-admin/useAuditLogs";
 import { KanbanBoard } from "@/components/events-admin/KanbanBoard";
+import { PipelineMetrics } from "@/components/events-admin/PipelineMetrics";
+import { PublicationLogTable } from "@/components/events-admin/PublicationLogTable";
 
 export default function Eventos() {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -299,6 +301,10 @@ export default function Eventos() {
         </TabsList>
 
         <TabsContent value="kanban">
+          <div className="mb-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2"><PipelineMetrics /></div>
+            <PublicationLogTable />
+          </div>
           <Card className="border-border">
             <CardContent className="p-3">
               <KanbanBoard
