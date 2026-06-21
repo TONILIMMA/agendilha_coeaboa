@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { handleError } from "@/lib/error-handler";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
 import { z } from "zod";
-import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
+import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2, RotateCcw, Check } from "lucide-react";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -101,6 +101,8 @@ export default function SubmissionForm() {
   const { isCollaborator, isPromoter } = usePermissions();
   const { profile, loaded } = useProfile();
   const [currentStep, setCurrentStep] = useState(1);
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
+  const draftLoadedRef = useRef(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -134,25 +136,42 @@ export default function SubmissionForm() {
     const saved = localStorage.getItem(DRAFT_KEY);
     if (saved) {
       try {
-        const { data, step } = JSON.parse(saved);
+        const { data, step, savedAt } = JSON.parse(saved);
         form.reset(data);
         setCurrentStep(step || 1);
+        if (savedAt) setDraftSavedAt(new Date(savedAt));
         toast.info("Rascunho do evento recuperado.");
       } catch (e) {
         console.error("Error loading event draft", e);
       }
     }
+    draftLoadedRef.current = true;
   }, []);
 
-  // Save draft on change
+  // Save draft on change (debounced, only after initial load)
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
     const subscription = form.watch((value) => {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({
-        data: value,
-        step: currentStep
-      }));
+      if (!draftLoadedRef.current) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        const now = new Date();
+        try {
+          localStorage.setItem(DRAFT_KEY, JSON.stringify({
+            data: value,
+            step: currentStep,
+            savedAt: now.toISOString(),
+          }));
+          setDraftSavedAt(now);
+        } catch (e) {
+          console.error("Error saving event draft", e);
+        }
+      }, 600);
     });
-    return () => subscription.unsubscribe();
+    return () => {
+      if (timer) clearTimeout(timer);
+      subscription.unsubscribe();
+    };
   }, [form.watch, currentStep]);
 
   const steps = [
