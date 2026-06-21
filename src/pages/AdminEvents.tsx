@@ -740,6 +740,23 @@ export default function AdminEvents() {
                           </Tooltip>
                         )}
 
+                        {/* Divulgar no WhatsApp — visível quando aprovado */}
+                        {sub.status === 'aprovado' && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                className="h-9 px-3 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm font-bold text-xs gap-1.5"
+                                onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
+                              >
+                                <MessageCircle className="h-4 w-4" />
+                                <span className="hidden lg:inline">Divulgar</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Divulgar no WhatsApp</TooltipContent>
+                          </Tooltip>
+                        )}
+
                         {/* Destacar */}
                         <Tooltip>
                           <TooltipTrigger asChild>
