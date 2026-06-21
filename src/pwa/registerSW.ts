@@ -51,7 +51,7 @@ export function setupPWA() {
       // New build available — activate it and reload to the fresh app shell.
       void updateSW(true);
     },
-    onRegisteredSW(_swUrl, registration) {
+    onRegistered(registration) {
       if (!registration) return;
       // Re-check for updates when the tab becomes visible again (mobile resume).
       const checkForUpdate = () => {
