@@ -11,7 +11,7 @@ import { useUserBadge } from "@/hooks/useUserBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
-import { supabase } from "@/integrations/supabase/client";
+import { useSubmissionsCount } from "@/data";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,10 @@ export function SidebarMenu({ onClose }: Props) {
   const { isMaster, isAdmin, isPromoter, loading: permsLoading } = useAppPermissions();
   const { savedCount } = useSubmissions();
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
-  const pendingCount = usePendingSubmissionsCount(isAdmin || isMaster);
+  const { data: pendingCount = 0 } = useSubmissionsCount(
+    { eq: { status: "pendente" }, select: "id" },
+    { enabled: isAdmin || isMaster, staleTime: 60_000 }
+  );
 
   const getCurrentRole = (): Role => {
     if (!user) return "public_guest";
@@ -293,22 +296,3 @@ function SidebarNavigationItem({
   );
 }
 
-// Hook: contagem de eventos pendentes para o badge da sidebar.
-function usePendingSubmissionsCount(enabled: boolean) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!enabled) { setCount(0); return; }
-    let cancelled = false;
-    const load = async () => {
-      const { count: c } = await supabase
-        .from("submissions")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "pendente");
-      if (!cancelled && typeof c === "number") setCount(c);
-    };
-    load();
-    const interval = setInterval(load, 60_000);
-    return () => { cancelled = true; clearInterval(interval); };
-  }, [enabled]);
-  return count;
-}
