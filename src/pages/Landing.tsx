@@ -390,32 +390,7 @@ export default function Landing() {
            )}
          </section>
 
-         {user && recommendedEvents.length > 0 && (
-           <section className="mb-12">
-             <div className="flex items-center justify-between mb-6">
-               <h2 className="text-2xl font-bold font-display flex items-center gap-2">
-                 <Sparkles className="h-5 w-5 text-primary" />
-                 Recomendado para você
-               </h2>
-             </div>
-             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-               {recommendedEvents.slice(0, 5).map(ev => (
-                 <DiscoveryEventCard 
-                   key={ev.id} 
-                   event={ev} 
-                   variant="compact"
-                   onClick={() => navigate(`/agenda?event=${ev.id}`)}
-                   isFavorite={favorites.includes(ev.id)}
-                   onFavoriteToggle={() => toggleFavorite(ev.id)}
-                   onShare={() => {
-                     const data = getShareData(ev);
-                     setShareData({ ...data, eventId: ev.id });
-                   }}
-                 />
-               ))}
-             </div>
-           </section>
-         )}
+         {/* "Recomendado para você" removido: já coberto por "No seu radar" para evitar duplicação */}
 
         {/* Newsletter / Public Registration */}
         <section className="mb-12">
