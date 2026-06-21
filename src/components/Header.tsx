@@ -409,7 +409,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                         aria-label={roleLabel}
                       />
                     </div>
-                    <span className="hidden xs:inline truncate max-w-[80px] sm:max-w-[120px]">{firstName}</span>
+                    <span className="hidden min-[420px]:inline truncate max-w-[80px] sm:max-w-[120px]">{firstName}</span>
                     <ChevronDown className="h-3.5 w-3.5 opacity-70" />
                   </Button>
                 </DropdownMenuTrigger>
