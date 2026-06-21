@@ -1271,8 +1271,6 @@ function buildUberLink(ev: Event): string {
        )}
      </main>
 
-        <SiteFooter className="mt-32" />
-
         {/* Personalização */}
         <Onboarding />
         <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
