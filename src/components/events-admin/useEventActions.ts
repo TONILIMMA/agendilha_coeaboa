@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { openWhatsappNotification } from "@/lib/notifications";
-import type { Submission } from "./types";
+import type { EditorialStatus, Submission } from "./types";
 
 interface Options {
   userId: string | undefined;
@@ -66,5 +66,48 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
     }
   }, [setSubmissions, logAudit, submissions]);
 
-  return { handleSoftDelete, handleRestore, handlePermanentDelete, handleHighlightToggle, handleStatusChange };
+  const handleEditorialChange = useCallback(async (
+    id: string,
+    newStatus: EditorialStatus,
+    extra: Partial<Submission> = {},
+  ) => {
+    const prev = submissions.find(s => s.id === id);
+    const patch: any = { editorial_status: newStatus, ...extra };
+    // Optimistic update
+    setSubmissions(curr => curr.map(s => s.id === id ? { ...s, ...patch } : s));
+    const { error } = await supabase.from("submissions").update(patch).eq("id", id);
+    if (error) {
+      toast.error(error.message || "Erro ao atualizar etapa");
+      if (prev) setSubmissions(curr => curr.map(s => s.id === id ? prev : s));
+      return false;
+    }
+    toast.success("Etapa atualizada!");
+    await logAudit(id, `editorial:${newStatus}`, extra.rejection_reason || extra.scheduled_channel || undefined);
+    return true;
+  }, [setSubmissions, submissions, logAudit]);
+
+  const handleLogPublication = useCallback(async (
+    id: string, channel: string,
+  ) => {
+    if (!userId) return false;
+    const sub = submissions.find(s => s.id === id);
+    const channels = Array.from(new Set([...(sub?.published_channels || []), channel]));
+    setSubmissions(curr => curr.map(s => s.id === id ? { ...s, published_channels: channels, editorial_status: "publicado" } : s));
+    const { error: upErr } = await supabase.from("submissions").update({
+      published_channels: channels, editorial_status: "publicado",
+    } as any).eq("id", id);
+    if (upErr) { toast.error(upErr.message); return false; }
+    await supabase.from("event_publication_log").insert({
+      event_id: id, channel, responsible_id: userId, published_at: new Date().toISOString(),
+    } as any);
+    await logAudit(id, `published:${channel}`);
+    toast.success(`Publicado em ${channel}!`);
+    return true;
+  }, [userId, submissions, setSubmissions, logAudit]);
+
+  return {
+    handleSoftDelete, handleRestore, handlePermanentDelete,
+    handleHighlightToggle, handleStatusChange,
+    handleEditorialChange, handleLogPublication,
+  };
 }
