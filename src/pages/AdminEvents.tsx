@@ -562,9 +562,28 @@ export default function AdminEvents() {
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                     {/* Informações Principais */}
                      <div className="col-span-3 space-y-2">
-                       <div className="flex items-start gap-2">
-                         {sub.is_highlight && <Star className="h-4 w-4 text-amber-500 fill-amber-500 shrink-0 mt-1" />}
-                         <h3 className="font-black text-lg text-foreground leading-tight tracking-tight">{sub.event_title}</h3>
+                       <div className="flex items-start gap-3">
+                         {sub.image_url ? (
+                           <img
+                             src={sub.image_url}
+                             alt={sub.event_title}
+                             loading="lazy"
+                             className="h-14 w-14 rounded-lg object-cover ring-1 ring-border shrink-0"
+                           />
+                         ) : (
+                           <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                             <CalendarDays className="h-5 w-5 text-muted-foreground/40" />
+                           </div>
+                         )}
+                         <div className="min-w-0 flex-1">
+                           <div className="flex items-start gap-1.5">
+                             {sub.is_highlight && <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 shrink-0 mt-1" />}
+                             <h3 className="font-black text-base text-foreground leading-tight tracking-tight line-clamp-2">{sub.event_title}</h3>
+                           </div>
+                           <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 truncate">
+                             por {sub.company_name || sub.responsible_name || "—"}
+                           </p>
+                         </div>
                        </div>
                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                          <Badge variant="secondary" className="text-[10px] font-bold bg-primary/10 text-primary border-none uppercase tracking-wider">
@@ -603,7 +622,7 @@ export default function AdminEvents() {
                          </div>
                          <div className="flex items-center gap-2 text-xs font-bold text-primary mt-2 ml-0.5">
                            <Clock className="h-3.5 w-3.5" />
-                           {sub.start_time || '--:--'}
+                           {sub.start_time || '--:--'}{sub.end_time ? ` – ${sub.end_time}` : ''}
                          </div>
                        </div>
                      </div>
