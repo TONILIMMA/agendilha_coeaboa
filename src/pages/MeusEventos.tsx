@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubmissions } from "@/data";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -71,25 +71,16 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function MeusEventos() {
   const { user } = useAuth();
-  const [rows, setRows] = useState<Row[]>([]);
-  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<StatusKey>("todos");
 
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from("submissions")
-        .select(
-          "id, event_title, date, start_time, status, rejection_reason, admin_notes, approved_at, image_url, slug, created_at"
-        )
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      setRows((data as Row[]) || []);
-      setLoading(false);
-    })();
-  }, [user]);
+  const { data: rows = [], isLoading: loading } = useSubmissions<Row>(
+    {
+      select:
+        "id, event_title, date, start_time, status, rejection_reason, admin_notes, approved_at, image_url, slug, created_at",
+      eq: user ? { user_id: user.id } : undefined,
+    },
+    { enabled: !!user }
+  );
 
   const counts = useMemo(() => {
     const c = { todos: rows.length, pendente: 0, aprovado: 0, rejeitado: 0 } as Record<StatusKey, number>;
