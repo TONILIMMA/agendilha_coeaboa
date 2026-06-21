@@ -938,6 +938,15 @@ export default function AdminUsers() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56">
                         <DropdownMenuSeparator />
+                        {u.phone && isValidBrazilianMobile(u.phone) && (
+                          <>
+                            <DropdownMenuItem onClick={() => window.open(buildWhatsappUrl(u.phone!, `Olá ${u.responsible_name || ''}!`), '_blank')} className="text-emerald-600 font-semibold">
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              Falar no WhatsApp
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                          </>
+                        )}
                         <DropdownMenuItem disabled className="text-[10px] font-bold uppercase tracking-wider opacity-50">Alterar Tipo</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => updateUserType(u, 'usuario')}>Tornar Usuário</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => updateUserType(u, 'promotor')}>Tornar Promotor</DropdownMenuItem>
