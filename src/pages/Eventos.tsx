@@ -241,8 +241,8 @@ export default function Eventos() {
       </div>
 
       <Card className="mb-5 border-border">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+        <CardContent className="p-3 sm:p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-2 sm:gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -253,7 +253,7 @@ export default function Eventos() {
               />
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-[180px] h-10">
+              <SelectTrigger className="w-full sm:w-[170px] h-10">
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
@@ -264,7 +264,7 @@ export default function Eventos() {
               </SelectContent>
             </Select>
             <Select value={editorialFilter} onValueChange={setEditorialFilter}>
-              <SelectTrigger className="w-full sm:w-[200px] h-10">
+              <SelectTrigger className="w-full sm:w-[190px] h-10">
                 <SelectValue placeholder="Etapa editorial" />
               </SelectTrigger>
               <SelectContent>
