@@ -67,17 +67,7 @@ export function AppShell({
         </main>
 
         {/* Footer */}
-        <footer className="w-full py-8 px-4 border-t border-border mt-auto bg-muted/30">
-          <div className={cn("mx-auto flex flex-col md:flex-row justify-between items-center gap-4", maxWidthClasses[maxWidth])}>
-            <div className="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-              <span className="font-display text-sm font-black text-primary tracking-tight">AgendIlha</span>
-              <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Coé a Boa?</span>
-            </div>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60 text-center md:text-left">
-              © {new Date().getFullYear()} AgendIlha · Transparência e Cultura
-            </p>
-          </div>
-        </footer>
+        <SiteFooter variant="muted" className="mt-auto" />
       </div>
 
       {/* Mobile Menu Drawer */}
