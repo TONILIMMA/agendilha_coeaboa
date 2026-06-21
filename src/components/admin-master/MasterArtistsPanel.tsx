@@ -321,12 +321,12 @@ function ArtistDetailSheet({
                   <DetailRow
                     icon={UserIcon}
                     label="Nome completo / responsável"
-                    value={artist.representative_name || "—"}
+                    value={privateContacts?.representative_name || "—"}
                   />
                   <DetailRow
                     icon={Phone}
                     label="Telefone"
-                    value={artist.whatsapp || artist.representative_phone || "—"}
+                    value={artist.whatsapp || privateContacts?.representative_phone || "—"}
                   />
                   <DetailRow icon={AtSign} label="Instagram" value={artist.instagram || "—"} />
                   <div>
