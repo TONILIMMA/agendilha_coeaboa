@@ -87,6 +87,7 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { callEdge } from "@/lib/edge";
 
 type UserStatus = "master" | "admin" | "collaborator" | "user" | "artist";
 type UserCategory = "usuario" | "promotor" | "divulgador" | "estabelecimento";
@@ -328,28 +329,7 @@ export default function AdminUsers() {
     }
     setSavingEdit(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        toast.error("Sessão expirada.");
-        setSavingEdit(false);
-        return;
-      }
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-user`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({ user_id: targetUser.id, responsible_name: trimmed }),
-        }
-      );
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err?.error || `Erro ${response.status}`);
-      }
+      await callEdge("update-user", { user_id: targetUser.id, responsible_name: trimmed });
       toast.success("Nome atualizado");
       cancelEdit();
       await fetchUsers();
@@ -362,32 +342,8 @@ export default function AdminUsers() {
   async function fetchUsers() {
     setLoading(true);
     try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session?.access_token) {
-        toast.error("Sessão expirada. Faça login novamente.");
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-users`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err?.error || `Erro ${response.status}`);
-      }
-
-      const data = await response.json();
-      setUsers(data as UserWithRole[]);
+      const data = await callEdge<UserWithRole[]>("list-users");
+      setUsers(data);
     } catch (err: any) {
       toast.error(err.message || "Erro ao carregar usuários");
     }
@@ -477,31 +433,7 @@ export default function AdminUsers() {
     }
     setDeleting(targetUser.id);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        toast.error("Sessão expirada.");
-        setDeleting(null);
-        return;
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({ user_id: targetUser.id }),
-        }
-      );
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err?.error || `Erro ${response.status}`);
-      }
-
+      await callEdge("delete-user", { user_id: targetUser.id });
       toast.success(`Usuário ${targetUser.responsible_name || "removido"} excluído com sucesso`);
       await fetchUsers();
     } catch (err: any) {
@@ -513,26 +445,13 @@ export default function AdminUsers() {
   async function resetPassword(targetUser: UserWithRole) {
     setResetting(targetUser.id);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        toast.error("Sessão expirada.");
-        setResetting(null);
-        return;
-      }
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-reset-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({ user_id: targetUser.id }),
-        }
-      );
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data?.error || `Erro ${response.status}`);
+      const data = await callEdge<{
+        tempPassword: string;
+        whatsappUrl: string | null;
+        phone: string | null;
+        phoneIsValid: boolean;
+        recipientName: string | null;
+      }>("admin-reset-password", { user_id: targetUser.id });
       const recipientName: string | null =
         data.recipientName ?? targetUser.responsible_name ?? null;
       const message = buildTempPasswordMessage({

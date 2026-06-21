@@ -23,6 +23,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { MasterPanel } from "@/components/admin-dashboard/AdminDashboard";
+import { callEdge } from "@/lib/edge";
 
 interface AdminUser {
   id: string;
@@ -44,22 +45,7 @@ export default function AdminMaster() {
   async function loadAll() {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) return;
-
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-users`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-        }
-      );
-      if (!res.ok) throw new Error("Falha ao carregar usuários");
-      const usersList: any[] = await res.json();
+      const usersList = await callEdge<AdminUser[]>("list-users");
 
       const { data: roles } = await supabase.from("user_roles").select("user_id, role");
       const adminsCount = (roles ?? []).filter(r => r.role === 'admin' || r.role === 'master').length;
@@ -95,29 +81,11 @@ export default function AdminMaster() {
   async function bootstrapToniLima() {
     setBootstrapping(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error("Sessão expirada");
-
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/bootstrap-master`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({
-            name: "TONI LIMA",
-            phone: "21998554322",
-            password: "Master@2025",
-          }),
-        }
-      );
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error || "Falha ao cadastrar");
-      }
+      await callEdge("bootstrap-master", {
+        name: "TONI LIMA",
+        phone: "21998554322",
+        password: "Master@2025",
+      });
       toast.success("TONI LIMA cadastrado como Admin Master!");
       loadAll();
     } catch (e) {
