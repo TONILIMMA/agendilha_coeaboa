@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { formatBrazilianDate, formatLongDate } from "@/lib/date-utils";
  import { exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
 import { toast } from "sonner";
-import { SiteFooter } from "@/components/layout/SiteFooter";
 
 const categoryLabels: Record<string, string> = {
   musica: "🎵 Música / Show",
@@ -281,7 +280,6 @@ export default function CoeABoa() {
         )}
       </div>
 
-      <SiteFooter />
     </div>
   );
 }

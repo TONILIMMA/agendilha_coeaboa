@@ -27,7 +27,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
  import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
-import { SiteFooter } from "@/components/layout/SiteFooter";
 import EventReviews from "@/components/EventReviews";
 import { getShareData, getShareUrl, buildFullAddress } from "@/lib/sharing";
 
@@ -1271,8 +1270,6 @@ function buildUberLink(ev: Event): string {
        )}
      </main>
 
-        <SiteFooter className="mt-32" />
-
         {/* Personalização */}
         <Onboarding />
         <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
@@ -1538,7 +1535,6 @@ function buildUberLink(ev: Event): string {
             )}
           </DialogContent>
         </Dialog>
-       <SiteFooter className="mt-20" />
     </div>
   );
 }
