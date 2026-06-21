@@ -210,11 +210,47 @@ export default function SubmissionForm() {
         imageUrl = publicUrl;
       }
 
-      const result = await addSubmission({
-        ...values,
-        image_url: imageUrl,
+      // Map camelCase form fields → snake_case DB columns
+      const payload: any = {
+        company_name: values.companyName,
+        responsible_name: values.nickName,
+        email: values.email || null,
+        phone: values.basicPhone,
+        event_title: values.eventTitle || values.atrativoName,
+        date: values.date,
+        start_time: values.startTime,
+        end_time: values.endTime || null,
+        location: values.locationName,
+        address_street: values.addressStreet || null,
+        address_number: values.addressNumber || null,
+        address_neighborhood: values.addressNeighborhood || null,
+        address_city: values.addressCity || null,
+        address_state: values.addressState || null,
+        address_zip: values.addressZip || null,
+        description: values.description || null,
+        video_link: values.videoLink || null,
+        category: values.category,
+        contact_social: values.contactSocial || null,
+        additional_details: values.additionalDetails || null,
+        stage: values.stage || 'submitted',
+        responsible_person: values.responsiblePerson || null,
+        atrativo_name: values.atrativoName,
+        atrativo_type: values.atrativoType,
+        atrativo_style: values.atrativoStyle || null,
+        atrativo_contact: values.atrativoContact || null,
+        location_type: values.locationType,
+        location_contact: values.locationContact || null,
+        legal_acceptance: values.legalAcceptance,
+        legal_acceptance_date: values.legalAcceptance ? new Date().toISOString() : null,
+        age_rating: values.ageRating,
+        is_suitable_for_minors: values.isSuitableForMinors,
+        image_url: imageUrl || null,
+        image_url_story: values.eventImageUrlStory || null,
+        image_url_whatsapp: values.eventImageUrlWhatsapp || null,
         status: 'pendente',
-      } as any);
+      };
+
+      const result = await addSubmission(payload as any);
 
       if (!result) return; // toast already shown by ctx
 
@@ -225,6 +261,23 @@ export default function SubmissionForm() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const onInvalid = (errors: any) => {
+    const firstKey = Object.keys(errors)[0];
+    const firstMsg = errors[firstKey]?.message || "Verifique os campos obrigatórios";
+    toast.error("Não foi possível finalizar o envio", { description: String(firstMsg) });
+    // Jump to the first step that has an error
+    const stepMap: Record<string, number> = {
+      nickName: 1, basicPhone: 1,
+      companyName: 2, email: 2, addressZip: 2, addressStreet: 2, addressNumber: 2,
+      category: 3, eventTitle: 3, date: 3, startTime: 3, endTime: 3,
+      atrativoName: 4, atrativoType: 4, atrativoStyle: 4, atrativoDescription: 4, atrativoContact: 4,
+      locationName: 5, eventAddress: 5, locationType: 5, locationContact: 5,
+      legalAcceptance: 7,
+    };
+    const target = stepMap[firstKey];
+    if (target) setCurrentStep(target);
   };
 
   const resetDraft = () => {
@@ -266,7 +319,7 @@ export default function SubmissionForm() {
       </div>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-8">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8 mt-8">
           {currentStep === 1 && <ContactStep form={form} />}
           {currentStep === 2 && <ProfessionalStep form={form} />}
           {currentStep === 3 && <EventStep form={form} />}
