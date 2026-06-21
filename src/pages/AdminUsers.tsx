@@ -58,7 +58,10 @@ import {
   Share2,
   Search,
   Filter,
-  Calendar
+  Calendar,
+  MessageSquare,
+  ShieldAlert,
+  UserCheck
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
