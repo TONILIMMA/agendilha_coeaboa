@@ -11,6 +11,7 @@ import { useUserBadge } from "@/hooks/useUserBadge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubmissions } from "@/contexts/SubmissionContext";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
+import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export function SidebarMenu({ onClose }: Props) {
   const { isMaster, isAdmin, isPromoter, loading: permsLoading } = useAppPermissions();
   const { savedCount } = useSubmissions();
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
+  const pendingCount = usePendingSubmissionsCount(isAdmin || isMaster);
 
   const getCurrentRole = (): Role => {
     if (!user) return "public_guest";
@@ -127,6 +129,7 @@ export function SidebarMenu({ onClose }: Props) {
                   pathname={pathname}
                   fullPath={fullPath}
                   savedCount={savedCount}
+                  pendingCount={pendingCount}
                   openSubmenus={openSubmenus}
                   toggleSubmenu={toggleSubmenu}
                   onClose={onClose}
@@ -176,6 +179,7 @@ function SidebarNavigationItem({
   pathname, 
   fullPath, 
   savedCount, 
+  pendingCount,
   openSubmenus, 
   toggleSubmenu, 
   onClose,
@@ -186,6 +190,7 @@ function SidebarNavigationItem({
   pathname: string;
   fullPath: string;
   savedCount: number;
+  pendingCount: number;
   openSubmenus: Record<string, boolean>;
   toggleSubmenu: (id: string) => void;
   onClose?: () => void;
@@ -209,7 +214,10 @@ function SidebarNavigationItem({
   }, [pathname, item.id, hasChildren]);
 
   const isOpen = openSubmenus[item.id];
-  const itemBadge = item.id === "my_submissions" && savedCount > 0 ? savedCount : item.badge;
+  let itemBadge: string | number | undefined = item.badge;
+  if (item.id === "my_submissions" && savedCount > 0) itemBadge = savedCount;
+  if (item.id === "manage_events" && pendingCount > 0) itemBadge = pendingCount;
+  const isPending = item.id === "manage_events" && pendingCount > 0;
 
   return (
     <div className="w-full">
@@ -244,7 +252,15 @@ function SidebarNavigationItem({
           <Icon className={cn("h-4 w-4 shrink-0 transition-all duration-300", isActive ? "text-primary-foreground" : "text-primary group-hover:scale-110")} />
           <span className={cn("text-sm flex-1 tracking-tight font-medium", depth > 0 ? "text-xs" : "text-sm")}>{item.label}</span>
           {itemBadge && (
-            <Badge variant={isActive ? "secondary" : "default"} className="h-5 min-w-[20px] px-1.5 bg-primary/20 text-primary border-none text-[10px] font-bold">
+            <Badge
+              variant={isActive ? "secondary" : "default"}
+              className={cn(
+                "h-5 min-w-[20px] px-1.5 border-none text-[10px] font-bold",
+                isPending
+                  ? "bg-amber-500 text-white animate-pulse-slow shadow-sm"
+                  : "bg-primary/20 text-primary"
+              )}
+            >
               {itemBadge}
             </Badge>
           )}
@@ -264,6 +280,7 @@ function SidebarNavigationItem({
               pathname={pathname}
               fullPath={fullPath}
               savedCount={savedCount}
+              pendingCount={pendingCount}
               openSubmenus={openSubmenus}
               toggleSubmenu={toggleSubmenu}
               onClose={onClose}
@@ -274,4 +291,24 @@ function SidebarNavigationItem({
       )}
     </div>
   );
+}
+
+// Hook: contagem de eventos pendentes para o badge da sidebar.
+function usePendingSubmissionsCount(enabled: boolean) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!enabled) { setCount(0); return; }
+    let cancelled = false;
+    const load = async () => {
+      const { count: c } = await supabase
+        .from("submissions")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pendente");
+      if (!cancelled && typeof c === "number") setCount(c);
+    };
+    load();
+    const interval = setInterval(load, 60_000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [enabled]);
+  return count;
 }
