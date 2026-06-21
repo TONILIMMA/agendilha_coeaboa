@@ -16,7 +16,6 @@ import { ROUTES } from "@/routes/config";
 
 // Critical (above-the-fold) — keep eager
 import Landing from "./pages/Landing";
-import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 // Lazy-loaded routes (code-split)
