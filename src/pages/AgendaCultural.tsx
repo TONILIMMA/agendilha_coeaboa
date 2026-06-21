@@ -27,6 +27,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
  import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 import EventReviews from "@/components/EventReviews";
 import { getShareData, getShareUrl, buildFullAddress } from "@/lib/sharing";
 
@@ -1270,27 +1271,7 @@ function buildUberLink(ev: Event): string {
        )}
      </main>
 
-        <footer className="mt-32 py-24 border-t border-border/40 text-center bg-card/30 backdrop-blur-sm space-y-8 rounded-t-[3rem]">
-          <div className="flex flex-col items-center gap-8">
-            <div className="inline-flex items-center gap-4 px-8 py-5 rounded-[2.5rem] glass border border-white/20 shadow-glass group transition-all hover:scale-105">
-              <img src={logoCoeABoa} alt="Coé a Boa?" className="h-12 w-12 sm:h-14 sm:w-14 rounded-full ring-2 ring-primary/20 shadow-sm group-hover:rotate-12 transition-transform" />
-              <div className="flex flex-col items-start leading-none gap-1">
-                <div className="flex items-center gap-2.5">
-                  <span className="font-display text-2xl sm:text-3xl font-black text-primary tracking-tight">AgendIlha</span>
-                  <span className="h-2 w-2 rounded-full bg-secondary/40" />
-                  <span className="font-display text-lg sm:text-xl font-bold text-secondary tracking-tight">Coé a Boa?</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="text-[10px] sm:text-[11px] text-muted-foreground/50 font-mono uppercase tracking-[0.5em] py-4 border-y border-border/30 inline-block px-10">
-              © {new Date().getFullYear()} — Ilha do Governador, RJ
-            </div>
-            <div className="mt-4 text-[11px] text-muted-foreground/70 font-medium">
-              ©2026 criado por <span className="font-bold text-foreground">TONI LIMA</span> — <a href="https://vexo-sistemas.lovable.app" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors hover:underline">Vexo Sistemas</a>
-            </div>
-          </div>
-        </footer>
+        <SiteFooter className="mt-32" />
 
         {/* Personalização */}
         <Onboarding />
@@ -1557,21 +1538,7 @@ function buildUberLink(ev: Event): string {
             )}
           </DialogContent>
         </Dialog>
-       <footer className="py-12 px-6 border-t border-border/40 bg-card/30 mt-20">
-         <div className="mx-auto max-w-4xl flex flex-col items-center gap-6">
-           <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-white/50 backdrop-blur-sm border border-white/20 shadow-sm">
-             <img src={logoCoeABoa} alt="AgendIlha" className="h-6 w-6 rounded-full" />
-             <div className="flex items-center gap-2 leading-none">
-               <span className="font-display text-sm font-black text-primary tracking-tight">AgendIlha</span>
-               <span className="h-1 w-1 rounded-full bg-secondary/40" />
-               <span className="font-display text-xs font-bold text-secondary tracking-tight">Coé a Boa?</span>
-             </div>
-           </div>
-           <p className="text-[10px] text-muted-foreground/50 font-mono uppercase tracking-[0.3em]">
-             © {new Date().getFullYear()} — Ilha do Governador, RJ
-           </p>
-         </div>
-       </footer>
+       <SiteFooter className="mt-20" />
     </div>
   );
 }
