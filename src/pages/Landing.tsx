@@ -42,6 +42,7 @@ import { PersonalizationDialog } from "@/components/PersonalizationDialog";
 import { ShareDialog } from "@/components/ShareDialog";
 import { getShareData } from "@/lib/sharing";
 import { Settings2 } from "lucide-react";
+import { newsletterSubscribeSchema } from "@/schemas/newsletter";
 
 const sitelinks = [
   { href: "#oferecemos", label: "O que oferecemos" },
@@ -156,25 +157,29 @@ export default function Landing() {
 
   const handleNewsletterSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!subscriberPhone) return;
-    
-    if (!whatsappConsent) {
-      toast.error("É necessário autorizar o contato pelo WhatsApp.");
+
+    const parsed = newsletterSubscribeSchema.safeParse({
+      phone: subscriberPhone,
+      name: subscriberName,
+      neighborhood: subscriberNeighborhood,
+      whatsappConsent,
+    });
+
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos");
       return;
     }
 
+    const { phone, name, neighborhood } = parsed.data;
     setIsSubmitting(true);
     try {
-      // Standardize phone
-      const cleanPhone = subscriberPhone.replace(/\D/g, "");
-      
       const { error } = await supabase
         .from("newsletter_subscribers")
-        .insert({ 
-          email: `${cleanPhone}@whatsapp.agendilha.app`,
-          name: subscriberName,
-          neighborhood: subscriberNeighborhood || null
-        } as any); // Cast to any to avoid strict type mismatch with existing supabase types
+        .insert({
+          email: `${phone}@whatsapp.agendilha.app`,
+          name: name || null,
+          neighborhood: neighborhood || null,
+        });
 
       if (error) {
         if (error.code === "23505") {
