@@ -299,43 +299,37 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
    return (
      <TooltipProvider delayDuration={200}>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 gap-2">
-          {/* Left: Brand + date */}
-          <div className="flex items-center gap-3">
-             {/* Mobile menu trigger - Always show trigger */}
-             <div className="flex items-center">
-               <Button 
-                 variant="ghost" 
-                 size="icon" 
-                 onClick={handleMobileMenu} 
-                 className="h-10 w-10 text-primary hover:bg-primary/5 active:scale-90 transition-all"
-               >
-                 <Menu className="h-6 w-6" />
-               </Button>
-             </div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          {/* Row 1: menu + brand + user */}
+          <div className="flex h-16 items-center justify-between gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleMobileMenu}
+                className="h-10 w-10 text-primary hover:bg-primary/5 active:scale-90 transition-all shrink-0"
+                aria-label="Abrir menu"
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
 
-             <div className="flex items-center gap-2">
-               {/* Brand: Always show brand to avoid empty header on desktop for admins */}
-               <div className="flex items-center gap-2 transition-all duration-300">
-                 <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                   <img src={logoCoeABoa} alt="AgendIlha" className="h-7 w-7 rounded-full shadow-sm" />
-                   <div className="flex flex-col leading-none">
-                     <span className="font-display text-base sm:text-lg font-black text-primary tracking-tight">AgendIlha</span>
-                     <span className="text-[8px] text-secondary font-black uppercase tracking-widest opacity-80">Coé a Boa?</span>
-                   </div>
-                 </Link>
-               </div>
-               
-               <div className="hidden sm:flex flex-col ml-2">
-                 <span className="text-[10px] text-muted-foreground capitalize leading-none mb-0.5">{currentDate}</span>
-                 {isAdminArea && <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />}
-               </div>
-             </div>
-          </div>
+              <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
+                <img src={logoCoeABoa} alt="AgendIlha" className="h-8 w-8 sm:h-9 sm:w-9 rounded-full shadow-sm shrink-0" />
+                <div className="flex flex-col leading-none min-w-0">
+                  <span className="font-display text-base sm:text-lg font-black text-primary tracking-tight truncate">AgendIlha</span>
+                  <span className="text-[8px] sm:text-[9px] text-secondary font-black uppercase tracking-widest opacity-80">Coé a Boa?</span>
+                </div>
+              </Link>
 
+              {/* Desktop-only inline date + role */}
+              <div className="hidden md:flex flex-col ml-3">
+                <span className="text-[10px] text-muted-foreground capitalize leading-none mb-1">{currentDate}</span>
+                {isAdminArea && <RoleBadge status={status} isAdmin={isAdmin} perms={perms} />}
+              </div>
+            </div>
 
-          {/* Right actions - hide specific ones on public agenda */}
-          {user && !isAgenda && (() => {
+            {/* Right (row 1): user dropdown only on mobile, full actions on sm+ */}
+            {user && !isAgenda && (() => {
             // Use centralized name resolution from useUserBadge (profile → company → collaborator → metadata → email/phone)
             const fullName = badgeName && badgeName !== "Usuário" ? badgeName : "Divulgador";
             const firstName = fullName.split(" ")[0];
@@ -357,8 +351,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
 
             return (
              <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-
-              {/* Envios */}
+              {/* Envios — desktop/tablet only */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div>
@@ -367,7 +360,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                         size="sm"
                        variant="ghost"
                        aria-label="Ver meus envios"
-                       className="text-foreground/70 hover:text-foreground hover:bg-foreground/5 font-medium text-xs sm:text-sm px-2 sm:px-3"
+                       className="hidden sm:inline-flex text-foreground/70 hover:text-foreground hover:bg-foreground/5 font-medium text-xs sm:text-sm px-2 sm:px-3"
                      >
                        <ClipboardList className="h-4 w-4 mr-1.5" />
                        <span className="hidden sm:inline">Envios</span>
@@ -383,12 +376,12 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                 <TooltipContent>Meus envios e rascunhos</TooltipContent>
               </Tooltip>
 
-               {/* Enviar Evento CTA */}
+               {/* Enviar Evento CTA — desktop/tablet only */}
                {(isAdmin || perms.isCollaborator) && (
                  <Button 
                    size="sm" 
                    onClick={() => navigate("/enviar-evento")} 
-                   className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight shadow-none text-xs sm:text-sm px-4 sm:px-5 h-9"
+                   className="hidden sm:inline-flex rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight shadow-none text-xs sm:text-sm px-4 sm:px-5 h-9"
                  >
                    <Megaphone className="h-4 w-4 sm:mr-1.5" />
                    <span className="hidden sm:inline">Divulgar evento</span>
@@ -416,7 +409,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                         aria-label={roleLabel}
                       />
                     </div>
-                    <span className="truncate max-w-[80px] sm:max-w-[120px]">{firstName}</span>
+                    <span className="hidden min-[420px]:inline truncate max-w-[80px] sm:max-w-[120px]">{firstName}</span>
                     <ChevronDown className="h-3.5 w-3.5 opacity-70" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -469,6 +462,46 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
             );
           })()}
+          </div>
+
+          {/* Row 2 (mobile only): date + role + secondary actions */}
+          {user && !isAgenda && (
+            <div className="md:hidden flex items-center justify-between gap-2 pb-2.5 pt-0.5">
+              <div className="flex flex-col min-w-0">
+                <span className="text-[10px] text-muted-foreground capitalize leading-tight truncate">{currentDate}</span>
+                {isAdminArea && (
+                  <div className="mt-1"><RoleBadge status={status} isAdmin={isAdmin} perms={perms} /></div>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <SubmissionsPanel>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    aria-label="Ver meus envios"
+                    className="h-9 px-2.5 text-foreground/70 hover:text-foreground hover:bg-foreground/5 font-medium text-xs"
+                  >
+                    <ClipboardList className="h-4 w-4" />
+                    {savedCount > 0 && (
+                      <Badge variant="secondary" className="ml-1 text-[10px] font-medium bg-foreground/10 text-foreground border-none">
+                        {savedCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SubmissionsPanel>
+                {(isAdmin || perms.isCollaborator) && (
+                  <Button
+                    size="sm"
+                    onClick={() => navigate("/enviar-evento")}
+                    className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight shadow-none text-xs px-3.5 h-9"
+                  >
+                    <Megaphone className="h-3.5 w-3.5 mr-1" />
+                    Divulgar
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </header>
       {/* Decorative pumpkin/terracotta strip below the header */}
