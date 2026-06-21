@@ -74,6 +74,7 @@ interface Submission {
   long_copy?: string;
   approved_at?: string;
   published_at?: string;
+  image_url?: string | null;
 }
 
  const categoryLabels: Record<string, string> = {
@@ -415,19 +416,75 @@ export default function AdminEvents() {
          </div>
 
          {/* KPIs */}
-         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-              {[
-                { label: 'Total', value: kpis.total, color: 'text-slate-600', bg: 'bg-white' },
-                { label: 'Pendentes', value: kpis.pending, color: 'text-amber-600', bg: 'bg-white' },
-                { label: 'Aprovados', value: kpis.approved, color: 'text-emerald-600', bg: 'bg-white' },
-                { label: 'Rejeitados', value: kpis.rejected, color: 'text-rose-600', bg: 'bg-white' },
-              ].map((kpi) => (
-             <Card key={kpi.label} className={`${kpi.bg} border-none shadow-sm hover:shadow-md transition-all`}>
-               <CardContent className="p-4">
-                 <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">{kpi.label}</p>
-                 <p className={`text-3xl font-black ${kpi.color} mt-1`}>{kpi.value}</p>
-               </CardContent>
-             </Card>
+         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+           {/* Pendentes — destaque âmbar com alerta quando > 0 */}
+           <Card
+             onClick={() => setStatusFilter('pendente')}
+             className={cn(
+               "cursor-pointer border-2 transition-all shadow-sm hover:shadow-md",
+               kpis.pending > 0
+                 ? "bg-amber-50 border-amber-400 ring-2 ring-amber-200 animate-pulse"
+                 : "bg-white border-transparent"
+             )}
+           >
+             <CardContent className="p-4 flex items-start justify-between gap-2">
+               <div>
+                 <p className="text-[10px] font-black uppercase text-amber-700 tracking-wider flex items-center gap-1.5">
+                   {kpis.pending > 0 && <AlertCircle className="h-3.5 w-3.5" />} Pendentes
+                 </p>
+                 <p className="text-3xl font-black text-amber-600 mt-1">{kpis.pending}</p>
+                 {kpis.pending > 0 && (
+                   <p className="text-[10px] text-amber-700/80 font-bold mt-1">Aguardando curadoria</p>
+                 )}
+               </div>
+               <Clock3 className="h-5 w-5 text-amber-500 mt-1" />
+             </CardContent>
+           </Card>
+           <Card onClick={() => setStatusFilter('aprovado')} className="cursor-pointer bg-white border-none shadow-sm hover:shadow-md transition-all">
+             <CardContent className="p-4">
+               <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">Aprovados</p>
+               <p className="text-3xl font-black text-emerald-600 mt-1">{kpis.approved}</p>
+             </CardContent>
+           </Card>
+           <Card onClick={() => setStatusFilter('rejeitado')} className="cursor-pointer bg-white border-none shadow-sm hover:shadow-md transition-all">
+             <CardContent className="p-4">
+               <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">Rejeitados</p>
+               <p className="text-3xl font-black text-rose-600 mt-1">{kpis.rejected}</p>
+             </CardContent>
+           </Card>
+           <Card onClick={() => setStatusFilter('all')} className="cursor-pointer bg-white border-none shadow-sm hover:shadow-md transition-all">
+             <CardContent className="p-4">
+               <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">Total</p>
+               <p className="text-3xl font-black text-slate-600 mt-1">{kpis.total}</p>
+             </CardContent>
+           </Card>
+         </div>
+
+         {/* Filtros rápidos */}
+         <div className="mb-4 flex flex-wrap items-center gap-2">
+           <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mr-1">Filtro rápido:</span>
+           {[
+             { key: 'all',       label: 'Todos',     count: kpis.total },
+             { key: 'pendente',  label: 'Pendente',  count: kpis.pending,  cls: 'border-amber-300 data-[active=true]:bg-amber-500 data-[active=true]:text-white data-[active=true]:border-amber-500' },
+             { key: 'aprovado',  label: 'Aprovado',  count: kpis.approved, cls: 'border-emerald-300 data-[active=true]:bg-emerald-500 data-[active=true]:text-white data-[active=true]:border-emerald-500' },
+             { key: 'rejeitado', label: 'Rejeitado', count: kpis.rejected, cls: 'border-rose-300 data-[active=true]:bg-rose-500 data-[active=true]:text-white data-[active=true]:border-rose-500' },
+           ].map((chip) => (
+             <button
+               key={chip.key}
+               data-active={statusFilter === chip.key}
+               onClick={() => setStatusFilter(chip.key)}
+               className={cn(
+                 "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition-all",
+                 "bg-white text-foreground hover:bg-muted",
+                 "data-[active=true]:shadow-sm",
+                 chip.cls || "data-[active=true]:bg-foreground data-[active=true]:text-background data-[active=true]:border-foreground"
+               )}
+             >
+               {chip.label}
+               <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-black/5 text-[10px] font-black">
+                 {chip.count}
+               </span>
+             </button>
            ))}
          </div>
 
@@ -505,9 +562,28 @@ export default function AdminEvents() {
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                     {/* Informações Principais */}
                      <div className="col-span-3 space-y-2">
-                       <div className="flex items-start gap-2">
-                         {sub.is_highlight && <Star className="h-4 w-4 text-amber-500 fill-amber-500 shrink-0 mt-1" />}
-                         <h3 className="font-black text-lg text-foreground leading-tight tracking-tight">{sub.event_title}</h3>
+                       <div className="flex items-start gap-3">
+                         {sub.image_url ? (
+                           <img
+                             src={sub.image_url}
+                             alt={sub.event_title}
+                             loading="lazy"
+                             className="h-14 w-14 rounded-lg object-cover ring-1 ring-border shrink-0"
+                           />
+                         ) : (
+                           <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                             <CalendarDays className="h-5 w-5 text-muted-foreground/40" />
+                           </div>
+                         )}
+                         <div className="min-w-0 flex-1">
+                           <div className="flex items-start gap-1.5">
+                             {sub.is_highlight && <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 shrink-0 mt-1" />}
+                             <h3 className="font-black text-base text-foreground leading-tight tracking-tight line-clamp-2">{sub.event_title}</h3>
+                           </div>
+                           <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 truncate">
+                             por {sub.company_name || sub.responsible_name || "—"}
+                           </p>
+                         </div>
                        </div>
                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                          <Badge variant="secondary" className="text-[10px] font-bold bg-primary/10 text-primary border-none uppercase tracking-wider">
@@ -546,7 +622,7 @@ export default function AdminEvents() {
                          </div>
                          <div className="flex items-center gap-2 text-xs font-bold text-primary mt-2 ml-0.5">
                            <Clock className="h-3.5 w-3.5" />
-                           {sub.start_time || '--:--'}
+                           {sub.start_time || '--:--'}{sub.end_time ? ` – ${sub.end_time}` : ''}
                          </div>
                        </div>
                      </div>
@@ -661,6 +737,23 @@ export default function AdminEvents() {
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>Ver Página Pública</TooltipContent>
+                          </Tooltip>
+                        )}
+
+                        {/* Divulgar no WhatsApp — visível quando aprovado */}
+                        {sub.status === 'aprovado' && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                className="h-9 px-3 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm font-bold text-xs gap-1.5"
+                                onClick={() => window.open(`https://wa.me/?text=${buildWhatsAppMessage(sub)}`, "_blank")}
+                              >
+                                <MessageCircle className="h-4 w-4" />
+                                <span className="hidden lg:inline">Divulgar</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Divulgar no WhatsApp</TooltipContent>
                           </Tooltip>
                         )}
 
