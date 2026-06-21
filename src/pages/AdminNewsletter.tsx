@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -26,32 +25,15 @@ import { toast } from "sonner";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useNewsletterSubscribers } from "@/data";
 
 export default function AdminNewsletter() {
   const { user, isAdmin, loading: authLoading } = useAuth();
-  const [subscribers, setSubscribers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
 
-  async function fetchSubscribers() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("newsletter_subscribers")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      toast.error("Erro ao carregar inscritos");
-    } else {
-      setSubscribers(data || []);
-    }
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    if (isAdmin) fetchSubscribers();
-  }, [isAdmin]);
+  const { data: subscribers = [], isLoading: loading, error } = useNewsletterSubscribers();
+  if (error) toast.error("Erro ao carregar inscritos");
 
   const neighborhoods = useMemo(() => {
     const set = new Set<string>();
