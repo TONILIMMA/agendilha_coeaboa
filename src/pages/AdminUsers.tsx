@@ -4,114 +4,29 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Button } from "@/components/ui/button";
-// Movido para export dinâmico
-// import jsPDF from "jspdf";
-// import autoTable from "jspdf-autotable";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  ShieldCheck, 
-  ShieldOff, 
-  Loader2, 
-  Users, 
-  Phone, 
-  User, 
-  Trash2, 
-  Pencil, 
-  Check, 
-  X, 
-  Crown, 
-  MapPin, 
-  Music, 
-  UserMinus,
-  ChevronDown,
-  KeyRound,
-  Copy,
-  MessageCircle,
-  AlertCircle,
-  CheckCircle2,
-  Download,
-  Share2,
-  Search,
-  Filter,
-  Calendar,
-  MessageSquare,
-  ShieldAlert,
-  UserCheck
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Users, Download, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  isValidBrazilianMobile,
-  formatPhoneDisplay,
-  buildTempPasswordMessage,
-  buildWhatsappUrl,
-} from "@/lib/whatsapp";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { buildTempPasswordMessage } from "@/lib/whatsapp";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { callEdge } from "@/lib/edge";
 import { exportUsersToPdf } from "@/lib/pdfExportUsers";
-
-type UserStatus = "master" | "admin" | "collaborator" | "user" | "artist";
-type UserCategory = "usuario" | "promotor" | "divulgador" | "estabelecimento";
-
-interface UserWithRole {
-  id: string;
-  email: string;
-  created_at: string;
-  is_admin: boolean;
-  is_master?: boolean;
-  status?: UserStatus;
-  user_type?: string;
-  company_type?: string | null;
-  responsible_name: string | null;
-  phone: string | null;
-  address_neighborhood?: string | null;
-  musical_preferences?: string[] | null;
-}
-
-function formatPhone(phone: string | null): string {
-  if (!phone) return "Não informado";
-  return formatPhoneDisplay(phone);
-}
+import {
+  UserKpis,
+  type UserKpisData,
+} from "@/components/admin/users/UserKpis";
+import {
+  UserFiltersBar,
+  type QuickChip,
+} from "@/components/admin/users/UserFiltersBar";
+import { UserCard } from "@/components/admin/users/UserCard";
+import { ConfirmUserActionDialogs } from "@/components/admin/users/ConfirmUserActionDialogs";
+import { ResetPasswordDialog } from "@/components/admin/users/ResetPasswordDialog";
+import type {
+  UserWithRole,
+  ResetResultState,
+} from "@/components/admin/users/types";
 
 export default function AdminUsers() {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -129,16 +44,7 @@ export default function AdminUsers() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<UserWithRole | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState<UserWithRole | null>(null);
   const [resetting, setResetting] = useState<string | null>(null);
-  const [resetResult, setResetResult] = useState<{
-    user: UserWithRole;
-    tempPassword: string;
-    whatsappUrl: string | null;
-    phone: string | null;
-    phoneIsValid: boolean;
-    recipientName: string | null;
-    customNote: string;
-    message: string;
-  } | null>(null);
+  const [resetResult, setResetResult] = useState<ResetResultState | null>(null);
   const [updatingType, setUpdatingType] = useState<string | null>(null);
   
   // Paginação
