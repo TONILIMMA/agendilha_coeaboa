@@ -852,6 +852,17 @@ export default function AdminUsers() {
 
                   {/* Desktop Actions */}
                   <div className="hidden md:flex items-center gap-2 justify-end shrink-0">
+                    {u.phone && isValidBrazilianMobile(u.phone) && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        title="Falar no WhatsApp"
+                        className="h-9 w-9 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full"
+                        onClick={() => window.open(buildWhatsappUrl(u.phone!, `Olá ${u.responsible_name || ''}!`), '_blank')}
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                      </Button>
+                    )}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button 
