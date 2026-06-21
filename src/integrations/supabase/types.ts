@@ -1786,6 +1786,13 @@ export type Database = {
         }
         Returns: Json
       }
+      get_artist_private_contacts: {
+        Args: { p_artist_id: string }
+        Returns: {
+          representative_name: string
+          representative_phone: string
+        }[]
+      }
       get_pipeline_metrics: { Args: never; Returns: Json }
       get_user_permissions: { Args: { p_user_id: string }; Returns: string[] }
       has_app_permission: {
