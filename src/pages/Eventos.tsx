@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppPermissions as usePermissions } from "@/hooks/usePermissions";
+import { useSubmissions as useSubmissionsQuery, useInvalidateSubmissions } from "@/data";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -215,31 +216,26 @@ function buildNotificationMessage(sub: Submission, status: string): string {
 export default function Eventos() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const permissions = usePermissions();
+  const {
+    data: fetchedSubmissions = [],
+    isLoading: loading,
+    refetch,
+  } = useSubmissionsQuery<Submission>({}, { enabled: !!user });
+  const invalidateSubmissions = useInvalidateSubmissions();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setSubmissions(fetchedSubmissions);
+  }, [fetchedSubmissions]);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
   const [auditLogs, setAuditLogs] = useState<Record<string, { action: string; created_at: string; user_name: string }[]>>({});
 
-  async function fetchAll() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("submissions")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) {
-      toast.error("Erro ao carregar eventos");
-    } else {
-      setSubmissions((data as any[]) || []);
-    }
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    if (user) fetchAll();
-  }, [user]);
+  const fetchAll = () => {
+    invalidateSubmissions();
+    return refetch();
+  };
 
   async function fetchAuditLog(eventId: string) {
     if (auditLogs[eventId]) return;
