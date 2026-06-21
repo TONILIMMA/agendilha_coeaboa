@@ -11,17 +11,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CalendarDays, CheckCircle, Clock, Copy, FileDown, FileText, Loader2,
-  Megaphone, MessageCircle, Search, Send, Trash2,
+  Megaphone, MessageCircle, Search, Send, Trash2, Kanban, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportBulkEventsPdf, exportEditorialAgendaPdf } from "@/lib/pdfExport";
 import { buildBulkWhatsAppMessage } from "@/lib/eventWhatsapp";
 import {
-  categoryLabels, getWeekRange, parseEventDate, type Submission,
+  categoryLabels, getWeekRange, parseEventDate, type Submission, EDITORIAL_STAGES, type EditorialStatus,
 } from "@/components/events-admin/types";
 import { EventCard } from "@/components/events-admin/EventCard";
 import { useEventActions } from "@/components/events-admin/useEventActions";
 import { useAuditLogs } from "@/components/events-admin/useAuditLogs";
+import { KanbanBoard } from "@/components/events-admin/KanbanBoard";
 
 export default function Eventos() {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -33,6 +34,7 @@ export default function Eventos() {
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [editorialFilter, setEditorialFilter] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
 
@@ -48,10 +50,12 @@ export default function Eventos() {
   const trashedSubmissions = submissions.filter(s => !!s.deleted_at);
   const pendingEvents = activeSubmissions.filter(s => s.status === "pending");
   const confirmedEvents = activeSubmissions.filter(s => s.status === "approved");
+  const pendingPublish = activeSubmissions.filter(s => (s.editorial_status as string) === "pronto_divulgar");
 
   const getFiltered = (list: Submission[]) => {
     let result = [...list];
     if (categoryFilter !== "all") result = result.filter(s => s.category === categoryFilter);
+    if (editorialFilter !== "all") result = result.filter(s => (s.editorial_status || "recebido") === editorialFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(s =>
@@ -64,9 +68,10 @@ export default function Eventos() {
     return result;
   };
 
-  const filteredPending = useMemo(() => getFiltered(pendingEvents), [pendingEvents, categoryFilter, search]);
-  const filteredConfirmed = useMemo(() => getFiltered(confirmedEvents), [confirmedEvents, categoryFilter, search]);
-  const filteredTrash = useMemo(() => getFiltered(trashedSubmissions), [trashedSubmissions, categoryFilter, search]);
+  const filteredPending = useMemo(() => getFiltered(pendingEvents), [pendingEvents, categoryFilter, editorialFilter, search]);
+  const filteredConfirmed = useMemo(() => getFiltered(confirmedEvents), [confirmedEvents, categoryFilter, editorialFilter, search]);
+  const filteredTrash = useMemo(() => getFiltered(trashedSubmissions), [trashedSubmissions, categoryFilter, editorialFilter, search]);
+  const filteredActive = useMemo(() => getFiltered(activeSubmissions), [activeSubmissions, categoryFilter, editorialFilter, search]);
 
   if (authLoading) {
     return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
