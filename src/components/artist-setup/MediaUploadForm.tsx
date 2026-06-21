@@ -40,7 +40,7 @@ export function MediaUploadForm({ artistId, onMediaUploaded }: MediaUploadFormPr
     try {
       for (const item of previews) {
         const fileExt = item.file.name.split('.').pop();
-        const filePath = `${artistId}/${Math.random()}.${fileExt}`;
+        const filePath = `${artistId}/${crypto.randomUUID()}.${fileExt}`;
         
         const { error: uploadError } = await supabase.storage
           .from('artist-media')
