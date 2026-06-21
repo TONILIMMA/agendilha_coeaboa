@@ -240,22 +240,22 @@ export default function Landing() {
              O melhor da Ilha,<br className="hidden sm:block" /> <span className="text-secondary">em um só lugar.</span>
            </h1>
            <p className="text-secondary/80 text-base sm:text-lg font-light max-w-xl mx-auto mb-12 text-balance leading-relaxed">
-             Eventos, gastronomia e experiências selecionadas para o seu dia.
+             Agenda curada de eventos, bares e experiências na Ilha do Governador — atualizada todo dia.
            </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-lg mx-auto">
                 <Button
-                  onClick={() => navigate("/agenda")}
-                  className="w-full sm:w-auto sm:px-10 h-12 sm:h-13 rounded-full font-semibold text-base bg-foreground text-background hover:bg-secondary shadow-card transition-all"
+                  onClick={() => navigate("/agenda?view=today")}
+                  className="w-full sm:w-auto sm:px-10 h-12 sm:h-13 rounded-full font-semibold text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-card transition-all"
                 >
-                  Explorar agenda
+                  Ver o que tem hoje
                 </Button>
                 <Button
                   variant="ghost"
-                  onClick={() => navigate("/agenda?view=today")}
+                  onClick={() => navigate("/agenda")}
                   className="w-full sm:w-auto sm:px-10 h-12 sm:h-13 rounded-full font-medium text-base text-foreground border border-accent hover:bg-muted transition-all"
                 >
-                  Ver o que tem hoje
+                  Explorar agenda completa
                 </Button>
             </div>
          </div>
@@ -275,15 +275,15 @@ export default function Landing() {
         </div>
 
         {/* Today's Events */}
-        {todayEvents.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold font-display flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                Acontece hoje
-              </h2>
-              <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
-            </div>
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold font-display flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              Acontece hoje na Ilha
+            </h2>
+            <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
+          </div>
+          {todayEvents.length > 0 ? (
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
               {todayEvents.map(ev => (
                 <DiscoveryEventCard 
@@ -300,8 +300,16 @@ export default function Landing() {
                 />
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <div className="bg-muted/30 rounded-3xl p-8 text-center border border-dashed border-primary/15">
+              <Calendar className="h-8 w-8 text-primary/30 mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm mb-4">Hoje a Ilha está em recesso. Veja o que rola nos próximos dias.</p>
+              <Button onClick={() => navigate("/agenda")} variant="outline" className="rounded-full font-bold">
+                Ver próximos dias
+              </Button>
+            </div>
+          )}
+        </section>
 
         {/* Featured Events */}
         <section className="mb-12">
@@ -382,32 +390,7 @@ export default function Landing() {
            )}
          </section>
 
-         {user && recommendedEvents.length > 0 && (
-           <section className="mb-12">
-             <div className="flex items-center justify-between mb-6">
-               <h2 className="text-2xl font-bold font-display flex items-center gap-2">
-                 <Sparkles className="h-5 w-5 text-primary" />
-                 Recomendado para você
-               </h2>
-             </div>
-             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none">
-               {recommendedEvents.slice(0, 5).map(ev => (
-                 <DiscoveryEventCard 
-                   key={ev.id} 
-                   event={ev} 
-                   variant="compact"
-                   onClick={() => navigate(`/agenda?event=${ev.id}`)}
-                   isFavorite={favorites.includes(ev.id)}
-                   onFavoriteToggle={() => toggleFavorite(ev.id)}
-                   onShare={() => {
-                     const data = getShareData(ev);
-                     setShareData({ ...data, eventId: ev.id });
-                   }}
-                 />
-               ))}
-             </div>
-           </section>
-         )}
+         {/* "Recomendado para você" removido: já coberto por "No seu radar" para evitar duplicação */}
 
         {/* Newsletter / Public Registration */}
         <section className="mb-12">
