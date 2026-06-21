@@ -281,7 +281,6 @@ export default function CoeABoa() {
         )}
       </div>
 
-      <SiteFooter />
     </div>
   );
 }
