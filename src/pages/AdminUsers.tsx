@@ -6,7 +6,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { Button } from "@/components/ui/button";
 import { Users, Download, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { buildTempPasswordMessage } from "@/lib/whatsapp";
+import { buildTempPasswordMessage, formatPhoneDisplay } from "@/lib/whatsapp";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -27,6 +27,11 @@ import type {
   UserWithRole,
   ResetResultState,
 } from "@/components/admin/users/types";
+
+function formatPhone(phone: string | null): string {
+  if (!phone) return "Não informado";
+  return formatPhoneDisplay(phone);
+}
 
 export default function AdminUsers() {
   const { user, isAdmin, loading: authLoading } = useAuth();
