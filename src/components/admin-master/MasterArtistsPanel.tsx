@@ -316,7 +316,7 @@ function ArtistDetailSheet({
                     label="Telefone"
                     value={artist.whatsapp || artist.representative_phone || "—"}
                   />
-                  <DetailRow icon={Instagram} label="Instagram" value={artist.instagram || "—"} />
+                  <DetailRow icon={AtSign} label="Instagram" value={artist.instagram || "—"} />
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
                       Descrição
