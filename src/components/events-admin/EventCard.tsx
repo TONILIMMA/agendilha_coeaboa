@@ -12,9 +12,11 @@ import { toast } from "sonner";
 import { buildWhatsAppMessage } from "@/lib/eventWhatsapp";
 import { EventSocialCard } from "./EventSocialCard";
 import { EventAuditLog } from "./EventAuditLog";
+import { EditorialTransitionPanel } from "./EditorialTransitionPanel";
+import { StatusBadge } from "./StatusBadge";
 import {
   categoryLabels, formatDate, stageBadgeVariant, stageLabels,
-  type AuditLogEntry, type Submission,
+  type AuditLogEntry, type EditorialStatus, type Submission,
 } from "./types";
 
 export interface EventCardProps {
@@ -30,12 +32,15 @@ export interface EventCardProps {
   onSoftDelete: (id: string) => void;
   onRestore: (id: string) => void;
   onPermanentDelete: (id: string) => void;
+  onEditorialChange?: (id: string, newStatus: EditorialStatus, extra?: Partial<Submission>) => Promise<boolean | void>;
+  onLogPublication?: (id: string, channel: string) => Promise<boolean | void>;
 }
 
 export function EventCard({
   sub, isExpanded, onToggleExpand, isAdmin, auditLog,
   showApproval, showTrashActions,
   onStatusChange, onHighlightToggle, onSoftDelete, onRestore, onPermanentDelete,
+  onEditorialChange, onLogPublication,
 }: EventCardProps) {
   return (
     <Card
@@ -59,6 +64,7 @@ export function EventCard({
               >
                 {sub.status === "approved" ? "✅ Aprovado" : sub.status === "rejected" ? "❌ Rejeitado" : "⏳ Pendente"}
               </Badge>
+              <StatusBadge status={sub.editorial_status} />
               {sub.stage && (
                 <Badge variant={stageBadgeVariant[sub.stage] || "outline"} className="text-xs shrink-0">
                   {stageLabels[sub.stage] || sub.stage}
@@ -205,6 +211,10 @@ export function EventCard({
             <p className="text-xs text-muted-foreground/60">Enviado em {formatDate(sub.created_at)}</p>
 
             {auditLog && <EventAuditLog logs={auditLog} />}
+
+            {isAdmin && onEditorialChange && onLogPublication && !showTrashActions && (
+              <EditorialTransitionPanel sub={sub} onChange={onEditorialChange} onLogPublication={onLogPublication} />
+            )}
 
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
               {showApproval && isAdmin && (
