@@ -232,10 +232,6 @@ export default function Eventos() {
   const [activeTab, setActiveTab] = useState("pending");
   const [auditLogs, setAuditLogs] = useState<Record<string, { action: string; created_at: string; user_name: string }[]>>({});
 
-  const fetchAll = () => {
-    invalidateSubmissions();
-    return refetch();
-  };
 
   async function fetchAuditLog(eventId: string) {
     if (auditLogs[eventId]) return;
