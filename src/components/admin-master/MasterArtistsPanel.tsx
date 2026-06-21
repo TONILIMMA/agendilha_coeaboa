@@ -75,7 +75,7 @@ export function MasterArtistsPanel() {
       const { data, error } = await supabase
         .from("artist_profiles")
         .select(
-          "id,user_id,name,genre,neighborhood,is_approved,bio,whatsapp,instagram,representative_name,representative_phone,work_description,avatar_url"
+          "id,user_id,name,genre,neighborhood,is_approved,bio,whatsapp,instagram,work_description,avatar_url"
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
