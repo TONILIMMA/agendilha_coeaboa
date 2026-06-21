@@ -20,6 +20,7 @@ import {
      DollarSign, Users, Briefcase, History, Megaphone, Image as ImageIcon, Calendar
   } from "lucide-react";
 import { formatBrazilianDate } from "@/lib/date-utils";
+import { buildNotificationMessage, openWhatsappNotification } from "@/lib/notifications";
  import {
    Dialog,
    DialogContent,
@@ -193,25 +194,6 @@ function buildBulkWhatsAppMessage(events: Submission[]): string {
   return encodeURIComponent(lines.join("\n"));
 }
 
-function buildNotificationMessage(sub: Submission, status: string): string {
-  if (status === "approved") {
-    return [
-      `✅ *Evento Aprovado!*`, ``,
-      `Olá${sub.responsible_name ? `, ${sub.responsible_name}` : ""}! Seu evento foi aprovado no *AgendIlha*! 🎉`,
-      ``, `📌 *${sub.event_title}*`,
-      sub.date ? `🗓️ ${formatBrazilianDate(sub.date)}${sub.start_time ? ` às ${sub.start_time}` : ""}` : "",
-      ``, `Seu evento será divulgado na agenda cultural da Ilha do Governador.`,
-      ``, `Acesse: https://coeaboa.lovable.app/`,
-    ].filter(Boolean).join("\n");
-  }
-  return [
-    `⚠️ *Atualização sobre seu evento*`, ``,
-    `Olá${sub.responsible_name ? `, ${sub.responsible_name}` : ""}! Infelizmente seu evento não foi aprovado desta vez.`,
-    ``, `📌 *${sub.event_title}*`,
-    ``, `Entre em contato conosco para mais informações ou faça uma nova submissão.`,
-    ``, `Acesse: https://coeaboa.lovable.app/`,
-  ].join("\n");
-}
 
 export default function Eventos() {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -326,13 +308,9 @@ export default function Eventos() {
 
       if (newStatus === "approved" || newStatus === "rejected") {
         const sub = submissions.find((s) => s.id === id);
-        if (sub?.phone) {
-          const phone = sub.phone.replace(/\D/g, "");
-          const fullPhone = phone.startsWith("55") ? phone : `55${phone}`;
-          const message = encodeURIComponent(buildNotificationMessage({ ...sub, status: newStatus }, newStatus));
-          window.open(`https://wa.me/${fullPhone}?text=${message}`, "_blank");
-        } else {
-          toast.info("Anunciante sem telefone cadastrado.");
+        if (sub) {
+          const sent = openWhatsappNotification(sub, newStatus);
+          if (!sent) toast.info("Anunciante sem telefone cadastrado.");
         }
       }
     }
