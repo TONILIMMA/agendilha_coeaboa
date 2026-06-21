@@ -581,6 +581,54 @@ export type Database = {
         }
         Relationships: []
       }
+      event_publication_log: {
+        Row: {
+          channel: string
+          copy_used: string | null
+          created_at: string
+          event_id: string
+          id: string
+          published_at: string
+          responsible_id: string | null
+          template_id: string | null
+        }
+        Insert: {
+          channel: string
+          copy_used?: string | null
+          created_at?: string
+          event_id: string
+          id?: string
+          published_at?: string
+          responsible_id?: string | null
+          template_id?: string | null
+        }
+        Update: {
+          channel?: string
+          copy_used?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          published_at?: string
+          responsible_id?: string | null
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_publication_log_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "public_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_publication_log_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_reports: {
         Row: {
           created_at: string | null
@@ -1004,17 +1052,25 @@ export type Database = {
           atrativo_style: string | null
           atrativo_type: string | null
           category: string | null
+          checklist_envio_registrado: boolean
+          checklist_publ_canal: boolean
+          checklist_visivel_agenda: boolean
           commission: string | null
           company_name: string | null
           concept_description: string | null
+          confirmed_at: string | null
           contact_social: string | null
           created_at: string
           date: string | null
           deleted_at: string | null
           description: string | null
+          editorial_published_at: string | null
+          editorial_status: Database["public"]["Enums"]["editorial_status"]
           email: string | null
           end_time: string | null
           event_title: string
+          flyer_approved_at: string | null
+          flyer_aprovado: boolean
           id: string
           image_url: string | null
           image_url_story: string | null
@@ -1036,13 +1092,20 @@ export type Database = {
           promotion_rules: string | null
           promotion_type: string | null
           published_at: string | null
+          published_channels: string[]
+          ready_at: string | null
+          received_at: string | null
           rejected_at: string | null
           rejected_by: string | null
           rejection_reason: string | null
           report_count: number | null
           responsible_name: string | null
           responsible_person: string | null
+          review_started_at: string | null
           sale_price: string | null
+          scheduled_at: string | null
+          scheduled_channel: string | null
+          scheduled_for_at: string | null
           shares_count: number | null
           short_copy: string | null
           slug: string | null
@@ -1075,17 +1138,25 @@ export type Database = {
           atrativo_style?: string | null
           atrativo_type?: string | null
           category?: string | null
+          checklist_envio_registrado?: boolean
+          checklist_publ_canal?: boolean
+          checklist_visivel_agenda?: boolean
           commission?: string | null
           company_name?: string | null
           concept_description?: string | null
+          confirmed_at?: string | null
           contact_social?: string | null
           created_at?: string
           date?: string | null
           deleted_at?: string | null
           description?: string | null
+          editorial_published_at?: string | null
+          editorial_status?: Database["public"]["Enums"]["editorial_status"]
           email?: string | null
           end_time?: string | null
           event_title: string
+          flyer_approved_at?: string | null
+          flyer_aprovado?: boolean
           id?: string
           image_url?: string | null
           image_url_story?: string | null
@@ -1107,13 +1178,20 @@ export type Database = {
           promotion_rules?: string | null
           promotion_type?: string | null
           published_at?: string | null
+          published_channels?: string[]
+          ready_at?: string | null
+          received_at?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
           report_count?: number | null
           responsible_name?: string | null
           responsible_person?: string | null
+          review_started_at?: string | null
           sale_price?: string | null
+          scheduled_at?: string | null
+          scheduled_channel?: string | null
+          scheduled_for_at?: string | null
           shares_count?: number | null
           short_copy?: string | null
           slug?: string | null
@@ -1146,17 +1224,25 @@ export type Database = {
           atrativo_style?: string | null
           atrativo_type?: string | null
           category?: string | null
+          checklist_envio_registrado?: boolean
+          checklist_publ_canal?: boolean
+          checklist_visivel_agenda?: boolean
           commission?: string | null
           company_name?: string | null
           concept_description?: string | null
+          confirmed_at?: string | null
           contact_social?: string | null
           created_at?: string
           date?: string | null
           deleted_at?: string | null
           description?: string | null
+          editorial_published_at?: string | null
+          editorial_status?: Database["public"]["Enums"]["editorial_status"]
           email?: string | null
           end_time?: string | null
           event_title?: string
+          flyer_approved_at?: string | null
+          flyer_aprovado?: boolean
           id?: string
           image_url?: string | null
           image_url_story?: string | null
@@ -1178,13 +1264,20 @@ export type Database = {
           promotion_rules?: string | null
           promotion_type?: string | null
           published_at?: string | null
+          published_channels?: string[]
+          ready_at?: string | null
+          received_at?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
           report_count?: number | null
           responsible_name?: string | null
           responsible_person?: string | null
+          review_started_at?: string | null
           sale_price?: string | null
+          scheduled_at?: string | null
+          scheduled_channel?: string | null
+          scheduled_for_at?: string | null
           shares_count?: number | null
           short_copy?: string | null
           slug?: string | null
@@ -1690,6 +1783,7 @@ export type Database = {
         }
         Returns: Json
       }
+      get_pipeline_metrics: { Args: never; Returns: Json }
       get_user_permissions: { Args: { p_user_id: string }; Returns: string[] }
       has_app_permission: {
         Args: { p_permission_name: string; p_user_id: string }
@@ -1725,6 +1819,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "master"
+      editorial_status:
+        | "recebido"
+        | "em_revisao"
+        | "flyer_aprovado"
+        | "pronto_divulgar"
+        | "agendado"
+        | "publicado"
+        | "confirmado"
+        | "rejeitado"
       tipo_perfil_cadastro: "publico" | "divulgador" | "artista"
     }
     CompositeTypes: {
@@ -1854,6 +1957,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "master"],
+      editorial_status: [
+        "recebido",
+        "em_revisao",
+        "flyer_aprovado",
+        "pronto_divulgar",
+        "agendado",
+        "publicado",
+        "confirmado",
+        "rejeitado",
+      ],
       tipo_perfil_cadastro: ["publico", "divulgador", "artista"],
     },
   },
