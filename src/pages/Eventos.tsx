@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppPermissions as usePermissions } from "@/hooks/usePermissions";
-import { useSubmissions as useSubmissionsQuery, useInvalidateSubmissions } from "@/data";
+import { useSubmissions as useSubmissionsQuery } from "@/data";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
