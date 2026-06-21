@@ -184,6 +184,37 @@ export default function AdminUsers() {
     });
   }, [users, isMaster, filterSearch, filterType, filterStatus, filterPeriod]);
 
+  // KPIs gerais (sobre todos os usuários visíveis para o admin atual)
+  const visibleUsers = useMemo(
+    () => (isMaster ? users : users.filter((u) => u.status !== 'admin' && u.status !== 'master')),
+    [users, isMaster]
+  );
+  const kpis = useMemo(() => ({
+    total: visibleUsers.length,
+    publico: visibleUsers.filter((u) => (u.user_type || 'usuario') === 'usuario' && u.status === 'user').length,
+    divulgadores: visibleUsers.filter((u) => u.status === 'collaborator' || u.user_type === 'divulgador' || u.user_type === 'promotor').length,
+    artistas: visibleUsers.filter((u) => u.status === 'artist' || u.user_type === 'artist').length,
+    admins: visibleUsers.filter((u) => u.status === 'admin' || u.status === 'master').length,
+    semBairro: visibleUsers.filter((u) => !u.address_neighborhood).length,
+  }), [visibleUsers]);
+
+  // Chips de filtro rápido por status/papel
+  const quickStatusChips: Array<{ key: string; label: string; count: number; color: string }> = useMemo(() => {
+    const base = [
+      { key: 'all', label: 'Todos', count: visibleUsers.length, color: 'bg-muted text-foreground' },
+      { key: 'user', label: 'Público', count: visibleUsers.filter((u) => u.status === 'user').length, color: 'bg-blue-500/10 text-blue-700 border-blue-500/30' },
+      { key: 'collaborator', label: 'Divulgador', count: visibleUsers.filter((u) => u.status === 'collaborator').length, color: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30' },
+      { key: 'artist', label: 'Artista', count: visibleUsers.filter((u) => u.status === 'artist').length, color: 'bg-purple-500/10 text-purple-700 border-purple-500/30' },
+    ];
+    if (isMaster) {
+      base.push(
+        { key: 'admin', label: 'Admin', count: visibleUsers.filter((u) => u.status === 'admin').length, color: 'bg-amber-500/10 text-amber-700 border-amber-500/30' },
+        { key: 'master', label: 'Master', count: visibleUsers.filter((u) => u.status === 'master').length, color: 'bg-rose-500/10 text-rose-700 border-rose-500/30' },
+      );
+    }
+    return base;
+  }, [visibleUsers, isMaster]);
+
   // Resetar página ao filtrar
   useEffect(() => {
     setCurrentPage(1);
