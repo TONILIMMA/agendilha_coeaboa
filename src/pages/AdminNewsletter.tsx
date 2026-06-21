@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Search, Download, Mail, Filter } from "lucide-react";
+import { Search, Download, Mail, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
