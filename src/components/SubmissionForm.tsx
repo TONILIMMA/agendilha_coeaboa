@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { handleError } from "@/lib/error-handler";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
 import { z } from "zod";
-import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
+import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2, RotateCcw, Check } from "lucide-react";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -101,6 +101,8 @@ export default function SubmissionForm() {
   const { isCollaborator, isPromoter } = usePermissions();
   const { profile, loaded } = useProfile();
   const [currentStep, setCurrentStep] = useState(1);
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
+  const draftLoadedRef = useRef(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -134,25 +136,42 @@ export default function SubmissionForm() {
     const saved = localStorage.getItem(DRAFT_KEY);
     if (saved) {
       try {
-        const { data, step } = JSON.parse(saved);
+        const { data, step, savedAt } = JSON.parse(saved);
         form.reset(data);
         setCurrentStep(step || 1);
+        if (savedAt) setDraftSavedAt(new Date(savedAt));
         toast.info("Rascunho do evento recuperado.");
       } catch (e) {
         console.error("Error loading event draft", e);
       }
     }
+    draftLoadedRef.current = true;
   }, []);
 
-  // Save draft on change
+  // Save draft on change (debounced, only after initial load)
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
     const subscription = form.watch((value) => {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({
-        data: value,
-        step: currentStep
-      }));
+      if (!draftLoadedRef.current) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        const now = new Date();
+        try {
+          localStorage.setItem(DRAFT_KEY, JSON.stringify({
+            data: value,
+            step: currentStep,
+            savedAt: now.toISOString(),
+          }));
+          setDraftSavedAt(now);
+        } catch (e) {
+          console.error("Error saving event draft", e);
+        }
+      }, 600);
     });
-    return () => subscription.unsubscribe();
+    return () => {
+      if (timer) clearTimeout(timer);
+      subscription.unsubscribe();
+    };
   }, [form.watch, currentStep]);
 
   const steps = [
@@ -289,6 +308,7 @@ export default function SubmissionForm() {
       email: profile?.email || "",
     });
     setCurrentStep(1);
+    setDraftSavedAt(null);
     toast.success("Rascunho limpo.");
   };
 
@@ -307,15 +327,23 @@ export default function SubmissionForm() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <StepIndicator steps={steps} currentStep={currentStep} />
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={resetDraft}
-          className="text-muted-foreground hover:text-destructive gap-1"
-        >
-          <RotateCcw className="h-3 w-3" />
-          <span className="text-[10px] uppercase font-bold tracking-widest">Limpar Rascunho</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          {draftSavedAt && (
+            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest text-emerald-600">
+              <Check className="h-3 w-3" />
+              Rascunho salvo {draftSavedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={resetDraft}
+            className="text-muted-foreground hover:text-destructive gap-1"
+          >
+            <RotateCcw className="h-3 w-3" />
+            <span className="text-[10px] uppercase font-bold tracking-widest">Limpar Rascunho</span>
+          </Button>
+        </div>
       </div>
       
       <Form {...form}>
