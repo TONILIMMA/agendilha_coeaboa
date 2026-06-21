@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 import { Navigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserBadge } from "@/hooks/useUserBadge";
 import { Button } from "@/components/ui/button";
@@ -24,59 +23,22 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { MasterPanel } from "@/components/admin-dashboard/AdminDashboard";
 import { callEdge } from "@/lib/edge";
-
-interface AdminUser {
-  id: string;
-  email: string;
-  responsible_name: string | null;
-  phone: string | null;
-  is_admin: boolean;
-  is_master: boolean;
-}
+import { useAdminMasterStats } from "@/data";
 
 export default function AdminMaster() {
   const { user, loading: authLoading } = useAuth();
   const { status, loaded: badgeLoaded } = useUserBadge();
 
-  const [stats, setStats] = useState({ users: 0, admins: 0, approved: 0, newsletter: 0 });
-  const [loading, setLoading] = useState(true);
   const [bootstrapping, setBootstrapping] = useState(false);
 
-  async function loadAll() {
-    setLoading(true);
-    try {
-      const usersList = await callEdge<AdminUser[]>("list-users");
-
-      const { data: roles } = await supabase.from("user_roles").select("user_id, role");
-      const adminsCount = (roles ?? []).filter(r => r.role === 'admin' || r.role === 'master').length;
-
-      const { count: approvedCount } = await supabase
-        .from("submissions")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "approved");
-
-      const { count: subsCount } = await supabase
-        .from("newsletter_subscribers")
-        .select("*", { count: "exact", head: true });
-
-      setStats({
-        users: usersList.length,
-        admins: adminsCount,
-        approved: approvedCount ?? 0,
-        newsletter: subsCount ?? 0,
-      });
-    } catch (e) {
-      handleError(e, "Erro ao carregar dados administrativos");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (!authLoading && user && status === "master") {
-      loadAll();
-    }
-  }, [authLoading, user, status]);
+  const isMaster = !authLoading && !!user && status === "master";
+  const {
+    data: stats = { users: 0, admins: 0, approved: 0, newsletter: 0 },
+    isLoading: loading,
+    refetch: refetchStats,
+    error: statsError,
+  } = useAdminMasterStats(isMaster);
+  if (statsError) handleError(statsError, "Erro ao carregar dados administrativos");
 
   async function bootstrapToniLima() {
     setBootstrapping(true);
@@ -87,7 +49,7 @@ export default function AdminMaster() {
         password: "Master@2025",
       });
       toast.success("TONI LIMA cadastrado como Admin Master!");
-      loadAll();
+      refetchStats();
     } catch (e) {
       handleError(e, "Erro ao configurar admin padrão");
     } finally {
