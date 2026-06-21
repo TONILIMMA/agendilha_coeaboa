@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Clock, ShieldCheck, ArrowRight, ListChecks, Loader2 } from "lucide-react";
+import { useSubmission } from "@/data";
 
 interface Submission {
   id: string;
@@ -13,21 +12,10 @@ interface Submission {
 
 export default function EventoEnviado() {
   const { id } = useParams<{ id: string }>();
-  const [sub, setSub] = useState<Submission | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!id) return;
-    (async () => {
-      const { data } = await supabase
-        .from("submissions")
-        .select("id, event_title, date, status")
-        .eq("id", id)
-        .maybeSingle();
-      setSub(data as Submission | null);
-      setLoading(false);
-    })();
-  }, [id]);
+  const { data: sub, isLoading: loading } = useSubmission<Submission>(
+    id,
+    "id, event_title, date, status"
+  );
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
