@@ -127,8 +127,8 @@ export default function Eventos() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
-      <div className="mb-6 rounded-2xl border border-border bg-card/60 backdrop-blur-md p-5 shadow-sm animate-in fade-in duration-300">
+    <div className="mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-6">
+      <div className="mb-5 sm:mb-6 rounded-2xl border border-border bg-card/60 backdrop-blur-md p-4 sm:p-5 shadow-sm animate-in fade-in duration-300">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -139,13 +139,13 @@ export default function Eventos() {
               <p className="text-xs text-muted-foreground">Painel de controle e moderação</p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <Button
               size="sm"
               variant="outline"
               onClick={() => { exportBulkEventsPdf(confirmedEvents as any); toast.success("PDF gerado!"); }}
               disabled={confirmedEvents.length === 0}
-              className="text-xs rounded-full"
+              className="text-xs rounded-full flex-1 sm:flex-none"
             >
               <FileDown className="mr-1.5 h-3.5 w-3.5" />
               <span className="hidden sm:inline">Exportar Confirmados</span>
@@ -169,7 +169,7 @@ export default function Eventos() {
                   window.open(`https://wa.me/?text=${msg}`, "_blank");
                   toast.success(`Mensagem com ${weekApproved.length} evento(s) da semana!`);
                 }}
-                className="text-xs rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                className="text-xs rounded-full bg-primary text-primary-foreground hover:bg-primary/90 flex-1 sm:flex-none"
               >
                 <Send className="mr-1.5 h-3.5 w-3.5" />
                 Divulgar semana
@@ -241,8 +241,8 @@ export default function Eventos() {
       </div>
 
       <Card className="mb-5 border-border">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+        <CardContent className="p-3 sm:p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-2 sm:gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -253,7 +253,7 @@ export default function Eventos() {
               />
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-[180px] h-10">
+              <SelectTrigger className="w-full sm:w-[170px] h-10">
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
@@ -264,7 +264,7 @@ export default function Eventos() {
               </SelectContent>
             </Select>
             <Select value={editorialFilter} onValueChange={setEditorialFilter}>
-              <SelectTrigger className="w-full sm:w-[200px] h-10">
+              <SelectTrigger className="w-full sm:w-[190px] h-10">
                 <SelectValue placeholder="Etapa editorial" />
               </SelectTrigger>
               <SelectContent>
@@ -279,26 +279,28 @@ export default function Eventos() {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-5">
-          <TabsTrigger value="kanban" className="text-xs sm:text-sm">
-            <Kanban className="h-3.5 w-3.5 mr-1" /> Kanban
-          </TabsTrigger>
-          <TabsTrigger value="marketing" className="text-xs sm:text-sm">📣 Divulgação</TabsTrigger>
-          <TabsTrigger value="pending" className="text-xs sm:text-sm">
-            A serem liberados
-            <Badge variant="secondary" className="ml-1.5 text-xs">{pendingEvents.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="confirmed" className="text-xs sm:text-sm">
-            Confirmados
-            <Badge variant="secondary" className="ml-1.5 text-xs">{confirmedEvents.length}</Badge>
-          </TabsTrigger>
-          {(isAdmin || permissions.canDelete) && (
-            <TabsTrigger value="trash" className="text-xs sm:text-sm">
-              🗑️ Lixeira
-              <Badge variant="secondary" className="ml-1.5 text-xs">{trashedSubmissions.length}</Badge>
+        <div className="-mx-3 sm:mx-0 overflow-x-auto sm:overflow-visible">
+          <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-5 px-3 sm:px-0 gap-1 sm:gap-0">
+            <TabsTrigger value="kanban" className="text-xs sm:text-sm whitespace-nowrap">
+              <Kanban className="h-3.5 w-3.5 mr-1" /> Kanban
             </TabsTrigger>
-          )}
-        </TabsList>
+            <TabsTrigger value="marketing" className="text-xs sm:text-sm whitespace-nowrap">📣 Divulgação</TabsTrigger>
+            <TabsTrigger value="pending" className="text-xs sm:text-sm whitespace-nowrap">
+              A liberar
+              <Badge variant="secondary" className="ml-1.5 text-xs">{pendingEvents.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="confirmed" className="text-xs sm:text-sm whitespace-nowrap">
+              Confirmados
+              <Badge variant="secondary" className="ml-1.5 text-xs">{confirmedEvents.length}</Badge>
+            </TabsTrigger>
+            {(isAdmin || permissions.canDelete) && (
+              <TabsTrigger value="trash" className="text-xs sm:text-sm whitespace-nowrap">
+                🗑️ Lixeira
+                <Badge variant="secondary" className="ml-1.5 text-xs">{trashedSubmissions.length}</Badge>
+              </TabsTrigger>
+            )}
+          </TabsList>
+        </div>
 
         <TabsContent value="kanban">
           <div className="mb-4 grid grid-cols-1 lg:grid-cols-3 gap-4">

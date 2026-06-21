@@ -43,11 +43,11 @@ export function PipelineMetrics() {
             Atualizado: {new Date(data.generated_at).toLocaleTimeString("pt-BR")}
           </span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5">
           {EDITORIAL_STAGES.map(stage => (
-            <div key={stage.key} className={`rounded-lg border p-2 ${stage.color}`}>
-              <div className="text-[10px] uppercase tracking-wider opacity-80 truncate">{stage.label}</div>
-              <div className="text-xl font-bold mt-0.5">{data.counts[stage.key] ?? 0}</div>
+            <div key={stage.key} className={`rounded-lg border p-2.5 ${stage.color}`}>
+              <div className="text-[10px] uppercase tracking-wider opacity-80 leading-tight line-clamp-2 min-h-[1.6em]">{stage.label}</div>
+              <div className="text-xl sm:text-2xl font-bold mt-1">{data.counts[stage.key] ?? 0}</div>
             </div>
           ))}
         </div>
