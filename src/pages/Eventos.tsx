@@ -308,13 +308,9 @@ export default function Eventos() {
 
       if (newStatus === "approved" || newStatus === "rejected") {
         const sub = submissions.find((s) => s.id === id);
-        if (sub?.phone) {
-          const phone = sub.phone.replace(/\D/g, "");
-          const fullPhone = phone.startsWith("55") ? phone : `55${phone}`;
-          const message = encodeURIComponent(buildNotificationMessage({ ...sub, status: newStatus }, newStatus));
-          window.open(`https://wa.me/${fullPhone}?text=${message}`, "_blank");
-        } else {
-          toast.info("Anunciante sem telefone cadastrado.");
+        if (sub) {
+          const sent = openWhatsappNotification(sub, newStatus);
+          if (!sent) toast.info("Anunciante sem telefone cadastrado.");
         }
       }
     }
