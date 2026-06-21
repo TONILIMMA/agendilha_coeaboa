@@ -75,13 +75,21 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
     const patch: any = { editorial_status: newStatus, ...extra };
     // Optimistic update
     setSubmissions(curr => curr.map(s => s.id === id ? { ...s, ...patch } : s));
-    const { error } = await supabase.from("submissions").update(patch).eq("id", id);
-    if (error) {
-      toast.error(error.message || "Erro ao atualizar etapa");
+    const { data, error } = await supabase
+      .from("submissions")
+      .update(patch)
+      .eq("id", id)
+      .select("id, editorial_status, scheduled_at, scheduled_channel, published_channels, checklist_publ_canal, checklist_visivel_agenda, checklist_envio_registrado, rejection_reason");
+    if (error || !data || data.length === 0) {
+      const msg = error?.message || "Sem permissão para atualizar este evento (RLS).";
+      console.error("[editorial] update failed", { id, newStatus, patch, error, data });
+      toast.error(msg);
       if (prev) setSubmissions(curr => curr.map(s => s.id === id ? prev : s));
       return false;
     }
-    toast.success("Etapa atualizada!");
+    // Sync state with what DB actually persisted (trigger may stamp timestamps)
+    setSubmissions(curr => curr.map(s => s.id === id ? { ...s, ...(data[0] as any) } : s));
+    toast.success(`Etapa atualizada: ${newStatus}`);
     await logAudit(id, `editorial:${newStatus}`, extra.rejection_reason || extra.scheduled_channel || undefined);
     return true;
   }, [setSubmissions, submissions, logAudit]);
@@ -92,14 +100,25 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
     if (!userId) return false;
     const sub = submissions.find(s => s.id === id);
     const channels = Array.from(new Set([...(sub?.published_channels || []), channel]));
+    const prev = sub;
     setSubmissions(curr => curr.map(s => s.id === id ? { ...s, published_channels: channels, editorial_status: "publicado" } : s));
-    const { error: upErr } = await supabase.from("submissions").update({
-      published_channels: channels, editorial_status: "publicado",
-    } as any).eq("id", id);
-    if (upErr) { toast.error(upErr.message); return false; }
-    await supabase.from("event_publication_log").insert({
+    const { data: upData, error: upErr } = await supabase
+      .from("submissions")
+      .update({ published_channels: channels, editorial_status: "publicado" } as any)
+      .eq("id", id)
+      .select("id, published_channels, editorial_status, editorial_published_at");
+    if (upErr || !upData || upData.length === 0) {
+      const msg = upErr?.message || "Sem permissão para publicar este evento (RLS).";
+      console.error("[publish] update failed", { id, channel, channels, error: upErr, data: upData });
+      toast.error(msg);
+      if (prev) setSubmissions(curr => curr.map(s => s.id === id ? prev : s));
+      return false;
+    }
+    setSubmissions(curr => curr.map(s => s.id === id ? { ...s, ...(upData[0] as any) } : s));
+    const { error: logErr } = await supabase.from("event_publication_log").insert({
       event_id: id, channel, responsible_id: userId, published_at: new Date().toISOString(),
     } as any);
+    if (logErr) console.warn("[publish] log insert failed", logErr);
     await logAudit(id, `published:${channel}`);
     toast.success(`Publicado em ${channel}!`);
     return true;
