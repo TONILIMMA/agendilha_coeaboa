@@ -171,7 +171,8 @@ function buildTemplateVars(sub: Submission, reason?: string | null): Record<stri
 export default function AdminEvents() {
   const { user, loading: authLoading } = useAuth();
   const { hasPermission, loading: permsLoading } = useAppPermissions();
-  const isAdmin = hasPermission('events.read');
+  const canRead = hasPermission('events.read');
+  const isAdmin = canRead;
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -207,8 +208,9 @@ export default function AdminEvents() {
 
 
   useEffect(() => {
-    if (hasPermission('events.read')) fetchAll();
-  }, [hasPermission]);
+    if (canRead) fetchAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canRead]);
 
   useEffect(() => {
     (async () => {
