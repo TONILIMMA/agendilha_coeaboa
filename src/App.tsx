@@ -113,6 +113,7 @@ export function ProtectedRoute({
   }
   
   if (!user) {
+    console.warn("[ProtectedRoute] no user → /auth", { path: location.pathname });
     return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   }
 
@@ -121,10 +122,20 @@ export function ProtectedRoute({
   }
 
   if (masterOnly && !isMaster) {
+    console.warn("[ProtectedRoute] masterOnly blocked → /agenda", {
+      path: location.pathname,
+      userId: user.id,
+      isMaster,
+    });
     return <Navigate to={ROUTES.AGENDA} replace />;
   }
 
   if (requiredPermission && !hasPermission(requiredPermission)) {
+    console.warn("[ProtectedRoute] missing permission → /agenda", {
+      path: location.pathname,
+      userId: user.id,
+      requiredPermission,
+    });
     return <Navigate to={ROUTES.AGENDA} replace />;
   }
 
