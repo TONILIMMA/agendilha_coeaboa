@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
    plugins: [
      react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       injectRegister: null,
       includeAssets: ['favicon.ico', 'logo.png', 'logo.jpg', 'robots.txt', 'placeholder.svg'],
       workbox: {
@@ -30,8 +30,9 @@ export default defineConfig(({ mode }) => ({
         // see new builds immediately instead of being stuck on an old shell.
         globPatterns: ['**/*.{js,css,ico,png,svg,jpg,jpeg,webp}'],
         cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
+        // Prompt mode: don't auto-skip — wait for the user to click "Atualizar".
+        clientsClaim: false,
+        skipWaiting: false,
         navigateFallback: null,
         navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
         runtimeCaching: [
