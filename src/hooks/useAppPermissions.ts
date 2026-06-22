@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { handleError } from "@/lib/error-handler";
@@ -53,77 +53,65 @@ export type PermissionName =
 
 export function useAppPermissions() {
   const { user } = useAuth();
-  const [permissions, setPermissions] = useState<Set<PermissionName>>(new Set());
-  const [roles, setRoles] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const userId = user?.id ?? null;
 
-  useEffect(() => {
-    if (!user) {
-      setPermissions(new Set());
-      setRoles([]);
-      setLoading(false);
-      return;
-    }
+  const { data, isLoading } = useQuery({
+    queryKey: ["app-permissions", userId],
+    enabled: !!userId,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+    queryFn: async () => {
+      const [rolesResponse, collaboratorResponse, profileResponse] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", userId!),
+        supabase
+          .from("collaborators")
+          .select("can_submit, can_approve, can_edit, can_delete, is_active")
+          .eq("user_id", userId!)
+          .maybeSingle(),
+        supabase.from("profiles").select("role").eq("user_id", userId!).maybeSingle(),
+      ]);
 
-    async function loadPermissions() {
-      try {
-        setLoading(true);
-        const [rolesResponse, collaboratorResponse, profileResponse] = await Promise.all([
-          supabase.from('user_roles').select('role').eq('user_id', user.id),
-          supabase
-            .from('collaborators')
-            .select('can_submit, can_approve, can_edit, can_delete, is_active')
-            .eq('user_id', user.id)
-            .maybeSingle(),
-          supabase.from('profiles').select('role').eq('user_id', user.id).maybeSingle(),
-        ]);
+      if (rolesResponse.error) handleError(rolesResponse.error, "Erro ao carregar permissões");
 
-        const roleNames: string[] = rolesResponse.data?.map(r => r.role).filter(Boolean) || [];
-        const nextPermissions = new Set<PermissionName>();
-        const isAdminRole = roleNames.includes('admin') || roleNames.includes('master');
+      const roleNames: string[] = rolesResponse.data?.map((r) => r.role).filter(Boolean) || [];
+      const nextPermissions = new Set<PermissionName>();
+      const isAdminRole = roleNames.includes("admin") || roleNames.includes("master");
 
-        if (isAdminRole) {
-          ADMIN_PERMISSIONS.forEach(permission => nextPermissions.add(permission));
-        }
-
-        const collaborator = collaboratorResponse.data as CollaboratorPermissions | null;
-        if (collaborator?.is_active) {
-          if (!roleNames.includes('collaborator')) roleNames.push('collaborator');
-          nextPermissions.add('events.read');
-          collaboratorPermissionMap.forEach(([field, permission]) => {
-            if (collaborator[field]) nextPermissions.add(permission);
-          });
-        }
-
-        if (profileResponse.data?.role && !roleNames.includes(profileResponse.data.role)) {
-          roleNames.push(profileResponse.data.role);
-        }
-
-        if (profileResponse.data?.role === 'promoter') {
-          nextPermissions.add('events.create');
-        }
-
-        setRoles(roleNames);
-        setPermissions(nextPermissions);
-      } catch (error) {
-        handleError(error, "Erro ao carregar permissões");
-      } finally {
-        setLoading(false);
+      if (isAdminRole) {
+        ADMIN_PERMISSIONS.forEach((permission) => nextPermissions.add(permission));
       }
 
-    }
+      const collaborator = collaboratorResponse.data as CollaboratorPermissions | null;
+      if (collaborator?.is_active) {
+        if (!roleNames.includes("collaborator")) roleNames.push("collaborator");
+        nextPermissions.add("events.read");
+        collaboratorPermissionMap.forEach(([field, permission]) => {
+          if (collaborator[field]) nextPermissions.add(permission);
+        });
+      }
 
-    loadPermissions();
-  }, [user]);
+      if (profileResponse.data?.role && !roleNames.includes(profileResponse.data.role)) {
+        roleNames.push(profileResponse.data.role);
+      }
+      if (profileResponse.data?.role === "promoter") {
+        nextPermissions.add("events.create");
+      }
+
+      return { roles: roleNames, permissions: nextPermissions };
+    },
+  });
+
+  const permissions = data?.permissions ?? new Set<PermissionName>();
+  const roles = data?.roles ?? [];
+  const loading = !!userId && isLoading;
 
   const hasPermission = (permission: PermissionName) => permissions.has(permission);
   const hasRole = (role: string) => roles.includes(role);
 
-  // Derived capability flags (replacing usePermissions legacy logic)
-  const isMaster = roles.includes('master');
-  const isAdmin = roles.includes('admin') || isMaster;
-  const isPromoter = roles.includes('promoter');
-  const isCollaborator = roles.includes('collaborator') || isAdmin;
+  const isMaster = roles.includes("master");
+  const isAdmin = roles.includes("admin") || isMaster;
+  const isPromoter = roles.includes("promoter");
+  const isCollaborator = roles.includes("collaborator") || isAdmin;
 
   return {
     permissions,
