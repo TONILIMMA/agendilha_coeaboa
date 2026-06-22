@@ -2,6 +2,11 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+export type SignUpAdditionalData = {
+  profile?: Record<string, unknown>;
+  artist?: Record<string, unknown> & { name?: string };
+};
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -9,7 +14,13 @@ interface AuthContextType {
   isAdmin: boolean;
   mustChangePassword: boolean;
   refreshMustChangePassword: () => Promise<void>;
-   signUp: (phone: string, password: string, name?: string, additionalData?: any, role?: string) => Promise<{ error: Error | null }>;
+  signUp: (
+    phone: string,
+    password: string,
+    name?: string,
+    additionalData?: SignUpAdditionalData,
+    role?: string,
+  ) => Promise<{ error: Error | null }>;
   signIn: (phone: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -96,7 +107,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return `${fullNumber}@phone.agendilha.app`;
   };
 
-  const signUp = async (phone: string, password: string, name?: string, additionalData: any = {}, role: string = 'public') => {
+  const signUp = async (
+    phone: string,
+    password: string,
+    name?: string,
+    additionalData: SignUpAdditionalData = {},
+    role: string = 'public',
+  ) => {
     const cleanName = name?.trim();
     const digits = phone.replace(/\D/g, "");
     const fullPhone = digits.startsWith("55") ? `+${digits}` : `+55${digits}`;
