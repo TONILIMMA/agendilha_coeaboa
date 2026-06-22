@@ -35,10 +35,19 @@ export function MasterPanel() {
       
       const stats = data as any;
 
+      const eventsByNeighborhood = stats.charts.eventsByNeighborhood || [];
+      const eventsByCategory = stats.charts.eventsByCategory || [];
+      const placesByFavorites = stats.charts.placesByFavorites || [];
+      const artistsByFavorites = stats.charts.artistsByFavorites || [];
+
       return {
         kpis: stats.kpis,
         charts: {
           ...stats.charts,
+          eventsByNeighborhood,
+          eventsByCategory,
+          placesByFavorites,
+          artistsByFavorites,
           usersByType: [
             { name: 'Público', value: stats.kpis.publicUsers },
             { name: 'Divulgadores', value: stats.kpis.promoters },
@@ -57,7 +66,7 @@ export function MasterPanel() {
             name: new Date(p.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
             value: p.count
           })),
-          neighborhoodComparison: (stats.charts.eventsByNeighborhood || []).map((n: any) => ({
+          neighborhoodComparison: eventsByNeighborhood.map((n: any) => ({
             name: n.name,
             events: n.value,
             favorites: 0
@@ -66,7 +75,7 @@ export function MasterPanel() {
         rankings: {
           topEvents: stats.rankings.topEvents || [],
           topEventsByViews: stats.rankings.topEvents || [],
-          topNeighborhoods: (stats.charts.eventsByNeighborhood || []).map((n: any) => ({ name: n.name, count: n.value })),
+          topNeighborhoods: eventsByNeighborhood.map((n: any) => ({ name: n.name, count: n.value })),
           topPlaces: stats.rankings.topPlaces || [],
           topArtists: stats.rankings.topArtists || [],
           topPromoters: stats.rankings.topPromoters || []
@@ -81,7 +90,7 @@ export function MasterPanel() {
           newUsersInPeriod: stats.kpis.totalUsers
         },
         health: stats.system_health,
-        allNeighborhoods: (stats.charts.eventsByNeighborhood || []).map((n: any) => n.name)
+        allNeighborhoods: eventsByNeighborhood.map((n: any) => n.name)
       };
     },
     refetchInterval: 5 * 60 * 1000, 
