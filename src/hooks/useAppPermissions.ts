@@ -55,7 +55,7 @@ export function useAppPermissions() {
   const { user } = useAuth();
   const userId = user?.id ?? null;
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ["app-permissions", userId],
     enabled: !!userId,
     staleTime: 5 * 60_000,
@@ -103,7 +103,9 @@ export function useAppPermissions() {
 
   const permissions = data?.permissions ?? new Set<PermissionName>();
   const roles = data?.roles ?? [];
-  const loading = !!userId && isLoading;
+  // Considera "loading" enquanto há usuário mas ainda não temos a primeira resposta,
+  // evitando uma janela em que isMaster fica falso e dispara redirecionamento indevido.
+  const loading = !!userId && (isLoading || isFetching || !data);
 
   const hasPermission = (permission: PermissionName) => permissions.has(permission);
   const hasRole = (role: string) => roles.includes(role);
