@@ -50,10 +50,18 @@ interface DashboardChartsProps {
 }
 
 export function DashboardCharts({ data }: DashboardChartsProps) {
+  const usersByType = data.usersByType || [];
+  const eventsByNeighborhood = data.eventsByNeighborhood || [];
+  const eventsByPeriod = data.eventsByPeriod || [];
+  const eventsByCategory = data.eventsByCategory || [];
+  const eventStatusFunnel = data.eventStatusFunnel || [];
+  const newUsersEvolution = data.newUsersEvolution || [];
+  const neighborhoodComparison = data.neighborhoodComparison || [];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <ChartCard title="Eventos vs Favoritos por Bairro">
-        <BarChart data={data.neighborhoodComparison}>
+        <BarChart data={neighborhoodComparison}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="name" fontSize={10} />
           <YAxis fontSize={10} />
@@ -67,13 +75,13 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
       <ChartCard title="Usuários por Tipo">
         <PieChart>
           <Pie
-            data={data.usersByType}
+            data={usersByType}
             innerRadius={60}
             outerRadius={80}
             paddingAngle={5}
             dataKey="value"
           >
-            {data.usersByType.map((entry, index) => (
+            {usersByType.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
@@ -83,7 +91,7 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
       </ChartCard>
 
       <ChartCard title="Eventos por Bairro (Top 10)">
-        <BarChart data={data.eventsByNeighborhood} layout="vertical">
+        <BarChart data={eventsByNeighborhood} layout="vertical">
           <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
           <XAxis type="number" hide />
           <YAxis dataKey="name" type="category" width={100} fontSize={10} />
@@ -93,7 +101,7 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
       </ChartCard>
 
       <ChartCard title="Evolução de Novos Usuários">
-        <LineChart data={data.newUsersEvolution}>
+        <LineChart data={newUsersEvolution}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="name" fontSize={10} />
           <YAxis fontSize={10} />
@@ -105,7 +113,7 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
       <ChartCard title="Eventos por Categoria">
         <PieChart>
           <Pie
-            data={data.eventsByCategory}
+            data={eventsByCategory}
             cx="50%"
             cy="50%"
             labelLine={false}
@@ -113,7 +121,7 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
             fill="#8884d8"
             dataKey="value"
           >
-            {data.eventsByCategory.map((entry, index) => (
+            {eventsByCategory.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
@@ -123,13 +131,13 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
       </ChartCard>
 
       <ChartCard title="Status dos Eventos">
-        <BarChart data={data.eventStatusFunnel}>
+        <BarChart data={eventStatusFunnel}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="name" fontSize={10} />
           <YAxis fontSize={10} />
           <Tooltip />
           <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-            {data.eventStatusFunnel.map((entry, index) => (
+            {eventStatusFunnel.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.name === 'Aprovado' ? '#10b981' : entry.name === 'Pendente' ? '#f59e0b' : '#ef4444'} />
             ))}
           </Bar>
@@ -137,7 +145,7 @@ export function DashboardCharts({ data }: DashboardChartsProps) {
       </ChartCard>
 
       <ChartCard title="Eventos por Período">
-        <BarChart data={data.eventsByPeriod}>
+        <BarChart data={eventsByPeriod}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="name" fontSize={10} />
           <YAxis fontSize={10} />
