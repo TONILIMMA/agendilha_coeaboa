@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Clock, ShieldCheck, ArrowRight, ListChecks, Loader2 } from "lucide-react";
 import { useSubmission } from "@/data";
@@ -12,6 +12,12 @@ interface Submission {
 
 export default function EventoEnviado() {
   const { id } = useParams<{ id: string }>();
+  // Defensive: this page only makes sense with a real submission id.
+  // Without it, redirect to the user's submissions list instead of rendering
+  // the static "Recebemos seu evento" hero on the wrong route.
+  if (!id || !/^[0-9a-f-]{10,}$/i.test(id)) {
+    return <Navigate to="/meus-eventos" replace />;
+  }
   const { data: sub, isLoading: loading } = useSubmission<Submission>(
     id,
     "id, event_title, date, status"
