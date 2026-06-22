@@ -171,10 +171,8 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_NEWSLETTER} element={<AdminNewsletter />} />
           <Route path={ROUTES.ADMIN_ARTISTS} element={<AdminArtists />} />
           <Route path={ROUTES.ADMIN_MEDIA} element={<AdminMedia />} />
-          <Route path={ROUTES.ADMIN_AUDIT} element={<ProtectedRoute masterOnly><AdminAuditLogs /></ProtectedRoute>} />
           <Route path={ROUTES.ADMIN_AGENDA_INFORMA} element={<AdminAgendaInforma />} />
           <Route path={ROUTES.ADMIN_WHATSAPP_TEMPLATES} element={<AdminWhatsAppTemplates />} />
-          <Route path={ROUTES.RANKING} element={<ProtectedRoute masterOnly><Ranking /></ProtectedRoute>} />
         </Route>
 
         {/* Master Pages - isolated from regular admin permissions */}
@@ -182,6 +180,8 @@ export const AppRoutes = () => (
           <Route path={ROUTES.MASTER_DASHBOARD} element={<AdminPinGate><AdminMaster /></AdminPinGate>} />
           <Route path={ROUTES.MASTER_USUARIOS} element={<AdminPinGate><AdminUsers /></AdminPinGate>} />
           <Route path={ROUTES.MASTER_LOGS} element={<AdminPinGate><AdminAuditLogs /></AdminPinGate>} />
+          <Route path={ROUTES.ADMIN_AUDIT} element={<AdminAuditLogs />} />
+          <Route path={ROUTES.RANKING} element={<Ranking />} />
         </Route>
 
         <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
