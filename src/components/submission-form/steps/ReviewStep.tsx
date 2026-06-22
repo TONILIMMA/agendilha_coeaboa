@@ -11,6 +11,15 @@ interface ReviewStepProps {
 export function ReviewStep({ form, goToStep }: ReviewStepProps) {
   const values = form.getValues();
 
+  const addressLine = [values.addressStreet, values.addressNumber]
+    .map((v) => (v || "").trim())
+    .filter(Boolean)
+    .join(", ");
+
+  const horario = values.startTime
+    ? `${values.startTime}${values.endTime ? ` - ${values.endTime}` : " (Sem término)"}`
+    : null;
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-2">
@@ -33,7 +42,7 @@ export function ReviewStep({ form, goToStep }: ReviewStepProps) {
         items={[
           { label: "Empresa/Promotor", value: values.companyName },
           { label: "E-mail", value: values.email },
-          { label: "Endereço", value: `${values.addressStreet || ""}, ${values.addressNumber || ""}` },
+          { label: "Endereço", value: addressLine || null },
         ]}
       />
 
@@ -47,7 +56,7 @@ export function ReviewStep({ form, goToStep }: ReviewStepProps) {
             label: "Data", 
             value: values.date ? format(new Date(values.date), "PPP", { locale: ptBR }) : null 
           },
-          { label: "Horário", value: `${values.startTime}h ${values.endTime ? `- ${values.endTime}h` : '(Sem término)'}` },
+          { label: "Horário", value: horario },
         ]}
       />
 
