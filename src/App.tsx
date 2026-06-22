@@ -171,7 +171,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_NEWSLETTER} element={<AdminNewsletter />} />
           <Route path={ROUTES.ADMIN_ARTISTS} element={<AdminArtists />} />
           <Route path={ROUTES.ADMIN_MEDIA} element={<AdminMedia />} />
-          <Route path={ROUTES.ADMIN_AUDIT} element={<ProtectedRoute masterOnly><AdminAuditLogs /></ProtectedRoute>} />
+          <Route path={ROUTES.ADMIN_AUDIT} element={<AdminAuditLogs />} />
           <Route path={ROUTES.ADMIN_AGENDA_INFORMA} element={<AdminAgendaInforma />} />
           <Route path={ROUTES.ADMIN_WHATSAPP_TEMPLATES} element={<AdminWhatsAppTemplates />} />
           <Route path={ROUTES.RANKING} element={<ProtectedRoute masterOnly><Ranking /></ProtectedRoute>} />
