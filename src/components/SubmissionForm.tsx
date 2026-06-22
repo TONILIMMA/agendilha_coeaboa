@@ -209,6 +209,14 @@ export default function SubmissionForm() {
   const onSubmit = async (values: FormData) => {
     setSubmitting(true);
     try {
+      const clean = (v?: string | null) => {
+        if (v == null) return null;
+        const s = String(v).trim();
+        if (!s) return null;
+        if (/^não informado$/i.test(s)) return null;
+        return s;
+      };
+
       let imageUrl = values.eventImageUrl;
       
       if (eventImage instanceof File) {
@@ -231,34 +239,34 @@ export default function SubmissionForm() {
 
       // Map camelCase form fields → snake_case DB columns
       const payload: any = {
-        company_name: values.companyName,
-        responsible_name: values.nickName,
-        email: values.email || null,
-        phone: values.basicPhone,
-        event_title: values.eventTitle || values.atrativoName,
-        date: values.date,
-        start_time: values.startTime,
-        end_time: values.endTime || null,
-        location: values.locationName,
-        address_street: values.addressStreet || null,
-        address_number: values.addressNumber || null,
-        address_neighborhood: values.addressNeighborhood || null,
-        address_city: values.addressCity || null,
-        address_state: values.addressState || null,
-        address_zip: values.addressZip || null,
-        description: values.description || null,
-        video_link: values.videoLink || null,
-        category: values.category,
-        contact_social: values.contactSocial || null,
-        additional_details: values.additionalDetails || null,
-        stage: values.stage || 'submitted',
-        responsible_person: values.responsiblePerson || null,
-        atrativo_name: values.atrativoName,
-        atrativo_type: values.atrativoType,
-        atrativo_style: values.atrativoStyle || null,
-        atrativo_contact: values.atrativoContact || null,
+        company_name: clean(values.companyName),
+        responsible_name: clean(values.nickName),
+        email: clean(values.email),
+        phone: clean(values.basicPhone),
+        event_title: clean(values.eventTitle) || clean(values.atrativoName),
+        date: clean(values.date),
+        start_time: clean(values.startTime),
+        end_time: clean(values.endTime),
+        location: clean(values.locationName),
+        address_street: clean(values.addressStreet),
+        address_number: clean(values.addressNumber),
+        address_neighborhood: clean(values.addressNeighborhood),
+        address_city: clean(values.addressCity),
+        address_state: clean(values.addressState),
+        address_zip: clean(values.addressZip),
+        description: clean(values.description),
+        video_link: clean(values.videoLink),
+        category: clean(values.category),
+        contact_social: clean(values.contactSocial),
+        additional_details: clean(values.additionalDetails),
+        stage: clean(values.stage) || 'submitted',
+        responsible_person: clean(values.responsiblePerson),
+        atrativo_name: clean(values.atrativoName),
+        atrativo_type: clean(values.atrativoType),
+        atrativo_style: clean(values.atrativoStyle),
+        atrativo_contact: clean(values.atrativoContact),
         location_type: values.locationType,
-        location_contact: values.locationContact || null,
+        location_contact: clean(values.locationContact),
         legal_acceptance: values.legalAcceptance,
         legal_acceptance_date: values.legalAcceptance ? new Date().toISOString() : null,
         age_rating: values.ageRating,
@@ -276,6 +284,7 @@ export default function SubmissionForm() {
       localStorage.removeItem(DRAFT_KEY);
       navigate(`/evento-enviado/${result.id}`, { replace: true });
     } catch (error) {
+      console.error("[SubmissionForm.onSubmit] failed", error);
       handleError(error);
     } finally {
       setSubmitting(false);

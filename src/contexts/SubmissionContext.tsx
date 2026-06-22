@@ -102,7 +102,12 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const addSubmission = useCallback(async (data: Omit<SubmissionEntry, "id" | "created_at" | "user_id" | "deleted_at" | "status" | "rejection_reason"> & { status?: string }) => {
-    if (!user) return null;
+    if (!user) {
+      toast.error("Sessão expirada", {
+        description: "Faça login novamente para enviar o evento.",
+      });
+      return null;
+    }
     const { data: inserted, error } = await supabase
       .from("submissions")
       .insert({ ...data, user_id: user.id } as any)
@@ -110,7 +115,10 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
       .single();
 
     if (error || !inserted) {
-      toast.error("Erro ao salvar envio", { description: error?.message });
+      console.error("[addSubmission] insert failed", error, data);
+      toast.error("Erro ao salvar envio", {
+        description: error?.message || "Não foi possível registrar o evento. Tente novamente.",
+      });
       return null;
     }
     await fetchSubmissions();
