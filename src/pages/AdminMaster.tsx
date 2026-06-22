@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-import { Navigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserBadge } from "@/hooks/useUserBadge";
+import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -31,21 +31,21 @@ import { supabase } from "@/integrations/supabase/client";
 
 export default function AdminMaster() {
   const { user, loading: authLoading } = useAuth();
-  const { status, loaded: badgeLoaded } = useUserBadge();
+  const { isMaster, loading: permsLoading } = useAppPermissions();
 
   const [bootstrapping, setBootstrapping] = useState(false);
 
-  const isMaster = !authLoading && !!user && status === "master";
+  const canLoadMasterData = !authLoading && !permsLoading && !!user && isMaster;
   const {
     data: stats = { users: 0, admins: 0, approved: 0, newsletter: 0 },
     isLoading: loading,
     refetch: refetchStats,
     error: statsError,
-  } = useAdminMasterStats(isMaster);
+  } = useAdminMasterStats(canLoadMasterData);
   if (statsError) handleError(statsError, "Erro ao carregar dados administrativos");
 
   const { data: artistsCount = 0 } = useQuery({
-    enabled: isMaster,
+    enabled: canLoadMasterData,
     queryKey: ["master-artists-count"],
     queryFn: async () => {
       const { count, error } = await supabase
@@ -73,9 +73,7 @@ export default function AdminMaster() {
     }
   }
 
-  if (authLoading || !badgeLoaded) return <LoadingState fullPage message="Autenticando acesso master..." />;
-  if (!user) return <Navigate to="/auth" replace />;
-  if (status !== "master") return <Navigate to="/" replace />;
+  if (authLoading || permsLoading) return <LoadingState fullPage message="Autenticando acesso master..." />;
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
