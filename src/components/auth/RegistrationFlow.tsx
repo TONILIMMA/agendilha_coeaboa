@@ -125,7 +125,10 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
   const handleSignUp = async () => {
     setLoading(true);
     try {
-      const additionalData: any = { profile: {}, artist: null };
+      const additionalData: import("@/contexts/AuthContext").SignUpAdditionalData = {
+        profile: {},
+        artist: undefined,
+      };
 
       if (type === "public") {
         additionalData.profile = {

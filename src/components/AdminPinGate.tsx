@@ -9,6 +9,34 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 const SESSION_KEY = "admin_pin_unlocked";
+const TTL_MS = 30 * 60 * 1000; // 30 min
+
+type UnlockToken = { userId: string; nonce: string; expiresAt: number };
+
+const readUnlock = (userId: string): boolean => {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw) as UnlockToken;
+    if (parsed.userId !== userId) return false;
+    if (!parsed.nonce || parsed.nonce.length < 16) return false;
+    if (Date.now() > parsed.expiresAt) {
+      sessionStorage.removeItem(SESSION_KEY);
+      return false;
+    }
+    return true;
+  } catch {
+    sessionStorage.removeItem(SESSION_KEY);
+    return false;
+  }
+};
+
+const writeUnlock = (userId: string) => {
+  const nonce = crypto.getRandomValues(new Uint8Array(16))
+    .reduce((s, b) => s + b.toString(16).padStart(2, "0"), "");
+  const payload: UnlockToken = { userId, nonce, expiresAt: Date.now() + TTL_MS };
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(payload));
+};
 
 /**
  * Gate de PIN para áreas sensíveis (ex: Usuários).
@@ -33,9 +61,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       setUnlocked(false);
       return;
     }
-    if (sessionStorage.getItem(SESSION_KEY) === user.id) {
-      setUnlocked(true);
-    }
+    if (readUnlock(user.id)) setUnlocked(true);
   }, [user]);
 
   useEffect(() => {
@@ -87,7 +113,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
         return;
       }
 
-      sessionStorage.setItem(SESSION_KEY, user.id);
+      writeUnlock(user.id);
       setUnlocked(true);
     } catch (error) {
       console.error("Error verifying PIN:", error);
@@ -117,7 +143,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       const { error } = await supabase.rpc('update_admin_pin', { new_pin: newPin });
       if (error) throw error;
       
-      sessionStorage.setItem(SESSION_KEY, user.id);
+      writeUnlock(user.id);
       toast.success("PIN atualizado com sucesso");
       setUnlocked(true);
     } catch (error) {
