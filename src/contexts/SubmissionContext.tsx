@@ -114,7 +114,7 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
       .single();
 
     if (error || !inserted) {
-      console.error("[addSubmission] insert failed", error, data);
+      if (import.meta.env.DEV) console.error("[addSubmission] insert failed", error);
       toast.error("Erro ao salvar envio", {
         description: error?.message || "Não foi possível registrar o evento. Tente novamente.",
       });

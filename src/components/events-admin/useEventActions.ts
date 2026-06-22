@@ -82,7 +82,7 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
       .select("id, editorial_status, scheduled_at, scheduled_channel, published_channels, checklist_publ_canal, checklist_visivel_agenda, checklist_envio_registrado, rejection_reason");
     if (error || !data || data.length === 0) {
       const msg = error?.message || "Sem permissão para atualizar este evento (RLS).";
-      console.error("[editorial] update failed", { id, newStatus, patch, error, data });
+      if (import.meta.env.DEV) console.error("[editorial] update failed", { id, newStatus, error });
       toast.error(msg);
       if (prev) setSubmissions(curr => curr.map(s => s.id === id ? prev : s));
       return false;
@@ -109,7 +109,7 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
       .select("id, published_channels, editorial_status, editorial_published_at");
     if (upErr || !upData || upData.length === 0) {
       const msg = upErr?.message || "Sem permissão para publicar este evento (RLS).";
-      console.error("[publish] update failed", { id, channel, channels, error: upErr, data: upData });
+      if (import.meta.env.DEV) console.error("[publish] update failed", { id, channel, error: upErr });
       toast.error(msg);
       if (prev) setSubmissions(curr => curr.map(s => s.id === id ? prev : s));
       return false;
