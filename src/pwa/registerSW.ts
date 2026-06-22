@@ -1,4 +1,5 @@
 import { registerSW } from "virtual:pwa-register";
+import { toast } from "sonner";
 
 const SW_PATH = "/sw.js";
 
@@ -48,8 +49,21 @@ export function setupPWA() {
   const updateSW = registerSW({
     immediate: true,
     onNeedRefresh() {
-      // New build available — activate it and reload to the fresh app shell.
-      void updateSW(true);
+      // New build available — ask the user before reloading.
+      toast("Nova versão disponível", {
+        description: "Atualize para receber as últimas melhorias.",
+        duration: Infinity,
+        action: {
+          label: "Atualizar",
+          onClick: () => {
+            void updateSW(true);
+          },
+        },
+        closeButton: true,
+      });
+    },
+    onOfflineReady() {
+      toast.success("App pronto para uso offline");
     },
     onRegistered(registration) {
       if (!registration) return;
