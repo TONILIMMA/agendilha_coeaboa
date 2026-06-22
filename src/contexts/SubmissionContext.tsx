@@ -77,9 +77,8 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     setLoading(true);
     
-    // Check if user is admin/master to fetch all non-approved, otherwise fetch only their own
-    const { data: userRoles } = await supabase.from('app_user_roles').select('app_roles(name)').eq('user_id', user.id);
-    const isAdmin = userRoles?.some(r => ['admin', 'master', 'master_admin'].includes((r.app_roles as any)?.name));
+    const { data: userRoles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+    const isAdmin = userRoles?.some(({ role }) => role === 'admin' || role === 'master');
     
     let query = supabase
       .from("submissions")

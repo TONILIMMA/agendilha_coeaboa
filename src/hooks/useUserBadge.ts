@@ -41,13 +41,12 @@ export function useUserBadge(): UserBadge {
 
     (async () => {
       try {
-        // Fetch roles from the robust System B (app_user_roles)
         const { data: userRolesData } = await supabase
-          .from('app_user_roles')
-          .select('app_roles(name)')
+          .from('user_roles')
+          .select('role')
           .eq('user_id', user.id);
 
-        const roleNames = userRolesData?.map(r => (r.app_roles as any)?.name).filter(Boolean) || [];
+        const roleNames = userRolesData?.map(r => r.role).filter(Boolean) || [];
 
         // Always try to fetch collaborator name (used as display fallback)
         const { data: collab } = await supabase
@@ -59,7 +58,7 @@ export function useUserBadge(): UserBadge {
         if (cancelled) return;
         if (collab?.name) setCollabName(collab.name);
 
-        if (roleNames.includes('master_admin') || roleNames.includes('developer')) {
+        if (roleNames.includes('master')) {
           setStatus("master");
         } else if (roleNames.includes('admin') || isAdmin) {
           setStatus("admin");

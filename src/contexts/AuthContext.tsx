@@ -69,20 +69,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function checkAdmin(userId: string) {
-    // Check both legacy system and new robust system
-    const { data: legacyAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-    const { data: legacyMaster } = await supabase.rpc("has_role", { _user_id: userId, _role: "master" });
-    
-    const { data: newRoles } = await supabase
-      .from('app_user_roles')
-      .select('app_roles(name)')
+    const { data: roles } = await supabase
+      .from('user_roles')
+      .select('role')
       .eq('user_id', userId);
-    
-    const hasNewRole = newRoles?.some(r => 
-      (r.app_roles as any)?.name === 'admin' || (r.app_roles as any)?.name === 'master_admin'
-    );
 
-    setIsAdmin(!!legacyAdmin || !!legacyMaster || !!hasNewRole);
+    setIsAdmin(!!roles?.some(({ role }) => role === 'admin' || role === 'master'));
   }
 
   async function checkMustChangePassword(userId: string) {
