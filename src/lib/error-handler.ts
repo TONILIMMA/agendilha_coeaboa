@@ -13,7 +13,9 @@ export interface AppError extends Error {
  * Categorizes errors and provides user-friendly feedback via toasts.
  */
 export function handleError(error: unknown, fallbackMessage = "Ocorreu um erro inesperado") {
-  console.error("App Error:", error);
+  if (import.meta.env.DEV) {
+    console.error("App Error:", error);
+  }
 
   let message = fallbackMessage;
   let description = "";
@@ -92,13 +94,13 @@ export function handleError(error: unknown, fallbackMessage = "Ocorreu um erro i
 /**
  * Type guard for Supabase PostgrestError
  */
-function isPostgrestError(error: any): error is PostgrestError {
+function isPostgrestError(error: unknown): error is PostgrestError {
   return error && typeof error === 'object' && 'code' in error && 'details' in error;
 }
 
 /**
  * Type guard for Supabase Auth errors
  */
-function isAuthError(error: any): error is { message: string; status?: number } {
+function isAuthError(error: unknown): error is { message: string; status?: number } {
   return error && typeof error === 'object' && 'message' in error && !('code' in error);
 }
