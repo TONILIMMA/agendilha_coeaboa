@@ -55,11 +55,14 @@ export function useAppPermissions() {
   const { user } = useAuth();
   const userId = user?.id ?? null;
 
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["app-permissions", userId],
     enabled: !!userId,
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
     queryFn: async () => {
       const [rolesResponse, collaboratorResponse, profileResponse] = await Promise.all([
         supabase.from("user_roles").select("role").eq("user_id", userId!),
@@ -103,9 +106,10 @@ export function useAppPermissions() {
 
   const permissions = data?.permissions ?? new Set<PermissionName>();
   const roles = data?.roles ?? [];
-  // Considera "loading" enquanto há usuário mas ainda não temos a primeira resposta,
-  // evitando uma janela em que isMaster fica falso e dispara redirecionamento indevido.
-  const loading = !!userId && (isLoading || isFetching || !data);
+  // Considera "loading" apenas enquanto não temos a primeira resposta.
+  // Não bloquear por refetches em background — isso causava "flicker" e
+  // intermitências no acesso ao Painel Master.
+  const loading = !!userId && isLoading && !data;
 
   const hasPermission = (permission: PermissionName) => permissions.has(permission);
   const hasRole = (role: string) => roles.includes(role);
