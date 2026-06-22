@@ -194,6 +194,7 @@ export const AppRoutes = () => (
         <Route path="/lp" element={<Navigate to={ROUTES.LANDING} replace />} />
         {/* Defensive: bare /master and /admin should land on a real page */}
         <Route path="/master" element={<Navigate to={ROUTES.MASTER_DASHBOARD} replace />} />
+        <Route path="/admin/master" element={<Navigate to={ROUTES.MASTER_DASHBOARD} replace />} />
         <Route path="/admin" element={<Navigate to={ROUTES.ADMIN_EVENTS} replace />} />
         <Route path="/carrossel" element={<Carrossel />} />
         <Route path="*" element={<NotFound />} />
