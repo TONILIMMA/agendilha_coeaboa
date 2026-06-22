@@ -1794,11 +1794,6 @@ export type Database = {
         }[]
       }
       get_pipeline_metrics: { Args: never; Returns: Json }
-      get_user_permissions: { Args: { p_user_id: string }; Returns: string[] }
-      has_app_permission: {
-        Args: { p_permission_name: string; p_user_id: string }
-        Returns: boolean
-      }
       has_permission: {
         Args: { _permission: string; _user_id: string }
         Returns: boolean
