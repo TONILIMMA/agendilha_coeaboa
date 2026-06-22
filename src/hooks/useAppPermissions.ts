@@ -78,7 +78,7 @@ export function useAppPermissions() {
           supabase.from('profiles').select('role').eq('user_id', user.id).maybeSingle(),
         ]);
 
-        const roleNames = rolesResponse.data?.map(r => r.role).filter(Boolean) || [];
+        const roleNames: string[] = rolesResponse.data?.map(r => r.role).filter(Boolean) || [];
         const nextPermissions = new Set<PermissionName>();
         const isAdminRole = roleNames.includes('admin') || roleNames.includes('master');
 
@@ -88,6 +88,7 @@ export function useAppPermissions() {
 
         const collaborator = collaboratorResponse.data as CollaboratorPermissions | null;
         if (collaborator?.is_active) {
+          if (!roleNames.includes('collaborator')) roleNames.push('collaborator');
           nextPermissions.add('events.read');
           collaboratorPermissionMap.forEach(([field, permission]) => {
             if (collaborator[field]) nextPermissions.add(permission);
