@@ -3,6 +3,37 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { handleError } from "@/lib/error-handler";
 
+const ADMIN_PERMISSIONS: PermissionName[] = [
+  'events.create',
+  'events.read',
+  'events.update',
+  'events.approve',
+  'events.cancel',
+  'events.delete',
+  'users.read',
+  'users.update',
+  'users.promote',
+  'users.demote',
+  'admins.invite',
+  'admins.remove',
+  'roles.manage',
+  'audit_logs.read',
+];
+
+const collaboratorPermissionMap: Array<[keyof CollaboratorPermissions, PermissionName]> = [
+  ['can_submit', 'events.create'],
+  ['can_approve', 'events.approve'],
+  ['can_edit', 'events.update'],
+  ['can_delete', 'events.delete'],
+];
+
+type CollaboratorPermissions = {
+  can_submit: boolean;
+  can_approve: boolean;
+  can_edit: boolean;
+  can_delete: boolean;
+  is_active: boolean;
+};
 
 export type PermissionName = 
   | 'events.create'
@@ -37,33 +68,42 @@ export function useAppPermissions() {
     async function loadPermissions() {
       try {
         setLoading(true);
-        // Fetch everything in one parallel batch
-        const [rolesResponse, permsResponse, profileResponse] = await Promise.all([
-          supabase.from('app_user_roles').select('app_roles(name)').eq('user_id', user.id),
-          supabase.rpc('get_user_permissions', { p_user_id: user.id }),
-          supabase.from('profiles').select('role').eq('user_id', user.id).maybeSingle()
+        const [rolesResponse, collaboratorResponse, profileResponse] = await Promise.all([
+          supabase.from('user_roles').select('role').eq('user_id', user.id),
+          supabase
+            .from('collaborators')
+            .select('can_submit, can_approve, can_edit, can_delete, is_active')
+            .eq('user_id', user.id)
+            .maybeSingle(),
+          supabase.from('profiles').select('role').eq('user_id', user.id).maybeSingle(),
         ]);
 
-        let roleNames = rolesResponse.data?.map(r => (r.app_roles as any)?.name).filter(Boolean) || [];
-        
-        // Legacy system fallback for transition period
-        if (roleNames.length === 0) {
-          const { data: legacyRoles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
-          legacyRoles?.forEach(r => {
-            if (r.role === 'master' && !roleNames.includes('master_admin')) roleNames.push('master_admin');
-            if (r.role === 'admin' && !roleNames.includes('admin')) roleNames.push('admin');
+        const roleNames = rolesResponse.data?.map(r => r.role).filter(Boolean) || [];
+        const nextPermissions = new Set<PermissionName>();
+        const isAdminRole = roleNames.includes('admin') || roleNames.includes('master');
+
+        if (isAdminRole) {
+          ADMIN_PERMISSIONS.forEach(permission => nextPermissions.add(permission));
+        }
+
+        const collaborator = collaboratorResponse.data as CollaboratorPermissions | null;
+        if (collaborator?.is_active) {
+          nextPermissions.add('events.read');
+          collaboratorPermissionMap.forEach(([field, permission]) => {
+            if (collaborator[field]) nextPermissions.add(permission);
           });
         }
 
-        // Add 'promoter' or other roles from profiles if applicable
         if (profileResponse.data?.role && !roleNames.includes(profileResponse.data.role)) {
           roleNames.push(profileResponse.data.role);
         }
 
-        setRoles(roleNames);
-        if (permsResponse.data) {
-          setPermissions(new Set(permsResponse.data as PermissionName[]));
+        if (profileResponse.data?.role === 'promoter') {
+          nextPermissions.add('events.create');
         }
+
+        setRoles(roleNames);
+        setPermissions(nextPermissions);
       } catch (error) {
         handleError(error, "Erro ao carregar permissões");
       } finally {
@@ -79,7 +119,7 @@ export function useAppPermissions() {
   const hasRole = (role: string) => roles.includes(role);
 
   // Derived capability flags (replacing usePermissions legacy logic)
-  const isMaster = roles.includes('master_admin') || roles.includes('master') || roles.includes('developer');
+  const isMaster = roles.includes('master');
   const isAdmin = roles.includes('admin') || isMaster;
   const isPromoter = roles.includes('promoter');
   const isCollaborator = roles.includes('collaborator') || isAdmin;
