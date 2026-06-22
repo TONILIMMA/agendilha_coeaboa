@@ -16,6 +16,8 @@ import {
   LayoutDashboard,
   UserPlus,
   Music2,
+  ChevronDown,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
@@ -123,27 +125,62 @@ export default function AdminMaster() {
           {loading ? (
             <LoadingState message="Calculando métricas de acesso..." />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              {[
-                { icon: Users, label: "Usuários", value: stats.users, color: "text-primary" },
-                { icon: Shield, label: "Admins", value: stats.admins, color: "text-secondary" },
-                { icon: CalendarCheck, label: "Eventos", value: stats.approved, color: "text-emerald-600" },
-                { icon: LayoutDashboard, label: "Newsletter", value: stats.newsletter, color: "text-blue-600" },
-                { icon: Music2, label: "Músicos", value: artistsCount, color: "text-purple-600" },
-              ].map((item, i) => (
-                <Card key={i} className="border-border/50 hover:shadow-md transition-shadow">
-                  <CardContent className="p-6 flex items-center gap-4">
-                    <div className={cn("h-12 w-12 rounded-2xl bg-muted/50 flex items-center justify-center", item.color)}>
-                      <item.icon className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{item.label}</p>
-                      <p className="text-2xl font-black">{item.value}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <ManagementCards
+              items={[
+                {
+                  icon: Users,
+                  label: "Usuários",
+                  value: stats.users,
+                  color: "text-primary",
+                  description: "Total de contas registradas na plataforma.",
+                  actions: [
+                    { label: "Gerenciar usuários", to: "/admin/users" },
+                    { label: "Ver logs de acesso", to: "/master/logs" },
+                  ],
+                },
+                {
+                  icon: Shield,
+                  label: "Admins",
+                  value: stats.admins,
+                  color: "text-secondary",
+                  description: "Contas com privilégios administrativos ativos.",
+                  actions: [
+                    { label: "Promover/Revogar admins", to: "/admin/users" },
+                  ],
+                },
+                {
+                  icon: CalendarCheck,
+                  label: "Eventos",
+                  value: stats.approved,
+                  color: "text-emerald-600",
+                  description: "Eventos aprovados e publicados.",
+                  actions: [
+                    { label: "Gerenciar eventos", to: "/admin/events" },
+                    { label: "Aprovar pendentes", to: "/admin/events?status=pending" },
+                  ],
+                },
+                {
+                  icon: LayoutDashboard,
+                  label: "Newsletter",
+                  value: stats.newsletter,
+                  color: "text-blue-600",
+                  description: "Inscritos recebendo a newsletter semanal.",
+                  actions: [
+                    { label: "Ver inscritos", to: "/admin/newsletter" },
+                  ],
+                },
+                {
+                  icon: Music2,
+                  label: "Músicos",
+                  value: artistsCount,
+                  color: "text-purple-600",
+                  description: "Perfis de artistas cadastrados.",
+                  actions: [
+                    { label: "Painel de músicos", to: "/master/musicos" },
+                  ],
+                },
+              ]}
+            />
           )}
           
           <div className="flex justify-center py-10">
@@ -159,6 +196,78 @@ export default function AdminMaster() {
           <MasterArtistsPanel />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+type ManagementItem = {
+  icon: typeof Users;
+  label: string;
+  value: number;
+  color: string;
+  description: string;
+  actions: { label: string; to: string }[];
+};
+
+function ManagementCards({ items }: { items: ManagementItem[] }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-start">
+      {items.map((item, i) => {
+        const isOpen = openIndex === i;
+        return (
+          <Card
+            key={i}
+            className={cn(
+              "border-border/50 transition-all cursor-pointer hover:shadow-md hover:border-primary/40",
+              isOpen && "shadow-lg border-primary/60 ring-1 ring-primary/30 sm:col-span-2 lg:col-span-5"
+            )}
+            onClick={() => setOpenIndex(isOpen ? null : i)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setOpenIndex(isOpen ? null : i);
+              }
+            }}
+            aria-expanded={isOpen}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className={cn("h-12 w-12 rounded-2xl bg-muted/50 flex items-center justify-center shrink-0", item.color)}>
+                  <item.icon className="h-6 w-6" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{item.label}</p>
+                  <p className="text-2xl font-black">{item.value}</p>
+                </div>
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 text-muted-foreground transition-transform shrink-0",
+                    isOpen && "rotate-180"
+                  )}
+                />
+              </div>
+              {isOpen && (
+                <div className="mt-5 pt-5 border-t border-border/60 space-y-4 animate-fade-in">
+                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {item.actions.map((a) => (
+                      <Link key={a.to + a.label} to={a.to} onClick={(e) => e.stopPropagation()}>
+                        <Button size="sm" variant="outline" className="rounded-full gap-2">
+                          {a.label}
+                          <ExternalLink className="h-3 w-3" />
+                        </Button>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
