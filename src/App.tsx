@@ -58,9 +58,9 @@ const queryClient = new QueryClient({
       staleTime: 60_000,
       gcTime: 5 * 60_000,
       refetchOnWindowFocus: false,
-      retry: (failureCount, error: any) => {
-        // Don't retry on 404s or 403s
-        if (error?.status === 404 || error?.status === 403 || error?.code === 'PGRST116') return false;
+      retry: (failureCount, error: unknown) => {
+        const e = error as { status?: number; code?: string } | null;
+        if (e?.status === 404 || e?.status === 403 || e?.code === 'PGRST116') return false;
         return failureCount < 2;
       },
     },
