@@ -132,6 +132,26 @@ export default function EventDetail() {
     event.address_city
   ].filter(Boolean).join(", ");
 
+  const mapsUrl = event.latitude && event.longitude
+    ? `https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([event.location, fullAddress].filter(Boolean).join(", "))}`;
+
+  const shareToFriend = () => {
+    const msg = `Olha esse rolê na Ilha 🌴\n\n*${event.event_title}*` +
+      (event.date ? `\n🗓️ ${formatBrazilianDate(event.date)}` : "") +
+      (event.start_time ? ` · ${event.start_time}` : "") +
+      (event.location ? `\n📍 ${event.location}${event.address_neighborhood ? ` – ${event.address_neighborhood}` : ""}` : "") +
+      `\n\nDetalhes: ${window.location.href}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+  };
+
+  const priceLabel = (() => {
+    if (!event.sale_price) return "Consultar";
+    const v = event.sale_price.trim().toLowerCase();
+    if (!v || v === "0" || v === "gratuito" || v === "grátis" || v === "gratis" || v === "free") return "Gratuito";
+    return event.sale_price;
+  })();
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Hero */}
@@ -166,7 +186,7 @@ export default function EventDetail() {
         </div>
       </div>
 
-      <div className="container max-w-4xl mx-auto px-5 md:px-8 mt-10 md:mt-14">
+      <div className="container max-w-4xl mx-auto px-5 md:px-8 mt-10 md:mt-14 pb-28 lg:pb-0">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-14">
           {/* Main */}
           <article className="lg:col-span-2 space-y-10">
@@ -198,6 +218,60 @@ export default function EventDetail() {
                 {event.description || "Nenhuma descrição fornecida para este evento."}
               </div>
             </section>
+
+            {/* Practical info */}
+            <section>
+              <h2 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 mb-4">Informações práticas</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-2xl ring-1 ring-foreground/[0.08] p-4 flex items-start gap-3">
+                  <Clock className="h-4 w-4 mt-0.5 text-foreground/60" strokeWidth={2} />
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground/55">Horário</p>
+                    <p className="text-sm font-medium mt-0.5">
+                      {event.start_time || "A confirmar"}
+                      {event.end_time ? ` até ${event.end_time}` : ""}
+                    </p>
+                  </div>
+                </div>
+                <div className="rounded-2xl ring-1 ring-foreground/[0.08] p-4 flex items-start gap-3">
+                  <Ticket className="h-4 w-4 mt-0.5 text-foreground/60" strokeWidth={2} />
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground/55">Entrada</p>
+                    <p className="text-sm font-medium mt-0.5">{priceLabel}</p>
+                    {event.promotion_rules && (
+                      <p className="text-xs text-foreground/60 mt-1 leading-snug">{event.promotion_rules}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="rounded-2xl ring-1 ring-foreground/[0.08] p-4 flex items-start gap-3">
+                  {event.is_suitable_for_minors ? <Users className="h-4 w-4 mt-0.5 text-foreground/60" strokeWidth={2} /> : <Baby className="h-4 w-4 mt-0.5 text-foreground/60" strokeWidth={2} />}
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground/55">Faixa etária</p>
+                    <p className="text-sm font-medium mt-0.5">
+                      {event.age_rating || (event.is_suitable_for_minors ? "Livre" : "A confirmar")}
+                    </p>
+                  </div>
+                </div>
+                <div className="rounded-2xl ring-1 ring-foreground/[0.08] p-4 flex items-start gap-3">
+                  <MapPin className="h-4 w-4 mt-0.5 text-foreground/60" strokeWidth={2} />
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground/55">Local</p>
+                    <p className="text-sm font-medium mt-0.5 truncate">{event.location || "—"}</p>
+                    {event.address_neighborhood && (
+                      <p className="text-xs text-foreground/60 mt-0.5">{event.address_neighborhood}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                className="mt-4 w-full sm:w-auto h-11 rounded-full border-foreground/15 font-semibold tracking-tight"
+                onClick={() => window.open(mapsUrl, "_blank")}
+              >
+                <Navigation className="h-4 w-4 mr-2" strokeWidth={2} /> Como chegar
+              </Button>
+            </section>
           </article>
 
           {/* Aside */}
@@ -205,12 +279,17 @@ export default function EventDetail() {
             <div className="lg:sticky lg:top-24 space-y-5 lg:bg-card lg:p-6 lg:rounded-3xl lg:ring-1 lg:ring-foreground/[0.06] lg:shadow-none">
               <Button
                 className="w-full h-12 rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight shadow-none"
-                onClick={() => {
-                  const msg = `Olá! Tenho interesse no evento "${event.event_title}" que vi no AgendIlha.`;
-                  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-                }}
+                onClick={() => window.open(mapsUrl, "_blank")}
               >
-                <MessageCircle className="h-4 w-4 mr-2" strokeWidth={2} /> Tenho interesse
+                <Navigation className="h-4 w-4 mr-2" strokeWidth={2} /> Como chegar
+              </Button>
+
+              <Button
+                variant="outline"
+                className="w-full h-11 rounded-full border-foreground/15 font-medium"
+                onClick={shareToFriend}
+              >
+                <Send className="h-4 w-4 mr-2" strokeWidth={2} /> Enviar para um amigo
               </Button>
 
               <div className="flex gap-2">
@@ -266,6 +345,31 @@ export default function EventDetail() {
               Publicado no AgendIlha · #{event.id.slice(0, 6)}
             </p>
           </aside>
+        </div>
+      </div>
+
+      {/* Sticky mobile CTA */}
+      <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden border-t border-foreground/10 bg-background/95 backdrop-blur-md px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="flex items-center gap-2 max-w-4xl mx-auto">
+          <FavoriteButton
+            eventId={event.id}
+            className="h-11 w-11 shrink-0 rounded-full bg-transparent border border-foreground/15 text-foreground hover:bg-foreground/5"
+          />
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-11 w-11 shrink-0 rounded-full border-foreground/15"
+            onClick={shareToFriend}
+            aria-label="Enviar para amigo"
+          >
+            <Send className="h-4 w-4" strokeWidth={2} />
+          </Button>
+          <Button
+            className="flex-1 h-11 rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight"
+            onClick={() => window.open(mapsUrl, "_blank")}
+          >
+            <Navigation className="h-4 w-4 mr-2" strokeWidth={2} /> Como chegar
+          </Button>
         </div>
       </div>
     </div>
