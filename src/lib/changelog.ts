@@ -4,9 +4,14 @@
  * Como usar:
  *  1. Antes de publicar uma nova versão, aumente APP_VERSION (ex.: "2026.06.30").
  *  2. Adicione um novo item no TOPO da lista UPDATES com o mesmo número de versão.
- *  3. Escreva em linguagem normal, como se estivesse explicando para um amigo.
- *     - "title" curto (até 60 caracteres).
- *     - "items" são bullets do que mudou e como usar.
+ *  3. Escreva como se fosse uma conversa entre amigos da Ilha (guia de voz do AgendIlha):
+ *     - "title": comece SEMPRE com "Novidade no AgendIlha:" ou "Novo jeito de…".
+ *       Curto, até 60 caracteres, sem ponto final.
+ *     - "items": 2–4 bullets, cada um com 1 frase curta no padrão
+ *       "[O que mudou]. [Como usar, em linguagem do dia a dia]."
+ *     - PROIBIDO usar termos técnicos no texto do modal: nada de "RLS", "endpoint",
+ *       "service worker", "cache", "deploy", "PWA", "API". Se precisar citar, troque
+ *       por uma explicação simples ("instalar como app", "atualizar com 1 toque").
  *
  * O modal aparece UMA VEZ por versão para cada usuário (salvo em localStorage).
  */
@@ -24,12 +29,12 @@ export const UPDATES: AppUpdate[] = [
   {
     version: "2026.06.30",
     date: "30/06/2026",
-    title: "Notificações, instalação no celular e avisos de atualização",
+    title: "Novidade no AgendIlha: app no celular e sininho de avisos",
     items: [
-      "Agora você pode instalar o AgendIlha como app no seu celular: aparece um botão discreto no rodapé, é só tocar em 'Instalar'.",
-      "Quando sair uma nova versão do app, você verá um aviso para atualizar com 1 toque — nada de ficar preso em telas antigas.",
-      "Administradores recebem um sininho no canto superior: cada novo evento enviado aparece ali. Clicou na notificação, vai direto para o evento aguardando aprovação.",
-      "Toda atualização importante vai abrir uma janelinha como esta, explicando o que mudou.",
+      "Dá pra instalar o AgendIlha no celular. Toca em 'Instalar' no rodapé e ele vira app na sua tela inicial.",
+      "Saiu versão nova? Aparece um aviso pra atualizar com 1 toque, sem ficar preso em tela antiga.",
+      "Sininho lá em cima pros administradores: cada evento novo cai ali. Clica e vai direto pro rolê esperando aprovação.",
+      "Toda mudança importante abre uma janelinha como esta contando o que tá novo.",
     ],
   },
 ];
