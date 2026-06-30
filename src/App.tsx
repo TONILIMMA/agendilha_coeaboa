@@ -13,6 +13,7 @@ import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { AppShell } from "@/components/layout/AppShell";
 import { handleError } from "@/lib/error-handler";
 import { ROUTES } from "@/routes/config";
+import { PromotorRoute } from "@/components/auth/PromotorRoute";
 
 // Critical (above-the-fold) — keep eager
 import Landing from "./pages/Landing";
@@ -55,7 +56,6 @@ const AdminEstabelecimentos = lazy(() => import("./pages/AdminEstabelecimentos")
 const CadastroPromotor = lazy(() => import("./pages/cadastro/CadastroPromotor"));
 const PromotorEstabelecimentos = lazy(() => import("./pages/promotor/PromotorEstabelecimentos"));
 const PromotorAtrativos = lazy(() => import("./pages/promotor/PromotorAtrativos"));
-import { PromotorRoute } from "@/components/auth/PromotorRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
