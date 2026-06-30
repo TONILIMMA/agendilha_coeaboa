@@ -34,6 +34,7 @@ import { useUserBadge } from "@/hooks/useUserBadge";
   import { HeaderUserMenu } from "@/components/HeaderUserMenu";
  import { SidebarMenu } from "@/components/SidebarMenu";
 import SubmissionsPanel from "@/components/SubmissionsPanel";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -351,6 +352,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
 
             return (
              <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+              <NotificationBell />
               {/* Envios — desktop/tablet only */}
               <Tooltip>
                 <TooltipTrigger asChild>
