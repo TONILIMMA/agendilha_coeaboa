@@ -554,6 +554,54 @@ export type Database = {
           },
         ]
       }
+      estabelecimentos: {
+        Row: {
+          bairro: string | null
+          cep: string | null
+          complemento: string | null
+          contato: string | null
+          created_at: string
+          created_by: string | null
+          endereco: string | null
+          id: string
+          nome: string
+          numero: string | null
+          responsavel_id: string | null
+          tipo: string | null
+          updated_at: string
+        }
+        Insert: {
+          bairro?: string | null
+          cep?: string | null
+          complemento?: string | null
+          contato?: string | null
+          created_at?: string
+          created_by?: string | null
+          endereco?: string | null
+          id?: string
+          nome: string
+          numero?: string | null
+          responsavel_id?: string | null
+          tipo?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bairro?: string | null
+          cep?: string | null
+          complemento?: string | null
+          contato?: string | null
+          created_at?: string
+          created_by?: string | null
+          endereco?: string | null
+          id?: string
+          nome?: string
+          numero?: string | null
+          responsavel_id?: string | null
+          tipo?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       event_audit_log: {
         Row: {
           action: string
@@ -1068,6 +1116,7 @@ export type Database = {
           editorial_status: Database["public"]["Enums"]["editorial_status"]
           email: string | null
           end_time: string | null
+          estabelecimento_id: string | null
           event_title: string
           flyer_approved_at: string | null
           flyer_aprovado: boolean
@@ -1154,6 +1203,7 @@ export type Database = {
           editorial_status?: Database["public"]["Enums"]["editorial_status"]
           email?: string | null
           end_time?: string | null
+          estabelecimento_id?: string | null
           event_title: string
           flyer_approved_at?: string | null
           flyer_aprovado?: boolean
@@ -1240,6 +1290,7 @@ export type Database = {
           editorial_status?: Database["public"]["Enums"]["editorial_status"]
           email?: string | null
           end_time?: string | null
+          estabelecimento_id?: string | null
           event_title?: string
           flyer_approved_at?: string | null
           flyer_aprovado?: boolean
@@ -1303,6 +1354,13 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "public_artist_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_estabelecimento_id_fkey"
+            columns: ["estabelecimento_id"]
+            isOneToOne: false
+            referencedRelation: "estabelecimentos"
             referencedColumns: ["id"]
           },
         ]

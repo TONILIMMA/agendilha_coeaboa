@@ -2,24 +2,21 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
-import { MapPin, Search } from "lucide-react";
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { MapPin } from "lucide-react";
+import {
+  EstabelecimentoAutocomplete,
+  type EstabelecimentoSuggestion,
+} from "@/components/estabelecimentos/EstabelecimentoAutocomplete";
 
 export function LocationStep({ form }: { form: UseFormReturn<any> }) {
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-
-  const searchLocation = async (query: string) => {
-    if (query.length < 3) {
-      setSuggestions([]);
-      return;
-    }
-    const { data } = await supabase
-      .from("portal_locations")
-      .select("*")
-      .ilike("name", `%${query}%`)
-      .limit(5);
-    setSuggestions(data || []);
+  const handleSelectEstab = (s: EstabelecimentoSuggestion) => {
+    form.setValue("locationName", s.nome, { shouldValidate: true });
+    form.setValue("estabelecimentoId", s.id);
+    const enderecoCompleto = [s.endereco, s.numero, s.bairro].filter(Boolean).join(", ");
+    if (enderecoCompleto) form.setValue("eventAddress", enderecoCompleto, { shouldValidate: true });
+    if (s.bairro) form.setValue("addressNeighborhood", s.bairro);
+    if (s.tipo) form.setValue("locationType", s.tipo);
+    if (s.contato) form.setValue("locationContact", s.contato);
   };
 
   return (
@@ -29,56 +26,35 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
           <MapPin className="h-5 w-5" />
           Local do Evento
         </h2>
-        <p className="text-sm text-muted-foreground">Onde a mágica vai acontecer?</p>
+        <p className="text-sm text-muted-foreground">
+          Comece digitando o nome — se o local já existir, preenchemos o resto pra você.
+        </p>
       </div>
 
-      <div className="relative">
-        <FormField
-          control={form.control}
-          name="locationName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nome do Local</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Input 
-                    placeholder="Nome da casa, bar, praça..." 
-                    className="h-12 pr-10" 
-                    {...field} 
-                    onChange={(e) => {
-                      field.onChange(e);
-                      searchLocation(e.target.value);
-                    }}
-                  />
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50" />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {suggestions.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-background border rounded-lg shadow-lg overflow-hidden">
-            {suggestions.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm"
-                onClick={() => {
-                  form.setValue("locationName", s.name);
-                  form.setValue("eventAddress", s.address || "");
-                  form.setValue("locationType", s.type === "public" ? "public" : "commercial");
-                  form.setValue("locationContact", s.contact_responsible || "");
-                  setSuggestions([]);
+      <FormField
+        control={form.control}
+        name="locationName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Nome do Local</FormLabel>
+            <FormControl>
+              <EstabelecimentoAutocomplete
+                value={field.value ?? ""}
+                onChange={(v) => {
+                  field.onChange(v);
+                  // Se o usuário editar manualmente após selecionar, desfaz o vínculo
+                  if (form.getValues("estabelecimentoId")) {
+                    form.setValue("estabelecimentoId", "");
+                  }
                 }}
-              >
-                <span className="font-bold">{s.name}</span>
-                <span className="text-muted-foreground ml-2">({s.address})</span>
-              </button>
-            ))}
-          </div>
+                onSelect={handleSelectEstab}
+                placeholder="Nome da casa, bar, praça..."
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
         )}
-      </div>
+      />
 
       <FormField
         control={form.control}
