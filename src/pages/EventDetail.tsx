@@ -9,7 +9,8 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { 
   CalendarDays, MapPin, Clock, Share2, ArrowLeft, 
   Tag, Info, ExternalLink, MessageCircle, Heart,
-  Building2, ChevronRight, LayoutDashboard, Globe
+  Building2, ChevronRight, LayoutDashboard, Globe,
+  Navigation, Send, Ticket, Baby, Users
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatBrazilianDate } from "@/lib/date-utils";
@@ -36,6 +37,14 @@ interface Event {
   status: string;
   artist_name?: string | null;
   music_style?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  age_rating?: string | null;
+  is_suitable_for_minors?: boolean | null;
+  sale_price?: string | null;
+  promotion_type?: string | null;
+  promotion_rules?: string | null;
+  end_time?: string | null;
 }
 
 export default function EventDetail() {
