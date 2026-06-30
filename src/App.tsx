@@ -52,6 +52,10 @@ const EventoEnviado = lazy(() => import("./pages/EventoEnviado"));
 const MeusEventos = lazy(() => import("./pages/MeusEventos"));
 const AdminWhatsAppTemplates = lazy(() => import("./pages/AdminWhatsAppTemplates"));
 const AdminEstabelecimentos = lazy(() => import("./pages/AdminEstabelecimentos"));
+const CadastroPromotor = lazy(() => import("./pages/cadastro/CadastroPromotor"));
+const PromotorEstabelecimentos = lazy(() => import("./pages/promotor/PromotorEstabelecimentos"));
+const PromotorAtrativos = lazy(() => import("./pages/promotor/PromotorAtrativos"));
+import { PromotorRoute } from "@/components/auth/PromotorRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -145,6 +149,7 @@ export const AppRoutes = () => (
         <Route path={ROUTES.CADASTRO_DIVULGADOR} element={<CadastroDivulgador />} />
         <Route path={ROUTES.CADASTRO_ARTISTA} element={<CadastroArtista />} />
         <Route path={ROUTES.CADASTRO_SUCESSO} element={<CadastroSucesso />} />
+        <Route path={ROUTES.CADASTRO_PROMOTOR} element={<CadastroPromotor />} />
         
         {/* App Wrapper for standard pages */}
         <Route element={<AppShell maxWidth="md"><Outlet /></AppShell>}>
@@ -175,6 +180,13 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_AGENDA_INFORMA} element={<AdminAgendaInforma />} />
           <Route path={ROUTES.ADMIN_WHATSAPP_TEMPLATES} element={<AdminWhatsAppTemplates />} />
           <Route path={ROUTES.ADMIN_ESTABELECIMENTOS} element={<AdminEstabelecimentos />} />
+        </Route>
+
+        {/* Promotor area — guarded by user_type=promotor (admins/masters incluídos) */}
+        <Route element={<PromotorRoute><AppShell maxWidth="lg"><Outlet /></AppShell></PromotorRoute>}>
+          <Route path={ROUTES.PROMOTOR_HOME} element={<Navigate to={ROUTES.PROMOTOR_ESTABELECIMENTOS} replace />} />
+          <Route path={ROUTES.PROMOTOR_ESTABELECIMENTOS} element={<PromotorEstabelecimentos />} />
+          <Route path={ROUTES.PROMOTOR_ATRATIVOS} element={<PromotorAtrativos />} />
         </Route>
 
         {/* Master Pages - isolated from regular admin permissions */}
