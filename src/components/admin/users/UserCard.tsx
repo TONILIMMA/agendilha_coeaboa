@@ -1,29 +1,16 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import {
-  Loader2,
-  User,
-  Phone,
-  MapPin,
-  Music,
-  Pencil,
-  Check,
-  X,
-  Trash2,
-  KeyRound,
-  ChevronDown,
-  MessageSquare,
-  Users,
+  Loader2, User, Phone, MapPin, Music, Pencil, Check, X, Trash2,
+  KeyRound, ChevronDown, ChevronUp, MessageSquare, Mail, Calendar,
+  ShieldCheck, Crown,
 } from "lucide-react";
 import {
   isValidBrazilianMobile,
@@ -87,220 +74,235 @@ export function UserCard(props: UserCardProps) {
     onAskReset,
   } = props;
 
-  return (
-    <Card className="group hover:shadow-md transition-all duration-300 border-border bg-card overflow-hidden">
-      <CardContent className="p-0">
-        <div className="flex flex-col md:flex-row md:items-center p-4 sm:p-6 gap-6 relative">
-          {/* Profile */}
-          <div className="flex-1 flex gap-4 min-w-0">
-            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0 space-y-1">
-              <div className="flex items-center gap-2 flex-wrap pr-10 md:pr-0">
-                {editingId === u.id ? (
-                  <div className="flex items-center gap-2 w-full max-w-sm">
-                    <Input
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className="h-9"
-                      autoFocus
-                      disabled={savingEdit}
-                    />
-                    <div className="flex gap-1 shrink-0">
-                      <Button size="sm" className="h-9 w-9 p-0" onClick={() => onSaveEdit(u)} disabled={savingEdit}>
-                        {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                      </Button>
-                      <Button size="sm" variant="ghost" className="h-9 w-9 p-0" onClick={onCancelEdit} disabled={savingEdit}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <h3 className="text-base sm:text-lg font-bold text-foreground truncate max-w-[150px] xs:max-w-none">
-                      {u.responsible_name || <span className="text-muted-foreground italic text-sm">Nome não definido</span>}
-                    </h3>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {u.status && <StatusBadge role={u.status} />}
-                      {u.user_type && u.user_type !== "usuario" && (
-                        <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-widest px-2 py-0">
-                          {u.user_type}
-                        </Badge>
-                      )}
-                      {(isMaster || (!u.is_admin && u.status !== "master")) && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-7 w-7 text-muted-foreground opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => onStartEdit(u)}
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
+  const [expanded, setExpanded] = useState(false);
+  const isSelf = u.id === currentUserId;
+  const canEditRoles = isMaster && !isSelf;
+  const isEditing = editingId === u.id;
 
-              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-4 gap-y-1 text-[11px] sm:text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5 truncate">
-                  <Phone className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                  {formatPhone(u.phone)}
-                </span>
-                <span className="flex items-center gap-1.5 truncate">
-                  <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                  {u.address_neighborhood || <span className="text-rose-400 font-medium">Bairro?</span>}
-                </span>
-                {u.musical_preferences && u.musical_preferences.length > 0 && (
-                  <span className="flex items-center gap-1.5 truncate">
-                    <Music className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                    {u.musical_preferences.slice(0, 1).join(", ")}
-                    {u.musical_preferences.length > 1 && "..."}
-                  </span>
-                )}
-              </div>
-              <p className="text-[9px] sm:text-[10px] text-muted-foreground/60 uppercase tracking-widest font-mono pt-1">
-                UID: {u.id.slice(0, 6)}... • {new Date(u.created_at).toLocaleDateString("pt-BR")}
-              </p>
+  // Tipos disponíveis na ficha administrativa
+  const userTypes = [
+    { value: "usuario", label: "Público" },
+    { value: "promotor", label: "Promotor" },
+    { value: "divulgador", label: "Divulgador" },
+    { value: "estabelecimento", label: "Estabelecimento" },
+  ];
+
+  return (
+    <Card
+      className={`group transition-all duration-300 border-border bg-card overflow-hidden ${
+        expanded ? "shadow-md ring-2 ring-primary/20" : "hover:shadow-md"
+      }`}
+    >
+      <CardContent className="p-0">
+        {/* Cabeçalho compacto — clique alterna expansão */}
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="w-full text-left p-4 sm:p-5 flex items-center gap-4"
+          aria-expanded={expanded}
+        >
+          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-base sm:text-lg font-bold text-foreground truncate">
+                {u.responsible_name || <span className="text-muted-foreground italic text-sm">Nome não definido</span>}
+              </h3>
+              {u.status && <StatusBadge role={u.status} />}
+              {u.user_type && u.user_type !== "usuario" && (
+                <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-widest px-2 py-0">
+                  {u.user_type}
+                </Badge>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs sm:text-sm text-muted-foreground mt-1">
+              <span className="flex items-center gap-1.5 truncate">
+                <Phone className="h-3.5 w-3.5 shrink-0" />
+                {formatPhone(u.phone)}
+              </span>
+              <span className="flex items-center gap-1.5 truncate">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                {u.address_neighborhood || <span className="text-rose-400 font-medium">Bairro?</span>}
+              </span>
             </div>
           </div>
+          <div className="shrink-0 text-muted-foreground">
+            {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </div>
+        </button>
 
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-2 justify-end shrink-0">
-            {u.phone && isValidBrazilianMobile(u.phone) && (
-              <Button
-                size="icon"
-                variant="ghost"
-                title="Falar no WhatsApp"
-                className="h-9 w-9 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full"
-                onClick={() => window.open(buildWhatsappUrl(u.phone!, `Olá ${u.responsible_name || ""}!`), "_blank")}
-              >
-                <MessageSquare className="h-4 w-4" />
-              </Button>
+        {/* Ficha expandida — visível somente para admin/master (a página já protege o acesso) */}
+        {expanded && (
+          <div className="border-t border-border bg-muted/20 p-4 sm:p-5 space-y-5 animate-in slide-in-from-top-2 duration-200">
+            {/* Bloco: Identificação completa */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div className="flex items-start gap-2">
+                <Mail className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">E-mail</p>
+                  <p className="truncate">{u.email || "—"}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Phone className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Telefone</p>
+                  <p>{formatPhone(u.phone)}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Bairro</p>
+                  <p>{u.address_neighborhood || "Não informado"}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Calendar className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Criado em</p>
+                  <p>{new Date(u.created_at).toLocaleDateString("pt-BR")}</p>
+                </div>
+              </div>
+              {u.musical_preferences && u.musical_preferences.length > 0 && (
+                <div className="flex items-start gap-2 sm:col-span-2">
+                  <Music className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Preferências</p>
+                    <p>{u.musical_preferences.join(", ")}</p>
+                  </div>
+                </div>
+              )}
+              <p className="sm:col-span-2 text-[10px] text-muted-foreground/60 uppercase tracking-widest font-mono">
+                UID: {u.id}
+              </p>
+            </div>
+
+            {/* Bloco: Editar nome */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Editar dados</p>
+              {isEditing ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="h-10"
+                    autoFocus
+                    disabled={savingEdit}
+                    placeholder="Nome do responsável"
+                  />
+                  <Button size="sm" className="h-10 px-3" onClick={() => onSaveEdit(u)} disabled={savingEdit}>
+                    {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-10 px-3" onClick={onCancelEdit} disabled={savingEdit}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button size="sm" variant="outline" className="gap-2" onClick={() => onStartEdit(u)}>
+                  <Pencil className="h-3.5 w-3.5" />
+                  Editar nome
+                </Button>
+              )}
+            </div>
+
+            {/* Bloco: Tipo de usuário */}
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Tipo de usuário</p>
+              <div className="flex items-center gap-2">
+                <Select
+                  value={u.user_type || "usuario"}
+                  onValueChange={(v) => onUpdateType(u, v)}
+                  disabled={updatingType === u.id}
+                >
+                  <SelectTrigger className="h-10 max-w-[260px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {userTypes.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {updatingType === u.id && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+              </div>
+            </div>
+
+            {/* Bloco: Papéis administrativos (somente master) */}
+            {canEditRoles && (
+              <div className="space-y-2">
+                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                  Papéis administrativos
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant={u.is_admin ? "destructive" : "outline"}
+                    disabled={toggling === u.id}
+                    onClick={() => onAskToggleAdmin(u)}
+                    className="gap-2"
+                  >
+                    {toggling === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                    {u.is_admin ? "Remover Admin" : "Tornar Admin"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={u.status === "master" ? "destructive" : "secondary"}
+                    disabled={togglingMaster === u.id}
+                    onClick={() => onAskToggleMaster(u)}
+                    className="gap-2"
+                  >
+                    {togglingMaster === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
+                    {u.status === "master" ? "Remover Master" : "Tornar Master"}
+                  </Button>
+                </div>
+              </div>
             )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            {!canEditRoles && isSelf && (
+              <p className="text-xs text-muted-foreground italic">
+                Você não pode alterar seus próprios papéis administrativos.
+              </p>
+            )}
+
+            {/* Bloco: Ações */}
+            <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-border">
+              {u.phone && isValidBrazilianMobile(u.phone) && (
                 <Button
                   size="sm"
                   variant="outline"
-                  className="rounded-full px-4 h-9 font-bold text-xs gap-2"
-                  disabled={updatingType === u.id}
+                  className="gap-2 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                  onClick={() =>
+                    window.open(buildWhatsappUrl(u.phone!, `Olá ${u.responsible_name || ""}!`), "_blank")
+                  }
                 >
-                  {updatingType === u.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Users className="h-3 w-3" />}
-                  Tipo: {u.user_type || "usuario"}
+                  <MessageSquare className="h-4 w-4" />
+                  WhatsApp
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => onUpdateType(u, "usuario")}>Usuário</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onUpdateType(u, "promotor")}>Promotor</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onUpdateType(u, "divulgador")}>Divulgador</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onUpdateType(u, "estabelecimento")}>Estabelecimento</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {isMaster && (
+              )}
               <Button
                 size="sm"
-                variant={u.is_admin ? "destructive" : "outline"}
-                disabled={toggling === u.id || u.id === currentUserId}
-                className="rounded-full px-4 h-9 font-bold text-xs"
-                onClick={() => onAskToggleAdmin(u)}
+                variant="outline"
+                disabled={resetting === u.id || (!isMaster && (u.is_admin || u.status === "master"))}
+                className="gap-2 text-amber-700 border-amber-200 hover:bg-amber-50"
+                onClick={() => onAskReset(u)}
               >
-                {toggling === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.is_admin ? "Remover Admin" : "Tornar Admin"}
+                {resetting === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+                Resetar senha
               </Button>
-            )}
-
-            {isMaster && (
               <Button
                 size="sm"
-                variant={u.status === "master" ? "destructive" : "secondary"}
-                disabled={togglingMaster === u.id || u.id === currentUserId}
-                className="rounded-full px-4 h-9 font-bold text-xs"
-                onClick={() => onAskToggleMaster(u)}
+                variant="ghost"
+                disabled={isSelf || deleting === u.id || (!isMaster && (u.is_admin || u.status === "master"))}
+                className="gap-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 ml-auto"
+                onClick={() => onAskDelete(u)}
               >
-                {togglingMaster === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : u.status === "master" ? "Remover Master" : "Tornar Master"}
+                {deleting === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                Excluir usuário
               </Button>
-            )}
-
-            <Button
-              size="icon"
-              variant="ghost"
-              disabled={u.id === currentUserId || deleting === u.id || (!isMaster && (u.is_admin || u.status === "master"))}
-              className="h-9 w-9 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-full"
-              onClick={() => onAskDelete(u)}
-            >
-              {deleting === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              disabled={resetting === u.id || (!isMaster && (u.is_admin || u.status === "master"))}
-              title="Resetar senha"
-              className="h-9 w-9 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-full"
-              onClick={() => onAskReset(u)}
-            >
-              {resetting === u.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
-            </Button>
+            </div>
           </div>
-
-          {/* Mobile Actions */}
-          <div className="md:hidden absolute top-4 right-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full">
-                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuSeparator />
-                {u.phone && isValidBrazilianMobile(u.phone) && (
-                  <>
-                    <DropdownMenuItem
-                      onClick={() => window.open(buildWhatsappUrl(u.phone!, `Olá ${u.responsible_name || ""}!`), "_blank")}
-                      className="text-emerald-600 font-semibold"
-                    >
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Falar no WhatsApp
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                <DropdownMenuItem disabled className="text-[10px] font-bold uppercase tracking-wider opacity-50">
-                  Alterar Tipo
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onUpdateType(u, "usuario")}>Tornar Usuário</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onUpdateType(u, "promotor")}>Tornar Promotor</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onUpdateType(u, "divulgador")}>Tornar Divulgador</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onUpdateType(u, "estabelecimento")}>Tornar Estabelecimento</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {isMaster && (
-                  <DropdownMenuItem onClick={() => onAskToggleAdmin(u)} disabled={u.id === currentUserId}>
-                    {u.is_admin ? "Remover Admin" : "Tornar Admin"}
-                  </DropdownMenuItem>
-                )}
-                {isMaster && (
-                  <DropdownMenuItem onClick={() => onAskToggleMaster(u)} disabled={u.id === currentUserId}>
-                    {u.status === "master" ? "Remover Master" : "Tornar Master"}
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => onAskReset(u)}>
-                  <KeyRound className="h-4 w-4 mr-2" />
-                  Resetar senha
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => onAskDelete(u)}
-                  disabled={u.id === currentUserId}
-                  className="text-rose-600 font-bold"
-                >
-                  Excluir Usuário
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
