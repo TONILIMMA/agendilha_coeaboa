@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.notify_admins_on_new_submission() FROM PUBLIC, anon, authenticated;
