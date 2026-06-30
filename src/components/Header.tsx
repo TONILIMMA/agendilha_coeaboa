@@ -179,7 +179,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
 
              {/* Desktop Nav */}
              <div className="hidden md:flex items-center gap-4">
-               <Link to="/agenda" className="text-sm font-bold text-foreground/70 hover:text-primary transition-colors">Eventos</Link>
+               <Link to="/explorar" className="text-sm font-bold text-foreground/70 hover:text-primary transition-colors">Eventos</Link>
                <Link to="/artistas" className="text-sm font-bold text-foreground/70 hover:text-primary transition-colors">Artistas</Link>
               <Link to="/agenda?view=favorites" className="relative group">
                 <Heart className="h-5 w-5 text-foreground/70 group-hover:text-primary transition-colors" />
