@@ -111,11 +111,25 @@ export default function PromotorAtrativos() {
     }
     setSaving(true);
     try {
+      // Inline-create estabelecimento se o usuário digitou um nome sem selecionar existente
+      let estabId = form.estabelecimento_id;
+      const nomeEstab = form.estabelecimento_nome.trim();
+      if (!estabId && nomeEstab) {
+        const { data: novo, error: eErr } = await supabase
+          .from("estabelecimentos")
+          .insert({ nome: nomeEstab, responsavel_id: user.id })
+          .select("id")
+          .single();
+        if (eErr) throw eErr;
+        estabId = novo.id;
+        toast.success(`Estabelecimento "${nomeEstab}" criado.`);
+      }
+
       const payload = {
         name: form.name.trim(),
         type: form.type || null,
         description: form.description || null,
-        estabelecimento_id: form.estabelecimento_id,
+        estabelecimento_id: estabId,
       };
       if (editing) {
         const { error } = await supabase.from("atrativos").update(payload).eq("id", editing);
