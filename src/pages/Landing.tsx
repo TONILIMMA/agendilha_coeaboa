@@ -432,12 +432,15 @@ export default function Landing() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex-1">
+                    <label htmlFor="subscriber-neighborhood" className="block text-xs font-semibold text-foreground/70 mb-1.5 px-1">
+                      Seu bairro <span className="font-normal text-foreground/50">(opcional)</span>
+                    </label>
                     <Select 
                       value={subscriberNeighborhood}
                       onValueChange={setSubscriberNeighborhood}
                     >
-                      <SelectTrigger className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm focus:ring-secondary/20">
-                        <SelectValue placeholder="Seu bairro (opcional)" />
+                      <SelectTrigger id="subscriber-neighborhood" className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm focus:ring-secondary/20">
+                        <SelectValue placeholder="Escolha seu bairro" />
                       </SelectTrigger>
                       <SelectContent>
                         {["Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia", "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras", "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"].sort().map(n => (
@@ -446,16 +449,16 @@ export default function Landing() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex flex-col justify-center px-4">
-                    <div className="flex items-center space-x-2">
+                  <div className="flex flex-col justify-end px-1 sm:px-4">
+                    <div className="flex items-start gap-2 bg-white/40 sm:bg-transparent rounded-xl p-3 sm:p-0">
                       <input 
                         type="checkbox" 
                         id="whatsapp-consent-landing" 
                         checked={whatsappConsent}
                         onChange={(e) => setWhatsappConsent(e.target.checked)}
-                        className="h-4 w-4 rounded border-gray-300 text-secondary focus:ring-secondary/20 accent-secondary"
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-secondary focus:ring-secondary/20 accent-secondary"
                       />
-                      <label htmlFor="whatsapp-consent-landing" className="text-[11px] sm:text-xs font-medium text-foreground/70 leading-tight cursor-pointer">
+                      <label htmlFor="whatsapp-consent-landing" className="text-xs sm:text-xs font-medium text-foreground/75 leading-snug cursor-pointer break-words">
                         Autorizo receber notificações, sugestões e promoções pelo WhatsApp.
                       </label>
                     </div>
@@ -529,12 +532,12 @@ export default function Landing() {
             <div className="text-xs text-foreground/60 font-medium order-3 sm:text-right">
               Criado por{" "}
               <a
-                href="https://vexo-sistemas.lovable.app"
+                href="https://limaxsistemas.lovable.app/"
                 target="_blank"
                 rel="noreferrer"
                 className="font-bold text-foreground/80 hover:text-primary transition-colors hover:underline"
               >
-                Vexo Sistemas
+                LimaX Soluções
               </a>
             </div>
           </div>

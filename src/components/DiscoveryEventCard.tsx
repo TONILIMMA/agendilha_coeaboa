@@ -79,8 +79,16 @@ export const DiscoveryEventCard = memo(({
     >
       <Card
         onClick={onClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick();
+          }
+        }}
         className={cn(
-          "group cursor-pointer overflow-hidden border-none bg-transparent transition-all duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-foreground/20 focus-visible:ring-offset-2 outline-none",
+          "group cursor-pointer overflow-hidden border-none bg-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-foreground/10 active:scale-[0.985] focus-visible:ring-2 focus-visible:ring-foreground/20 focus-visible:ring-offset-2 outline-none",
           isHorizontal ? "w-full" : 
             !className?.includes('w-') && (
               isLarge ? "w-[260px] xs:w-[280px] sm:w-[320px]" :

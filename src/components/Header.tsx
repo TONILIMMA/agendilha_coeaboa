@@ -189,19 +189,29 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                   </span>
                 )}
               </Link>
-               <Button 
-                 size="sm" 
-                 onClick={() => {
-                   if (user) {
-                     navigate("/enviar-evento");
-                   } else {
-                     navigate("/auth?redirect=/enviar-evento");
-                   }
-                 }}
-                 className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight px-5 h-10 shadow-none transition-transform active:scale-95"
-               >
-                 Divulgar evento
-               </Button>
+               <TooltipProvider delayDuration={150}>
+                 <Tooltip>
+                   <TooltipTrigger asChild>
+                     <Button
+                       size="sm"
+                       aria-label="Divulgar evento — cadastro de promotor"
+                       onClick={() => {
+                         if (user) {
+                           navigate("/enviar-evento");
+                         } else {
+                           navigate("/auth?redirect=/enviar-evento");
+                         }
+                       }}
+                       className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight px-5 h-10 shadow-none transition-transform active:scale-95"
+                     >
+                       Divulgar evento
+                     </Button>
+                   </TooltipTrigger>
+                   <TooltipContent side="bottom" className="max-w-[220px] text-xs leading-snug">
+                     Use este botão para cadastrar seu evento na agenda como promotor.
+                   </TooltipContent>
+                 </Tooltip>
+               </TooltipProvider>
               <HeaderUserMenu variant="desktop" hideContext={true} />
             </div>
 
