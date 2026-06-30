@@ -52,6 +52,7 @@ export default function EventDetail() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [estabId, setEstabId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchEvent() {
@@ -73,6 +74,17 @@ export default function EventDetail() {
         supabase.rpc('increment_views', { event_id: data.id }).then(({ error }) => {
           if (error) console.error("Error incrementing views:", error);
         });
+        // Try to resolve linked estabelecimento by name (location text)
+        if (data.location) {
+          supabase
+            .from("estabelecimentos")
+            .select("id")
+            .ilike("nome", data.location)
+            .maybeSingle()
+            .then(({ data: est }) => {
+              if (est?.id) setEstabId(est.id);
+            });
+        }
       }
       setLoading(false);
     }
@@ -204,7 +216,13 @@ export default function EventDetail() {
               </div>
               <div>
                 <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 mb-1.5">Local</dt>
-                <dd className="font-display text-base font-medium text-foreground tracking-tight leading-snug">{event.location || '—'}</dd>
+                <dd className="font-display text-base font-medium text-foreground tracking-tight leading-snug">
+                  {estabId && event.location ? (
+                    <Link to={`/lugar/${estabId}`} className="underline decoration-foreground/20 underline-offset-4 hover:decoration-foreground transition">
+                      {event.location}
+                    </Link>
+                  ) : (event.location || '—')}
+                </dd>
                 {fullAddress && (
                   <dd className="text-xs text-foreground/55 mt-0.5 leading-snug">{fullAddress}</dd>
                 )}

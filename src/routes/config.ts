@@ -9,6 +9,7 @@ export const ROUTES = {
   EXPLORAR: "/explorar",
   ARTISTA_PROFILE: "/artista/:id",
   EVENTO_DETAIL: "/evento/:slug",
+  ESTABELECIMENTO_DETAIL: "/lugar/:id",
   ADMIN_EVENTS: "/admin/events",
   ADMIN_USERS: "/admin/users",
   ADMIN_COLLABORATORS: "/admin/collaborators",
