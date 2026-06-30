@@ -43,6 +43,7 @@ const AdminMedia = lazy(() => import("./pages/AdminMedia"));
 const AdminAuditLogs = lazy(() => import("./pages/AdminAuditLogs"));
 const AdminAgendaInforma = lazy(() => import("./pages/AdminAgendaInforma"));
 const EventDetail = lazy(() => import("./pages/EventDetail"));
+const EstabelecimentoDetail = lazy(() => import("./pages/EstabelecimentoDetail"));
 const Settings = lazy(() => import("./pages/Settings"));
 const MustChangePassword = lazy(() => import("./pages/MustChangePassword"));
 const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
