@@ -216,7 +216,13 @@ export default function EventDetail() {
               </div>
               <div>
                 <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 mb-1.5">Local</dt>
-                <dd className="font-display text-base font-medium text-foreground tracking-tight leading-snug">{event.location || '—'}</dd>
+                <dd className="font-display text-base font-medium text-foreground tracking-tight leading-snug">
+                  {estabId && event.location ? (
+                    <Link to={`/lugar/${estabId}`} className="underline decoration-foreground/20 underline-offset-4 hover:decoration-foreground transition">
+                      {event.location}
+                    </Link>
+                  ) : (event.location || '—')}
+                </dd>
                 {fullAddress && (
                   <dd className="text-xs text-foreground/55 mt-0.5 leading-snug">{fullAddress}</dd>
                 )}
