@@ -352,31 +352,51 @@ export type Database = {
         Row: {
           contact_whatsapp: string | null
           created_at: string | null
+          created_by: string | null
           description: string | null
+          estabelecimento_id: string | null
           id: string
           name: string
+          responsavel_id: string | null
           style: string | null
           type: string | null
+          updated_at: string
         }
         Insert: {
           contact_whatsapp?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
+          estabelecimento_id?: string | null
           id?: string
           name: string
+          responsavel_id?: string | null
           style?: string | null
           type?: string | null
+          updated_at?: string
         }
         Update: {
           contact_whatsapp?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
+          estabelecimento_id?: string | null
           id?: string
           name?: string
+          responsavel_id?: string | null
           style?: string | null
           type?: string | null
+          updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "atrativos_estabelecimento_id_fkey"
+            columns: ["estabelecimento_id"]
+            isOneToOne: false
+            referencedRelation: "estabelecimentos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audit_logs: {
         Row: {
@@ -1869,6 +1889,7 @@ export type Database = {
       increment_views: { Args: { event_id: string }; Returns: undefined }
       is_admin_or_master: { Args: { p_user_id: string }; Returns: boolean }
       is_master: { Args: { _user_id: string }; Returns: boolean }
+      is_promotor: { Args: { _user_id: string }; Returns: boolean }
       report_event: {
         Args: {
           report_description?: string

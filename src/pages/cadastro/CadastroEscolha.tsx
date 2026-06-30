@@ -19,7 +19,7 @@ const opcoes = [
     icon: Megaphone,
     cor: "from-rose-100 to-pink-50",
     iconBg: "bg-rose-500",
-    rota: "/cadastro/divulgador",
+    rota: "/cadastro-promotor",
   },
   {
     id: "artista",

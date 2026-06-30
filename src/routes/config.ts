@@ -34,6 +34,10 @@ export const ROUTES = {
   EVENTO_ENVIADO: "/evento-enviado/:id",
   MEUS_EVENTOS: "/meus-eventos",
   ADMIN_WHATSAPP_TEMPLATES: "/admin/whatsapp-templates",
+  CADASTRO_PROMOTOR: "/cadastro-promotor",
+  PROMOTOR_HOME: "/promotor",
+  PROMOTOR_ESTABELECIMENTOS: "/promotor/estabelecimentos",
+  PROMOTOR_ATRATIVOS: "/promotor/atrativos",
 };
 
 export const VALID_ROUTES = Object.values(ROUTES);
