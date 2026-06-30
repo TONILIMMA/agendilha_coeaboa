@@ -172,6 +172,7 @@ export const AppRoutes = () => (
         <Route element={<AppShell maxWidth="lg"><Outlet /></AppShell>}>
           <Route path={ROUTES.ARTISTA_PROFILE} element={<ArtistProfile />} />
           <Route path={ROUTES.EVENTO_DETAIL} element={<EventDetail />} />
+          <Route path={ROUTES.ESTABELECIMENTO_DETAIL} element={<EstabelecimentoDetail />} />
         </Route>
 
         {/* Admin Pages - Full sidebar integration */}
