@@ -1,0 +1,69 @@
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Sparkles, CheckCircle2 } from "lucide-react";
+import { APP_VERSION, UPDATES } from "@/lib/changelog";
+
+const STORAGE_KEY = "agendilha_last_seen_version";
+
+/**
+ * Mostra um modal pequeno e amigável a cada nova versão (uma vez por usuário).
+ */
+export function UpdateAnnouncement() {
+  const [open, setOpen] = useState(false);
+  const current = UPDATES.find((u) => u.version === APP_VERSION) ?? UPDATES[0];
+
+  useEffect(() => {
+    try {
+      const last = localStorage.getItem(STORAGE_KEY);
+      if (last !== APP_VERSION) {
+        // Pequeno atraso para não bater junto com o load inicial
+        const t = setTimeout(() => setOpen(true), 800);
+        return () => clearTimeout(t);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const dismiss = () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, APP_VERSION);
+    } catch {
+      /* ignore */
+    }
+    setOpen(false);
+  };
+
+  if (!current) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => (v ? setOpen(true) : dismiss())}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-2 text-primary">
+            <Sparkles className="h-5 w-5" />
+            <span className="text-xs font-semibold uppercase tracking-wider">Atualização {current.date}</span>
+          </div>
+          <DialogTitle className="text-xl leading-tight">{current.title}</DialogTitle>
+          <DialogDescription>
+            O que mudou e como usar:
+          </DialogDescription>
+        </DialogHeader>
+
+        <ul className="space-y-3 py-2 text-sm leading-relaxed">
+          {current.items.map((item, i) => (
+            <li key={i} className="flex gap-2.5">
+              <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+              <span className="text-foreground/90">{item}</span>
+            </li>
+          ))}
+        </ul>
+
+        <DialogFooter>
+          <Button onClick={dismiss} className="w-full sm:w-auto">Entendi, vamos lá</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
