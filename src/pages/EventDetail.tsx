@@ -52,6 +52,7 @@ export default function EventDetail() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [estabId, setEstabId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchEvent() {
@@ -73,6 +74,17 @@ export default function EventDetail() {
         supabase.rpc('increment_views', { event_id: data.id }).then(({ error }) => {
           if (error) console.error("Error incrementing views:", error);
         });
+        // Try to resolve linked estabelecimento by name (location text)
+        if (data.location) {
+          supabase
+            .from("estabelecimentos")
+            .select("id")
+            .ilike("nome", data.location)
+            .maybeSingle()
+            .then(({ data: est }) => {
+              if (est?.id) setEstabId(est.id);
+            });
+        }
       }
       setLoading(false);
     }
