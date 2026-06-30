@@ -50,7 +50,7 @@ export function useAgendaData() {
           setInitialEventId(eventId);
         }
       } catch (error) {
-        handleError(error, "Erro ao carregar a agenda. Tente novamente mais tarde.");
+        handleError(error, "Não rolou carregar a agenda agora. Tenta de novo em instantes.");
       } finally {
         if (!cancelled) setLoading(false);
       }

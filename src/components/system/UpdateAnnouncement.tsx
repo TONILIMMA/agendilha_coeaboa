@@ -47,7 +47,7 @@ export function UpdateAnnouncement() {
           </div>
           <DialogTitle className="text-xl leading-tight">{current.title}</DialogTitle>
           <DialogDescription>
-            O que mudou e como usar:
+            Olha o que tá novo por aqui:
           </DialogDescription>
         </DialogHeader>
 
@@ -61,7 +61,7 @@ export function UpdateAnnouncement() {
         </ul>
 
         <DialogFooter>
-          <Button onClick={dismiss} className="w-full sm:w-auto">Entendi, vamos lá</Button>
+          <Button onClick={dismiss} className="w-full sm:w-auto">Beleza, bora usar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

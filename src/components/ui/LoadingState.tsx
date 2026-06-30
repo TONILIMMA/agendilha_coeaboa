@@ -8,7 +8,7 @@ interface LoadingStateProps {
 }
 
 export function LoadingState({ 
-  message = "Carregando conteúdo...", 
+  message = "Buscando o rolê...", 
   fullPage = false,
   className 
 }: LoadingStateProps) {
