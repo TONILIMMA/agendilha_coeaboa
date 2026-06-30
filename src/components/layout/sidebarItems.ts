@@ -17,7 +17,8 @@ import {
   UserPlus,
   Megaphone,
   Images,
-  MessageSquare
+  MessageSquare,
+  Building2
 } from "lucide-react";
 import { ROUTES } from "@/routes/config";
 
@@ -130,6 +131,13 @@ export const sidebarConfig: SidebarSection[] = [
         label: "Templates WhatsApp",
         path: ROUTES.ADMIN_WHATSAPP_TEMPLATES,
         icon: MessageSquare,
+        roles: ["admin", "master"]
+      },
+      {
+        id: "estabelecimentos",
+        label: "Estabelecimentos",
+        path: ROUTES.ADMIN_ESTABELECIMENTOS,
+        icon: Building2,
         roles: ["admin", "master"]
       },
     ]

@@ -51,6 +51,7 @@ const Carrossel = lazy(() => import("./pages/Carrossel"));
 const EventoEnviado = lazy(() => import("./pages/EventoEnviado"));
 const MeusEventos = lazy(() => import("./pages/MeusEventos"));
 const AdminWhatsAppTemplates = lazy(() => import("./pages/AdminWhatsAppTemplates"));
+const AdminEstabelecimentos = lazy(() => import("./pages/AdminEstabelecimentos"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -173,6 +174,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_MEDIA} element={<AdminMedia />} />
           <Route path={ROUTES.ADMIN_AGENDA_INFORMA} element={<AdminAgendaInforma />} />
           <Route path={ROUTES.ADMIN_WHATSAPP_TEMPLATES} element={<AdminWhatsAppTemplates />} />
+          <Route path={ROUTES.ADMIN_ESTABELECIMENTOS} element={<AdminEstabelecimentos />} />
         </Route>
 
         {/* Master Pages - isolated from regular admin permissions */}

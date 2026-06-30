@@ -1,8 +1,7 @@
-import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { Button } from "@/components/ui/button";
 import { Users, Download, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -139,15 +138,6 @@ export default function AdminUsers() {
   }, [filteredUsers, currentPage]);
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-
-  // Virtualização para a lista paginada (caso os itens individuais sejam complexos)
-  const parentRef = useRef<HTMLDivElement>(null);
-  const rowVirtualizer = useVirtualizer({
-    count: paginatedUsers.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 140, // Altura estimada de cada card
-    overscan: 5,
-  });
 
   const exportToPDF = useCallback(async () => {
     toast.info("Preparando PDF...");
@@ -440,55 +430,32 @@ export default function AdminUsers() {
         />
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-4" ref={parentRef}>
-            <div
-              style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
-                width: '100%',
-                position: 'relative',
-              }}
-            >
-              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                const u = paginatedUsers[virtualRow.index];
-                return (
-                  <div
-                    key={virtualRow.key}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: `${virtualRow.size}px`,
-                      transform: `translateY(${virtualRow.start}px)`,
-                    }}
-                    className="pb-4"
-                  >
-            <UserCard
-              u={u}
-              currentUserId={user?.id}
-              isMaster={isMaster}
-              editingId={editingId}
-              editName={editName}
-              savingEdit={savingEdit}
-              setEditName={setEditName}
-              onStartEdit={startEdit}
-              onCancelEdit={cancelEdit}
-              onSaveEdit={saveEdit}
-              toggling={toggling}
-              togglingMaster={togglingMaster}
-              deleting={deleting}
-              resetting={resetting}
-              updatingType={updatingType}
-              onUpdateType={updateUserType}
-              onAskToggleAdmin={setShowAdminConfirm}
-              onAskToggleMaster={setShowMasterConfirm}
-              onAskDelete={setShowDeleteConfirm}
-              onAskReset={setShowResetConfirm}
-            />
-                  </div>
-                );
-              })}
-            </div>
+          <div className="grid grid-cols-1 gap-4">
+            {paginatedUsers.map((u) => (
+              <UserCard
+                key={u.id}
+                u={u}
+                currentUserId={user?.id}
+                isMaster={isMaster}
+                editingId={editingId}
+                editName={editName}
+                savingEdit={savingEdit}
+                setEditName={setEditName}
+                onStartEdit={startEdit}
+                onCancelEdit={cancelEdit}
+                onSaveEdit={saveEdit}
+                toggling={toggling}
+                togglingMaster={togglingMaster}
+                deleting={deleting}
+                resetting={resetting}
+                updatingType={updatingType}
+                onUpdateType={updateUserType}
+                onAskToggleAdmin={setShowAdminConfirm}
+                onAskToggleMaster={setShowMasterConfirm}
+                onAskDelete={setShowDeleteConfirm}
+                onAskReset={setShowResetConfirm}
+              />
+            ))}
           </div>
           
           {/* Paginação */}
