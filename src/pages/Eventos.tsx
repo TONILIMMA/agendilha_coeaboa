@@ -112,7 +112,7 @@ export default function Eventos() {
       return (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <CalendarDays className="h-12 w-12 text-muted-foreground/40 mb-3" />
-          <p className="text-muted-foreground text-sm">Nenhum evento encontrado.</p>
+          <p className="text-muted-foreground text-sm">Nenhum rolê por aqui ainda. Tenta ajustar os filtros ou volta mais tarde.</p>
         </div>
       );
     }
@@ -162,7 +162,7 @@ export default function Eventos() {
                     return d && d >= start && d <= end;
                   });
                   if (weekApproved.length === 0) {
-                    toast.warning("Nenhum evento confirmado para esta semana.");
+                    toast.warning("Nenhum rolê confirmado pra essa semana ainda.");
                     return;
                   }
                   const msg = buildBulkWhatsAppMessage(weekApproved);
@@ -398,7 +398,7 @@ export default function Eventos() {
               {confirmedEvents.filter(e => e.is_highlight).map(ev => renderCard(ev))}
               {confirmedEvents.filter(e => e.is_highlight).length === 0 && (
                 <div className="col-span-full py-10 text-center border-2 border-dashed rounded-xl text-muted-foreground">
-                  Nenhum evento marcado como destaque no momento.
+                  Nenhum rolê em destaque por enquanto.
                 </div>
               )}
             </div>

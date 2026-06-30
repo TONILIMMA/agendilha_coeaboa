@@ -11,8 +11,8 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = "Falha na conexão",
-  message = "Não foi possível carregar os dados. Verifique sua conexão e tente novamente.",
+  title = "A conexão fugiu",
+  message = "Não rolou carregar agora. Confere a internet e tenta de novo.",
   onRetry,
   className
 }: ErrorStateProps) {

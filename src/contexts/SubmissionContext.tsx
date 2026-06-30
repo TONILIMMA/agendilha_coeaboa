@@ -93,7 +93,7 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
     const { data, error } = await query;
 
     if (error) {
-      toast.error("Erro ao carregar envios");
+      toast.error("Não rolou carregar os envios agora. Tenta de novo em instantes.");
     } else {
       setSubmissions(data || []);
     }
@@ -115,8 +115,8 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
 
     if (error || !inserted) {
       if (import.meta.env.DEV) console.error("[addSubmission] insert failed", error);
-      toast.error("Erro ao salvar envio", {
-        description: error?.message || "Não foi possível registrar o evento. Tente novamente.",
+      toast.error("Não deu pra salvar seu evento", {
+        description: error?.message || "Tenta de novo em alguns minutos.",
       });
       return null;
     }

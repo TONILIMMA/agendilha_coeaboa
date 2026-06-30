@@ -225,8 +225,8 @@ export default function EstabelecimentoDetail() {
         {events.length === 0 ? (
           <EmptyState
             icon={CalendarOff}
-            title="Nenhum evento agendado por aqui"
-            description="Fique de olho na agenda — pode rolar surpresa a qualquer momento."
+            title="Sem rolê marcado por aqui ainda"
+            description="Fica de olho — esse lugar pode soltar novidade a qualquer momento."
             actionLabel="Ver agenda completa"
             onAction={() => navigate("/explorar")}
           />

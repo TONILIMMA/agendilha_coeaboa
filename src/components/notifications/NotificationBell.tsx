@@ -156,7 +156,7 @@ export function NotificationBell() {
           {items.length === 0 ? (
             <div className="p-6 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
               <Inbox className="h-8 w-8 opacity-40" />
-              Nenhuma notificação por aqui.
+              Tudo limpo por aqui — sem novidades agora.
             </div>
           ) : (
             <ul className="divide-y">

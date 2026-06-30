@@ -126,10 +126,10 @@ export default function EventDetail() {
       <div className="min-h-screen bg-background flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center p-4 text-center space-y-4">
           <Info className="h-16 w-16 text-muted-foreground opacity-20" />
-          <h1 className="text-2xl font-black">Evento não encontrado</h1>
-          <p className="text-muted-foreground">Este evento pode ter sido removido ou o link está incorreto.</p>
+          <h1 className="text-2xl font-black">Esse rolê sumiu do mapa</h1>
+          <p className="text-muted-foreground">Pode ter sido removido ou o link tá errado. Bora ver o que mais tem rolando?</p>
           <Button asChild className="rounded-full font-bold">
-            <Link to="/agenda">Voltar para a Agenda</Link>
+            <Link to="/explorar">Ver agenda completa</Link>
           </Button>
         </div>
       </div>
@@ -233,7 +233,7 @@ export default function EventDetail() {
             <section>
               <h2 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 mb-4">Sobre o evento</h2>
               <div className="text-[15px] md:text-base leading-[1.75] text-foreground/85 whitespace-pre-wrap max-w-prose">
-                {event.description || "Nenhuma descrição fornecida para este evento."}
+                {event.description || "O organizador ainda não contou os detalhes desse rolê. Em breve tem mais info por aqui."}
               </div>
             </section>
 

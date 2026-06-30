@@ -251,9 +251,9 @@ export default function Explorar() {
         ) : filtered.length === 0 ? (
           <div className="bg-muted/30 rounded-3xl p-12 text-center border border-dashed border-primary/15">
             <Sparkles className="h-10 w-10 text-primary/30 mx-auto mb-4" />
-            <h3 className="text-lg font-bold mb-2">Nenhum rolê combina com esses filtros</h3>
+            <h3 className="text-lg font-bold mb-2">Não achamos rolê com esses filtros</h3>
             <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-6">
-              Tente ajustar a data, o bairro ou a categoria para descobrir mais eventos.
+              Tenta ajustar a data, o bairro ou a categoria pra ver o que mais tá rolando.
             </p>
             <Button variant="outline" onClick={clearAll} className="rounded-full font-semibold">
               Limpar filtros
