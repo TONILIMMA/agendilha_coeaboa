@@ -45,12 +45,12 @@ export function SiteFooter({ variant = "default", className = "" }: SiteFooterPr
         <div className="text-xs text-foreground/60 font-medium order-3 sm:text-right">
           Criado por{" "}
           <a
-            href="https://vexo-sistemas.lovable.app"
+            href="https://limaxsistemas.lovable.app/"
             target="_blank"
             rel="noreferrer"
             className="font-bold text-foreground/80 hover:text-primary transition-colors hover:underline"
           >
-            Vexo Sistemas
+            LimaX Soluções
           </a>
         </div>
       </div>
