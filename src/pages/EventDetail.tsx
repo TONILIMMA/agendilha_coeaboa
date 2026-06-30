@@ -44,7 +44,6 @@ interface Event {
   sale_price?: string | null;
   promotion_type?: string | null;
   promotion_rules?: string | null;
-  end_time?: string | null;
 }
 
 export default function EventDetail() {
