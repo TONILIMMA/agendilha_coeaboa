@@ -6,6 +6,7 @@ export const ROUTES = {
   CONFIGURAR_ARTISTA: "/configurar-artista",
   ENVIAR_EVENTO: "/enviar-evento",
   EVENTOS: "/eventos",
+  EXPLORAR: "/explorar",
   ARTISTA_PROFILE: "/artista/:id",
   EVENTO_DETAIL: "/evento/:slug",
   ADMIN_EVENTS: "/admin/events",
