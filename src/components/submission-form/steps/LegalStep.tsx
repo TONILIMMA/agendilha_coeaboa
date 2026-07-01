@@ -17,11 +17,11 @@ export function LegalStep({ form }: { form: UseFormReturn<any> }) {
       <div className="p-4 bg-muted/50 rounded-lg border border-muted space-y-3 text-sm text-muted-foreground">
         <div className="flex gap-2 text-primary font-bold">
           <Info className="h-4 w-4 shrink-0 mt-0.5" />
-          <span>Informações Importantes</span>
+          <span>Combinado antes de mandar</span>
         </div>
-        <p>1. As informações fornecidas são de inteira responsabilidade do divulgador.</p>
-        <p>2. O evento passará por uma moderação antes de ser publicado no portal.</p>
-        <p>3. Reservamo-nos o direito de remover conteúdos impróprios ou falsos.</p>
+        <p>1. Você garante que as informações do rolê são verdadeiras.</p>
+        <p>2. A gente dá uma olhada rápida antes de publicar no AgendIlha.</p>
+        <p>3. Se rolar algo impróprio ou falso, tiramos do ar.</p>
       </div>
 
       <FormField
@@ -37,7 +37,7 @@ export function LegalStep({ form }: { form: UseFormReturn<any> }) {
             </FormControl>
             <div className="space-y-1 leading-none">
               <FormLabel className="cursor-pointer">
-                Li e aceito os termos de divulgação do portal AgendIlha / Coé a Boa?.
+                Declaro que as informações deste evento são verdadeiras e que estou ciente das regras de divulgação do AgendIlha.
               </FormLabel>
               <FormMessage />
             </div>
