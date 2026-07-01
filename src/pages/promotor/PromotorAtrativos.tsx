@@ -8,6 +8,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { PromotorBadge } from "@/components/promotor/PromotorBadge";
@@ -24,7 +27,25 @@ interface Atrativo {
   type: string | null;
   description: string | null;
   estabelecimento_id: string | null;
+  tipo_atrativo?: string | null;
+  estilos?: string[] | null;
+  pais?: string | null;
+  estado?: string | null;
+  cidade_regiao?: string | null;
+  membros_equipe?: string | null;
+  responsavel_nome?: string | null;
+  responsavel_telefone?: string | null;
+  responsavel_email?: string | null;
+  responsavel_redes?: string | null;
 }
+
+const TIPOS_ATRATIVO = ["Música", "Artes cênicas", "Turismo", "Outros"];
+const ESTILOS_POR_TIPO: Record<string, string[]> = {
+  "Música": ["Samba", "Pagode", "Rock", "Pop", "MPB", "Funk", "Sertanejo", "Eletrônico", "Gospel", "Jazz"],
+  "Artes cênicas": ["Teatro", "Dança", "Stand-up", "Performance", "Circo"],
+  "Turismo": ["Passeio guiado", "Trilha", "Náutico", "Gastronômico", "Cultural"],
+  "Outros": ["Feira", "Workshop", "Palestra", "Exposição"],
+};
 
 const empty = {
   name: "",
@@ -32,6 +53,16 @@ const empty = {
   description: "",
   estabelecimento_id: null as string | null,
   estabelecimento_nome: "",
+  tipo_atrativo: "",
+  estilos: [] as string[],
+  pais: "Brasil",
+  estado: "RJ",
+  cidade_regiao: "",
+  membros_equipe: "",
+  responsavel_nome: "",
+  responsavel_telefone: "",
+  responsavel_email: "",
+  responsavel_redes: "",
 };
 
 export default function PromotorAtrativos() {
@@ -47,7 +78,7 @@ export default function PromotorAtrativos() {
     setLoading(true);
     const { data, error } = await supabase
       .from("atrativos")
-      .select("id, name, type, description, estabelecimento_id")
+      .select("id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes")
       .eq("responsavel_id", user.id)
       .order("name");
     if (error) handleError(error, "Erro ao carregar atrativos");
@@ -82,6 +113,16 @@ export default function PromotorAtrativos() {
       description: a.description ?? "",
       estabelecimento_id: a.estabelecimento_id,
       estabelecimento_nome: nome,
+      tipo_atrativo: a.tipo_atrativo ?? "",
+      estilos: a.estilos ?? [],
+      pais: a.pais ?? "Brasil",
+      estado: a.estado ?? "RJ",
+      cidade_regiao: a.cidade_regiao ?? "",
+      membros_equipe: a.membros_equipe ?? "",
+      responsavel_nome: a.responsavel_nome ?? "",
+      responsavel_telefone: a.responsavel_telefone ?? "",
+      responsavel_email: a.responsavel_email ?? "",
+      responsavel_redes: a.responsavel_redes ?? "",
     });
   };
 
@@ -130,6 +171,16 @@ export default function PromotorAtrativos() {
         type: form.type || null,
         description: form.description || null,
         estabelecimento_id: estabId,
+        tipo_atrativo: form.tipo_atrativo || null,
+        estilos: form.estilos.length ? form.estilos : null,
+        pais: form.pais || null,
+        estado: form.estado || null,
+        cidade_regiao: form.cidade_regiao || null,
+        membros_equipe: form.membros_equipe || null,
+        responsavel_nome: form.responsavel_nome || null,
+        responsavel_telefone: form.responsavel_telefone || null,
+        responsavel_email: form.responsavel_email || null,
+        responsavel_redes: form.responsavel_redes || null,
       };
       if (editing) {
         const { error } = await supabase.from("atrativos").update(payload).eq("id", editing);
