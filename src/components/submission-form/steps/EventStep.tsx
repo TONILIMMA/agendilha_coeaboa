@@ -169,6 +169,8 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
               </FormControl>
               <SelectContent>
                 <SelectItem value="Livre">Livre</SelectItem>
+                <SelectItem value="10+">10+</SelectItem>
+                <SelectItem value="12+">12+</SelectItem>
                 <SelectItem value="14+">14+</SelectItem>
                 <SelectItem value="16+">16+</SelectItem>
                 <SelectItem value="18+">18+</SelectItem>
