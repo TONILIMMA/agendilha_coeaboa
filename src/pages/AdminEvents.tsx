@@ -32,6 +32,7 @@ import { buildWhatsappUrl, validateBrazilianMobile, formatPhoneDisplay, renderTe
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { buildTodayWhatsAppSummary, openWhatsAppWithText } from "@/lib/todayWhatsappSummary";
 
 
 interface Submission {
