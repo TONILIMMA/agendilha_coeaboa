@@ -55,7 +55,7 @@ export function MediaStep({ form, imageSource, setImageSource, eventImage, setEv
           <Sparkles className="h-6 w-6 text-yellow-500" />
           <div className="text-center">
             <div className="font-bold">Gerar com IA</div>
-            <div className="text-[10px] opacity-70 italic font-medium">Novidade!</div>
+            <div className="text-[10px] opacity-70 font-medium">Cria um flyer em segundos</div>
           </div>
           <Badge className="absolute -top-2 -right-2 bg-yellow-500 text-black border-none animate-pulse text-[8px] sm:text-[10px]">BETA</Badge>
         </Button>
