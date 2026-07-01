@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { PromotorBadge } from "@/components/promotor/PromotorBadge";
+import { PhotoGallery } from "@/components/media/PhotoGallery";
 import { AtrativoAutocomplete } from "@/components/atrativos/AtrativoAutocomplete";
 import {
   EstabelecimentoAutocomplete,
@@ -37,6 +38,8 @@ interface Atrativo {
   responsavel_telefone?: string | null;
   responsavel_email?: string | null;
   responsavel_redes?: string | null;
+  fotos?: string[] | null;
+  logo_url?: string | null;
 }
 
 const TIPOS_ATRATIVO = ["Música", "Artes cênicas", "Turismo", "Outros"];
@@ -63,6 +66,7 @@ const empty = {
   responsavel_telefone: "",
   responsavel_email: "",
   responsavel_redes: "",
+  fotos: [] as string[],
 };
 
 export default function PromotorAtrativos() {
@@ -78,7 +82,7 @@ export default function PromotorAtrativos() {
     setLoading(true);
     const { data, error } = await supabase
       .from("atrativos")
-      .select("id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes")
+      .select("id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos")
       .eq("responsavel_id", user.id)
       .order("name");
     if (error) handleError(error, "Erro ao carregar atrativos");
@@ -123,6 +127,7 @@ export default function PromotorAtrativos() {
       responsavel_telefone: a.responsavel_telefone ?? "",
       responsavel_email: a.responsavel_email ?? "",
       responsavel_redes: a.responsavel_redes ?? "",
+      fotos: a.fotos ?? [],
     });
   };
 
@@ -181,6 +186,7 @@ export default function PromotorAtrativos() {
         responsavel_telefone: form.responsavel_telefone || null,
         responsavel_email: form.responsavel_email || null,
         responsavel_redes: form.responsavel_redes || null,
+        fotos: form.fotos,
       };
       if (editing) {
         const { error } = await supabase.from("atrativos").update(payload).eq("id", editing);
@@ -379,6 +385,21 @@ export default function PromotorAtrativos() {
             </div>
           </div>
         </div>
+
+        {user && (
+          <div className="space-y-3">
+            <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Mídia</p>
+            <PhotoGallery
+              urls={form.fotos}
+              onChange={(next) => setForm({ ...form, fotos: next })}
+              kind="atrativos"
+              ownerUserId={user.id}
+              targetId={editing}
+              label="Fotos, logo e portfólio"
+              helper="Até 8 imagens. Aparecem na ficha do atrativo e nos eventos ligados a ele."
+            />
+          </div>
+        )}
 
         <div className="flex gap-2">
           <Button onClick={save} disabled={saving}>

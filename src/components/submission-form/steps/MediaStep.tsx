@@ -5,6 +5,8 @@ import { FileUpload } from "../FormFields";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { lazy, Suspense } from "react";
+import { PhotoGallery } from "@/components/media/PhotoGallery";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Lazy load heavy component
 const AIFlyerGenerator = lazy(() => import("../../AIFlyerGenerator").then(m => ({ default: m.AIFlyerGenerator })));
@@ -18,6 +20,8 @@ interface MediaStepProps {
 }
 
 export function MediaStep({ form, imageSource, setImageSource, eventImage, setEventImage }: MediaStepProps) {
+  const { user } = useAuth();
+  const fotos: string[] = form.watch("fotos") || [];
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-2">
@@ -94,6 +98,25 @@ export function MediaStep({ form, imageSource, setImageSource, eventImage, setEv
               }}
             />
           </Suspense>
+        </div>
+      )}
+
+      {user && (
+        <div className="pt-2 border-t border-border/60 space-y-3">
+          <div>
+            <h3 className="text-sm font-bold text-primary">Fotos extras (opcional)</h3>
+            <p className="text-xs text-muted-foreground">
+              Enviou o flyer? Beleza. Se quiser, adiciona fotos do rolê pra ilustrar a página.
+            </p>
+          </div>
+          <PhotoGallery
+            urls={fotos}
+            onChange={(next) => form.setValue("fotos", next, { shouldDirty: true })}
+            kind="events"
+            ownerUserId={user.id}
+            label="Fotos do evento"
+            helper="Até 8 imagens. Aparecem na página pública do evento."
+          />
         </div>
       )}
 

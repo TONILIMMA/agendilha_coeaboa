@@ -1251,6 +1251,7 @@ export type Database = {
           event_title: string
           flyer_approved_at: string | null
           flyer_aprovado: boolean
+          fotos: string[] | null
           id: string
           image_url: string | null
           image_url_story: string | null
@@ -1340,6 +1341,7 @@ export type Database = {
           event_title: string
           flyer_approved_at?: string | null
           flyer_aprovado?: boolean
+          fotos?: string[] | null
           id?: string
           image_url?: string | null
           image_url_story?: string | null
@@ -1429,6 +1431,7 @@ export type Database = {
           event_title?: string
           flyer_approved_at?: string | null
           flyer_aprovado?: boolean
+          fotos?: string[] | null
           id?: string
           image_url?: string | null
           image_url_story?: string | null
@@ -1794,6 +1797,7 @@ export type Database = {
           description: string | null
           end_time: string | null
           event_title: string | null
+          fotos: string[] | null
           id: string | null
           image_url: string | null
           image_url_story: string | null
@@ -1855,6 +1859,7 @@ export type Database = {
           description?: string | null
           end_time?: string | null
           event_title?: string | null
+          fotos?: string[] | null
           id?: string | null
           image_url?: string | null
           image_url_story?: string | null
@@ -1916,6 +1921,7 @@ export type Database = {
           description?: string | null
           end_time?: string | null
           event_title?: string | null
+          fotos?: string[] | null
           id?: string | null
           image_url?: string | null
           image_url_story?: string | null

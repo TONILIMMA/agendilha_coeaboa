@@ -29,6 +29,7 @@ const formSchema = z.object({
   eventImageUrl: z.string().optional(),
   eventImageUrlStory: z.string().optional(),
   eventImageUrlWhatsapp: z.string().optional(),
+  fotos: z.array(z.string().url()).default([]),
   
   nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
   basicPhone: z.string().trim().min(1, "Informe o WhatsApp").superRefine((val, ctx) => {
@@ -112,6 +113,7 @@ export default function SubmissionForm() {
       ageRating: "Livre", isSuitableForMinors: true,
       atrativoName: "", atrativoType: "",
       locationName: "", eventAddress: "", locationType: "commercial",
+      fotos: [],
     },
     mode: "onChange",
   });
@@ -276,6 +278,7 @@ export default function SubmissionForm() {
         image_url: imageUrl || null,
         image_url_story: values.eventImageUrlStory || null,
         image_url_whatsapp: values.eventImageUrlWhatsapp || null,
+        fotos: values.fotos || [],
         status: 'pendente',
       };
 
