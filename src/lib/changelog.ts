@@ -32,9 +32,9 @@ export const UPDATES: AppUpdate[] = [
     title: "Novidade no AgendIlha: app no celular e sininho de avisos",
     items: [
       "Dá pra instalar o AgendIlha no celular. Toca em 'Instalar' no rodapé e ele vira app na sua tela inicial.",
-      "Saiu versão nova? Aparece um aviso pra atualizar com 1 toque, sem ficar preso em tela antiga.",
+      "Chegou versão nova do app. Aparece um aviso no topo — toca em 'Atualizar' e pronto, sem ficar preso em tela antiga.",
       "Sininho lá em cima pros administradores: cada evento novo cai ali. Clica e vai direto pro rolê esperando aprovação.",
-      "Toda mudança importante abre uma janelinha como esta contando o que tá novo.",
+      "Toda mudança importante abre uma janelinha como esta. É só ler e tocar em 'Beleza, bora usar' pra seguir.",
     ],
   },
 ];
