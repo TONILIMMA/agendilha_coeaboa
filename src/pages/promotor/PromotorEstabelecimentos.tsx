@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { PromotorBadge } from "@/components/promotor/PromotorBadge";
@@ -19,9 +22,35 @@ interface Estab {
   bairro: string | null;
   tipo: string | null;
   contato: string | null;
+  tipos?: string[] | null;
+  anotacoes?: string | null;
+  cnpj?: string | null;
+  responsavel_nome?: string | null;
+  responsavel_telefone?: string | null;
+  responsavel_email?: string | null;
+  responsavel_redes?: string | null;
 }
 
-const empty = { nome: "", endereco: "", bairro: "", tipo: "", contato: "" };
+const TIPOS_ESTAB = [
+  "Bar", "Restaurante", "Casa de show", "Quiosque",
+  "Centro cultural", "Igreja", "Praça", "Clube", "Outro",
+];
+
+const empty = {
+  nome: "",
+  endereco: "",
+  bairro: "",
+  tipo: "",
+  contato: "",
+  tipos: [] as string[],
+  anotacoes: "",
+  temCnpj: false,
+  cnpj: "",
+  responsavel_nome: "",
+  responsavel_telefone: "",
+  responsavel_email: "",
+  responsavel_redes: "",
+};
 
 export default function PromotorEstabelecimentos() {
   const { user } = useAuth();
@@ -36,7 +65,7 @@ export default function PromotorEstabelecimentos() {
     setLoading(true);
     const { data, error } = await supabase
       .from("estabelecimentos")
-      .select("id, nome, endereco, bairro, tipo, contato")
+      .select("id, nome, endereco, bairro, tipo, contato, tipos, anotacoes, cnpj, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes")
       .eq("responsavel_id", user.id)
       .order("nome");
     if (error) handleError(error, "Erro ao carregar estabelecimentos");
@@ -62,6 +91,14 @@ export default function PromotorEstabelecimentos() {
       bairro: e.bairro ?? "",
       tipo: e.tipo ?? "",
       contato: e.contato ?? "",
+      tipos: e.tipos ?? [],
+      anotacoes: e.anotacoes ?? "",
+      temCnpj: !!e.cnpj,
+      cnpj: e.cnpj ?? "",
+      responsavel_nome: e.responsavel_nome ?? "",
+      responsavel_telefone: e.responsavel_telefone ?? "",
+      responsavel_email: e.responsavel_email ?? "",
+      responsavel_redes: e.responsavel_redes ?? "",
     });
   };
 
@@ -73,6 +110,15 @@ export default function PromotorEstabelecimentos() {
     }
     setSaving(true);
     try {
+      const commonPatch = {
+        tipos: form.tipos.length ? form.tipos : null,
+        anotacoes: form.anotacoes || null,
+        cnpj: form.temCnpj && form.cnpj ? form.cnpj : null,
+        responsavel_nome: form.responsavel_nome || null,
+        responsavel_telefone: form.responsavel_telefone || null,
+        responsavel_email: form.responsavel_email || null,
+        responsavel_redes: form.responsavel_redes || null,
+      };
       if (editing) {
         const { error } = await supabase
           .from("estabelecimentos")
@@ -82,6 +128,7 @@ export default function PromotorEstabelecimentos() {
             bairro: form.bairro || null,
             tipo: form.tipo || null,
             contato: form.contato || null,
+            ...commonPatch,
           })
           .eq("id", editing);
         if (error) throw error;
@@ -95,6 +142,13 @@ export default function PromotorEstabelecimentos() {
           contato: form.contato || null,
           responsavel_id: user.id,
           created_by: user.id,
+          responsavel_nome: form.responsavel_nome || null,
+          responsavel_telefone: form.responsavel_telefone || null,
+          responsavel_email: form.responsavel_email || null,
+          responsavel_redes: form.responsavel_redes || null,
+          tipos: form.tipos.length ? form.tipos : null,
+          anotacoes: form.anotacoes || null,
+          cnpj: form.temCnpj && form.cnpj ? form.cnpj : null,
         });
         if (error) throw error;
         toast.success("Estabelecimento cadastrado.");
