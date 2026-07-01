@@ -1,0 +1,1 @@
+ALTER VIEW public.public_submissions SET (security_invoker = on);

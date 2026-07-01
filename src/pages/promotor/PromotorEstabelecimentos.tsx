@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { PromotorBadge } from "@/components/promotor/PromotorBadge";
 import { useProfile } from "@/hooks/useProfile";
+import { PhotoGallery } from "@/components/media/PhotoGallery";
 import { ROUTES } from "@/routes/config";
 
 interface Estab {
@@ -30,6 +31,7 @@ interface Estab {
   responsavel_telefone?: string | null;
   responsavel_email?: string | null;
   responsavel_redes?: string | null;
+  fotos?: string[] | null;
 }
 
 const TIPOS_ESTAB = [
@@ -51,6 +53,7 @@ const empty = {
   responsavel_telefone: "",
   responsavel_email: "",
   responsavel_redes: "",
+  fotos: [] as string[],
 };
 
 export default function PromotorEstabelecimentos() {
@@ -67,7 +70,7 @@ export default function PromotorEstabelecimentos() {
     setLoading(true);
     const { data, error } = await supabase
       .from("estabelecimentos")
-      .select("id, nome, endereco, bairro, tipo, contato, tipos, anotacoes, cnpj, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes")
+      .select("id, nome, endereco, bairro, tipo, contato, tipos, anotacoes, cnpj, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos")
       .eq("responsavel_id", user.id)
       .order("nome");
     if (error) handleError(error, "Erro ao carregar estabelecimentos");
@@ -106,6 +109,7 @@ export default function PromotorEstabelecimentos() {
       responsavel_telefone: e.responsavel_telefone ?? "",
       responsavel_email: e.responsavel_email ?? "",
       responsavel_redes: e.responsavel_redes ?? "",
+      fotos: e.fotos ?? [],
     });
   };
 
@@ -125,6 +129,7 @@ export default function PromotorEstabelecimentos() {
         responsavel_telefone: form.responsavel_telefone || null,
         responsavel_email: form.responsavel_email || null,
         responsavel_redes: form.responsavel_redes || null,
+        fotos: form.fotos,
       };
       if (editing) {
         const { error } = await supabase
@@ -156,6 +161,7 @@ export default function PromotorEstabelecimentos() {
           tipos: form.tipos.length ? form.tipos : null,
           anotacoes: form.anotacoes || null,
           cnpj: form.temCnpj && form.cnpj ? form.cnpj : null,
+          fotos: form.fotos,
         });
         if (error) throw error;
         toast.success("Estabelecimento cadastrado.");
@@ -278,6 +284,21 @@ export default function PromotorEstabelecimentos() {
             />
           </div>
         </div>
+
+        {user && (
+          <div className="space-y-3">
+            <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Fotos</p>
+            <PhotoGallery
+              urls={form.fotos}
+              onChange={(next) => setForm({ ...form, fotos: next })}
+              kind="estabelecimentos"
+              ownerUserId={user.id}
+              targetId={editing}
+              label="Fachada, logo e outras fotos"
+              helper="Envie até 8 imagens. Elas aparecem na página do estabelecimento."
+            />
+          </div>
+        )}
 
         <div className="flex gap-2">
           <Button onClick={save} disabled={saving}>

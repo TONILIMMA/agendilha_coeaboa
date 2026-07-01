@@ -21,6 +21,7 @@ interface Estabelecimento {
   complemento: string | null;
   cep: string | null;
   contato: string | null;
+  fotos: string[] | null;
 }
 
 interface EventRow {
@@ -52,7 +53,7 @@ export default function EstabelecimentoDetail() {
       setLoading(true);
       const { data, error } = await supabase
         .from("estabelecimentos")
-        .select("id, nome, tipo, bairro, endereco, numero, complemento, cep, contato")
+        .select("id, nome, tipo, bairro, endereco, numero, complemento, cep, contato, fotos")
         .eq("id", id)
         .maybeSingle();
       if (cancelled) return;
@@ -189,6 +190,32 @@ export default function EstabelecimentoDetail() {
           </Button>
         </div>
       </header>
+
+      {estab.fotos && estab.fotos.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55">
+            Fotos
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+            {estab.fotos.map((url, i) => (
+              <a
+                key={url + i}
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                className="aspect-square rounded-2xl overflow-hidden ring-1 ring-foreground/[0.08] bg-muted block"
+              >
+                <img
+                  src={url}
+                  alt={`${estab.nome} — foto ${i + 1}`}
+                  loading="lazy"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform"
+                />
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Informações práticas */}
       {(estab.contato || estab.cep || estab.complemento) && (

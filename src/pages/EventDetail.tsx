@@ -32,6 +32,7 @@ interface Event {
   description: string | null;
   category: string | null;
   image_url: string | null;
+  fotos?: string[] | null;
   is_highlight: boolean;
   slug: string;
   status: string;
@@ -236,6 +237,30 @@ export default function EventDetail() {
                 {event.description || "O organizador ainda não contou os detalhes desse rolê. Em breve tem mais info por aqui."}
               </div>
             </section>
+
+            {event.fotos && event.fotos.length > 0 && (
+              <section>
+                <h2 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 mb-4">Fotos</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                  {event.fotos.map((url, i) => (
+                    <a
+                      key={url + i}
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="aspect-square rounded-2xl overflow-hidden ring-1 ring-foreground/[0.08] bg-muted block"
+                    >
+                      <img
+                        src={url}
+                        alt={`${event.event_title} — foto ${i + 1}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover hover:scale-105 transition-transform"
+                      />
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Practical info */}
             <section>
