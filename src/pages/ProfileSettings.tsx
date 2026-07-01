@@ -61,6 +61,18 @@ export default function ProfileSettings() {
   const [instagram, setInstagram] = useState("");
   const [facebook, setFacebook] = useState("");
   const [coverageArea, setCoverageArea] = useState<string[]>([]);
+
+  // Promotor extras
+  const [whatsappPhone, setWhatsappPhone] = useState("");
+  const [addressStreet, setAddressStreet] = useState("");
+  const [addressNumber, setAddressNumber] = useState("");
+  const [addressComplement, setAddressComplement] = useState("");
+  const [addressNeighborhood, setAddressNeighborhood] = useState("");
+  const [addressCity, setAddressCity] = useState("");
+  const [addressState, setAddressState] = useState("");
+  const [country, setCountry] = useState("Brasil");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [socialNetworks, setSocialNetworks] = useState("");
   
   // Artist specific
   const [artisticName, setArtisticName] = useState("");
@@ -79,6 +91,17 @@ export default function ProfileSettings() {
       setInstagram(social.instagram || "");
       setFacebook(social.facebook || "");
       setCoverageArea((profile as any).coverage_area || []);
+
+      setWhatsappPhone((profile as any).whatsapp_phone || profile.phone || "");
+      setAddressStreet((profile as any).address_street || "");
+      setAddressNumber((profile as any).address_number || "");
+      setAddressComplement((profile as any).address_complement || "");
+      setAddressNeighborhood((profile as any).address_neighborhood || "");
+      setAddressCity((profile as any).address_city || "");
+      setAddressState((profile as any).address_state || "");
+      setCountry((profile as any).country || "Brasil");
+      setAvatarUrl((profile as any).avatar_url || "");
+      setSocialNetworks((profile as any).contact_social || "");
       
       if (profile.role === 'artist' || (profile as any).user_type === 'artist') {
         loadArtistProfile();
@@ -120,6 +143,16 @@ export default function ProfileSettings() {
         musical_preferences: musicalPreferences,
         social_links: { instagram, facebook },
         coverage_area: coverageArea,
+        whatsapp_phone: whatsappPhone,
+        address_street: addressStreet,
+        address_number: addressNumber,
+        address_complement: addressComplement,
+        address_neighborhood: addressNeighborhood,
+        address_city: addressCity,
+        address_state: addressState,
+        country,
+        avatar_url: avatarUrl,
+        contact_social: socialNetworks,
       };
 
       await saveProfile(profileData);
