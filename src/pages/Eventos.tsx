@@ -74,6 +74,9 @@ export default function Eventos() {
   const filteredConfirmed = useMemo(() => getFiltered(confirmedEvents), [confirmedEvents, categoryFilter, editorialFilter, search]);
   const filteredTrash = useMemo(() => getFiltered(trashedSubmissions), [trashedSubmissions, categoryFilter, editorialFilter, search]);
   const filteredActive = useMemo(() => getFiltered(activeSubmissions), [activeSubmissions, categoryFilter, editorialFilter, search]);
+  const canManageEvents = isAdmin || permissions.isAdmin;
+  const canApproveEvents = canManageEvents || permissions.canApprove;
+  const canDeleteEvents = canManageEvents || permissions.canDelete;
 
   if (authLoading) {
     return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -90,7 +93,7 @@ export default function Eventos() {
         setExpandedId(newId);
         if (newId) fetchAuditLog(newId);
       }}
-      isAdmin={isAdmin}
+      isAdmin={canManageEvents}
       auditLog={auditLogs[sub.id]}
       showApproval={options.showApproval}
       showTrashActions={options.showTrashActions}
@@ -122,7 +125,7 @@ export default function Eventos() {
   if (!permissions.loaded) {
     return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
-  if (!isAdmin && !permissions.isCollaborator) {
+  if (!canManageEvents && !permissions.isCollaborator) {
     return <Navigate to="/" replace />;
   }
 
@@ -406,7 +409,7 @@ export default function Eventos() {
         </TabsContent>
 
         <TabsContent value="pending">
-          {!permissions.canApprove ? (
+          {!canApproveEvents ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <p className="text-muted-foreground text-sm">Você não tem permissão para aprovar eventos.</p>
             </div>
@@ -419,7 +422,7 @@ export default function Eventos() {
           {renderList(filteredConfirmed)}
         </TabsContent>
 
-        {(isAdmin || permissions.canDelete) && (
+        {canDeleteEvents && (
           <TabsContent value="trash">
             <div className="mb-3">
               <p className="text-xs text-muted-foreground">Eventos na lixeira são excluídos definitivamente após 30 dias.</p>
