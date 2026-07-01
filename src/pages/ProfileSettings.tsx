@@ -267,6 +267,7 @@ export default function ProfileSettings() {
 
       {/* Promoter / Divulgador Specific */}
       {(userType === 'promoter' || userType === 'divulgador') && (
+        <>
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-display flex items-center gap-2">
@@ -310,6 +311,65 @@ export default function ProfileSettings() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-display flex items-center gap-2">
+              <User className="h-5 w-5 text-primary" />
+              Dados para ser promotor
+            </CardTitle>
+            <CardDescription>Usamos esses dados para contato e divulgação.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Telefone / WhatsApp</Label>
+              <Input value={whatsappPhone} onChange={(e) => setWhatsappPhone(e.target.value)} placeholder="(21) 99999-9999" />
+            </div>
+            <div className="space-y-2">
+              <Label>Redes sociais (links ou @)</Label>
+              <Textarea value={socialNetworks} onChange={(e) => setSocialNetworks(e.target.value)} rows={2} placeholder="@instagram, facebook.com/..." />
+            </div>
+            <div className="space-y-2">
+              <Label>Foto / avatar (URL)</Label>
+              <Input value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://..." />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2 space-y-2">
+                <Label>Rua / Avenida</Label>
+                <Input value={addressStreet} onChange={(e) => setAddressStreet(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Número</Label>
+                <Input value={addressNumber} onChange={(e) => setAddressNumber(e.target.value)} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Complemento (opcional)</Label>
+              <Input value={addressComplement} onChange={(e) => setAddressComplement(e.target.value)} placeholder="Bloco, apto…" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Bairro</Label>
+                <Input value={addressNeighborhood} onChange={(e) => setAddressNeighborhood(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Cidade</Label>
+                <Input value={addressCity} onChange={(e) => setAddressCity(e.target.value)} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Estado (UF)</Label>
+                <Input value={addressState} onChange={(e) => setAddressState(e.target.value)} placeholder="RJ" />
+              </div>
+              <div className="space-y-2">
+                <Label>País</Label>
+                <Input value={country} onChange={(e) => setCountry(e.target.value)} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        </>
       )}
 
       {/* Artist Specific */}
