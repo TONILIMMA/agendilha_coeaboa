@@ -389,41 +389,77 @@ export type Database = {
       }
       atrativos: {
         Row: {
+          cidade_regiao: string | null
           contact_whatsapp: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
           estabelecimento_id: string | null
+          estado: string | null
+          estilos: string[] | null
+          fotos: string[] | null
           id: string
+          logo_url: string | null
+          membros_equipe: string | null
           name: string
+          pais: string | null
+          responsavel_email: string | null
           responsavel_id: string | null
+          responsavel_nome: string | null
+          responsavel_redes: string | null
+          responsavel_telefone: string | null
           style: string | null
+          tipo_atrativo: string | null
           type: string | null
           updated_at: string
         }
         Insert: {
+          cidade_regiao?: string | null
           contact_whatsapp?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
           estabelecimento_id?: string | null
+          estado?: string | null
+          estilos?: string[] | null
+          fotos?: string[] | null
           id?: string
+          logo_url?: string | null
+          membros_equipe?: string | null
           name: string
+          pais?: string | null
+          responsavel_email?: string | null
           responsavel_id?: string | null
+          responsavel_nome?: string | null
+          responsavel_redes?: string | null
+          responsavel_telefone?: string | null
           style?: string | null
+          tipo_atrativo?: string | null
           type?: string | null
           updated_at?: string
         }
         Update: {
+          cidade_regiao?: string | null
           contact_whatsapp?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
           estabelecimento_id?: string | null
+          estado?: string | null
+          estilos?: string[] | null
+          fotos?: string[] | null
           id?: string
+          logo_url?: string | null
+          membros_equipe?: string | null
           name?: string
+          pais?: string | null
+          responsavel_email?: string | null
           responsavel_id?: string | null
+          responsavel_nome?: string | null
+          responsavel_redes?: string | null
+          responsavel_telefone?: string | null
           style?: string | null
+          tipo_atrativo?: string | null
           type?: string | null
           updated_at?: string
         }
@@ -615,48 +651,72 @@ export type Database = {
       }
       estabelecimentos: {
         Row: {
+          anotacoes: string | null
           bairro: string | null
           cep: string | null
+          cnpj: string | null
           complemento: string | null
           contato: string | null
           created_at: string
           created_by: string | null
           endereco: string | null
+          fotos: string[] | null
           id: string
           nome: string
           numero: string | null
+          responsavel_email: string | null
           responsavel_id: string | null
+          responsavel_nome: string | null
+          responsavel_redes: string | null
+          responsavel_telefone: string | null
           tipo: string | null
+          tipos: string[] | null
           updated_at: string
         }
         Insert: {
+          anotacoes?: string | null
           bairro?: string | null
           cep?: string | null
+          cnpj?: string | null
           complemento?: string | null
           contato?: string | null
           created_at?: string
           created_by?: string | null
           endereco?: string | null
+          fotos?: string[] | null
           id?: string
           nome: string
           numero?: string | null
+          responsavel_email?: string | null
           responsavel_id?: string | null
+          responsavel_nome?: string | null
+          responsavel_redes?: string | null
+          responsavel_telefone?: string | null
           tipo?: string | null
+          tipos?: string[] | null
           updated_at?: string
         }
         Update: {
+          anotacoes?: string | null
           bairro?: string | null
           cep?: string | null
+          cnpj?: string | null
           complemento?: string | null
           contato?: string | null
           created_at?: string
           created_by?: string | null
           endereco?: string | null
+          fotos?: string[] | null
           id?: string
           nome?: string
           numero?: string | null
+          responsavel_email?: string | null
           responsavel_id?: string | null
+          responsavel_nome?: string | null
+          responsavel_redes?: string | null
+          responsavel_telefone?: string | null
           tipo?: string | null
+          tipos?: string[] | null
           updated_at?: string
         }
         Relationships: []
@@ -1006,15 +1066,18 @@ export type Database = {
       profiles: {
         Row: {
           address_city: string | null
+          address_complement: string | null
           address_neighborhood: string | null
           address_number: string | null
           address_state: string | null
           address_street: string | null
           address_zip: string | null
+          avatar_url: string | null
           city: string | null
           company_name: string | null
           company_type: string | null
           contact_social: string | null
+          country: string | null
           coverage_area: string[] | null
           created_at: string
           email: string | null
@@ -1037,19 +1100,23 @@ export type Database = {
           updated_at: string
           user_id: string
           user_type: string | null
+          whatsapp_phone: string | null
           work_neighborhood: string | null
         }
         Insert: {
           address_city?: string | null
+          address_complement?: string | null
           address_neighborhood?: string | null
           address_number?: string | null
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          avatar_url?: string | null
           city?: string | null
           company_name?: string | null
           company_type?: string | null
           contact_social?: string | null
+          country?: string | null
           coverage_area?: string[] | null
           created_at?: string
           email?: string | null
@@ -1072,19 +1139,23 @@ export type Database = {
           updated_at?: string
           user_id: string
           user_type?: string | null
+          whatsapp_phone?: string | null
           work_neighborhood?: string | null
         }
         Update: {
           address_city?: string | null
+          address_complement?: string | null
           address_neighborhood?: string | null
           address_number?: string | null
           address_state?: string | null
           address_street?: string | null
           address_zip?: string | null
+          avatar_url?: string | null
           city?: string | null
           company_name?: string | null
           company_type?: string | null
           contact_social?: string | null
+          country?: string | null
           coverage_area?: string[] | null
           created_at?: string
           email?: string | null
@@ -1107,6 +1178,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_type?: string | null
+          whatsapp_phone?: string | null
           work_neighborhood?: string | null
         }
         Relationships: []
@@ -1222,6 +1294,8 @@ export type Database = {
           status: string
           subscription_info: string | null
           target_audience: string | null
+          terms_accepted: boolean
+          terms_accepted_at: string | null
           user_id: string
           video_link: string | null
           views_count: number | null
@@ -1309,6 +1383,8 @@ export type Database = {
           status?: string
           subscription_info?: string | null
           target_audience?: string | null
+          terms_accepted?: boolean
+          terms_accepted_at?: string | null
           user_id: string
           video_link?: string | null
           views_count?: number | null
@@ -1396,6 +1472,8 @@ export type Database = {
           status?: string
           subscription_info?: string | null
           target_audience?: string | null
+          terms_accepted?: boolean
+          terms_accepted_at?: string | null
           user_id?: string
           video_link?: string | null
           views_count?: number | null

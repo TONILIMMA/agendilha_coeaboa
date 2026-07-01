@@ -74,7 +74,7 @@ const formSchema = z.object({
   addressNeighborhood: z.string().optional(),
   addressCity: z.string().optional(),
   addressState: z.string().optional(),
-  ageRating: z.enum(["Livre", "14+", "16+", "18+"]).default("Livre"),
+  ageRating: z.enum(["Livre", "10+", "12+", "14+", "16+", "18+"]).default("Livre"),
   isSuitableForMinors: z.boolean().default(true),
 }).refine((data) => {
   if (data.locationType === "commercial" && !data.locationContact) {
@@ -269,6 +269,8 @@ export default function SubmissionForm() {
         location_contact: clean(values.locationContact),
         legal_acceptance: values.legalAcceptance,
         legal_acceptance_date: values.legalAcceptance ? new Date().toISOString() : null,
+        terms_accepted: values.legalAcceptance,
+        terms_accepted_at: values.legalAcceptance ? new Date().toISOString() : null,
         age_rating: values.ageRating,
         is_suitable_for_minors: values.isSuitableForMinors,
         image_url: imageUrl || null,
