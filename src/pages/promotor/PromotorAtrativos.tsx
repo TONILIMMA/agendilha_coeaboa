@@ -258,6 +258,56 @@ export default function PromotorAtrativos() {
           />
         </div>
 
+        {/* Bloco: Tipo de atrativo + estilos condicionais */}
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Categoria do atrativo</Label>
+            <Select
+              value={form.tipo_atrativo}
+              onValueChange={(v) => setForm({ ...form, tipo_atrativo: v, estilos: [] })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Ex: Música, Artes cênicas…" />
+              </SelectTrigger>
+              <SelectContent>
+                {TIPOS_ATRATIVO.map((t) => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {form.tipo_atrativo && ESTILOS_POR_TIPO[form.tipo_atrativo] && (
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Estilos</Label>
+              <p className="text-xs text-muted-foreground">Marque quantos combinarem.</p>
+              <div className="flex flex-wrap gap-2">
+                {ESTILOS_POR_TIPO[form.tipo_atrativo].map((s) => {
+                  const on = form.estilos.includes(s);
+                  return (
+                    <Badge
+                      key={s}
+                      variant="outline"
+                      className={cn(
+                        "cursor-pointer px-3 py-1 rounded-full transition-all",
+                        on ? "bg-primary text-primary-foreground border-primary" : "hover:bg-primary/10"
+                      )}
+                      onClick={() =>
+                        setForm((f) => ({
+                          ...f,
+                          estilos: on ? f.estilos.filter((x) => x !== s) : [...f.estilos, s],
+                        }))
+                      }
+                    >
+                      {s}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="space-y-1.5">
           <Label className="text-sm font-semibold">Estabelecimento</Label>
           <EstabelecimentoAutocomplete
@@ -277,6 +327,57 @@ export default function PromotorAtrativos() {
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={3}
           />
+        </div>
+
+        {/* Bloco: Local / Origem */}
+        <div className="space-y-3">
+          <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Local / Origem</p>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">País</Label>
+              <Input value={form.pais} onChange={(e) => setForm({ ...form, pais: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Estado</Label>
+              <Input value={form.estado} onChange={(e) => setForm({ ...form, estado: e.target.value })} placeholder="RJ" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Cidade / Região</Label>
+              <Input value={form.cidade_regiao} onChange={(e) => setForm({ ...form, cidade_regiao: e.target.value })} placeholder="Ilha do Governador" />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Integrantes / Equipe</Label>
+            <Textarea
+              value={form.membros_equipe}
+              onChange={(e) => setForm({ ...form, membros_equipe: e.target.value })}
+              rows={2}
+              placeholder="Ex: João (voz), Ana (guitarra)…"
+            />
+          </div>
+        </div>
+
+        {/* Bloco: Responsável pelos contatos */}
+        <div className="space-y-3">
+          <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Responsável pelos contatos</p>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Nome</Label>
+              <Input value={form.responsavel_nome} onChange={(e) => setForm({ ...form, responsavel_nome: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Telefone / WhatsApp</Label>
+              <Input value={form.responsavel_telefone} onChange={(e) => setForm({ ...form, responsavel_telefone: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">E-mail</Label>
+              <Input value={form.responsavel_email} onChange={(e) => setForm({ ...form, responsavel_email: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold">Redes sociais</Label>
+              <Input value={form.responsavel_redes} onChange={(e) => setForm({ ...form, responsavel_redes: e.target.value })} placeholder="@instagram, Facebook…" />
+            </div>
+          </div>
         </div>
 
         <div className="flex gap-2">
