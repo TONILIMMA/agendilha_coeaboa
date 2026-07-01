@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { PromotorBadge } from "@/components/promotor/PromotorBadge";
+import { useProfile } from "@/hooks/useProfile";
 import { ROUTES } from "@/routes/config";
 
 interface Estab {
@@ -54,6 +55,7 @@ const empty = {
 
 export default function PromotorEstabelecimentos() {
   const { user } = useAuth();
+  const { profile } = useProfile();
   const [items, setItems] = useState<Estab[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
@@ -80,7 +82,12 @@ export default function PromotorEstabelecimentos() {
 
   const reset = () => {
     setEditing(null);
-    setForm({ ...empty });
+    setForm({
+      ...empty,
+      responsavel_nome: profile?.responsible_name || "",
+      responsavel_telefone: profile?.phone || "",
+      responsavel_email: profile?.email || "",
+    });
   };
 
   const startEdit = (e: Estab) => {
@@ -193,13 +200,85 @@ export default function PromotorEstabelecimentos() {
         <h2 className="font-bold text-lg">
           {editing ? "Editar estabelecimento" : "Novo estabelecimento"}
         </h2>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Nome*" value={form.nome} onChange={(v) => setForm({ ...form, nome: v })} />
-          <Field label="Tipo" value={form.tipo} onChange={(v) => setForm({ ...form, tipo: v })} placeholder="Bar, restaurante…" />
-          <Field label="Endereço" value={form.endereco} onChange={(v) => setForm({ ...form, endereco: v })} />
-          <Field label="Bairro" value={form.bairro} onChange={(v) => setForm({ ...form, bairro: v })} />
-          <Field label="Contato" value={form.contato} onChange={(v) => setForm({ ...form, contato: v })} placeholder="WhatsApp ou e-mail" />
+
+        {/* Bloco: Básico */}
+        <div className="space-y-3">
+          <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Informações básicas</p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Nome*" value={form.nome} onChange={(v) => setForm({ ...form, nome: v })} />
+            <Field label="Endereço" value={form.endereco} onChange={(v) => setForm({ ...form, endereco: v })} />
+            <Field label="Bairro" value={form.bairro} onChange={(v) => setForm({ ...form, bairro: v })} />
+            <Field label="Contato geral" value={form.contato} onChange={(v) => setForm({ ...form, contato: v })} placeholder="WhatsApp ou e-mail" />
+          </div>
         </div>
+
+        {/* Bloco: Tipos (multi) */}
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold">Tipo de estabelecimento</Label>
+          <p className="text-xs text-muted-foreground">Toque em quantos combinarem.</p>
+          <div className="flex flex-wrap gap-2">
+            {TIPOS_ESTAB.map((t) => {
+              const on = form.tipos.includes(t);
+              return (
+                <Badge
+                  key={t}
+                  variant="outline"
+                  className={cn(
+                    "cursor-pointer px-3 py-1 rounded-full transition-all",
+                    on ? "bg-primary text-primary-foreground border-primary" : "hover:bg-primary/10"
+                  )}
+                  onClick={() =>
+                    setForm((f) => ({
+                      ...f,
+                      tipos: on ? f.tipos.filter((x) => x !== t) : [...f.tipos, t],
+                    }))
+                  }
+                >
+                  {t}
+                </Badge>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Bloco: Responsável pelos contatos */}
+        <div className="space-y-3">
+          <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Responsável pelos contatos</p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Nome" value={form.responsavel_nome} onChange={(v) => setForm({ ...form, responsavel_nome: v })} />
+            <Field label="Telefone / WhatsApp" value={form.responsavel_telefone} onChange={(v) => setForm({ ...form, responsavel_telefone: v })} />
+            <Field label="E-mail" value={form.responsavel_email} onChange={(v) => setForm({ ...form, responsavel_email: v })} />
+            <Field label="Redes sociais" value={form.responsavel_redes} onChange={(v) => setForm({ ...form, responsavel_redes: v })} placeholder="@instagram, Facebook…" />
+          </div>
+        </div>
+
+        {/* Bloco: Extras */}
+        <div className="space-y-3">
+          <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Extras (opcional)</p>
+          <div className="flex items-center gap-2">
+            <input
+              id="temCnpj"
+              type="checkbox"
+              checked={form.temCnpj}
+              onChange={(e) => setForm({ ...form, temCnpj: e.target.checked })}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="temCnpj" className="text-sm cursor-pointer">Tem CNPJ (pessoa jurídica)</Label>
+          </div>
+          {form.temCnpj && (
+            <Field label="CNPJ" value={form.cnpj} onChange={(v) => setForm({ ...form, cnpj: v })} placeholder="00.000.000/0000-00" />
+          )}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold">Anotações</Label>
+            <Textarea
+              value={form.anotacoes}
+              onChange={(e) => setForm({ ...form, anotacoes: e.target.value })}
+              placeholder="Observações internas sobre o lugar."
+              rows={3}
+            />
+          </div>
+        </div>
+
         <div className="flex gap-2">
           <Button onClick={save} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : editing ? "Salvar alterações" : (<><Plus className="h-4 w-4 mr-1" /> Cadastrar</>)}
