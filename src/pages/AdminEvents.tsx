@@ -427,6 +427,29 @@ export default function AdminEvents() {
                  <span className="hidden sm:inline">Resumo de hoje no WhatsApp</span>
                  <span className="sm:hidden">Resumo hoje</span>
                </Button>
+               <Button
+                 variant="outline"
+                 size="sm"
+                 className="h-9 sm:h-10 font-bold border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] sm:text-xs px-3 sm:px-4"
+                 title="Gera o texto dos rolês dos próximos 7 dias e abre o WhatsApp — você escolhe pra quem mandar."
+                 onClick={() => {
+                   const { text, count } = buildWeekWhatsAppSummary(submissions);
+                   if (count === 0) {
+                     toast.info("Ainda não temos eventos cadastrados para esta semana.", {
+                       description: "Cadastre alguns eventos antes de gerar o resumo.",
+                     });
+                     return;
+                   }
+                   openWhatsAppWithText(text);
+                   toast.success(`Resumo da semana pronto com ${count} rolê${count > 1 ? "s" : ""}!`, {
+                     description: "É só escolher os grupos ou contatos e mandar.",
+                   });
+                 }}
+               >
+                 <CalendarDays className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+                 <span className="hidden sm:inline">Resumo da semana no WhatsApp</span>
+                 <span className="sm:hidden">Resumo semana</span>
+               </Button>
                 <Button 
                   size="sm"
                   className="h-9 sm:h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 text-[10px] sm:text-xs px-3 sm:px-4"
