@@ -532,12 +532,12 @@ export default function Landing() {
             <div className="text-xs text-foreground/60 font-medium order-3 sm:text-right">
               Criado por{" "}
               <a
-                href="https://limaxsistemas.lovable.app/"
+                href="https://limaxsistemas.online/"
                 target="_blank"
                 rel="noreferrer"
                 className="font-bold text-foreground/80 hover:text-primary transition-colors hover:underline"
               >
-                LimaX Soluções
+                Lima<span className="text-orange-500">X</span> Soluções
               </a>
             </div>
           </div>
