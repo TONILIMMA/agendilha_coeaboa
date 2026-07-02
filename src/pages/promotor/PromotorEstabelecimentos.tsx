@@ -32,6 +32,7 @@ interface Estab {
   responsavel_email?: string | null;
   responsavel_redes?: string | null;
   fotos?: string[] | null;
+  is_approved?: boolean;
 }
 
 const TIPOS_ESTAB = [
@@ -70,7 +71,7 @@ export default function PromotorEstabelecimentos() {
     setLoading(true);
     const { data, error } = await supabase
       .from("estabelecimentos")
-      .select("id, nome, endereco, bairro, tipo, contato, tipos, anotacoes, cnpj, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos")
+      .select("id, nome, endereco, bairro, tipo, contato, tipos, anotacoes, cnpj, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos, is_approved")
       .eq("responsavel_id", user.id)
       .order("nome");
     if (error) handleError(error, "Erro ao carregar estabelecimentos");
@@ -332,6 +333,13 @@ export default function PromotorEstabelecimentos() {
                 <p className="text-xs text-muted-foreground truncate">
                   {[e.tipo, e.bairro, e.endereco].filter(Boolean).join(" · ") || "Sem detalhes"}
                 </p>
+                <div className="mt-1">
+                  {e.is_approved ? (
+                    <Badge variant="outline" className="text-[10px] border-emerald-500 text-emerald-700">Aprovado</Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-700">Aguardando aprovação</Badge>
+                  )}
+                </div>
               </div>
               <div className="flex gap-1">
                 <Button size="icon" variant="ghost" onClick={() => startEdit(e)} aria-label="Editar">
