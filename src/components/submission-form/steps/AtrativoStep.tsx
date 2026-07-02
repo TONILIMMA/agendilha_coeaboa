@@ -22,6 +22,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         .from("atrativos")
         .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp")
         .ilike("name", `%${q}%`)
+        .eq("is_approved", true)
         .limit(6),
       supabase
         .from("artist_profiles")

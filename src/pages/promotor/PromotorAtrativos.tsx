@@ -40,6 +40,7 @@ interface Atrativo {
   responsavel_redes?: string | null;
   fotos?: string[] | null;
   logo_url?: string | null;
+  is_approved?: boolean;
 }
 
 const TIPOS_ATRATIVO = ["Música", "Artes cênicas", "Turismo", "Outros"];
@@ -82,7 +83,7 @@ export default function PromotorAtrativos() {
     setLoading(true);
     const { data, error } = await supabase
       .from("atrativos")
-      .select("id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos")
+      .select("id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos, is_approved")
       .eq("responsavel_id", user.id)
       .order("name");
     if (error) handleError(error, "Erro ao carregar atrativos");
@@ -441,6 +442,13 @@ export default function PromotorAtrativos() {
                 <p className="text-xs text-muted-foreground truncate">
                   {[a.type, a.description].filter(Boolean).join(" · ") || "Sem detalhes"}
                 </p>
+                <div className="mt-1">
+                  {a.is_approved ? (
+                    <Badge variant="outline" className="text-[10px] border-emerald-500 text-emerald-700">Aprovado</Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-700">Aguardando aprovação</Badge>
+                  )}
+                </div>
               </div>
               <div className="flex gap-1">
                 <Button size="icon" variant="ghost" onClick={() => startEdit(a)} aria-label="Editar">

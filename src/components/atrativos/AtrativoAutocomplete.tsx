@@ -34,6 +34,7 @@ export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder }:
         .from("atrativos")
         .select("id, name, type, estabelecimento_id")
         .ilike("name", `%${value.trim()}%`)
+        .eq("is_approved", true)
         .limit(6);
       setSuggestions((data ?? []) as AtrativoSuggestion[]);
     }, 250);

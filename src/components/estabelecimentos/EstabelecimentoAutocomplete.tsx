@@ -54,6 +54,7 @@ export function EstabelecimentoAutocomplete({
         .from("estabelecimentos")
         .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato")
         .ilike("nome", `%${q}%`)
+        .eq("is_approved", true)
         .order("nome", { ascending: true })
         .limit(8);
       setSuggestions((data as EstabelecimentoSuggestion[]) ?? []);

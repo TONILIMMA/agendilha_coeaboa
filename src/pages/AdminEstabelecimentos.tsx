@@ -33,7 +33,7 @@ export default function AdminEstabelecimentos() {
     setLoading(true);
     const { data, error } = await supabase
       .from("estabelecimentos")
-      .select("*")
+      .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato, responsavel_id, created_by, created_at, updated_at, is_approved, responsavel_nome, responsavel_telefone, responsavel_email")
       .order("nome", { ascending: true });
     if (error) toast.error("Erro ao carregar estabelecimentos", { description: error.message });
     else setRows((data ?? []) as EstabelecimentoRow[]);
@@ -74,6 +74,19 @@ export default function AdminEstabelecimentos() {
     }
     toast.success("Estabelecimento removido");
     setRows((prev) => prev.filter((r) => r.id !== id));
+  }
+
+  async function handleApprove(id: string, approve: boolean) {
+    const patch: any = approve
+      ? { is_approved: true, approved_at: new Date().toISOString(), approved_by: user?.id ?? null }
+      : { is_approved: false, approved_at: null, approved_by: null };
+    const { error } = await supabase.from("estabelecimentos").update(patch).eq("id", id);
+    if (error) {
+      toast.error("Não deu pra atualizar a aprovação", { description: error.message });
+      return;
+    }
+    toast.success(approve ? "Cadastro aprovado — já aparece nas buscas do público" : "Aprovação revertida");
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, is_approved: approve } as EstabelecimentoRow : r)));
   }
 
   async function handleCreate() {
@@ -187,8 +200,10 @@ export default function AdminEstabelecimentos() {
                 e.created_by === user.id
               }
               canDelete={isMaster || isAdmin}
+              canApprove={isMaster || isAdmin}
               onSave={handleSave}
               onDelete={handleDelete}
+              onApprove={handleApprove}
             />
           ))}
         </div>
