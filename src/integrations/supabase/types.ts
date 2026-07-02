@@ -389,6 +389,8 @@ export type Database = {
       }
       atrativos: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           cidade_regiao: string | null
           contact_whatsapp: string | null
           created_at: string | null
@@ -399,6 +401,7 @@ export type Database = {
           estilos: string[] | null
           fotos: string[] | null
           id: string
+          is_approved: boolean
           logo_url: string | null
           membros_equipe: string | null
           name: string
@@ -414,6 +417,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           cidade_regiao?: string | null
           contact_whatsapp?: string | null
           created_at?: string | null
@@ -424,6 +429,7 @@ export type Database = {
           estilos?: string[] | null
           fotos?: string[] | null
           id?: string
+          is_approved?: boolean
           logo_url?: string | null
           membros_equipe?: string | null
           name: string
@@ -439,6 +445,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           cidade_regiao?: string | null
           contact_whatsapp?: string | null
           created_at?: string | null
@@ -449,6 +457,7 @@ export type Database = {
           estilos?: string[] | null
           fotos?: string[] | null
           id?: string
+          is_approved?: boolean
           logo_url?: string | null
           membros_equipe?: string | null
           name?: string
@@ -469,6 +478,13 @@ export type Database = {
             columns: ["estabelecimento_id"]
             isOneToOne: false
             referencedRelation: "estabelecimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atrativos_estabelecimento_id_fkey"
+            columns: ["estabelecimento_id"]
+            isOneToOne: false
+            referencedRelation: "estabelecimentos_public"
             referencedColumns: ["id"]
           },
         ]
@@ -652,6 +668,8 @@ export type Database = {
       estabelecimentos: {
         Row: {
           anotacoes: string | null
+          approved_at: string | null
+          approved_by: string | null
           bairro: string | null
           cep: string | null
           cnpj: string | null
@@ -662,6 +680,7 @@ export type Database = {
           endereco: string | null
           fotos: string[] | null
           id: string
+          is_approved: boolean
           nome: string
           numero: string | null
           responsavel_email: string | null
@@ -675,6 +694,8 @@ export type Database = {
         }
         Insert: {
           anotacoes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           bairro?: string | null
           cep?: string | null
           cnpj?: string | null
@@ -685,6 +706,7 @@ export type Database = {
           endereco?: string | null
           fotos?: string[] | null
           id?: string
+          is_approved?: boolean
           nome: string
           numero?: string | null
           responsavel_email?: string | null
@@ -698,6 +720,8 @@ export type Database = {
         }
         Update: {
           anotacoes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           bairro?: string | null
           cep?: string | null
           cnpj?: string | null
@@ -708,6 +732,7 @@ export type Database = {
           endereco?: string | null
           fotos?: string[] | null
           id?: string
+          is_approved?: boolean
           nome?: string
           numero?: string | null
           responsavel_email?: string | null
@@ -1503,6 +1528,13 @@ export type Database = {
             referencedRelation: "estabelecimentos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "submissions_estabelecimento_id_fkey"
+            columns: ["estabelecimento_id"]
+            isOneToOne: false
+            referencedRelation: "estabelecimentos_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_activity_logs: {
@@ -1659,6 +1691,120 @@ export type Database = {
       }
     }
     Views: {
+      atrativos_public: {
+        Row: {
+          cidade_regiao: string | null
+          contact_whatsapp: string | null
+          created_at: string | null
+          description: string | null
+          estabelecimento_id: string | null
+          estado: string | null
+          estilos: string[] | null
+          fotos: string[] | null
+          id: string | null
+          logo_url: string | null
+          name: string | null
+          pais: string | null
+          style: string | null
+          tipo_atrativo: string | null
+          type: string | null
+        }
+        Insert: {
+          cidade_regiao?: string | null
+          contact_whatsapp?: string | null
+          created_at?: string | null
+          description?: string | null
+          estabelecimento_id?: string | null
+          estado?: string | null
+          estilos?: string[] | null
+          fotos?: string[] | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          pais?: string | null
+          style?: string | null
+          tipo_atrativo?: string | null
+          type?: string | null
+        }
+        Update: {
+          cidade_regiao?: string | null
+          contact_whatsapp?: string | null
+          created_at?: string | null
+          description?: string | null
+          estabelecimento_id?: string | null
+          estado?: string | null
+          estilos?: string[] | null
+          fotos?: string[] | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          pais?: string | null
+          style?: string | null
+          tipo_atrativo?: string | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atrativos_estabelecimento_id_fkey"
+            columns: ["estabelecimento_id"]
+            isOneToOne: false
+            referencedRelation: "estabelecimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atrativos_estabelecimento_id_fkey"
+            columns: ["estabelecimento_id"]
+            isOneToOne: false
+            referencedRelation: "estabelecimentos_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estabelecimentos_public: {
+        Row: {
+          bairro: string | null
+          cep: string | null
+          complemento: string | null
+          contato: string | null
+          created_at: string | null
+          endereco: string | null
+          fotos: string[] | null
+          id: string | null
+          nome: string | null
+          numero: string | null
+          tipo: string | null
+          tipos: string[] | null
+        }
+        Insert: {
+          bairro?: string | null
+          cep?: string | null
+          complemento?: string | null
+          contato?: string | null
+          created_at?: string | null
+          endereco?: string | null
+          fotos?: string[] | null
+          id?: string | null
+          nome?: string | null
+          numero?: string | null
+          tipo?: string | null
+          tipos?: string[] | null
+        }
+        Update: {
+          bairro?: string | null
+          cep?: string | null
+          complemento?: string | null
+          contato?: string | null
+          created_at?: string | null
+          endereco?: string | null
+          fotos?: string[] | null
+          id?: string | null
+          nome?: string | null
+          numero?: string | null
+          tipo?: string | null
+          tipos?: string[] | null
+        }
+        Relationships: []
+      }
       event_ratings_summary: {
         Row: {
           average_rating: number | null
@@ -1992,6 +2138,24 @@ export type Database = {
         Returns: {
           representative_name: string
           representative_phone: string
+        }[]
+      }
+      get_atrativo_internal: {
+        Args: { _id: string }
+        Returns: {
+          responsavel_email: string
+          responsavel_nome: string
+          responsavel_redes: string
+          responsavel_telefone: string
+        }[]
+      }
+      get_estabelecimento_internal: {
+        Args: { _id: string }
+        Returns: {
+          responsavel_email: string
+          responsavel_nome: string
+          responsavel_redes: string
+          responsavel_telefone: string
         }[]
       }
       get_pipeline_metrics: { Args: never; Returns: Json }
