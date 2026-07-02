@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   Building2, ChevronDown, ChevronUp, MapPin, Phone, Pencil, Check, X, Loader2, Trash2,
+  ShieldCheck, Clock,
 } from "lucide-react";
 
 export interface EstabelecimentoRow {
@@ -22,21 +23,28 @@ export interface EstabelecimentoRow {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  is_approved?: boolean;
+  responsavel_nome?: string | null;
+  responsavel_telefone?: string | null;
+  responsavel_email?: string | null;
 }
 
 interface Props {
   estab: EstabelecimentoRow;
   canEdit: boolean;
   canDelete: boolean;
+  canApprove?: boolean;
   onSave: (id: string, patch: Partial<EstabelecimentoRow>) => Promise<boolean>;
   onDelete: (id: string) => Promise<void>;
+  onApprove?: (id: string, approve: boolean) => Promise<void>;
 }
 
-export function EstabelecimentoCard({ estab, canEdit, canDelete, onSave, onDelete }: Props) {
+export function EstabelecimentoCard({ estab, canEdit, canDelete, canApprove, onSave, onDelete, onApprove }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [approving, setApproving] = useState(false);
   const [form, setForm] = useState({
     nome: estab.nome,
     endereco: estab.endereco ?? "",
@@ -96,6 +104,15 @@ export function EstabelecimentoCard({ estab, canEdit, canDelete, onSave, onDelet
                   {estab.tipo}
                 </Badge>
               )}
+              {estab.is_approved === false ? (
+                <Badge variant="outline" className="gap-1 text-[10px] uppercase font-bold tracking-widest px-2 py-0 border-amber-500 text-amber-700">
+                  <Clock className="h-3 w-3" /> Pendente
+                </Badge>
+              ) : estab.is_approved ? (
+                <Badge variant="outline" className="gap-1 text-[10px] uppercase font-bold tracking-widest px-2 py-0 border-emerald-500 text-emerald-700">
+                  <ShieldCheck className="h-3 w-3" /> Aprovado
+                </Badge>
+              ) : null}
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs sm:text-sm text-muted-foreground mt-1">
               {estab.bairro && (
@@ -139,6 +156,22 @@ export function EstabelecimentoCard({ estab, canEdit, canDelete, onSave, onDelet
                     <Button size="sm" variant="outline" className="gap-2" onClick={() => setEditing(true)}>
                       <Pencil className="h-3.5 w-3.5" />
                       Editar
+                    </Button>
+                  )}
+                  {canApprove && onApprove && (
+                    <Button
+                      size="sm"
+                      variant={estab.is_approved ? "ghost" : "default"}
+                      className="gap-2"
+                      disabled={approving}
+                      onClick={async () => {
+                        setApproving(true);
+                        await onApprove(estab.id, !estab.is_approved);
+                        setApproving(false);
+                      }}
+                    >
+                      {approving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+                      {estab.is_approved ? "Reverter aprovação" : "Aprovar cadastro"}
                     </Button>
                   )}
                   {canDelete && (
