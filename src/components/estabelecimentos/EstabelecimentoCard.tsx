@@ -148,6 +148,18 @@ export function EstabelecimentoCard({ estab, canEdit, canDelete, canApprove, onS
                   <Field label="Contato" value={estab.contato} />
                   <Field label="Criado em" value={new Date(estab.created_at).toLocaleDateString("pt-BR")} />
                 </dl>
+                {canEdit && (estab.responsavel_nome || estab.responsavel_telefone || estab.responsavel_email) && (
+                  <div className="rounded-md border border-dashed border-amber-300 bg-amber-50/50 p-3">
+                    <p className="text-[10px] uppercase font-bold text-amber-700 tracking-wider mb-2">
+                      Dados internos de confirmação • não aparecem para o público
+                    </p>
+                    <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                      <Field label="Responsável" value={estab.responsavel_nome} />
+                      <Field label="Telefone interno" value={estab.responsavel_telefone} />
+                      <Field label="E-mail interno" value={estab.responsavel_email} />
+                    </dl>
+                  </div>
+                )}
                 <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-mono">
                   ID: {estab.id}
                 </p>
