@@ -19,6 +19,7 @@ import {
   LocationStep, MediaStep, LegalStep, ReviewStep 
 } from "./submission-form/steps";
 import { validateBrazilianMobile } from "@/lib/whatsapp";
+import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 
 const formSchema = z.object({
   imageSource: z.enum(["upload", "ai"]).optional(),
@@ -237,6 +238,34 @@ export default function SubmissionForm() {
           .getPublicUrl(filePath);
         
         imageUrl = publicUrl;
+      }
+
+      // Fallback: se o usuário não enviou flyer nem escolheu imagem, gera um flyer
+      // genérico da marca para o espaço do evento nunca ficar vazio.
+      if (!imageUrl) {
+        try {
+          const dataUrl = await generateFallbackFlyer({
+            title: clean(values.eventTitle) || clean(values.atrativoName) || "Evento",
+            date: clean(values.date),
+            startTime: clean(values.startTime),
+            location: clean(values.locationName),
+            category: clean(values.category),
+          });
+          const blob = await (await fetch(dataUrl)).blob();
+          const filePath = `${user?.id ?? "anon"}/fallback-${crypto.randomUUID()}.png`;
+          const { error: fbErr } = await supabaseClient.storage
+            .from("event-flyers")
+            .upload(filePath, blob, { contentType: "image/png", upsert: false });
+          if (!fbErr) {
+            const { data: { publicUrl } } = supabaseClient.storage
+              .from("event-flyers")
+              .getPublicUrl(filePath);
+            imageUrl = publicUrl;
+          }
+        } catch (e) {
+          // Segue sem flyer se algo der errado — não bloqueia o envio.
+          console.warn("[fallback flyer] falhou, seguindo sem imagem", e);
+        }
       }
 
       // Map camelCase form fields → snake_case DB columns
