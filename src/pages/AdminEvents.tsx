@@ -33,6 +33,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { buildTodayWhatsAppSummary, buildWeekWhatsAppSummary, openWhatsAppWithText } from "@/lib/todayWhatsappSummary";
+import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 
 
 interface Submission {
@@ -193,6 +194,10 @@ export default function AdminEvents() {
     submitting: boolean;
   } | null>(null);
 
+  // Após aprovar, oferecemos ao admin gerar um flyer genérico da marca.
+  const [flyerOffer, setFlyerOffer] = useState<Submission | null>(null);
+  const [generatingFlyer, setGeneratingFlyer] = useState(false);
+
   async function fetchAll() {
     setLoading(true);
     const { data, error } = await supabase
@@ -259,6 +264,10 @@ export default function AdminEvents() {
       handleError(error, "Erro ao atualizar status");
     } else {
       toast.success(`Status atualizado para ${newStatus}`);
+      if (newStatus === 'aprovado') {
+        const sub = submissions.find((s) => s.id === id);
+        if (sub) setFlyerOffer(sub);
+      }
       fetchAll(); // Refresh to get generated slugs/copies
     }
   }
@@ -311,6 +320,10 @@ export default function AdminEvents() {
 
     toast.success(kind === "approved" ? "Evento aprovado." : "Evento rejeitado.");
 
+    if (kind === "approved") {
+      setFlyerOffer(sub);
+    }
+
     const phoneCheck = validateBrazilianMobile(sub.phone || "");
     if (phoneCheck.valid) {
       const url = buildWhatsappUrl(sub.phone || "", message);
@@ -325,6 +338,41 @@ export default function AdminEvents() {
 
     setReview(null);
     fetchAll();
+  }
+
+  async function confirmGenerateFlyer() {
+    if (!flyerOffer) return;
+    setGeneratingFlyer(true);
+    try {
+      const dataUrl = await generateFallbackFlyer({
+        title: flyerOffer.event_title || "Evento",
+        date: formatEventDate(flyerOffer.date),
+        startTime: flyerOffer.start_time,
+        location: flyerOffer.location,
+        category: (flyerOffer as any).category ?? null,
+      });
+      const blob = await (await fetch(dataUrl)).blob();
+      const filePath = `${user?.id ?? "admin"}/fallback-${flyerOffer.id}-${Date.now()}.jpg`;
+      const { error: upErr } = await supabase.storage
+        .from("event-flyers")
+        .upload(filePath, blob, { contentType: "image/jpeg", upsert: true });
+      if (upErr) throw upErr;
+      const { data: { publicUrl } } = supabase.storage
+        .from("event-flyers")
+        .getPublicUrl(filePath);
+      const { error: updErr } = await supabase
+        .from("submissions")
+        .update({ image_url: publicUrl })
+        .eq("id", flyerOffer.id);
+      if (updErr) throw updErr;
+      toast.success("Flyer genérico gerado e salvo no evento.");
+      setFlyerOffer(null);
+      fetchAll();
+    } catch (e) {
+      handleError(e, "Não foi possível gerar o flyer");
+    } finally {
+      setGeneratingFlyer(false);
+    }
   }
 
   const copyToClipboard = (text: string, label: string) => {
@@ -1030,6 +1078,51 @@ export default function AdminEvents() {
               </>
             );
           })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Oferta pós-aprovação: gerar flyer genérico da marca (só admin) */}
+      <Dialog open={!!flyerOffer} onOpenChange={(o) => !o && !generatingFlyer && setFlyerOffer(null)}>
+        <DialogContent className="max-w-md">
+          {flyerOffer && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Megaphone className="h-5 w-5 text-primary" /> Gerar flyer genérico?
+                </DialogTitle>
+                <DialogDescription className="text-sm">
+                  Cria um flyer padrão da marca <strong>Coé a Boa?</strong> pra{" "}
+                  <span className="font-bold text-foreground">{flyerOffer.event_title}</span>,
+                  usando data, local e categoria do evento.
+                  {flyerOffer.image_url ? (
+                    <span className="block mt-2 text-amber-700">
+                      ⚠️ Esse evento já tem flyer. Gerar vai substituir a imagem atual.
+                    </span>
+                  ) : (
+                    <span className="block mt-2 text-muted-foreground">
+                      Assim o espaço da imagem nunca fica vazio na agenda.
+                    </span>
+                  )}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setFlyerOffer(null)} disabled={generatingFlyer}>
+                  Agora não
+                </Button>
+                <Button
+                  onClick={confirmGenerateFlyer}
+                  disabled={generatingFlyer}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {generatingFlyer ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Gerando…</>
+                  ) : (
+                    <><Megaphone className="h-4 w-4 mr-2" /> Gerar flyer</>
+                  )}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
