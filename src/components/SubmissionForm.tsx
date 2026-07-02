@@ -252,10 +252,10 @@ export default function SubmissionForm() {
             category: clean(values.category),
           });
           const blob = await (await fetch(dataUrl)).blob();
-          const filePath = `${user?.id ?? "anon"}/fallback-${crypto.randomUUID()}.png`;
+          const filePath = `${user?.id ?? "anon"}/fallback-${crypto.randomUUID()}.jpg`;
           const { error: fbErr } = await supabaseClient.storage
             .from("event-flyers")
-            .upload(filePath, blob, { contentType: "image/png", upsert: false });
+            .upload(filePath, blob, { contentType: "image/jpeg", upsert: false });
           if (!fbErr) {
             const { data: { publicUrl } } = supabaseClient.storage
               .from("event-flyers")

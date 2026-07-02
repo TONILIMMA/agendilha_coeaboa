@@ -153,5 +153,6 @@ export async function generateFallbackFlyer(
   drawLine("Quando", when, infoY + 70);
   drawLine("Onde", data.location || "A confirmar", infoY + 180);
 
-  return canvas.toDataURL("image/png");
+  // JPEG ~5-8x menor que PNG para o mesmo flyer — corta upload/geração.
+  return canvas.toDataURL("image/jpeg", 0.85);
 }
