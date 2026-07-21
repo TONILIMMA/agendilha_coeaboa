@@ -113,30 +113,11 @@ export function useAppPermissions() {
       if (rolesResponse.error) handleError(rolesResponse.error, "Erro ao carregar permissões");
 
       const roleNames: string[] = rolesResponse.data?.map((r) => r.role).filter(Boolean) || [];
-      const nextPermissions = new Set<PermissionName>();
-      const isAdminRole = roleNames.includes("admin") || roleNames.includes("master");
-
-      if (isAdminRole) {
-        ADMIN_PERMISSIONS.forEach((permission) => nextPermissions.add(permission));
-      }
-
-      const collaborator = collaboratorResponse.data as CollaboratorPermissions | null;
-      if (collaborator?.is_active) {
-        if (!roleNames.includes("collaborator")) roleNames.push("collaborator");
-        nextPermissions.add("events.read");
-        collaboratorPermissionMap.forEach(([field, permission]) => {
-          if (collaborator[field]) nextPermissions.add(permission);
-        });
-      }
-
-      if (profileResponse.data?.role && !roleNames.includes(profileResponse.data.role)) {
-        roleNames.push(profileResponse.data.role);
-      }
-      if (profileResponse.data?.role === "promoter") {
-        nextPermissions.add("events.create");
-      }
-
-      return { roles: roleNames, permissions: nextPermissions };
+      return computePermissions({
+        roleNames,
+        collaborator: collaboratorResponse.data as CollaboratorPermissions | null,
+        profileRole: profileResponse.data?.role ?? null,
+      });
     },
   });
 
