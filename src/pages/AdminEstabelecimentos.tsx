@@ -1,14 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
+import {
+  useAllEstabelecimentos,
+  useUpsertEstabelecimento,
+  useDeleteEstabelecimento,
+} from "@/data/useEstabelecimentos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building2, Plus, Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -20,29 +25,16 @@ import {
 export default function AdminEstabelecimentos() {
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isMaster, loading: permsLoading } = useAppPermissions();
-  const [rows, setRows] = useState<EstabelecimentoRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: rowsRaw = [], isLoading: loading } = useAllEstabelecimentos(isAdmin);
+  const rows = rowsRaw as EstabelecimentoRow[];
+  const upsert = useUpsertEstabelecimento();
+  const remove_ = useDeleteEstabelecimento();
   const [search, setSearch] = useState("");
-  const [creating, setCreating] = useState(false);
+  const creating = upsert.isPending;
   const [showNew, setShowNew] = useState(false);
   const [newForm, setNewForm] = useState({
     nome: "", endereco: "", bairro: "", cep: "", numero: "", complemento: "", tipo: "", contato: "",
   });
-
-  async function fetchAll() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("estabelecimentos")
-      .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato, responsavel_id, created_by, created_at, updated_at, is_approved, responsavel_nome, responsavel_telefone, responsavel_email")
-      .order("nome", { ascending: true });
-    if (error) toast.error("Erro ao carregar estabelecimentos", { description: error.message });
-    else setRows((data ?? []) as EstabelecimentoRow[]);
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    if (isAdmin) fetchAll();
-  }, [isAdmin]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -56,42 +48,39 @@ export default function AdminEstabelecimentos() {
   }, [rows, search]);
 
   async function handleSave(id: string, patch: Partial<EstabelecimentoRow>) {
-    const { error } = await supabase.from("estabelecimentos").update(patch).eq("id", id);
-    if (error) {
-      toast.error("Erro ao salvar", { description: error.message });
+    try {
+      await upsert.mutateAsync({ id, payload: patch });
+      toast.success("Estabelecimento atualizado");
+      return true;
+    } catch (err) {
+      handleError(err, "Erro ao salvar");
       return false;
     }
-    toast.success("Estabelecimento atualizado");
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } as EstabelecimentoRow : r)));
-    return true;
   }
 
   async function handleDelete(id: string) {
-    const { error } = await supabase.from("estabelecimentos").delete().eq("id", id);
-    if (error) {
-      toast.error("Erro ao excluir", { description: error.message });
-      return;
+    try {
+      await remove_.mutateAsync(id);
+      toast.success("Estabelecimento removido");
+    } catch (err) {
+      handleError(err, "Erro ao excluir");
     }
-    toast.success("Estabelecimento removido");
-    setRows((prev) => prev.filter((r) => r.id !== id));
   }
 
   async function handleApprove(id: string, approve: boolean) {
-    const patch: any = approve
+    const patch = approve
       ? { is_approved: true, approved_at: new Date().toISOString(), approved_by: user?.id ?? null }
       : { is_approved: false, approved_at: null, approved_by: null };
-    const { error } = await supabase.from("estabelecimentos").update(patch).eq("id", id);
-    if (error) {
-      toast.error("Não deu pra atualizar a aprovação", { description: error.message });
-      return;
+    try {
+      await upsert.mutateAsync({ id, payload: patch });
+      toast.success(approve ? "Cadastro aprovado — já aparece nas buscas do público" : "Aprovação revertida");
+    } catch (err) {
+      handleError(err, "Não deu pra atualizar a aprovação");
     }
-    toast.success(approve ? "Cadastro aprovado — já aparece nas buscas do público" : "Aprovação revertida");
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, is_approved: approve } as EstabelecimentoRow : r)));
   }
 
   async function handleCreate() {
     if (!newForm.nome.trim() || !user) return;
-    setCreating(true);
     const payload = {
       nome: newForm.nome.trim(),
       endereco: newForm.endereco.trim() || null,
@@ -104,20 +93,15 @@ export default function AdminEstabelecimentos() {
       responsavel_id: user.id,
       created_by: user.id,
     };
-    const { data, error } = await supabase
-      .from("estabelecimentos")
-      .insert(payload)
-      .select("*")
-      .single();
-    setCreating(false);
-    if (error || !data) {
-      toast.error("Erro ao criar", { description: error?.message });
+    try {
+      await upsert.mutateAsync({ payload });
+      toast.success("Estabelecimento cadastrado");
+      setShowNew(false);
+      setNewForm({ nome: "", endereco: "", bairro: "", cep: "", numero: "", complemento: "", tipo: "", contato: "" });
+    } catch (err) {
+      handleError(err, "Erro ao criar");
       return;
     }
-    toast.success("Estabelecimento cadastrado");
-    setRows((prev) => [...prev, data as EstabelecimentoRow].sort((a, b) => a.nome.localeCompare(b.nome)));
-    setShowNew(false);
-    setNewForm({ nome: "", endereco: "", bairro: "", cep: "", numero: "", complemento: "", tipo: "", contato: "" });
   }
 
   if (authLoading || permsLoading) return <LoadingState fullPage message="Verificando permissões..." />;

@@ -40,6 +40,24 @@ export function useMyEstabelecimentos(userId: string | null | undefined) {
   });
 }
 
+const SELECT_ADMIN =
+  "id, nome, endereco, bairro, cep, numero, complemento, tipo, contato, responsavel_id, created_by, created_at, updated_at, is_approved, responsavel_nome, responsavel_telefone, responsavel_email";
+
+export function useAllEstabelecimentos(enabled = true) {
+  return useQuery({
+    queryKey: [...qk.estabelecimentos.all, "admin-all"],
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("estabelecimentos")
+        .select(SELECT_ADMIN)
+        .order("nome", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
 export function useUpsertEstabelecimento() {
   const qc = useQueryClient();
   return useMutation({
