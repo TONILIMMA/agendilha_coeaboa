@@ -2,7 +2,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
-import { CalendarIcon, PartyPopper } from "lucide-react";
+import { CalendarIcon, PartyPopper, ShieldAlert } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -10,8 +10,15 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { EventPreview } from "../EventPreview";
+import { useState } from "react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export function EventStep({ form }: { form: UseFormReturn<any> }) {
+  const [pendingRating, setPendingRating] = useState<string | null>(null);
+
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-2">
@@ -93,7 +100,21 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Classificação *</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || "Livre"} defaultValue="Livre">
+            <Select
+              value={field.value || "Livre"}
+              defaultValue="Livre"
+              onValueChange={(next) => {
+                // Regra: mantém "Livre" automaticamente quando o evento é pra todo mundo.
+                // Se o usuário tentar mudar, pede confirmação antes.
+                const current = field.value || "Livre";
+                if (current === "Livre" && next !== "Livre") {
+                  setPendingRating(next);
+                  return;
+                }
+                field.onChange(next);
+                form.setValue("isSuitableForMinors", next === "Livre", { shouldDirty: true });
+              }}
+            >
               <FormControl>
                 <SelectTrigger className="h-12">
                   <SelectValue placeholder="Selecione" />
@@ -108,6 +129,16 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
                 <SelectItem value="18+">18+</SelectItem>
               </SelectContent>
             </Select>
+            {(field.value || "Livre") === "Livre" ? (
+              <p className="text-[11px] text-muted-foreground">
+                Pré-selecionado como <strong>Livre</strong> — evento pra todo mundo. Só mude se tiver restrição de idade.
+              </p>
+            ) : (
+              <p className="text-[11px] text-amber-600 dark:text-amber-500 flex items-center gap-1">
+                <ShieldAlert className="h-3 w-3" />
+                Você mudou pra {field.value}. Só menores de idade acompanhados vão poder entrar.
+              </p>
+            )}
             <FormMessage />
           </FormItem>
         )}
@@ -161,6 +192,36 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
       />
 
       <EventPreview form={form} variant="event" />
+
+      <AlertDialog open={pendingRating !== null} onOpenChange={(o) => !o && setPendingRating(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-amber-500" />
+              Trocar a classificação?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              A classificação tá marcada como <strong>Livre</strong> — assim entra todo mundo.
+              Se mudar pra <strong>{pendingRating}</strong>, o evento vai aparecer com restrição de idade
+              e pode limitar o público. Tem certeza?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Manter Livre</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingRating) {
+                  form.setValue("ageRating", pendingRating as any, { shouldDirty: true, shouldValidate: true });
+                  form.setValue("isSuitableForMinors", false, { shouldDirty: true });
+                }
+                setPendingRating(null);
+              }}
+            >
+              Sim, mudar pra {pendingRating}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
