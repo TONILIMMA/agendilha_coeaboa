@@ -1,9 +1,18 @@
- import { useEffect, useRef, useState, useCallback } from "react";
+ import { lazy, Suspense, useEffect, useRef, useState, useCallback } from "react";
  import { useInfiniteQuery } from "@tanstack/react-query";
  import { useInView } from "react-intersection-observer";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
+const Onboarding = lazy(() =>
+  import("@/components/Onboarding").then((m) => ({ default: m.Onboarding }))
+);
+const PersonalizationDialog = lazy(() =>
+  import("@/components/PersonalizationDialog").then((m) => ({ default: m.PersonalizationDialog }))
+);
+const ShareDialog = lazy(() =>
+  import("@/components/ShareDialog").then((m) => ({ default: m.ShareDialog }))
+);
 import {
   Calendar,
   Megaphone,
@@ -37,9 +46,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.jpg";
-import { Onboarding } from "@/components/Onboarding";
-import { PersonalizationDialog } from "@/components/PersonalizationDialog";
-import { ShareDialog } from "@/components/ShareDialog";
 import { getShareData } from "@/lib/sharing";
 import { Settings2 } from "lucide-react";
 import { newsletterSubscribeSchema } from "@/schemas/newsletter";
@@ -544,17 +550,19 @@ export default function Landing() {
         </div>
       </footer>
 
-      <Onboarding />
-      <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
-      {shareData && (
-        <ShareDialog 
-          open={!!shareData} 
-          onOpenChange={(open) => !open && setShareData(null)}
-          title={shareData.title}
-          text={shareData.text}
-          url={shareData.url}
-        />
-      )}
+      <Suspense fallback={null}>
+        <Onboarding />
+        <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
+        {shareData && (
+          <ShareDialog
+            open={!!shareData}
+            onOpenChange={(open) => !open && setShareData(null)}
+            title={shareData.title}
+            text={shareData.text}
+            url={shareData.url}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
