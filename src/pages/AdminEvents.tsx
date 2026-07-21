@@ -29,6 +29,7 @@ import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { handleError } from "@/lib/error-handler";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { buildWhatsappUrl, validateBrazilianMobile, formatPhoneDisplay, renderTemplate } from "@/lib/whatsapp";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -438,8 +439,7 @@ export default function AdminEvents() {
   if (!user || !hasPermission('events.read')) return <Navigate to="/" replace />;
 
   return (
-    <div className="animate-fade-in">
-      <div className="mx-auto max-w-7xl px-4 py-8">
+    <PageContainer maxWidth="7xl">
          {/* Header Area */}
          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-10">
            <div className="space-y-1">
@@ -991,8 +991,7 @@ export default function AdminEvents() {
             </div>
           )}
         </div>
-      </div>
-      
+
       <ConfirmModal
         isOpen={!!deleteConfirmId}
         onClose={() => setDeleteConfirmId(null)}
@@ -1126,6 +1125,6 @@ export default function AdminEvents() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageContainer>
   );
 }

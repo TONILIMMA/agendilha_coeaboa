@@ -34,6 +34,7 @@ import { Input } from "@/components/ui/input";
  } from "lucide-react";
  import Header from "@/components/Header";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { PageContainer } from "@/components/ui/PageContainer";
  
 import { toast } from "sonner";
 
@@ -217,8 +218,7 @@ export default function Ranking() {
   const filename = `ranking-${period}${category !== "all" ? `-${category}` : ""}-${new Date().toISOString().slice(0, 10)}.csv`;
 
    return (
-     <div className="animate-fade-in space-y-6">
-       <div className="container max-w-6xl mx-auto px-4 space-y-6">
+     <PageContainer maxWidth="6xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -378,7 +378,6 @@ export default function Ranking() {
             )}
           </CardContent>
         </Card>
-      </div>
-    </div>
+    </PageContainer>
   );
 }
