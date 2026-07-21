@@ -45,7 +45,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
-import logo from "@/assets/coeaboa-logo.jpg";
+import logo from "@/assets/coeaboa-logo.webp";
 import { getShareData } from "@/lib/sharing";
 import { Settings2 } from "lucide-react";
 import { newsletterSubscribeSchema } from "@/schemas/newsletter";
