@@ -71,8 +71,61 @@ function drawFooter(doc: jsPDF) {
   }
 }
 
-export function exportEventToPdf(event: EventPdfData, filename?: string) {
+export interface PdfCover {
+  eventTitle: string;
+  date?: string | null;
+  location?: string | null;
+  subtitle?: string | null;
+}
+
+function drawCover(doc: jsPDF, cover: PdfCover) {
+  doc.setFillColor(15, 23, 42);
+  doc.rect(0, 0, 210, 28, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text("AgendIlha", 14, 12);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text(cover.subtitle || "Capa", 14, 20);
+
+  doc.setTextColor(120, 120, 120);
+  doc.setFontSize(10);
+  doc.text("FICHA DO EVENTO", 105, 110, { align: "center" });
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(24);
+  const titleLines = doc.splitTextToSize(cover.eventTitle, 170);
+  doc.text(titleLines, 105, 130, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(14);
+  doc.setTextColor(60, 60, 60);
+  let y = 130 + titleLines.length * 9 + 12;
+  if (cover.date) {
+    doc.text(cover.date, 105, y, { align: "center" });
+    y += 9;
+  }
+  if (cover.location) {
+    doc.setFontSize(12);
+    const locLines = doc.splitTextToSize(cover.location, 170);
+    doc.text(locLines, 105, y, { align: "center" });
+  }
+
+  doc.addPage();
+}
+
+export function exportEventToPdf(
+  event: EventPdfData,
+  opts?: { filename?: string; cover?: PdfCover | null } | string,
+) {
+  // Backward compat: 2nd arg used to be a filename string.
+  const options = typeof opts === "string" ? { filename: opts } : (opts || {});
+  const filename = options.filename;
+
   const doc = new jsPDF({ unit: "mm", format: "a4" });
+  if (options.cover) drawCover(doc, options.cover);
   drawHeader(doc, event.event_title || "Evento sem título", "Ficha do evento");
 
   const addr = [event.address_street, event.address_number].filter(Boolean).join(", ");
@@ -189,14 +242,16 @@ function renderAtrativoPage(doc: jsPDF, a: AtrativoPdfData, index: number, total
  */
 export function exportAtrativosConsolidatedPdf(
   atrativos: AtrativoPdfData[],
-  filename?: string,
+  opts?: { filename?: string; cover?: PdfCover | null } | string,
 ) {
   if (!atrativos.length) return;
+  const options = typeof opts === "string" ? { filename: opts } : (opts || {});
   const doc = new jsPDF({ unit: "mm", format: "a4" });
+  if (options.cover) drawCover(doc, options.cover);
   atrativos.forEach((a, i) => {
     if (i > 0) doc.addPage();
     renderAtrativoPage(doc, a, i, atrativos.length);
   });
   drawFooter(doc);
-  doc.save(filename || `atrativos-agendilha-${new Date().toISOString().slice(0, 10)}.pdf`);
+  doc.save(options.filename || `atrativos-agendilha-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

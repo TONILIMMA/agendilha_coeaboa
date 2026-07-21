@@ -433,8 +433,24 @@ export default function EventDetail() {
         title="Ficha do evento — pronta pra imprimir"
         helper="Assim vai sair o PDF. Confira antes de baixar."
         downloadLabel="Baixar PDF do evento"
-        onDownload={() => {
-          exportEventToPdf(event as any);
+        filename={`evento-${event.slug}`}
+        shareUrl={`${window.location.origin}/evento/${event.slug}/imprimir`}
+        cover={{
+          eventTitle: event.event_title || "Evento sem título",
+          date: event.date ? new Date(event.date).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" }) : null,
+          location: [event.location, [event.address_street, event.address_number].filter(Boolean).join(", "), event.address_neighborhood, event.address_city].filter(Boolean).join(" — ") || null,
+          subtitle: "Capa do evento",
+        }}
+        onDownload={(filename) => {
+          exportEventToPdf(event as any, {
+            filename,
+            cover: {
+              eventTitle: event.event_title || "Evento sem título",
+              date: event.date ? new Date(event.date).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" }) : null,
+              location: [event.location, [event.address_street, event.address_number].filter(Boolean).join(", "), event.address_neighborhood, event.address_city].filter(Boolean).join(" — ") || null,
+              subtitle: "Capa do evento",
+            },
+          });
           setPdfPreviewOpen(false);
         }}
         sheets={[

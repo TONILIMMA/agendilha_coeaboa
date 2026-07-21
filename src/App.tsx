@@ -43,6 +43,7 @@ const AdminMedia = lazy(() => import("./pages/AdminMedia"));
 const AdminAuditLogs = lazy(() => import("./pages/AdminAuditLogs"));
 const AdminAgendaInforma = lazy(() => import("./pages/AdminAgendaInforma"));
 const EventDetail = lazy(() => import("./pages/EventDetail"));
+const PrintEvent = lazy(() => import("./pages/PrintEvent"));
 const EstabelecimentoDetail = lazy(() => import("./pages/EstabelecimentoDetail"));
 const Settings = lazy(() => import("./pages/Settings"));
 const MustChangePassword = lazy(() => import("./pages/MustChangePassword"));
@@ -147,6 +148,7 @@ export const AppRoutes = () => (
         {/* Públicas */}
         <Route path={ROUTES.LANDING} element={<Landing />} />
         <Route path={ROUTES.EXPLORAR} element={<Explorar />} />
+        <Route path={ROUTES.EVENTO_IMPRIMIR} element={<PrintEvent />} />
 
         {/* Cadastro por perfil (sem AppShell, fullscreen mobile-first) */}
         <Route path={ROUTES.CADASTRO} element={<CadastroEscolha />} />

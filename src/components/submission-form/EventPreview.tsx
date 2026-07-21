@@ -94,7 +94,14 @@ export function EventPreview({ form, variant = "event" }: EventPreviewProps) {
         title="Ficha do evento — pronta pra imprimir"
         helper="Prévia com os dados que você já preencheu. Você pode baixar o PDF ou fechar e continuar editando."
         downloadLabel="Baixar PDF de rascunho"
-        onDownload={() => {
+        filename={`rascunho-${(title || "evento").toString().toLowerCase().replace(/\s+/g, "-")}`}
+        cover={{
+          eventTitle: title,
+          date: dateStr && !isNaN(dateStr.getTime()) ? format(dateStr, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : null,
+          location: local,
+          subtitle: "Rascunho — antes de enviar",
+        }}
+        onDownload={(filename) => {
           exportEventToPdf({
             event_title: title,
             date: values.date,
@@ -110,6 +117,14 @@ export function EventPreview({ form, variant = "event" }: EventPreviewProps) {
             description: values.description,
             artist_name: values.atrativoName,
             music_style: values.atrativoStyle,
+          }, {
+            filename,
+            cover: {
+              eventTitle: title,
+              date: dateStr && !isNaN(dateStr.getTime()) ? format(dateStr, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : null,
+              location: local,
+              subtitle: "Rascunho — antes de enviar",
+            },
           });
           setPrintOpen(false);
         }}
