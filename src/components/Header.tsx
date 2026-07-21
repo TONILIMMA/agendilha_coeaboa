@@ -22,7 +22,7 @@ import {
   Moon 
 } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
- import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
+ import logoCoeABoa from "@/assets/coeaboa-logo.webp";
 import { Button } from "@/components/ui/button";
 import { useSubmissions } from "@/contexts/SubmissionContext";
  import { useAuth } from "@/contexts/AuthContext";

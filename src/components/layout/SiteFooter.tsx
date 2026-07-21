@@ -1,4 +1,4 @@
-import logo from "@/assets/coeaboa-logo.jpg";
+import logo from "@/assets/coeaboa-logo.webp";
 
 interface SiteFooterProps {
   variant?: "default" | "muted";

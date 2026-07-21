@@ -15,7 +15,7 @@ import { useSubmissionsCount } from "@/data";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import logoCoeABoa from "@/assets/coeaboa-logo.jpg";
+import logoCoeABoa from "@/assets/coeaboa-logo.webp";
 import { sidebarConfig, SidebarItem, Role } from "./layout/sidebarItems";
 import { routeExists } from "@/routes/config";
 
