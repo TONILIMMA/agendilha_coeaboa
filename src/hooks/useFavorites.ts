@@ -61,7 +61,7 @@
 
        return { previousFavorites };
      },
-     onError: (err, eventId, context) => {
+     onError: (_err, _eventId, context) => {
        if (context?.previousFavorites) {
          queryClient.setQueryData(["favorites", user?.id], context.previousFavorites);
        }
