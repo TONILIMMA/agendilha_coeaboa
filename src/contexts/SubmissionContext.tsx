@@ -2,6 +2,12 @@ import { createContext, useContext, useState, useCallback, type ReactNode } from
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { logger } from "@/lib/logger";
+import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
+
+type SubmissionInsert = TablesInsert<"submissions">;
+type SubmissionUpdate = TablesUpdate<"submissions">;
+type AuditInsert = TablesInsert<"event_audit_log">;
 
 interface SubmissionEntry {
   id: string;
@@ -107,21 +113,22 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
       });
       return null;
     }
+    const payload = { ...data, user_id: user.id } as unknown as SubmissionInsert;
     const { data: inserted, error } = await supabase
       .from("submissions")
-      .insert({ ...data, user_id: user.id } as any)
+      .insert(payload)
       .select("id")
       .single();
 
     if (error || !inserted) {
-      if (import.meta.env.DEV) console.error("[addSubmission] insert failed", error);
+      logger.error("[addSubmission] insert failed", error);
       toast.error("Não deu pra salvar seu evento", {
         description: error?.message || "Tenta de novo em alguns minutos.",
       });
       return null;
     }
     await fetchSubmissions();
-    return { id: (inserted as any).id as string };
+    return { id: inserted.id as string };
   }, [user, fetchSubmissions]);
 
   const deleteSubmission = useCallback(async (id: string) => {
@@ -135,9 +142,10 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resubmit = useCallback(async (id: string) => {
+    const patch: SubmissionUpdate = { status: "pending", rejection_reason: null };
     const { error } = await supabase
       .from("submissions")
-      .update({ status: "pending", rejection_reason: null } as any)
+      .update(patch)
       .eq("id", id);
     if (error) {
       toast.error("Erro ao reenviar", { description: error.message });
@@ -151,7 +159,10 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
 
   const updateStatus = useCallback(async (id: string, status: "pending" | "approved" | "rejected", reason?: string | null) => {
     if (!user) return;
-    const payload: any = { status, rejection_reason: status === "rejected" ? (reason || null) : (status === "pending" ? (reason ?? null) : null) };
+    const payload: SubmissionUpdate = {
+      status,
+      rejection_reason: status === "rejected" ? (reason || null) : (status === "pending" ? (reason ?? null) : null),
+    };
     const { error } = await supabase.from("submissions").update(payload).eq("id", id);
     if (error) {
       toast.error("Erro ao atualizar status", { description: error.message });
@@ -160,12 +171,13 @@ export function SubmissionProvider({ children }: { children: ReactNode }) {
     // Audit log
     const noteParts = [`status=${status}`];
     if (payload.rejection_reason) noteParts.push(`obs="${payload.rejection_reason}"`);
-    await supabase.from("event_audit_log").insert({
+    const auditPayload: AuditInsert = {
       event_id: id,
       user_id: user.id,
       action: `status_change:${status}`,
       notes: noteParts.join(" | "),
-    } as any);
+    };
+    await supabase.from("event_audit_log").insert(auditPayload);
 
     if (status === "approved") {
       setSubmissions((prev) => prev.filter((s) => s.id !== id));

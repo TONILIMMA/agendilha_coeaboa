@@ -93,8 +93,8 @@ export function useAgendaData() {
   const trackShare = useCallback(async (id: string) => {
     try {
       await supabase.rpc("increment_shares", { event_id: id });
-    } catch (e) {
-      console.error("Error tracking share:", e);
+    } catch {
+      // best-effort telemetry; ignore failures
     }
   }, []);
 

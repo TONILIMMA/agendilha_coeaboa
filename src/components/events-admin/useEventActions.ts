@@ -2,7 +2,13 @@ import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { openWhatsappNotification } from "@/lib/notifications";
+import { logger } from "@/lib/logger";
+import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import type { EditorialStatus, Submission } from "./types";
+
+type SubmissionUpdate = TablesUpdate<"submissions">;
+type AuditInsert = TablesInsert<"event_audit_log">;
+type PublicationLogInsert = TablesInsert<"event_publication_log">;
 
 interface Options {
   userId: string | undefined;
@@ -14,26 +20,35 @@ interface Options {
 export function useEventActions({ userId, submissions, setSubmissions, onCollapse }: Options) {
   const logAudit = useCallback(async (eventId: string, action: string, notes?: string) => {
     if (!userId) return;
-    await supabase.from("event_audit_log").insert({
+    const payload: AuditInsert = {
       event_id: eventId, user_id: userId, action, notes: notes || null,
-    } as any);
+    };
+    await supabase.from("event_audit_log").insert(payload);
   }, [userId]);
 
   const handleSoftDelete = useCallback(async (id: string) => {
-    const { error } = await supabase.from("submissions").update({ deleted_at: new Date().toISOString() } as any).eq("id", id);
+    const patch: SubmissionUpdate = { deleted_at: new Date().toISOString() };
+    const { error } = await supabase.from("submissions").update(patch).eq("id", id);
     if (error) { toast.error("Erro ao mover para lixeira"); return; }
     toast.success("Evento movido para a lixeira");
     setSubmissions(prev => prev.map(s => s.id === id ? { ...s, deleted_at: new Date().toISOString() } : s));
     onCollapse();
-    if (userId) await supabase.from("event_audit_log").insert({ event_id: id, user_id: userId, action: "deleted" } as any);
+    if (userId) {
+      const payload: AuditInsert = { event_id: id, user_id: userId, action: "deleted" };
+      await supabase.from("event_audit_log").insert(payload);
+    }
   }, [setSubmissions, onCollapse, userId]);
 
   const handleRestore = useCallback(async (id: string) => {
-    const { error } = await supabase.from("submissions").update({ deleted_at: null } as any).eq("id", id);
+    const patch: SubmissionUpdate = { deleted_at: null };
+    const { error } = await supabase.from("submissions").update(patch).eq("id", id);
     if (error) { toast.error("Erro ao restaurar evento"); return; }
     toast.success("Evento restaurado!");
     setSubmissions(prev => prev.map(s => s.id === id ? { ...s, deleted_at: null } : s));
-    if (userId) await supabase.from("event_audit_log").insert({ event_id: id, user_id: userId, action: "restored" } as any);
+    if (userId) {
+      const payload: AuditInsert = { event_id: id, user_id: userId, action: "restored" };
+      await supabase.from("event_audit_log").insert(payload);
+    }
   }, [setSubmissions, userId]);
 
   const handlePermanentDelete = useCallback(async (id: string) => {
@@ -44,7 +59,8 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
   }, [setSubmissions]);
 
   const handleHighlightToggle = useCallback(async (id: string, current: boolean) => {
-    const { error } = await supabase.from("submissions").update({ is_highlight: !current } as any).eq("id", id);
+    const patch: SubmissionUpdate = { is_highlight: !current };
+    const { error } = await supabase.from("submissions").update(patch).eq("id", id);
     if (error) { toast.error("Erro ao atualizar destaque"); return; }
     toast.success(!current ? "Evento marcado como destaque!" : "Destaque removido");
     setSubmissions(prev => prev.map(s => s.id === id ? { ...s, is_highlight: !current } : s));
@@ -52,7 +68,8 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
   }, [setSubmissions, logAudit]);
 
   const handleStatusChange = useCallback(async (id: string, newStatus: string) => {
-    const { error } = await supabase.from("submissions").update({ status: newStatus } as any).eq("id", id);
+    const patch: SubmissionUpdate = { status: newStatus };
+    const { error } = await supabase.from("submissions").update(patch).eq("id", id);
     if (error) { toast.error("Erro ao atualizar status"); return; }
     toast.success(newStatus === "approved" ? "Evento aprovado!" : newStatus === "rejected" ? "Evento rejeitado" : "Status atualizado");
     setSubmissions(prev => prev.map(s => s.id === id ? { ...s, status: newStatus } : s));
@@ -72,7 +89,7 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
     extra: Partial<Submission> = {},
   ) => {
     const prev = submissions.find(s => s.id === id);
-    const patch: any = { editorial_status: newStatus, ...extra };
+    const patch = { editorial_status: newStatus, ...extra } as SubmissionUpdate;
     // Optimistic update
     setSubmissions(curr => curr.map(s => s.id === id ? { ...s, ...patch } : s));
     const { data, error } = await supabase
@@ -82,13 +99,13 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
       .select("id, editorial_status, scheduled_at, scheduled_channel, published_channels, checklist_publ_canal, checklist_visivel_agenda, checklist_envio_registrado, rejection_reason");
     if (error || !data || data.length === 0) {
       const msg = error?.message || "Sem permissão para atualizar este evento (RLS).";
-      if (import.meta.env.DEV) console.error("[editorial] update failed", { id, newStatus, error });
+      logger.error("[editorial] update failed", { id, newStatus, error });
       toast.error(msg);
       if (prev) setSubmissions(curr => curr.map(s => s.id === id ? prev : s));
       return false;
     }
     // Sync state with what DB actually persisted (trigger may stamp timestamps)
-    setSubmissions(curr => curr.map(s => s.id === id ? { ...s, ...(data[0] as any) } : s));
+    setSubmissions(curr => curr.map(s => s.id === id ? { ...s, ...(data[0] as Partial<Submission>) } : s));
     toast.success(`Etapa atualizada: ${newStatus}`);
     await logAudit(id, `editorial:${newStatus}`, extra.rejection_reason || extra.scheduled_channel || undefined);
     return true;
@@ -102,23 +119,25 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
     const channels = Array.from(new Set([...(sub?.published_channels || []), channel]));
     const prev = sub;
     setSubmissions(curr => curr.map(s => s.id === id ? { ...s, published_channels: channels, editorial_status: "publicado" } : s));
+    const publishPatch: SubmissionUpdate = { published_channels: channels, editorial_status: "publicado" };
     const { data: upData, error: upErr } = await supabase
       .from("submissions")
-      .update({ published_channels: channels, editorial_status: "publicado" } as any)
+      .update(publishPatch)
       .eq("id", id)
       .select("id, published_channels, editorial_status, editorial_published_at");
     if (upErr || !upData || upData.length === 0) {
       const msg = upErr?.message || "Sem permissão para publicar este evento (RLS).";
-      if (import.meta.env.DEV) console.error("[publish] update failed", { id, channel, error: upErr });
+      logger.error("[publish] update failed", { id, channel, error: upErr });
       toast.error(msg);
       if (prev) setSubmissions(curr => curr.map(s => s.id === id ? prev : s));
       return false;
     }
-    setSubmissions(curr => curr.map(s => s.id === id ? { ...s, ...(upData[0] as any) } : s));
-    const { error: logErr } = await supabase.from("event_publication_log").insert({
+    setSubmissions(curr => curr.map(s => s.id === id ? { ...s, ...(upData[0] as Partial<Submission>) } : s));
+    const logPayload: PublicationLogInsert = {
       event_id: id, channel, responsible_id: userId, published_at: new Date().toISOString(),
-    } as any);
-    if (logErr) console.warn("[publish] log insert failed", logErr);
+    };
+    const { error: logErr } = await supabase.from("event_publication_log").insert(logPayload);
+    if (logErr) logger.warn("[publish] log insert failed", logErr);
     await logAudit(id, `published:${channel}`);
     toast.success(`Publicado em ${channel}!`);
     return true;
