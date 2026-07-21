@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
 import Header from "@/components/Header";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
 interface AuditLog {
   id: string;
@@ -91,26 +92,24 @@ export default function AdminAuditLogs() {
   return (
     <div className="pb-16 animate-fade-in">
       <div className="container max-w-6xl mx-auto px-4 space-y-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link to="/master/dashboard">
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <ArrowLeft className="h-5 w-5" />
+        <SectionHeader
+          title="Logs de Auditoria"
+          subtitle="Rastreabilidade completa de ações administrativas"
+          rightElement={
+            <>
+              <Link to="/master/dashboard">
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Voltar
+                </Button>
+              </Link>
+              <Button onClick={fetchLogs} disabled={loading} variant="outline" size="sm" className="gap-2">
+                <RefreshCcw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                Atualizar
               </Button>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-black font-display text-foreground flex items-center gap-2">
-                <History className="h-6 w-6 text-primary" />
-                Logs de Auditoria
-              </h1>
-              <p className="text-sm text-muted-foreground">Rastreabilidade completa de ações administrativas</p>
-            </div>
-          </div>
-          <Button onClick={fetchLogs} disabled={loading} variant="outline" size="sm" className="gap-2">
-            <RefreshCcw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Atualizar
-          </Button>
-        </div>
+            </>
+          }
+        />
 
         <Card className="border-border shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
