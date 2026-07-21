@@ -1126,6 +1126,6 @@ export default function AdminEvents() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageContainer>
   );
 }
