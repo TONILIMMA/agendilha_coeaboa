@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Sparkles, Pencil, Trash2, Loader2, FileDown, FileStack, Eye } from "lucide-react";
 import { exportAtrativoToPdf, exportAtrativosConsolidatedPdf } from "@/lib/exportEventPdf";
@@ -24,27 +24,14 @@ import {
   EstabelecimentoSuggestion,
 } from "@/components/estabelecimentos/EstabelecimentoAutocomplete";
 import { ROUTES } from "@/routes/config";
+import {
+  useMyAtrativos,
+  useUpsertAtrativo,
+  useDeleteAtrativo,
+  type AtrativoRow,
+} from "@/data/useAtrativos";
 
-interface Atrativo {
-  id: string;
-  name: string;
-  type: string | null;
-  description: string | null;
-  estabelecimento_id: string | null;
-  tipo_atrativo?: string | null;
-  estilos?: string[] | null;
-  pais?: string | null;
-  estado?: string | null;
-  cidade_regiao?: string | null;
-  membros_equipe?: string | null;
-  responsavel_nome?: string | null;
-  responsavel_telefone?: string | null;
-  responsavel_email?: string | null;
-  responsavel_redes?: string | null;
-  fotos?: string[] | null;
-  logo_url?: string | null;
-  is_approved?: boolean;
-}
+type Atrativo = AtrativoRow;
 
 const TIPOS_ATRATIVO = ["Música", "Artes cênicas", "Turismo", "Outros"];
 const ESTILOS_POR_TIPO: Record<string, string[]> = {
@@ -75,11 +62,12 @@ const empty = {
 
 export default function PromotorAtrativos() {
   const { user } = useAuth();
-  const [items, setItems] = useState<Atrativo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: items = [], isLoading: loading } = useMyAtrativos(user?.id);
+  const upsert = useUpsertAtrativo();
+  const remove_ = useDeleteAtrativo();
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState({ ...empty });
-  const [saving, setSaving] = useState(false);
+  const saving = upsert.isPending;
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState<"single" | "consolidated">("consolidated");
@@ -155,24 +143,6 @@ export default function PromotorAtrativos() {
     setPreviewOpen(false);
   };
 
-  const load = async () => {
-    if (!user) return;
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("atrativos")
-      .select("id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos, is_approved")
-      .eq("responsavel_id", user.id)
-      .order("name");
-    if (error) handleError(error, "Erro ao carregar atrativos");
-    else setItems((data ?? []) as Atrativo[]);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
-
   const reset = () => {
     setEditing(null);
     setForm({ ...empty });
@@ -233,7 +203,6 @@ export default function PromotorAtrativos() {
       toast.error("Informe o título do atrativo.");
       return;
     }
-    setSaving(true);
     try {
       // Inline-create estabelecimento se o usuário digitou um nome sem selecionar existente
       let estabId = form.estabelecimento_id;
@@ -267,34 +236,27 @@ export default function PromotorAtrativos() {
         fotos: form.fotos,
       };
       if (editing) {
-        const { error } = await supabase.from("atrativos").update(payload).eq("id", editing);
-        if (error) throw error;
+        await upsert.mutateAsync({ id: editing, payload });
         toast.success("Atrativo atualizado.");
       } else {
-        const { error } = await supabase.from("atrativos").insert({
-          ...payload,
-          responsavel_id: user.id,
-          created_by: user.id,
+        await upsert.mutateAsync({
+          payload: { ...payload, responsavel_id: user.id, created_by: user.id },
         });
-        if (error) throw error;
         toast.success("Atrativo cadastrado.");
       }
       reset();
-      load();
     } catch (err) {
       handleError(err, "Não foi possível salvar");
-    } finally {
-      setSaving(false);
     }
   };
 
   const remove = async (id: string) => {
     if (!confirm("Remover este atrativo?")) return;
-    const { error } = await supabase.from("atrativos").delete().eq("id", id);
-    if (error) handleError(error, "Erro ao remover");
-    else {
+    try {
+      await remove_.mutateAsync(id);
       toast.success("Removido.");
-      load();
+    } catch (err) {
+      handleError(err, "Erro ao remover");
     }
   };
 
