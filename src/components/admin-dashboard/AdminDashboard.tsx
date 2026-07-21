@@ -142,7 +142,9 @@ export function MasterPanel() {
           <TrendingUp className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-black text-foreground uppercase tracking-widest">Descoberta e Engajamento</h2>
         </div>
-        <DashboardCharts data={dashboardData!.charts} />
+        <Suspense fallback={<LoadingState />}>
+          <DashboardCharts data={dashboardData!.charts} />
+        </Suspense>
         <DashboardRankings data={dashboardData!.rankings} />
       </section>
 
