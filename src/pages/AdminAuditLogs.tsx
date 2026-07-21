@@ -26,6 +26,7 @@ import {
 import { useAppPermissions } from "@/hooks/useAppPermissions";
 import Header from "@/components/Header";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 interface AuditLog {
   id: string;
@@ -86,7 +87,7 @@ export default function AdminAuditLogs() {
     }
   }, [hasPermission]);
 
-  if (permsLoading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+  if (permsLoading) return <LoadingState fullPage message="Verificando permissões..." />;
   if (!hasPermission('audit_logs.read')) return <Navigate to="/" replace />;
 
   return (
@@ -127,7 +128,7 @@ export default function AdminAuditLogs() {
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={5} className="h-32 text-center">
-                      <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+                      <LoadingState message="Carregando logs..." />
                     </TableCell>
                   </TableRow>
                 ) : logs.length === 0 ? (

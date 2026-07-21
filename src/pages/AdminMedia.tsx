@@ -7,6 +7,7 @@
  import { supabase } from "@/integrations/supabase/client";
  import { Loader2, Check, X, Shield, Play, User, ExternalLink } from "lucide-react";
  import { SectionHeader } from "@/components/ui/SectionHeader";
+ import { LoadingState } from "@/components/ui/LoadingState";
  import { Button } from "@/components/ui/button";
  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
  import { Badge } from "@/components/ui/badge";
@@ -67,22 +68,10 @@
       }
     });
  
-   if (authLoading) {
-     return (
-       <div className="p-8 flex justify-center">
-         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-       </div>
-     );
-   }
+   if (authLoading) return <LoadingState fullPage message="Verificando permissões..." />;
    if (!user || !isAdmin) return <Navigate to="/" replace />;
 
-   if (isLoading) {
-     return (
-       <div className="p-8 flex justify-center">
-         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-       </div>
-     );
-   }
+   if (isLoading) return <LoadingState message="Carregando mídias..." />;
  
    return (
      <div className="container mx-auto p-4 sm:p-8 space-y-8">
