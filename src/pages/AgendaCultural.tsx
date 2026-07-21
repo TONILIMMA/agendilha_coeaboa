@@ -40,7 +40,7 @@ import { Onboarding } from "@/components/Onboarding";
 import { PersonalizationDialog } from "@/components/PersonalizationDialog";
 import { ShareDialog } from "@/components/ShareDialog";
 import ArtistCard from "@/components/ArtistCard";
-import { formatLongDate } from "@/lib/date-utils";
+import { formatBrazilianDate } from "@/lib/date-utils";
 import { exportEditorialAgendaPdf } from "@/lib/pdfExport";
 import { getShareUrl } from "@/lib/sharing";
 import { cn } from "@/lib/utils";
@@ -224,7 +224,7 @@ export default function AgendaCultural() {
         : "sem-data";
       if (!map[key]) {
         map[key] = {
-          label: formatLongDate(ev.date) || formatDayLabel(ev.date),
+          label: formatBrazilianDate(ev.date) || formatDayLabel(ev.date),
           sortKey: key === "sem-data" ? "9999-99-99" : key,
           items: [],
         };

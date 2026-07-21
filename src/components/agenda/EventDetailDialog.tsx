@@ -17,7 +17,7 @@ import { EventImage } from "./EventImage";
 import { ReportButton } from "./ReportButton";
 import { buildUberLink, buildWhatsAppShare } from "./agenda-utils";
 import { categoryIcons, categoryLabels, type AgendaEvent } from "./types";
-import { formatLongDate } from "@/lib/date-utils";
+import { formatBrazilianDate } from "@/lib/date-utils";
 import { buildFullAddress, getShareData, getShareUrl } from "@/lib/sharing";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -109,7 +109,7 @@ export function EventDetailDialog({
                           Data
                         </p>
                         <p className="font-bold text-base sm:text-lg text-foreground">
-                          {formatLongDate(event.date)}
+                          {formatBrazilianDate(event.date)}
                         </p>
                       </div>
                     </div>
