@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, MapPin, Pencil, Trash2, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,24 +15,14 @@ import { PromotorBadge } from "@/components/promotor/PromotorBadge";
 import { useProfile } from "@/hooks/useProfile";
 import { PhotoGallery } from "@/components/media/PhotoGallery";
 import { ROUTES } from "@/routes/config";
+import {
+  useMyEstabelecimentos,
+  useUpsertEstabelecimento,
+  useDeleteEstabelecimento,
+  type EstabelecimentoRow,
+} from "@/data/useEstabelecimentos";
 
-interface Estab {
-  id: string;
-  nome: string;
-  endereco: string | null;
-  bairro: string | null;
-  tipo: string | null;
-  contato: string | null;
-  tipos?: string[] | null;
-  anotacoes?: string | null;
-  cnpj?: string | null;
-  responsavel_nome?: string | null;
-  responsavel_telefone?: string | null;
-  responsavel_email?: string | null;
-  responsavel_redes?: string | null;
-  fotos?: string[] | null;
-  is_approved?: boolean;
-}
+type Estab = EstabelecimentoRow;
 
 const TIPOS_ESTAB = [
   "Bar", "Restaurante", "Casa de show", "Quiosque",
@@ -60,29 +49,12 @@ const empty = {
 export default function PromotorEstabelecimentos() {
   const { user } = useAuth();
   const { profile } = useProfile();
-  const [items, setItems] = useState<Estab[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: items = [], isLoading: loading } = useMyEstabelecimentos(user?.id);
+  const upsert = useUpsertEstabelecimento();
+  const remove_ = useDeleteEstabelecimento();
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState({ ...empty });
-  const [saving, setSaving] = useState(false);
-
-  const load = async () => {
-    if (!user) return;
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("estabelecimentos")
-      .select("id, nome, endereco, bairro, tipo, contato, tipos, anotacoes, cnpj, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos, is_approved")
-      .eq("responsavel_id", user.id)
-      .order("nome");
-    if (error) handleError(error, "Erro ao carregar estabelecimentos");
-    else setItems((data ?? []) as Estab[]);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  const saving = upsert.isPending;
 
   const reset = () => {
     setEditing(null);
@@ -120,7 +92,6 @@ export default function PromotorEstabelecimentos() {
       toast.error("Informe o nome do estabelecimento.");
       return;
     }
-    setSaving(true);
     try {
       const commonPatch = {
         tipos: form.tipos.length ? form.tipos : null,
@@ -133,56 +104,46 @@ export default function PromotorEstabelecimentos() {
         fotos: form.fotos,
       };
       if (editing) {
-        const { error } = await supabase
-          .from("estabelecimentos")
-          .update({
+        await upsert.mutateAsync({
+          id: editing,
+          payload: {
             nome: form.nome.trim(),
             endereco: form.endereco || null,
             bairro: form.bairro || null,
             tipo: form.tipo || null,
             contato: form.contato || null,
             ...commonPatch,
-          })
-          .eq("id", editing);
-        if (error) throw error;
+          },
+        });
         toast.success("Estabelecimento atualizado.");
       } else {
-        const { error } = await supabase.from("estabelecimentos").insert({
-          nome: form.nome.trim(),
-          endereco: form.endereco || null,
-          bairro: form.bairro || null,
-          tipo: form.tipo || null,
-          contato: form.contato || null,
-          responsavel_id: user.id,
-          created_by: user.id,
-          responsavel_nome: form.responsavel_nome || null,
-          responsavel_telefone: form.responsavel_telefone || null,
-          responsavel_email: form.responsavel_email || null,
-          responsavel_redes: form.responsavel_redes || null,
-          tipos: form.tipos.length ? form.tipos : null,
-          anotacoes: form.anotacoes || null,
-          cnpj: form.temCnpj && form.cnpj ? form.cnpj : null,
-          fotos: form.fotos,
+        await upsert.mutateAsync({
+          payload: {
+            nome: form.nome.trim(),
+            endereco: form.endereco || null,
+            bairro: form.bairro || null,
+            tipo: form.tipo || null,
+            contato: form.contato || null,
+            responsavel_id: user.id,
+            created_by: user.id,
+            ...commonPatch,
+          },
         });
-        if (error) throw error;
         toast.success("Estabelecimento cadastrado.");
       }
       reset();
-      load();
     } catch (err) {
       handleError(err, "Não foi possível salvar");
-    } finally {
-      setSaving(false);
     }
   };
 
   const remove = async (id: string) => {
     if (!confirm("Remover este estabelecimento?")) return;
-    const { error } = await supabase.from("estabelecimentos").delete().eq("id", id);
-    if (error) handleError(error, "Erro ao remover");
-    else {
+    try {
+      await remove_.mutateAsync(id);
       toast.success("Removido.");
-      load();
+    } catch (err) {
+      handleError(err, "Erro ao remover");
     }
   };
 
