@@ -148,3 +148,55 @@ export function exportAtrativoToPdf(a: AtrativoPdfData, filename?: string) {
   drawFooter(doc);
   doc.save(filename || `atrativo-${(a.name || "agendilha").toLowerCase().replace(/\s+/g, "-")}.pdf`);
 }
+
+/**
+ * Renderiza uma folha (sem save) para um atrativo específico dentro de um doc
+ * já aberto. Usado pelo PDF consolidado.
+ */
+function renderAtrativoPage(doc: jsPDF, a: AtrativoPdfData, index: number, total: number) {
+  drawHeader(doc, a.name || "Atrativo sem nome", `Ficha ${index + 1} de ${total} — Atrativos AgendIlha`);
+
+  const rows: [string, string][] = [
+    ["Tipo", a.tipo_atrativo || "—"],
+    ["Estilos", (a.estilos || []).join(", ") || "—"],
+    ["WhatsApp", a.contact_whatsapp || "—"],
+    ["E-mail", a.email || "—"],
+  ];
+
+  autoTable(doc, {
+    startY: 48,
+    head: [["Informação", "Detalhe"]],
+    body: rows,
+    styles: { fontSize: 10, cellPadding: 3 },
+    headStyles: { fillColor: [234, 88, 12], textColor: 255 },
+    columnStyles: { 0: { cellWidth: 45, fontStyle: "bold" }, 1: { cellWidth: 145 } },
+    theme: "grid",
+  });
+
+  if (a.description) {
+    const y = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("Sobre", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(doc.splitTextToSize(a.description, 180), 14, y + 6);
+  }
+}
+
+/**
+ * PDF único com vários atrativos — uma ficha por página.
+ */
+export function exportAtrativosConsolidatedPdf(
+  atrativos: AtrativoPdfData[],
+  filename?: string,
+) {
+  if (!atrativos.length) return;
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  atrativos.forEach((a, i) => {
+    if (i > 0) doc.addPage();
+    renderAtrativoPage(doc, a, i, atrativos.length);
+  });
+  drawFooter(doc);
+  doc.save(filename || `atrativos-agendilha-${new Date().toISOString().slice(0, 10)}.pdf`);
+}
