@@ -991,8 +991,7 @@ export default function AdminEvents() {
             </div>
           )}
         </div>
-      </div>
-      
+
       <ConfirmModal
         isOpen={!!deleteConfirmId}
         onClose={() => setDeleteConfirmId(null)}
