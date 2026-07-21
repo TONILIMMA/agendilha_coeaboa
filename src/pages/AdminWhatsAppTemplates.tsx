@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { TEMPLATE_VARIABLES, renderTemplate } from "@/lib/whatsapp";
 import { handleError } from "@/lib/error-handler";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { PageContainer } from "@/components/ui/PageContainer";
 
 type Kind = "approved" | "rejected";
 
