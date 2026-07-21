@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, MapPin, Pencil, Trash2, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
