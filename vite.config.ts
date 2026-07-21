@@ -140,6 +140,7 @@ export default defineConfig(({ mode }) => ({
           'pdf-gen': ['jspdf', 'jspdf-autotable'],
           'icons': ['lucide-react'],
           'utils': ['date-fns', 'zod', 'react-hook-form'],
+          'charts': ['recharts'],
         },
       },
     },

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardKPIs } from "./DashboardKPIs";
-import { DashboardCharts } from "./DashboardCharts";
+const DashboardCharts = lazy(() =>
+  import("./DashboardCharts").then((m) => ({ default: m.DashboardCharts }))
+);
 import { DashboardFilters } from "./DashboardFilters";
 import { DashboardRankings } from "./DashboardRankings";
 import { OperationalMetrics } from "./OperationalMetrics";
@@ -140,7 +142,9 @@ export function MasterPanel() {
           <TrendingUp className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-black text-foreground uppercase tracking-widest">Descoberta e Engajamento</h2>
         </div>
-        <DashboardCharts data={dashboardData!.charts} />
+        <Suspense fallback={<LoadingState />}>
+          <DashboardCharts data={dashboardData!.charts} />
+        </Suspense>
         <DashboardRankings data={dashboardData!.rankings} />
       </section>
 
