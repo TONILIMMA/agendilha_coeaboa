@@ -123,11 +123,15 @@ export default function SubmissionForm() {
   useEffect(() => {
     if (loaded && profile) {
       const currentValues = form.getValues();
-      // Only fill if they are empty
-      if (!currentValues.nickName) form.setValue("nickName", profile.responsible_name || "");
-      if (!currentValues.basicPhone) form.setValue("basicPhone", profile.phone || "");
-      if (!currentValues.companyName) form.setValue("companyName", profile.company_name || profile.responsible_name || "");
-      if (!currentValues.email) form.setValue("email", profile.email || "");
+      // Contato: o perfil é a fonte da verdade. Sobrescreve o rascunho
+      // pra evitar que um telefone/e-mail antigo salvo no navegador continue vencendo.
+      if (profile.responsible_name) form.setValue("nickName", profile.responsible_name, { shouldDirty: false });
+      if (profile.phone) form.setValue("basicPhone", profile.phone, { shouldDirty: false });
+      if (profile.company_name || profile.responsible_name) {
+        form.setValue("companyName", profile.company_name || profile.responsible_name || "", { shouldDirty: false });
+      }
+      if (profile.email) form.setValue("email", profile.email, { shouldDirty: false });
+      // Endereço permanece só-se-vazio (usuário costuma variar por evento)
       if (!currentValues.addressZip) form.setValue("addressZip", profile.address_zip || "");
       if (!currentValues.addressStreet) form.setValue("addressStreet", profile.address_street || "");
       if (!currentValues.addressNumber) form.setValue("addressNumber", profile.address_number || "");
