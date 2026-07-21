@@ -51,6 +51,42 @@ export type PermissionName =
   | 'roles.manage'
   | 'audit_logs.read';
 
+/**
+ * Pura: dado o resultado das 3 queries (roles, colaborador, profile),
+ * devolve o conjunto final de roles e permissões. Extraído para testes.
+ */
+export function computePermissions(input: {
+  roleNames: string[];
+  collaborator: CollaboratorPermissions | null;
+  profileRole: string | null;
+}): { roles: string[]; permissions: Set<PermissionName> } {
+  const roleNames = [...input.roleNames];
+  const permissions = new Set<PermissionName>();
+  const isAdminRole = roleNames.includes("admin") || roleNames.includes("master");
+
+  if (isAdminRole) {
+    ADMIN_PERMISSIONS.forEach((p) => permissions.add(p));
+  }
+
+  const collaborator = input.collaborator;
+  if (collaborator?.is_active) {
+    if (!roleNames.includes("collaborator")) roleNames.push("collaborator");
+    permissions.add("events.read");
+    collaboratorPermissionMap.forEach(([field, permission]) => {
+      if (collaborator[field]) permissions.add(permission);
+    });
+  }
+
+  if (input.profileRole && !roleNames.includes(input.profileRole)) {
+    roleNames.push(input.profileRole);
+  }
+  if (input.profileRole === "promoter") {
+    permissions.add("events.create");
+  }
+
+  return { roles: roleNames, permissions };
+}
+
 export function useAppPermissions() {
   const { user } = useAuth();
   const userId = user?.id ?? null;
