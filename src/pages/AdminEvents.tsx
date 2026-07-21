@@ -28,6 +28,7 @@ import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { handleError } from "@/lib/error-handler";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { buildWhatsappUrl, validateBrazilianMobile, formatPhoneDisplay, renderTemplate } from "@/lib/whatsapp";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
