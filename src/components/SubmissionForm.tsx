@@ -255,7 +255,7 @@ export default function SubmissionForm() {
             date: clean(values.date),
             startTime: clean(values.startTime),
             location: clean(values.locationName),
-            category: clean(values.category),
+            category: clean(values.atrativoCategory) || clean(values.category),
           });
           const blob = await (await fetch(dataUrl)).blob();
           const filePath = `${user?.id ?? "anon"}/fallback-${crypto.randomUUID()}.jpg`;
