@@ -7,6 +7,7 @@ import { Music, Search, Info, Lock } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
+import { EventPreview } from "../EventPreview";
 
 const CATEGORIES = [
   { value: "musica", label: "Música / Show" },
@@ -208,6 +209,38 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 ))}
               </SelectContent>
             </Select>
+            {(() => {
+              const age = form.watch("ageRating") || "Livre";
+              const cat = field.value;
+              if (!cat) return null;
+              const label = CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
+              return (
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-primary/10 text-primary font-semibold">
+                    Categoria: {label}
+                  </span>
+                  <span
+                    className={
+                      "inline-flex items-center gap-1 px-2 py-0.5 rounded font-semibold " +
+                      (age === "Livre"
+                        ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                        : "bg-amber-500/10 text-amber-700 dark:text-amber-400")
+                    }
+                  >
+                    Classificação: {age}
+                  </span>
+                  {age === "Livre" ? (
+                    <span className="text-muted-foreground">
+                      Continua Livre pra todo público. Ajuste na Etapa 3 se precisar.
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">
+                      Você mudou a classificação na Etapa 3. Volte se quiser deixar Livre.
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
             <FormMessage />
           </FormItem>
         )}
@@ -278,6 +311,8 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
           </FormItem>
         )}
       />
+
+      <EventPreview form={form} variant="atrativo" />
     </div>
   );
 }
