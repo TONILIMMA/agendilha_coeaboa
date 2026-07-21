@@ -17,6 +17,7 @@ import { handleError } from "@/lib/error-handler";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageContainer } from "@/components/ui/PageContainer";
 import {
   EstabelecimentoCard,
   type EstabelecimentoRow,
@@ -108,7 +109,7 @@ export default function AdminEstabelecimentos() {
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <PageContainer maxWidth="5xl">
       <SectionHeader
         title="Estabelecimentos"
         subtitle="Locais cadastrados na agenda — clique no card para ver os detalhes e editar."
@@ -192,7 +193,7 @@ export default function AdminEstabelecimentos() {
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }
 

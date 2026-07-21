@@ -9,6 +9,7 @@ import { buildTempPasswordMessage, formatPhoneDisplay } from "@/lib/whatsapp";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { callEdge } from "@/lib/edge";
 import { exportUsersToPdf } from "@/lib/pdfExportUsers";
 import {
@@ -361,7 +362,7 @@ export default function AdminUsers() {
   if (!user || !isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <PageContainer className="space-y-8" maxWidth="5xl">
       <SectionHeader 
         title="Gestão de Usuários" 
         subtitle="Controle de acessos, papéis administrativos e moderação da comunidade."
@@ -518,6 +519,6 @@ export default function AdminUsers() {
         resetResult={resetResult}
         setResetResult={setResetResult}
       />
-    </div>
+    </PageContainer>
   );
 }
