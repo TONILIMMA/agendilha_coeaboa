@@ -145,9 +145,7 @@ export default function MeusEventos() {
         </Tabs>
 
         {loading ? (
-          <div className="py-16 text-center text-foreground/60 inline-flex items-center gap-2 w-full justify-center">
-            <Loader2 className="h-4 w-4 animate-spin" /> Carregando…
-          </div>
+          <LoadingState message="Carregando seus rolês…" />
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center space-y-3 border border-dashed border-foreground/15 rounded-2xl">
             <p className="text-foreground/65 text-sm">Nada por aqui ainda.</p>

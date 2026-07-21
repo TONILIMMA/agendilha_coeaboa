@@ -93,7 +93,7 @@ export default function AdminWhatsAppTemplates() {
   if (!canManage) return <Navigate to="/" replace />;
 
   return (
-    <div className="animate-fade-in mx-auto max-w-5xl px-4 py-8 space-y-6">
+    <PageContainer maxWidth="5xl">
       <header className="space-y-1">
         <div className="flex items-center gap-2 text-primary">
           <MessageSquare className="h-4 w-4" />
@@ -191,6 +191,6 @@ export default function AdminWhatsAppTemplates() {
           </Card>
         );
       })}
-    </div>
+    </PageContainer>
   );
 }
