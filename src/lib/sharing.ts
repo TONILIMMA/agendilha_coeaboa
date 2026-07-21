@@ -25,6 +25,14 @@ export const getShareUrl = (eventId?: string) => {
   return eventId ? `${base}?event=${eventId}` : base;
 };
 
+// URL que gera OG preview no WhatsApp/Facebook (edge function server-side)
+// e redireciona o usuário real para /evento/:slug na SPA.
+export const getEventOgShareUrl = (slug: string) => {
+  const projectRef =
+    (import.meta as any).env?.VITE_SUPABASE_PROJECT_ID || "xwuyzqahfoyhdbmtspwf";
+  return `https://${projectRef}.supabase.co/functions/v1/evento-og?slug=${encodeURIComponent(slug)}`;
+};
+
 export const getShareData = (ev?: Event) => {
   const isAgenda = !ev;
   const title = isAgenda ? "Agenda Cultural da Ilha" : `Evento: ${ev.event_title}`;
