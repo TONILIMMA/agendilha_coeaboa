@@ -70,7 +70,7 @@ export default function Explorar() {
     queryKey: ["explorar-events"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("submissions")
+        .from("public_submissions")
         .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, description, age_rating")
         .eq("status", "aprovado")
         .order("date", { ascending: true });
