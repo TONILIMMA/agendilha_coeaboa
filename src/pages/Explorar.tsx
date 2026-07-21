@@ -26,6 +26,7 @@ const CATEGORIES: { id: string; label: string }[] = [
   { id: "gastronomia", label: "Gastronomia" },
   { id: "cultura", label: "Cultura" },
   { id: "esporte", label: "Esporte" },
+  { id: "turismo", label: "Turismo" },
   { id: "familia", label: "Família" },
   { id: "religioso", label: "Religioso" },
   { id: "promocoes", label: "Promoções" },
