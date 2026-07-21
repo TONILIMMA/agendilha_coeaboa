@@ -12,6 +12,7 @@ import { Loader2, MessageSquare, Save, RotateCcw, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { TEMPLATE_VARIABLES, renderTemplate } from "@/lib/whatsapp";
 import { handleError } from "@/lib/error-handler";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 type Kind = "approved" | "rejected";
 

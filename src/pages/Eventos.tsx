@@ -25,6 +25,7 @@ import { useAuditLogs } from "@/components/events-admin/useAuditLogs";
 import { KanbanBoard } from "@/components/events-admin/KanbanBoard";
 import { PipelineMetrics } from "@/components/events-admin/PipelineMetrics";
 import { PublicationLogTable } from "@/components/events-admin/PublicationLogTable";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 export default function Eventos() {
   const { user, isAdmin, loading: authLoading } = useAuth();
