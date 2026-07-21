@@ -87,12 +87,7 @@ export default function AdminWhatsAppTemplates() {
     setBodies((p) => ({ ...p, [kind]: `${p[kind]}{{${varKey}}}` }));
   }
 
-  if (permsLoading || loading)
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+  if (permsLoading || loading) return <LoadingState message="Carregando templates…" />;
   if (!canManage) return <Navigate to="/" replace />;
 
   return (

@@ -208,11 +208,7 @@ export default function Ranking() {
   }
 
   if (authLoading || !badgeLoaded) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingState fullPage message="Montando o ranking…" />;
   }
   if (!user) return <Navigate to="/auth" replace />;
   if (status !== "master") return <Navigate to="/" replace />;
