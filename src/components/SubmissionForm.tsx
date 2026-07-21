@@ -229,12 +229,45 @@ export default function SubmissionForm() {
     { id: 8, title: "Revisão" },
   ];
 
+  const FIELD_LABELS: Record<string, string> = {
+    nickName: "Seu nome",
+    basicPhone: "WhatsApp para contato",
+    companyName: "Nome completo / Empresa",
+    email: "E-mail",
+    date: "Data do evento",
+    startTime: "Horário de início",
+    ageRating: "Classificação",
+    eventTitle: "Nome do evento",
+    endTime: "Horário previsto para término",
+    atrativoName: "Nome do atrativo",
+    atrativoContact: "WhatsApp do atrativo",
+    atrativoEmail: "E-mail do atrativo",
+    atrativoCategory: "Categoria do atrativo",
+    locationName: "Nome do local",
+    eventAddress: "Endereço do evento",
+    locationType: "Tipo do local",
+    locationContact: "Contato do responsável pelo local",
+    legalAcceptance: "Aceite dos termos",
+  };
+
   const nextStep = async () => {
     const fields = getFieldsForStep(currentStep);
-    const isValid = await form.trigger(fields as any);
+    const isValid = await form.trigger(fields as any, { shouldFocus: true });
     if (isValid) {
-      setCurrentStep(prev => Math.min(prev + 1, steps.length));
+      setCurrentStep((prev) => Math.min(prev + 1, steps.length));
       window.scrollTo(0, 0);
+      return;
+    }
+    // Foca no primeiro campo inválido e mostra qual é.
+    const errors = form.formState.errors as any;
+    const firstInvalid = (fields as string[]).find((f) => errors?.[f]);
+    if (firstInvalid) {
+      const label = FIELD_LABELS[firstInvalid] ?? firstInvalid;
+      const msg = errors[firstInvalid]?.message || "Preencha esse campo pra continuar.";
+      toast.error(`Falta preencher: ${label}`, { description: String(msg) });
+      form.setFocus(firstInvalid as any);
+    } else {
+      toast.error("Alguns campos precisam de ajuste antes de continuar.");
     }
   };
 
