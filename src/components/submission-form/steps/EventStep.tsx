@@ -9,6 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { EventPreview } from "../EventPreview";
 
 export function EventStep({ form }: { form: UseFormReturn<any> }) {
   return (
@@ -158,6 +159,8 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
           </FormItem>
         )}
       />
+
+      <EventPreview form={form} variant="event" />
     </div>
   );
 }
