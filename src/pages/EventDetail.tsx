@@ -13,6 +13,7 @@ import {
   Navigation, Send, Ticket, Baby, Users, FileDown
 } from "lucide-react";
 import { exportEventToPdf } from "@/lib/exportEventPdf";
+import { PrintPreviewDialog, PrintPreviewSheet } from "@/components/pdf/PrintPreviewDialog";
 import { toast } from "sonner";
 import { formatBrazilianDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
@@ -355,9 +356,9 @@ export default function EventDetail() {
               <Button
                 variant="outline"
                 className="w-full h-11 rounded-full border-foreground/15 font-medium"
-                onClick={() => exportEventToPdf(event as any)}
+                onClick={() => setPdfPreviewOpen(true)}
               >
-                <FileDown className="h-4 w-4 mr-2" strokeWidth={2} /> Baixar ficha em PDF
+                <FileDown className="h-4 w-4 mr-2" strokeWidth={2} /> Ver e baixar ficha em PDF
               </Button>
 
               <Link
