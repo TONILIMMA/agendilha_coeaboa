@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Sparkles, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Sparkles, Pencil, Trash2, Loader2, FileDown } from "lucide-react";
+import { exportAtrativoToPdf } from "@/lib/exportEventPdf";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -453,6 +454,21 @@ export default function PromotorAtrativos() {
               <div className="flex gap-1">
                 <Button size="icon" variant="ghost" onClick={() => startEdit(a)} aria-label="Editar">
                   <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => exportAtrativoToPdf({
+                    name: a.name,
+                    tipo_atrativo: (a as any).tipo_atrativo,
+                    estilos: (a as any).estilos,
+                    description: a.description,
+                    contact_whatsapp: (a as any).responsavel_telefone,
+                    email: (a as any).responsavel_email,
+                  })}
+                  aria-label="Baixar PDF"
+                >
+                  <FileDown className="h-4 w-4" />
                 </Button>
                 <Button size="icon" variant="ghost" onClick={() => remove(a.id)} aria-label="Remover">
                   <Trash2 className="h-4 w-4 text-destructive" />
