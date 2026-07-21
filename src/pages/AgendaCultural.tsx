@@ -224,7 +224,7 @@ export default function AgendaCultural() {
         : "sem-data";
       if (!map[key]) {
         map[key] = {
-          label: formatLongDate(ev.date) || formatDayLabel(ev.date),
+          label: formatBrazilianDate(ev.date) || formatDayLabel(ev.date),
           sortKey: key === "sem-data" ? "9999-99-99" : key,
           items: [],
         };
