@@ -29,7 +29,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
     const [atrativosRes, artistsRes] = await Promise.all([
       supabase
         .from("atrativos")
-        .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp, categoria")
+        .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp")
         .ilike("name", `%${q}%`)
         .eq("is_approved", true)
         .limit(6),
@@ -49,7 +49,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         style: (Array.isArray(a.estilos) ? a.estilos.join(", ") : "") || a.style || "",
         description: a.description || "",
         contact: a.contact_whatsapp || "",
-        category: a.categoria || "",
+        category: "",
         approved: true,
       }))),
       ...((artistsRes.data ?? []).map((s: any) => ({
