@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Sparkles, Pencil, Trash2, Loader2, FileDown, FileStack, Eye } from "lucide-react";
-import { PageLoader } from "@/components/ui/PageLoader";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { exportAtrativoToPdf, exportAtrativosConsolidatedPdf } from "@/lib/exportEventPdf";
 import { PrintPreviewDialog, PrintPreviewSheet } from "@/components/pdf/PrintPreviewDialog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -264,16 +264,19 @@ export default function PromotorAtrativos() {
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto pb-12">
-      <PageHeader
-        eyebrow={<PromotorBadge />}
-        title="Meus atrativos"
-        description="Cadastre as atrações sob sua responsabilidade."
-        actions={
-          <Link to={ROUTES.PROMOTOR_ESTABELECIMENTOS}>
-            <Button variant="outline">Ir para Estabelecimentos</Button>
-          </Link>
-        }
-      />
+      <div>
+        <PromotorBadge />
+        <SectionHeader
+          className="mt-2 mb-0"
+          title="Meus atrativos"
+          subtitle="Cadastre as atrações sob sua responsabilidade."
+          rightElement={
+            <Link to={ROUTES.PROMOTOR_ESTABELECIMENTOS}>
+              <Button variant="outline">Ir para Estabelecimentos</Button>
+            </Link>
+          }
+        />
+      </div>
 
       <Card className="p-5 space-y-4">
         <h2 className="font-bold text-lg">
@@ -489,7 +492,7 @@ export default function PromotorAtrativos() {
           </div>
         )}
         {loading ? (
-          <PageLoader size="md" className="py-8" />
+          <LoadingState message="Carregando atrativos..." />
         ) : items.length === 0 ? (
           <Card className="p-8 text-center text-muted-foreground text-sm">
             Você ainda não cadastrou nenhum atrativo.
