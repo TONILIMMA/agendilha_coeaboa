@@ -43,4 +43,8 @@ export const qk = {
     approved: (search?: string) =>
       [...qk.atrativos.all, "approved", search ?? ""] as const,
   },
+  collaborators: {
+    all: ["collaborators"] as const,
+    list: () => [...qk.collaborators.all, "list"] as const,
+  },
 } as const;
