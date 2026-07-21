@@ -14,6 +14,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { formatBrazilianDate } from "@/lib/date-utils";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 type StatusKey = "todos" | "pendente" | "aprovado" | "rejeitado";
 
