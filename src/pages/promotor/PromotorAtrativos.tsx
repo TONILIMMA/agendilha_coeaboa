@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Sparkles, Pencil, Trash2, Loader2, FileDown } from "lucide-react";
-import { exportAtrativoToPdf } from "@/lib/exportEventPdf";
+import { Plus, Sparkles, Pencil, Trash2, Loader2, FileDown, FileStack, Eye } from "lucide-react";
+import { exportAtrativoToPdf, exportAtrativosConsolidatedPdf } from "@/lib/exportEventPdf";
+import { PrintPreviewDialog, PrintPreviewSheet } from "@/components/pdf/PrintPreviewDialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -78,6 +80,71 @@ export default function PromotorAtrativos() {
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState({ ...empty });
   const [saving, setSaving] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewMode, setPreviewMode] = useState<"single" | "consolidated">("consolidated");
+  const [previewSingleId, setPreviewSingleId] = useState<string | null>(null);
+
+  const toggleSelected = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const atrativoToSheet = (a: Atrativo, idx: number, total: number): PrintPreviewSheet => ({
+    title: a.name,
+    subtitle: total > 1 ? `Ficha ${idx + 1} de ${total} — Atrativos AgendIlha` : "Ficha do atrativo",
+    description: a.description,
+    rows: [
+      { label: "Tipo", value: a.tipo_atrativo || a.type || "—" },
+      { label: "Estilos", value: (a.estilos || []).join(", ") || "—" },
+      { label: "WhatsApp", value: a.responsavel_telefone || "—" },
+      { label: "E-mail", value: a.responsavel_email || "—" },
+    ],
+  });
+
+  const selectedItems = useMemo(
+    () => items.filter((a) => selected.has(a.id)),
+    [items, selected],
+  );
+
+  const previewSheets: PrintPreviewSheet[] = useMemo(() => {
+    if (previewMode === "single") {
+      const one = items.find((a) => a.id === previewSingleId);
+      return one ? [atrativoToSheet(one, 0, 1)] : [];
+    }
+    return selectedItems.map((a, i) => atrativoToSheet(a, i, selectedItems.length));
+  }, [previewMode, previewSingleId, selectedItems, items]);
+
+  const handleDownloadPreview = () => {
+    if (previewMode === "single") {
+      const one = items.find((a) => a.id === previewSingleId);
+      if (!one) return;
+      exportAtrativoToPdf({
+        name: one.name,
+        tipo_atrativo: one.tipo_atrativo,
+        estilos: one.estilos,
+        description: one.description,
+        contact_whatsapp: one.responsavel_telefone,
+        email: one.responsavel_email,
+      });
+    } else {
+      exportAtrativosConsolidatedPdf(
+        selectedItems.map((a) => ({
+          name: a.name,
+          tipo_atrativo: a.tipo_atrativo,
+          estilos: a.estilos,
+          description: a.description,
+          contact_whatsapp: a.responsavel_telefone,
+          email: a.responsavel_email,
+        })),
+      );
+    }
+    setPreviewOpen(false);
+  };
 
   const load = async () => {
     if (!user) return;
@@ -424,6 +491,34 @@ export default function PromotorAtrativos() {
       </Card>
 
       <div className="space-y-3">
+        {items.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 justify-between p-3 rounded-lg bg-muted/40 border">
+            <div className="text-xs text-muted-foreground">
+              {selected.size > 0
+                ? `${selected.size} atrativo${selected.size > 1 ? "s" : ""} selecionado${selected.size > 1 ? "s" : ""}`
+                : "Selecione atrativos pra gerar um PDF consolidado."}
+            </div>
+            <div className="flex gap-2">
+              {selected.size > 0 && (
+                <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                  Limpar seleção
+                </Button>
+              )}
+              <Button
+                size="sm"
+                disabled={selected.size === 0}
+                onClick={() => {
+                  setPreviewMode("consolidated");
+                  setPreviewOpen(true);
+                }}
+                className="gap-1"
+              >
+                <FileStack className="h-4 w-4" />
+                PDF consolidado ({selected.size})
+              </Button>
+            </div>
+          </div>
+        )}
         {loading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -435,6 +530,12 @@ export default function PromotorAtrativos() {
         ) : (
           items.map((a) => (
             <Card key={a.id} className="p-4 flex items-start gap-3">
+              <Checkbox
+                checked={selected.has(a.id)}
+                onCheckedChange={() => toggleSelected(a.id)}
+                aria-label={`Selecionar ${a.name}`}
+                className="mt-1"
+              />
               <div className="h-10 w-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
                 <Sparkles className="h-5 w-5" />
               </div>
@@ -458,15 +559,13 @@ export default function PromotorAtrativos() {
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={() => exportAtrativoToPdf({
-                    name: a.name,
-                    tipo_atrativo: (a as any).tipo_atrativo,
-                    estilos: (a as any).estilos,
-                    description: a.description,
-                    contact_whatsapp: (a as any).responsavel_telefone,
-                    email: (a as any).responsavel_email,
-                  })}
-                  aria-label="Baixar PDF"
+                  onClick={() => {
+                    setPreviewMode("single");
+                    setPreviewSingleId(a.id);
+                    setPreviewOpen(true);
+                  }}
+                  aria-label="Ver e baixar PDF"
+                  title="Ver prévia pra impressão"
                 >
                   <FileDown className="h-4 w-4" />
                 </Button>
@@ -478,6 +577,20 @@ export default function PromotorAtrativos() {
           ))
         )}
       </div>
+
+      <PrintPreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        title={previewMode === "single" ? "Ficha do atrativo — pronta pra imprimir" : "PDF consolidado dos atrativos"}
+        helper={
+          previewMode === "single"
+            ? "Assim vai sair o PDF. Confira antes de baixar."
+            : `Um PDF único com ${previewSheets.length} ficha${previewSheets.length > 1 ? "s" : ""} — uma por página.`
+        }
+        sheets={previewSheets}
+        downloadLabel={previewMode === "single" ? "Baixar PDF" : `Baixar PDF consolidado (${previewSheets.length})`}
+        onDownload={handleDownloadPreview}
+      />
     </div>
   );
 }

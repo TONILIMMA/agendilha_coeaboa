@@ -13,6 +13,7 @@ import {
   Navigation, Send, Ticket, Baby, Users, FileDown
 } from "lucide-react";
 import { exportEventToPdf } from "@/lib/exportEventPdf";
+import { PrintPreviewDialog, PrintPreviewSheet } from "@/components/pdf/PrintPreviewDialog";
 import { toast } from "sonner";
 import { formatBrazilianDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
@@ -55,6 +56,7 @@ export default function EventDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [estabId, setEstabId] = useState<string | null>(null);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
 
   useEffect(() => {
     async function fetchEvent() {
@@ -355,9 +357,9 @@ export default function EventDetail() {
               <Button
                 variant="outline"
                 className="w-full h-11 rounded-full border-foreground/15 font-medium"
-                onClick={() => exportEventToPdf(event as any)}
+                onClick={() => setPdfPreviewOpen(true)}
               >
-                <FileDown className="h-4 w-4 mr-2" strokeWidth={2} /> Baixar ficha em PDF
+                <FileDown className="h-4 w-4 mr-2" strokeWidth={2} /> Ver e baixar ficha em PDF
               </Button>
 
               <Link
@@ -424,6 +426,35 @@ export default function EventDetail() {
           </Button>
         </div>
       </div>
+
+      <PrintPreviewDialog
+        open={pdfPreviewOpen}
+        onOpenChange={setPdfPreviewOpen}
+        title="Ficha do evento — pronta pra imprimir"
+        helper="Assim vai sair o PDF. Confira antes de baixar."
+        downloadLabel="Baixar PDF do evento"
+        onDownload={() => {
+          exportEventToPdf(event as any);
+          setPdfPreviewOpen(false);
+        }}
+        sheets={[
+          {
+            title: event.event_title || "Evento sem título",
+            subtitle: "Ficha do evento",
+            description: event.description,
+            rows: [
+              { label: "Data", value: event.date ? new Date(event.date).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" }) : "—" },
+              { label: "Horário", value: `${event.start_time || "—"}${event.end_time ? ` até ${event.end_time}` : ""}` },
+              { label: "Local", value: [event.location, [event.address_street, event.address_number].filter(Boolean).join(", "), event.address_neighborhood, event.address_city].filter(Boolean).join(" — ") },
+              { label: "Categoria", value: event.category || "—" },
+              { label: "Classificação", value: event.age_rating || "Livre" },
+              { label: "Atrativo", value: (event as any).artist_name || "—" },
+              { label: "Estilo", value: (event as any).music_style || "—" },
+              { label: "Ingresso / Preço", value: event.sale_price || "—" },
+            ],
+          },
+        ]}
+      />
     </div>
   );
 }
