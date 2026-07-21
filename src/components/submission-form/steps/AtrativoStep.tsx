@@ -114,7 +114,10 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                   form.setValue("atrativoType", s.type || "");
                   form.setValue("atrativoStyle", s.style || "");
                   form.setValue("atrativoDescription", s.description || "");
-                  form.setValue("atrativoContact", s.contact || "");
+                  form.setValue(
+                    "atrativoContact",
+                    s.contact ? formatPhoneDisplay(s.contact) : ""
+                  );
                   if (s.category) form.setValue("atrativoCategory", s.category);
                   setSuggestions([]);
                 }}
