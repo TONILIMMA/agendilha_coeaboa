@@ -10,14 +10,6 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
-const categories = [
-  { value: "musica", label: "Música / Show" },
-  { value: "gastronomia", label: "Gastronomia" },
-  { value: "cultura", label: "Cultura / Arte" },
-  { value: "esporte", label: "Esporte" },
-  { value: "outros", label: "Outros" },
-];
-
 export function EventStep({ form }: { form: UseFormReturn<any> }) {
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -26,67 +18,30 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
           <PartyPopper className="h-5 w-5" />
           Sobre o Evento
         </h2>
-        <p className="text-sm text-muted-foreground">O que vai acontecer e quando?</p>
+        <p className="text-sm text-muted-foreground">Quando vai rolar e pra quem?</p>
       </div>
 
+      {/* 1. Data do evento (com dia da semana na divulgação) */}
       <FormField
         control={form.control}
-        name="category"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Categoria</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Selecione uma categoria" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="eventTitle"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Nome do Evento (opcional)</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: Festival de Inverno" className="h-12" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="date"
-          render={({ field }) => (
+        name="date"
+        render={({ field }) => {
+          const selected = field.value ? new Date(field.value) : undefined;
+          return (
             <FormItem className="flex flex-col">
-              <FormLabel className="mb-1.5">Data</FormLabel>
+              <FormLabel className="mb-1.5">Data do evento *</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
-                      variant={"outline"}
+                      variant="outline"
                       className={cn(
                         "h-12 pl-3 text-left font-normal",
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      {field.value ? (
-                        format(new Date(field.value), "PPP", { locale: ptBR })
+                      {selected ? (
+                        format(selected, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })
                       ) : (
                         <span>Selecione a data</span>
                       )}
@@ -97,71 +52,47 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
+                    selected={selected}
                     onSelect={(date) => field.onChange(date?.toISOString())}
                     initialFocus
                     locale={ptBR}
                   />
                 </PopoverContent>
               </Popover>
+              {selected && (
+                <p className="text-xs text-muted-foreground capitalize">
+                  Vai na divulgação como: {format(selected, "EEEE, dd/MM", { locale: ptBR })}
+                </p>
+              )}
               <FormMessage />
             </FormItem>
-          )}
-        />
+          );
+        }}
+      />
 
-        <FormField
-          control={form.control}
-          name="startTime"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Horário de Início</FormLabel>
-              <FormControl>
-                <Input type="time" className="h-12" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+      {/* 2. Horário de início */}
+      <FormField
+        control={form.control}
+        name="startTime"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Horário de início *</FormLabel>
+            <FormControl>
+              <Input type="time" className="h-12" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="predictedDuration"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Duração Prevista (opcional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: 2 horas, 4h" className="h-12" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="endTime"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Horário de Término (opcional)</FormLabel>
-              <FormControl>
-                <Input type="time" className="h-12" {...field} />
-              </FormControl>
-              <FormMessage />
-              <p className="text-[10px] text-muted-foreground italic">Sem término definido se vazio</p>
-            </FormItem>
-          )}
-        />
-      </div>
-
+      {/* 3. Classificação (Livre pré-marcado) */}
       <FormField
         control={form.control}
         name="ageRating"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Classificação</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormLabel>Classificação *</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value || "Livre"} defaultValue="Livre">
               <FormControl>
                 <SelectTrigger className="h-12">
                   <SelectValue placeholder="Selecione" />
@@ -176,6 +107,53 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
                 <SelectItem value="18+">18+</SelectItem>
               </SelectContent>
             </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Separador de opcionais */}
+      <div className="pt-2">
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Campos opcionais
+          </span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Preencha se quiser deixar a divulgação mais completa. Pode pular sem problema.
+        </p>
+      </div>
+
+      {/* 4. Nome do evento (opcional) */}
+      <FormField
+        control={form.control}
+        name="eventTitle"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Nome do evento</FormLabel>
+            <FormControl>
+              <Input placeholder="Ex: Festival de Inverno" className="h-12" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* 5. Horário previsto para término (opcional) */}
+      <FormField
+        control={form.control}
+        name="endTime"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Horário previsto para término</FormLabel>
+            <FormControl>
+              <Input type="time" className="h-12" {...field} />
+            </FormControl>
+            <p className="text-[11px] text-muted-foreground italic">
+              Sem término definido se ficar vazio.
+            </p>
             <FormMessage />
           </FormItem>
         )}
