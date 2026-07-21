@@ -19,20 +19,13 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { cn } from "@/lib/utils";
-
-interface Collaborator {
-  id: string;
-  user_id: string;
-  name: string;
-  email: string | null;
-  role_title: string;
-  can_submit: boolean;
-  can_approve: boolean;
-  can_edit: boolean;
-  can_delete: boolean;
-  is_active: boolean;
-  created_at: string;
-}
+import {
+  useCollaborators,
+  useUpsertCollaborator,
+  useDeleteCollaborator,
+  type Collaborator,
+} from "@/data/useCollaborators";
+import { handleError } from "@/lib/error-handler";
 
 const emptyForm = {
   name: "",
@@ -50,28 +43,15 @@ export default function AdminCollaborators() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const perms = usePermissions();
   const hasAccess = isAdmin || (perms.loaded && perms.canApprove);
-  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: collaborators = [], isLoading: loading } = useCollaborators(hasAccess);
+  const upsert = useUpsertCollaborator();
+  const remove_ = useDeleteCollaborator();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [saving, setSaving] = useState(false);
+  const saving = upsert.isPending;
 
   const [availableUsers, setAvailableUsers] = useState<{ id: string; phone: string; name: string }[]>([]);
-
-  async function fetchCollaborators() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("collaborators")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) {
-      toast.error("Erro ao carregar colaboradores");
-    } else {
-      setCollaborators((data as any[]) || []);
-    }
-    setLoading(false);
-  }
 
   async function fetchUsers() {
     const { data } = await supabase.from("profiles").select("user_id, responsible_name, phone");
@@ -85,11 +65,8 @@ export default function AdminCollaborators() {
   }
 
   useEffect(() => {
-    if (hasAccess) {
-      fetchCollaborators();
-      fetchUsers();
-    }
-  }, [isAdmin, hasAccess]);
+    if (hasAccess) fetchUsers();
+  }, [hasAccess]);
 
   function openNewDialog() {
     setEditingId(null);
@@ -122,8 +99,6 @@ export default function AdminCollaborators() {
       toast.error("Selecione um usuário");
       return;
     }
-
-    setSaving(true);
     const payload = {
       name: form.name.trim(),
       email: form.email.trim() || null,
@@ -135,40 +110,26 @@ export default function AdminCollaborators() {
       can_delete: form.can_delete,
       is_active: form.is_active,
     };
-
-    if (editingId) {
-      const { error } = await supabase.from("collaborators").update(payload as any).eq("id", editingId);
-      if (error) {
-        toast.error("Erro ao atualizar", { description: error.message });
+    try {
+      await upsert.mutateAsync({ id: editingId, payload });
+      toast.success(editingId ? "Colaborador atualizado!" : "Colaborador adicionado!");
+      setDialogOpen(false);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (!editingId && msg.includes("duplicate")) {
+        toast.error("Este usuário já é um colaborador");
       } else {
-        toast.success("Colaborador atualizado!");
-        setDialogOpen(false);
-        fetchCollaborators();
-      }
-    } else {
-      const { error } = await supabase.from("collaborators").insert(payload as any);
-      if (error) {
-        if (error.message.includes("duplicate")) {
-          toast.error("Este usuário já é um colaborador");
-        } else {
-          toast.error("Erro ao criar", { description: error.message });
-        }
-      } else {
-        toast.success("Colaborador adicionado!");
-        setDialogOpen(false);
-        fetchCollaborators();
+        handleError(err, editingId ? "Erro ao atualizar" : "Erro ao criar");
       }
     }
-    setSaving(false);
   }
 
   async function handleDelete(id: string) {
-    const { error } = await supabase.from("collaborators").delete().eq("id", id);
-    if (error) {
-      toast.error("Erro ao remover colaborador");
-    } else {
+    try {
+      await remove_.mutateAsync(id);
       toast.success("Colaborador removido");
-      setCollaborators(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      handleError(err, "Erro ao remover colaborador");
     }
   }
 
