@@ -14,7 +14,6 @@ import {
   Loader2,
   History as HistoryIcon,
   LayoutDashboard,
-  UserPlus,
   Music2,
   ChevronDown,
   ExternalLink,
@@ -26,7 +25,6 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { MasterPanel } from "@/components/admin-dashboard/AdminDashboard";
 import { MasterArtistsPanel } from "@/components/admin-master/MasterArtistsPanel";
-import { callEdge } from "@/lib/edge";
 import { useAdminMasterStats } from "@/data";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,8 +32,6 @@ import { supabase } from "@/integrations/supabase/client";
 export default function AdminMaster() {
   const { user, loading: authLoading } = useAuth();
   const { isMaster, loading: permsLoading } = useAppPermissions();
-
-  const [bootstrapping, setBootstrapping] = useState(false);
 
   const canLoadMasterData = !authLoading && !permsLoading && !!user && isMaster;
   const {
@@ -57,23 +53,6 @@ export default function AdminMaster() {
       return count ?? 0;
     },
   });
-
-  async function bootstrapToniLima() {
-    setBootstrapping(true);
-    try {
-      await callEdge("bootstrap-master", {
-        name: "TONI LIMA",
-        phone: "21998554322",
-        password: "Master@2025",
-      });
-      toast.success("TONI LIMA cadastrado como Admin Master!");
-      refetchStats();
-    } catch (e) {
-      handleError(e, "Erro ao configurar admin padrão");
-    } finally {
-      setBootstrapping(false);
-    }
-  }
 
   if (authLoading || permsLoading) return <LoadingState fullPage message="Autenticando acesso master..." />;
 
