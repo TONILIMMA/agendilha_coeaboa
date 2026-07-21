@@ -57,10 +57,12 @@ const formSchema = z.object({
   endTime: z.string().trim().optional(),
   
   atrativoName: z.string().trim().min(1, "Atrativo é obrigatório"),
-  atrativoType: z.string().trim().min(1, "Tipo de atrativo é obrigatório"),
+  atrativoType: z.string().trim().optional(),
   atrativoStyle: z.string().trim().optional(),
   atrativoDescription: z.string().trim().max(500).optional(),
-  atrativoContact: z.string().trim().optional(),
+  atrativoContact: z.string().trim().min(1, "WhatsApp do atrativo é obrigatório"),
+  atrativoEmail: z.string().trim().email("E-mail inválido").optional().or(z.literal("")),
+  atrativoCategory: z.string().trim().min(1, "Selecione uma categoria"),
 
   locationName: z.string().trim().min(1, "O nome do local é obrigatório"),
   eventAddress: z.string().trim().min(1, "O endereço completo é obrigatório"),
@@ -112,7 +114,7 @@ export default function SubmissionForm() {
       nickName: "", basicPhone: "", companyName: "", email: "",
       category: "", eventTitle: "", date: "", startTime: "",
       ageRating: "Livre", isSuitableForMinors: true,
-      atrativoName: "", atrativoType: "",
+      atrativoName: "", atrativoType: "", atrativoContact: "", atrativoEmail: "", atrativoCategory: "",
       locationName: "", eventAddress: "", locationType: "commercial",
       fotos: [],
     },
@@ -206,7 +208,7 @@ export default function SubmissionForm() {
       case 1: return ["nickName", "basicPhone"];
       case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
       case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
-      case 4: return ["atrativoName", "atrativoType", "atrativoStyle", "atrativoDescription", "atrativoContact"];
+      case 4: return ["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory", "atrativoType", "atrativoStyle", "atrativoDescription"];
       case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
       case 7: return ["legalAcceptance"];
       default: return [];
@@ -253,7 +255,7 @@ export default function SubmissionForm() {
             date: clean(values.date),
             startTime: clean(values.startTime),
             location: clean(values.locationName),
-            category: clean(values.category),
+            category: clean(values.atrativoCategory) || clean(values.category),
           });
           const blob = await (await fetch(dataUrl)).blob();
           const filePath = `${user?.id ?? "anon"}/fallback-${crypto.randomUUID()}.jpg`;
@@ -291,7 +293,7 @@ export default function SubmissionForm() {
         address_zip: clean(values.addressZip),
         description: clean(values.description),
         video_link: clean(values.videoLink),
-        category: clean(values.category),
+        category: clean(values.atrativoCategory) || clean(values.category),
         contact_social: clean(values.contactSocial),
         additional_details: clean(values.additionalDetails),
         stage: clean(values.stage) || 'submitted',
@@ -338,7 +340,7 @@ export default function SubmissionForm() {
       nickName: 1, basicPhone: 1,
       companyName: 2, email: 2, addressZip: 2, addressStreet: 2, addressNumber: 2,
       category: 3, eventTitle: 3, date: 3, startTime: 3, endTime: 3,
-      atrativoName: 4, atrativoType: 4, atrativoStyle: 4, atrativoDescription: 4, atrativoContact: 4,
+      atrativoName: 4, atrativoType: 4, atrativoStyle: 4, atrativoDescription: 4, atrativoContact: 4, atrativoEmail: 4, atrativoCategory: 4,
       locationName: 5, eventAddress: 5, locationType: 5, locationContact: 5,
       legalAcceptance: 7,
     };
