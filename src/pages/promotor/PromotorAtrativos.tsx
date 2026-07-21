@@ -119,7 +119,7 @@ export default function PromotorAtrativos() {
     return selectedItems.map((a, i) => atrativoToSheet(a, i, selectedItems.length));
   }, [previewMode, previewSingleId, selectedItems, items]);
 
-  const handleDownloadPreview = () => {
+  const handleDownloadPreview = (filename: string) => {
     if (previewMode === "single") {
       const one = items.find((a) => a.id === previewSingleId);
       if (!one) return;
@@ -130,7 +130,7 @@ export default function PromotorAtrativos() {
         description: one.description,
         contact_whatsapp: one.responsavel_telefone,
         email: one.responsavel_email,
-      });
+      }, filename);
     } else {
       exportAtrativosConsolidatedPdf(
         selectedItems.map((a) => ({
@@ -141,6 +141,15 @@ export default function PromotorAtrativos() {
           contact_whatsapp: a.responsavel_telefone,
           email: a.responsavel_email,
         })),
+        {
+          filename,
+          cover: {
+            eventTitle: `Atrativos selecionados (${selectedItems.length})`,
+            date: new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }),
+            location: user?.email ? `Divulgador: ${user.email}` : null,
+            subtitle: "Capa — PDF consolidado",
+          },
+        },
       );
     }
     setPreviewOpen(false);
