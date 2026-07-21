@@ -467,7 +467,7 @@ export default function EventDetail() {
         shareUrl={`${window.location.origin}/evento/${event.slug}/imprimir`}
         cover={{
           eventTitle: event.event_title || "Evento sem título",
-          date: event.date ? new Date(event.date).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" }) : null,
+          date: event.date ? formatBrazilianDate(event.date) : null,
           location: [event.location, [event.address_street, event.address_number].filter(Boolean).join(", "), event.address_neighborhood, event.address_city].filter(Boolean).join(" — ") || null,
           subtitle: "Capa do evento",
         }}
@@ -476,7 +476,7 @@ export default function EventDetail() {
             filename,
             cover: {
               eventTitle: event.event_title || "Evento sem título",
-              date: event.date ? new Date(event.date).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" }) : null,
+              date: event.date ? formatBrazilianDate(event.date) : null,
               location: [event.location, [event.address_street, event.address_number].filter(Boolean).join(", "), event.address_neighborhood, event.address_city].filter(Boolean).join(" — ") || null,
               subtitle: "Capa do evento",
             },
@@ -489,7 +489,7 @@ export default function EventDetail() {
             subtitle: "Ficha do evento",
             description: event.description,
             rows: [
-              { label: "Data", value: event.date ? new Date(event.date).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" }) : "—" },
+              { label: "Data", value: event.date ? formatBrazilianDate(event.date) : "—" },
               { label: "Horário", value: `${event.start_time || "—"}${event.end_time ? ` até ${event.end_time}` : ""}` },
               { label: "Local", value: [event.location, [event.address_street, event.address_number].filter(Boolean).join(", "), event.address_neighborhood, event.address_city].filter(Boolean).join(" — ") },
               { label: "Categoria", value: event.category || "—" },
