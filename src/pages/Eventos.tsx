@@ -25,6 +25,7 @@ import { useAuditLogs } from "@/components/events-admin/useAuditLogs";
 import { KanbanBoard } from "@/components/events-admin/KanbanBoard";
 import { PipelineMetrics } from "@/components/events-admin/PipelineMetrics";
 import { PublicationLogTable } from "@/components/events-admin/PublicationLogTable";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 export default function Eventos() {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -79,7 +80,7 @@ export default function Eventos() {
   const canDeleteEvents = canManageEvents || permissions.canDelete;
 
   if (authLoading) {
-    return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    return <LoadingState fullPage />;
   }
   if (!user) return null;
 
@@ -109,7 +110,7 @@ export default function Eventos() {
 
   const renderList = (list: Submission[], options: { showApproval?: boolean; showTrashActions?: boolean } = {}) => {
     if (loading) {
-      return <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+      return <LoadingState />;
     }
     if (list.length === 0) {
       return (
@@ -123,7 +124,7 @@ export default function Eventos() {
   };
 
   if (!permissions.loaded) {
-    return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    return <LoadingState fullPage message="Checando permissões…" />;
   }
   if (!canManageEvents && !permissions.isCollaborator) {
     return <Navigate to="/" replace />;
