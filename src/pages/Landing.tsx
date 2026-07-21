@@ -37,9 +37,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.jpg";
-import { Onboarding } from "@/components/Onboarding";
-import { PersonalizationDialog } from "@/components/PersonalizationDialog";
-import { ShareDialog } from "@/components/ShareDialog";
 import { getShareData } from "@/lib/sharing";
 import { Settings2 } from "lucide-react";
 import { newsletterSubscribeSchema } from "@/schemas/newsletter";
