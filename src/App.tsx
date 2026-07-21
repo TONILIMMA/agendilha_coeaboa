@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryCache, QueryClient, QueryClientProvider, MutationCache } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate, useLocation, Outlet } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,8 +10,10 @@ import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
 import { useAppPermissions, PermissionName } from "@/hooks/usePermissions";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
+import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 import { AppShell } from "@/components/layout/AppShell";
 import { handleError } from "@/lib/error-handler";
+import { logger } from "@/lib/logger";
 import { ROUTES } from "@/routes/config";
 import { PromotorRoute } from "@/components/auth/PromotorRoute";
 import { UpdateAnnouncement } from "@/components/system/UpdateAnnouncement";
@@ -63,6 +65,27 @@ const PromotorEstabelecimentos = lazy(() => import("./pages/promotor/PromotorEst
 const PromotorAtrativos = lazy(() => import("./pages/promotor/PromotorAtrativos"));
 
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      // Só avisa via toast se a query já tinha dado certo antes (evita duplicar
+      // com o InlineError/estado vazio no primeiro load).
+      if (query.state.data !== undefined) {
+        handleError(error, {
+          fallback: "Não deu pra atualizar os dados. Tenta de novo.",
+          context: `query:${String(query.queryKey?.[0] ?? "unknown")}`,
+        });
+      } else {
+        logger.error(`[query:${String(query.queryKey?.[0] ?? "unknown")}] load failed`, error);
+      }
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error, _vars, _ctx, mutation) => {
+      // Se a mutation tem onError próprio, não duplica a mensagem.
+      if (mutation.options.onError) return;
+      handleError(error, { fallback: "Não deu pra completar a ação. Tenta de novo." });
+    },
+  }),
   defaultOptions: {
     queries: {
       staleTime: 60_000,
@@ -74,24 +97,17 @@ const queryClient = new QueryClient({
         return failureCount < 2;
       },
     },
-    mutations: {
-      onError: (error) => {
-        handleError(error, "Erro ao processar solicitação");
-      },
-    },
   },
 });
 
 // Global unhandled promise rejection handler
 window.onunhandledrejection = (event) => {
-  console.error("Unhandled promise rejection:", event.reason);
-  // Optional: Send to logging service
+  logger.error("Unhandled promise rejection:", event.reason);
 };
 
 // Global error handler for non-React errors
 window.onerror = (message, source, lineno, colno, error) => {
-  console.error("Global error:", { message, source, lineno, colno, error });
-  // Optional: Send to logging service
+  logger.error("Global error:", { message, source, lineno, colno, error });
 };
 
 
@@ -143,8 +159,9 @@ export function ProtectedRoute({
 
 export const AppRoutes = () => (
   <SubmissionProvider>
-    <Suspense fallback={<PageFallback />}>
-      <Routes>
+    <SectionErrorBoundary context="AppRoutes">
+      <Suspense fallback={<PageFallback />}>
+        <Routes>
         {/* Públicas */}
         <Route path={ROUTES.LANDING} element={<Landing />} />
         <Route path={ROUTES.EXPLORAR} element={<Explorar />} />
@@ -220,8 +237,9 @@ export const AppRoutes = () => (
         <Route path="/admin" element={<Navigate to={ROUTES.ADMIN_EVENTS} replace />} />
         <Route path="/carrossel" element={<Carrossel />} />
         <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </SectionErrorBoundary>
 
   </SubmissionProvider>
 );
