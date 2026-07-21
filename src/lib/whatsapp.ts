@@ -58,16 +58,8 @@ export function validateBrazilianMobile(phone: string | null | undefined): Phone
   if (d[2] !== "9") {
     return { valid: false, reason: "Celular brasileiro deve começar com 9 após o DDD." };
   }
-  // 4º dígito de celular geralmente é 6,7,8 ou 9 — bloqueia padrões claramente inválidos
-  if (!"6789".includes(d[3])) {
-    return { valid: false, reason: "Número de celular brasileiro deve ter o 4º dígito entre 6 e 9." };
-  }
   if (/^(\d)\1+$/.test(d)) {
     return { valid: false, reason: "Telefone com todos os dígitos iguais — inválido." };
-  }
-  // Bloqueia sequências triviais como 12345678910
-  if (/^0+$/.test(d.slice(3))) {
-    return { valid: false, reason: "Telefone com sequência inválida de zeros." };
   }
   return {
     valid: true,
