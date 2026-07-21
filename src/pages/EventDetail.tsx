@@ -10,8 +10,9 @@ import {
   CalendarDays, MapPin, Clock, Share2, ArrowLeft, 
   Tag, Info, ExternalLink, MessageCircle, Heart,
   Building2, ChevronRight, LayoutDashboard, Globe,
-  Navigation, Send, Ticket, Baby, Users
+  Navigation, Send, Ticket, Baby, Users, FileDown
 } from "lucide-react";
+import { exportEventToPdf } from "@/lib/exportEventPdf";
 import { toast } from "sonner";
 import { formatBrazilianDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
@@ -350,6 +351,14 @@ export default function EventDetail() {
                   <Share2 className="h-4 w-4" strokeWidth={2} />
                 </Button>
               </div>
+
+              <Button
+                variant="outline"
+                className="w-full h-11 rounded-full border-foreground/15 font-medium"
+                onClick={() => exportEventToPdf(event as any)}
+              >
+                <FileDown className="h-4 w-4 mr-2" strokeWidth={2} /> Baixar ficha em PDF
+              </Button>
 
               <Link
                 to="/agenda"

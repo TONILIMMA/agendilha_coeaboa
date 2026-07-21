@@ -60,9 +60,16 @@ const formSchema = z.object({
   atrativoType: z.string().trim().optional(),
   atrativoStyle: z.string().trim().optional(),
   atrativoDescription: z.string().trim().max(500).optional(),
-  atrativoContact: z.string().trim().min(1, "WhatsApp do atrativo é obrigatório"),
+  atrativoContact: z.string().trim().min(1, "WhatsApp do atrativo é obrigatório").superRefine((val, ctx) => {
+    const v = validateBrazilianMobile(val);
+    if (v.valid === false) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
+    }
+  }),
   atrativoEmail: z.string().trim().email("E-mail inválido").optional().or(z.literal("")),
-  atrativoCategory: z.string().trim().min(1, "Selecione uma categoria"),
+  atrativoCategory: z.enum(["musica", "gastronomia", "cultura", "esporte", "turismo", "outros"], {
+    errorMap: () => ({ message: "Selecione uma categoria (inclui Turismo)" }),
+  }),
 
   locationName: z.string().trim().min(1, "O nome do local é obrigatório"),
   eventAddress: z.string().trim().min(1, "O endereço completo é obrigatório"),
@@ -114,7 +121,7 @@ export default function SubmissionForm() {
       nickName: "", basicPhone: "", companyName: "", email: "",
       category: "", eventTitle: "", date: "", startTime: "",
       ageRating: "Livre", isSuitableForMinors: true,
-      atrativoName: "", atrativoType: "", atrativoContact: "", atrativoEmail: "", atrativoCategory: "",
+      atrativoName: "", atrativoType: "", atrativoContact: "", atrativoEmail: "", atrativoCategory: undefined as any,
       locationName: "", eventAddress: "", locationType: "commercial",
       fotos: [],
     },

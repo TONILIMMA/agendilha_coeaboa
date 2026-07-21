@@ -6,7 +6,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Music, Search, Info, Lock } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatPhoneDisplay } from "@/lib/whatsapp";
+import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 
 const CATEGORIES = [
   { value: "musica", label: "Música / Show" },
@@ -136,22 +136,38 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         <FormField
           control={form.control}
           name="atrativoContact"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Celular / WhatsApp *</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="(21) 99999-9999"
-                  inputMode="tel"
-                  maxLength={16}
-                  className="h-12"
-                  {...field}
-                  onChange={(e) => field.onChange(formatPhoneDisplay(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={({ field }) => {
+            const v = validateBrazilianMobile(field.value);
+            const showOk = field.value && v.valid;
+            const showErr = field.value && !v.valid;
+            return (
+              <FormItem>
+                <FormLabel>Celular / WhatsApp *</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="(21) 99999-9999"
+                    inputMode="tel"
+                    maxLength={16}
+                    className="h-12"
+                    {...field}
+                    onChange={(e) => field.onChange(formatPhoneDisplay(e.target.value))}
+                    onBlur={() => {
+                      field.onBlur();
+                      form.trigger("atrativoContact");
+                    }}
+                  />
+                </FormControl>
+                {showOk ? (
+                  <p className="text-xs text-emerald-600">✓ Celular válido para receber WhatsApp.</p>
+                ) : showErr && "reason" in v ? (
+                  <p className="text-xs text-destructive">{v.reason}</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">DDD + 9 + 8 dígitos.</p>
+                )}
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
         <FormField
           control={form.control}
