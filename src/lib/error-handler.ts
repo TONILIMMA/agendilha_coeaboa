@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { PostgrestError } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
 
 export interface AppError extends Error {
   code?: string;
@@ -13,9 +14,7 @@ export interface AppError extends Error {
  * Categorizes errors and provides user-friendly feedback via toasts.
  */
 export function handleError(error: unknown, fallbackMessage = "Ocorreu um erro inesperado") {
-  if (import.meta.env.DEV) {
-    console.error("App Error:", error);
-  }
+  logger.error("App Error:", error);
 
   let message = fallbackMessage;
   let description = "";
@@ -31,39 +30,39 @@ export function handleError(error: unknown, fallbackMessage = "Ocorreu um erro i
     
     switch (error.code) {
       case "23505":
-        message = "Este registro já existe.";
+        message = "Esse já tá cadastrado.";
         break;
       case "42P01":
-        message = "Erro de configuração no banco de dados.";
+        message = "Deu ruim na configuração do sistema.";
         break;
       case "PGRST301":
-        message = "Sua sessão expirou. Por favor, entre novamente.";
+        message = "Sua sessão expirou. Entra de novo, por favor.";
         break;
       case "42501":
-        message = "Você não tem permissão para realizar esta ação.";
+        message = "Você não tem permissão pra isso.";
         severity = 'warning';
         break;
       case "PGRST116":
-        message = "O registro solicitado não foi encontrado.";
+        message = "Não achei esse registro.";
         break;
       default:
-        message = `Erro no banco de dados (${error.code})`;
+        message = fallbackMessage;
     }
   }
   // 3. Handle Auth Errors (Supabase Auth)
   else if (isAuthError(error)) {
     switch (error.message) {
       case "Invalid login credentials":
-        message = "WhatsApp ou senha incorretos.";
+        message = "WhatsApp ou senha não conferem.";
         break;
       case "User already registered":
-        message = "Este WhatsApp já está cadastrado.";
+        message = "Esse WhatsApp já tá cadastrado.";
         break;
       case "Phone number not confirmed":
-        message = "Por favor, confirme seu número de WhatsApp.";
+        message = "Confirma teu WhatsApp pra continuar.";
         break;
       case "Signup disabled":
-        message = "O cadastro de novos usuários está temporariamente desativado.";
+        message = "O cadastro tá pausado por enquanto.";
         break;
       default:
         message = error.message;
@@ -95,12 +94,22 @@ export function handleError(error: unknown, fallbackMessage = "Ocorreu um erro i
  * Type guard for Supabase PostgrestError
  */
 function isPostgrestError(error: unknown): error is PostgrestError {
-  return error && typeof error === 'object' && 'code' in error && 'details' in error;
+  return (
+    !!error &&
+    typeof error === 'object' &&
+    'code' in error &&
+    'details' in error
+  );
 }
 
 /**
  * Type guard for Supabase Auth errors
  */
 function isAuthError(error: unknown): error is { message: string; status?: number } {
-  return error && typeof error === 'object' && 'message' in error && !('code' in error);
+  return (
+    !!error &&
+    typeof error === 'object' &&
+    'message' in error &&
+    !('code' in error)
+  );
 }
