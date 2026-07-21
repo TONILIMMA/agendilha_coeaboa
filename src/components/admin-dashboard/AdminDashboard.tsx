@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardKPIs } from "./DashboardKPIs";
-import { DashboardCharts } from "./DashboardCharts";
+const DashboardCharts = lazy(() =>
+  import("./DashboardCharts").then((m) => ({ default: m.DashboardCharts }))
+);
 import { DashboardFilters } from "./DashboardFilters";
 import { DashboardRankings } from "./DashboardRankings";
 import { OperationalMetrics } from "./OperationalMetrics";
