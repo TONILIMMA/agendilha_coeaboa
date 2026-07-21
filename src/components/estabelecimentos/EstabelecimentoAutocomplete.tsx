@@ -51,10 +51,9 @@ export function EstabelecimentoAutocomplete({
     debounceRef.current = window.setTimeout(async () => {
       setLoading(true);
       const { data } = await supabase
-        .from("estabelecimentos")
+        .from("estabelecimentos_public")
         .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato")
         .ilike("nome", `%${q}%`)
-        .eq("is_approved", true)
         .order("nome", { ascending: true })
         .limit(8);
       setSuggestions((data as EstabelecimentoSuggestion[]) ?? []);

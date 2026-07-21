@@ -46,7 +46,7 @@ export default function ArtistProfile() {
     enabled: !!user && !!id,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("artist_profiles")
+        .from("public_artist_profiles")
         .select("whatsapp")
         .eq("id", id)
         .maybeSingle();

@@ -31,10 +31,9 @@ export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder }:
     }
     timer.current = window.setTimeout(async () => {
       const { data } = await supabase
-        .from("atrativos")
+        .from("atrativos_public")
         .select("id, name, type, estabelecimento_id")
         .ilike("name", `%${value.trim()}%`)
-        .eq("is_approved", true)
         .limit(6);
       setSuggestions((data ?? []) as AtrativoSuggestion[]);
     }, 250);

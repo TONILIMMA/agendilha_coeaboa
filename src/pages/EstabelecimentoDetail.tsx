@@ -52,7 +52,7 @@ export default function EstabelecimentoDetail() {
     (async () => {
       setLoading(true);
       const { data, error } = await supabase
-        .from("estabelecimentos")
+        .from("estabelecimentos_public")
         .select("id, nome, tipo, bairro, endereco, numero, complemento, cep, contato, fotos")
         .eq("id", id)
         .maybeSingle();
