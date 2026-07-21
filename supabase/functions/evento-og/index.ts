@@ -6,6 +6,10 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 const APP_ORIGIN = "https://agendilha-divulgacao.lovable.app";
+const FALLBACK_IMAGE = `${APP_ORIGIN}/logo.png`;
+const MAX_DESC = 150;
+const MAX_TITLE = 90;
+const MAX_IMG_URL = 2000;
 
 function escapeHtml(s: string): string {
   return s
@@ -16,6 +20,45 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
+// Remove HTML tags, entidades básicas, quebras e controla espaços.
+function sanitizeText(input: unknown, max: number): string {
+  if (typeof input !== "string") return "";
+  let s = input
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/[\u0000-\u001F\u007F]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (s.length > max) {
+    s = s.slice(0, max - 1).replace(/\s+\S*$/, "").trim() + "…";
+  }
+  return s;
+}
+
+// Aceita apenas URLs https absolutas, tamanho razoável e extensão/host reconhecidos.
+// Rejeita data:, blob:, http:, javascript: e afins — WhatsApp/Facebook não seguem.
+function sanitizeImageUrl(input: unknown): string {
+  if (typeof input !== "string") return FALLBACK_IMAGE;
+  const raw = input.trim();
+  if (!raw || raw.length > MAX_IMG_URL) return FALLBACK_IMAGE;
+  if (!/^https:\/\//i.test(raw)) return FALLBACK_IMAGE;
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    return FALLBACK_IMAGE;
+  }
+  const pathname = parsed.pathname.toLowerCase();
+  const hasImageExt = /\.(png|jpe?g|webp|gif|avif)$/i.test(pathname);
+  const isSupabaseStorage =
+    parsed.hostname.endsWith(".supabase.co") && pathname.includes("/storage/v1/");
+  if (!hasImageExt && !isSupabaseStorage) return FALLBACK_IMAGE;
+  return parsed.toString();
+}
+
 Deno.serve(async (req) => {
   const url = new URL(req.url);
   // Aceita ?slug=... ou último segmento da URL
@@ -24,9 +67,11 @@ Deno.serve(async (req) => {
     url.pathname.split("/").filter(Boolean).pop() ||
     "";
 
-  const targetUrl = slug ? `${APP_ORIGIN}/evento/${slug}` : APP_ORIGIN;
+  // Slug seguro: só letras/números/hífen, até 120 chars.
+  const safeSlug = /^[a-z0-9-]{1,120}$/i.test(slug) ? slug.toLowerCase() : "";
+  const targetUrl = safeSlug ? `${APP_ORIGIN}/evento/${safeSlug}` : APP_ORIGIN;
 
-  if (!slug) {
+  if (!safeSlug) {
     return Response.redirect(APP_ORIGIN, 302);
   }
 
@@ -36,20 +81,25 @@ Deno.serve(async (req) => {
     .select(
       "event_title, description, image_url, category, location, address_neighborhood, slug, date, start_time"
     )
-    .eq("slug", slug)
+    .eq("slug", safeSlug)
     .maybeSingle();
 
-  const title = ev?.event_title
-    ? `${ev.event_title} — AgendIlha`
+  const cleanEventTitle = sanitizeText(ev?.event_title, MAX_TITLE);
+  const title = cleanEventTitle
+    ? `${cleanEventTitle} — AgendIlha`
     : "AgendIlha — Agenda Cultural da Ilha do Governador";
 
-  const rawDesc =
-    ev?.description ||
-    [ev?.location, ev?.address_neighborhood].filter(Boolean).join(" — ") ||
+  const descSource =
+    sanitizeText(ev?.description, MAX_DESC) ||
+    sanitizeText(
+      [ev?.location, ev?.address_neighborhood].filter(Boolean).join(" — "),
+      MAX_DESC,
+    ) ||
     "Confira este evento no AgendIlha.";
-  const description = rawDesc.replace(/\s+/g, " ").trim().slice(0, 150);
+  const description = descSource.slice(0, MAX_DESC);
 
-  const image = ev?.image_url || `${APP_ORIGIN}/placeholder.svg`;
+  const image = sanitizeImageUrl(ev?.image_url);
+  const ogTitle = cleanEventTitle || "AgendIlha";
 
   const html = `<!doctype html>
 <html lang="pt-BR">
@@ -61,12 +111,13 @@ Deno.serve(async (req) => {
 <link rel="canonical" href="${escapeHtml(targetUrl)}" />
 <meta property="og:type" content="article" />
 <meta property="og:site_name" content="AgendIlha" />
-<meta property="og:title" content="${escapeHtml(ev?.event_title || "AgendIlha")}" />
+<meta property="og:title" content="${escapeHtml(ogTitle)}" />
 <meta property="og:description" content="${escapeHtml(description)}" />
 <meta property="og:image" content="${escapeHtml(image)}" />
+<meta property="og:image:secure_url" content="${escapeHtml(image)}" />
 <meta property="og:url" content="${escapeHtml(targetUrl)}" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="${escapeHtml(ev?.event_title || "AgendIlha")}" />
+<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />
 <meta name="twitter:description" content="${escapeHtml(description)}" />
 <meta name="twitter:image" content="${escapeHtml(image)}" />
 <meta http-equiv="refresh" content="0; url=${escapeHtml(targetUrl)}" />
