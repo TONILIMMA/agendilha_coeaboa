@@ -2,6 +2,10 @@ import { UseFormReturn } from "react-hook-form";
 import { SummarySection } from "../SummarySection";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
+import { FullPreviewDialog } from "../FullPreviewDialog";
 
 interface ReviewStepProps {
   form: UseFormReturn<any>;
@@ -10,6 +14,7 @@ interface ReviewStepProps {
 
 export function ReviewStep({ form, goToStep }: ReviewStepProps) {
   const values = form.getValues();
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const addressLine = [values.addressStreet, values.addressNumber]
     .map((v) => (v || "").trim())
@@ -26,6 +31,16 @@ export function ReviewStep({ form, goToStep }: ReviewStepProps) {
         <h2 className="text-xl font-bold text-primary">Revise seus dados</h2>
         <p className="text-sm text-muted-foreground">Confira se tudo está correto antes de enviar.</p>
       </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full h-12 gap-2 border-primary/40 text-primary hover:bg-primary/10"
+        onClick={() => setPreviewOpen(true)}
+      >
+        <Eye className="h-4 w-4" />
+        Ver prévia em tela cheia antes de enviar
+      </Button>
 
       <SummarySection
         title="1. Identificação"
@@ -79,6 +94,8 @@ export function ReviewStep({ form, goToStep }: ReviewStepProps) {
           { label: "Tipo", value: values.locationType === 'commercial' ? 'Estabelecimento' : 'Espaço Público' },
         ]}
       />
+
+      <FullPreviewDialog open={previewOpen} onOpenChange={setPreviewOpen} form={form} />
     </div>
   );
 }
