@@ -63,16 +63,6 @@ export default function AdminMaster() {
         subtitle="Monitoramento em tempo real e inteligência analítica da plataforma AgendIlha."
         rightElement={
           <div className="flex flex-wrap gap-2">
-            <Button
-              onClick={bootstrapToniLima}
-              disabled={bootstrapping}
-              variant="outline"
-              size="sm"
-              className="gap-2 rounded-full"
-            >
-              {bootstrapping ? <Loader2 className="h-3 w-3 animate-spin" /> : <UserPlus className="h-3 w-3" />}
-              Admin Padrão
-            </Button>
             <Link to="/master/logs">
               <Button variant="outline" size="sm" className="gap-2 rounded-full">
                 <HistoryIcon className="h-3 w-3" />
