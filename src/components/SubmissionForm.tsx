@@ -121,14 +121,14 @@ export default function SubmissionForm() {
     mode: "onChange",
   });
 
-  // Load profile data into form when ready
+  // Load profile data into form when ready + limpa rascunho stale de contato.
   useEffect(() => {
     if (loaded && profile) {
       const currentValues = form.getValues();
       // Contato: o perfil é a fonte da verdade. Sobrescreve o rascunho
       // pra evitar que um telefone/e-mail antigo salvo no navegador continue vencendo.
       if (profile.responsible_name) form.setValue("nickName", profile.responsible_name, { shouldDirty: false });
-      if (profile.phone) form.setValue("basicPhone", profile.phone, { shouldDirty: false });
+      if (profile.phone) form.setValue("basicPhone", profile.phone, { shouldDirty: false, shouldValidate: true });
       if (profile.company_name || profile.responsible_name) {
         form.setValue("companyName", profile.company_name || profile.responsible_name || "", { shouldDirty: false });
       }
@@ -137,8 +137,36 @@ export default function SubmissionForm() {
       if (!currentValues.addressZip) form.setValue("addressZip", profile.address_zip || "");
       if (!currentValues.addressStreet) form.setValue("addressStreet", profile.address_street || "");
       if (!currentValues.addressNumber) form.setValue("addressNumber", profile.address_number || "");
+
+      // Limpa do localStorage os campos de contato salvos no rascunho —
+      // assim, se o usuário atualizar o perfil, o rascunho não sobrescreve com dado velho.
+      try {
+        const saved = localStorage.getItem(DRAFT_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed?.data) {
+            parsed.data.nickName = profile.responsible_name || parsed.data.nickName || "";
+            parsed.data.basicPhone = profile.phone || "";
+            parsed.data.companyName = profile.company_name || profile.responsible_name || parsed.data.companyName || "";
+            parsed.data.email = profile.email || "";
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(parsed));
+          }
+        }
+      } catch (e) {
+        console.error("Error syncing draft with profile", e);
+      }
     }
   }, [loaded, profile, form]);
+
+  // Restaura a etapa 1 com os dados mais recentes do perfil (sobrepondo o rascunho).
+  const restoreContactFromProfile = () => {
+    if (!profile) return;
+    form.setValue("nickName", profile.responsible_name || "", { shouldDirty: true, shouldValidate: true });
+    form.setValue("basicPhone", profile.phone || "", { shouldDirty: true, shouldValidate: true });
+    form.setValue("companyName", profile.company_name || profile.responsible_name || "", { shouldDirty: true, shouldValidate: true });
+    form.setValue("email", profile.email || "", { shouldDirty: true, shouldValidate: true });
+    toast.success("Etapa 1 atualizada com os dados do seu perfil.");
+  };
 
   // Handle draft loading
   useEffect(() => {
@@ -397,7 +425,7 @@ export default function SubmissionForm() {
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8 mt-8">
-          {currentStep === 1 && <ContactStep form={form} />}
+          {currentStep === 1 && <ContactStep form={form} onRestoreFromProfile={restoreContactFromProfile} hasProfile={!!(profile?.phone || profile?.responsible_name || profile?.email)} />}
           {currentStep === 2 && <ProfessionalStep form={form} />}
           {currentStep === 3 && <EventStep form={form} />}
           {currentStep === 4 && <AtrativoStep form={form} />}
