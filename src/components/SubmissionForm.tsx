@@ -57,10 +57,12 @@ const formSchema = z.object({
   endTime: z.string().trim().optional(),
   
   atrativoName: z.string().trim().min(1, "Atrativo é obrigatório"),
-  atrativoType: z.string().trim().min(1, "Tipo de atrativo é obrigatório"),
+  atrativoType: z.string().trim().optional(),
   atrativoStyle: z.string().trim().optional(),
   atrativoDescription: z.string().trim().max(500).optional(),
-  atrativoContact: z.string().trim().optional(),
+  atrativoContact: z.string().trim().min(1, "WhatsApp do atrativo é obrigatório"),
+  atrativoEmail: z.string().trim().email("E-mail inválido").optional().or(z.literal("")),
+  atrativoCategory: z.string().trim().min(1, "Selecione uma categoria"),
 
   locationName: z.string().trim().min(1, "O nome do local é obrigatório"),
   eventAddress: z.string().trim().min(1, "O endereço completo é obrigatório"),
@@ -206,7 +208,7 @@ export default function SubmissionForm() {
       case 1: return ["nickName", "basicPhone"];
       case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
       case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
-      case 4: return ["atrativoName", "atrativoType", "atrativoStyle", "atrativoDescription", "atrativoContact"];
+      case 4: return ["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory", "atrativoType", "atrativoStyle", "atrativoDescription"];
       case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
       case 7: return ["legalAcceptance"];
       default: return [];
