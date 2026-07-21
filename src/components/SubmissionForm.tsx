@@ -50,7 +50,7 @@ const formSchema = z.object({
     errorMap: () => ({ message: "Você precisa aceitar os termos para continuar" }),
   }),
 
-  category: z.string().min(1, "Selecione uma categoria"),
+  category: z.string().trim().optional(),
   eventTitle: z.string().trim().optional(),
   date: z.string().trim().min(1, "Selecione a data"),
   startTime: z.string().trim().min(1, "Campo obrigatório"),
@@ -205,7 +205,7 @@ export default function SubmissionForm() {
     switch (step) {
       case 1: return ["nickName", "basicPhone"];
       case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
-      case 3: return ["category", "eventTitle", "date", "startTime", "endTime", "ageRating", "isSuitableForMinors"];
+      case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
       case 4: return ["atrativoName", "atrativoType", "atrativoStyle", "atrativoDescription", "atrativoContact"];
       case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
       case 7: return ["legalAcceptance"];
