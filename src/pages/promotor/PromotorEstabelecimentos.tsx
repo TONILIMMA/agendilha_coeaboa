@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, MapPin, Pencil, Trash2, Loader2 } from "lucide-react";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -276,9 +277,7 @@ export default function PromotorEstabelecimentos() {
 
       <div className="space-y-3">
         {loading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
+          <PageLoader size="md" className="py-8" />
         ) : items.length === 0 ? (
           <Card className="p-8 text-center text-muted-foreground text-sm">
             Você ainda não cadastrou nenhum estabelecimento.

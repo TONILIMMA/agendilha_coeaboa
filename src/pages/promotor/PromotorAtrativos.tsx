@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Sparkles, Pencil, Trash2, Loader2, FileDown, FileStack, Eye } from "lucide-react";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { exportAtrativoToPdf, exportAtrativosConsolidatedPdf } from "@/lib/exportEventPdf";
 import { PrintPreviewDialog, PrintPreviewSheet } from "@/components/pdf/PrintPreviewDialog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -491,9 +492,7 @@ export default function PromotorAtrativos() {
           </div>
         )}
         {loading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
+          <PageLoader size="md" className="py-8" />
         ) : items.length === 0 ? (
           <Card className="p-8 text-center text-muted-foreground text-sm">
             Você ainda não cadastrou nenhum atrativo.

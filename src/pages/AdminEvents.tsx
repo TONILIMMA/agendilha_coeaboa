@@ -433,7 +433,7 @@ export default function AdminEvents() {
      return list;
    }, [submissions, statusFilter, categoryFilter, search]);
 
-  if (authLoading || permsLoading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+  if (authLoading || permsLoading) return <PageLoader className="py-20" />;
   if (!user || !hasPermission('events.read')) return <Navigate to="/" replace />;
 
   return (
@@ -646,7 +646,7 @@ export default function AdminEvents() {
            </div>
           
           {loading ? (
-            <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+            <PageLoader />
           ) : filtered.length === 0 ? (
             <div className="py-20 text-center text-muted-foreground space-y-2">
               <CalendarDays className="h-12 w-12 mx-auto opacity-20" />
