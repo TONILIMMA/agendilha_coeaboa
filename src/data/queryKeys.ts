@@ -24,4 +24,23 @@ export const qk = {
     all: ["admin-stats"] as const,
     master: () => [...qk.adminStats.all, "master"] as const,
   },
+  agenda: {
+    all: ["agenda"] as const,
+    events: () => [...qk.agenda.all, "events"] as const,
+    ratings: () => [...qk.agenda.all, "ratings"] as const,
+  },
+  estabelecimentos: {
+    all: ["estabelecimentos"] as const,
+    mine: (userId: string | null | undefined) =>
+      [...qk.estabelecimentos.all, "mine", userId ?? "anon"] as const,
+    approved: (search?: string) =>
+      [...qk.estabelecimentos.all, "approved", search ?? ""] as const,
+  },
+  atrativos: {
+    all: ["atrativos"] as const,
+    mine: (userId: string | null | undefined) =>
+      [...qk.atrativos.all, "mine", userId ?? "anon"] as const,
+    approved: (search?: string) =>
+      [...qk.atrativos.all, "approved", search ?? ""] as const,
+  },
 } as const;
