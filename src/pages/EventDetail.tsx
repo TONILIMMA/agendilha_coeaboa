@@ -426,6 +426,35 @@ export default function EventDetail() {
           </Button>
         </div>
       </div>
+
+      <PrintPreviewDialog
+        open={pdfPreviewOpen}
+        onOpenChange={setPdfPreviewOpen}
+        title="Ficha do evento — pronta pra imprimir"
+        helper="Assim vai sair o PDF. Confira antes de baixar."
+        downloadLabel="Baixar PDF do evento"
+        onDownload={() => {
+          exportEventToPdf(event as any);
+          setPdfPreviewOpen(false);
+        }}
+        sheets={[
+          {
+            title: event.event_title || "Evento sem título",
+            subtitle: "Ficha do evento",
+            description: event.description,
+            rows: [
+              { label: "Data", value: event.date ? new Date(event.date).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" }) : "—" },
+              { label: "Horário", value: `${event.start_time || "—"}${event.end_time ? ` até ${event.end_time}` : ""}` },
+              { label: "Local", value: [event.location, [event.address_street, event.address_number].filter(Boolean).join(", "), event.address_neighborhood, event.address_city].filter(Boolean).join(" — ") },
+              { label: "Categoria", value: event.category || "—" },
+              { label: "Classificação", value: event.age_rating || "Livre" },
+              { label: "Atrativo", value: (event as any).artist_name || "—" },
+              { label: "Estilo", value: (event as any).music_style || "—" },
+              { label: "Ingresso / Preço", value: event.sale_price || "—" },
+            ],
+          },
+        ]}
+      />
     </div>
   );
 }
