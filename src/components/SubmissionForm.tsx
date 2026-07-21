@@ -121,7 +121,7 @@ export default function SubmissionForm() {
       nickName: "", basicPhone: "", companyName: "", email: "",
       category: "", eventTitle: "", date: "", startTime: "",
       ageRating: "Livre", isSuitableForMinors: true,
-      atrativoName: "", atrativoType: "", atrativoContact: "", atrativoEmail: "", atrativoCategory: "",
+      atrativoName: "", atrativoType: "", atrativoContact: "", atrativoEmail: "", atrativoCategory: undefined as any,
       locationName: "", eventAddress: "", locationType: "commercial",
       fotos: [],
     },
