@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, MapPin, Pencil, Trash2, Loader2 } from "lucide-react";
-import { PageLoader } from "@/components/ui/PageLoader";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -151,16 +151,19 @@ export default function PromotorEstabelecimentos() {
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto pb-12">
-      <PageHeader
-        eyebrow={<PromotorBadge />}
-        title="Meus estabelecimentos"
-        description="Somente você pode editar os estabelecimentos cadastrados aqui."
-        actions={
-          <Link to={ROUTES.PROMOTOR_ATRATIVOS}>
-            <Button variant="outline">Ir para Atrativos</Button>
-          </Link>
-        }
-      />
+      <div>
+        <PromotorBadge />
+        <SectionHeader
+          className="mt-2 mb-0"
+          title="Meus estabelecimentos"
+          subtitle="Somente você pode editar os estabelecimentos cadastrados aqui."
+          rightElement={
+            <Link to={ROUTES.PROMOTOR_ATRATIVOS}>
+              <Button variant="outline">Ir para Atrativos</Button>
+            </Link>
+          }
+        />
+      </div>
 
       <Card className="p-5 space-y-4">
         <h2 className="font-bold text-lg">
@@ -274,7 +277,7 @@ export default function PromotorEstabelecimentos() {
 
       <div className="space-y-3">
         {loading ? (
-          <PageLoader size="md" className="py-8" />
+          <LoadingState message="Carregando estabelecimentos..." />
         ) : items.length === 0 ? (
           <Card className="p-8 text-center text-muted-foreground text-sm">
             Você ainda não cadastrou nenhum estabelecimento.

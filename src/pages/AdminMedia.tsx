@@ -6,6 +6,8 @@
 
  import { supabase } from "@/integrations/supabase/client";
  import { Loader2, Check, X, Shield, Play, User, ExternalLink } from "lucide-react";
+ import { SectionHeader } from "@/components/ui/SectionHeader";
+ import { LoadingState } from "@/components/ui/LoadingState";
  import { Button } from "@/components/ui/button";
  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
  import { Badge } from "@/components/ui/badge";
@@ -66,34 +68,17 @@
       }
     });
  
-   if (authLoading) {
-     return (
-       <div className="p-8 flex justify-center">
-         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-       </div>
-     );
-   }
+   if (authLoading) return <LoadingState fullPage message="Verificando permissões..." />;
    if (!user || !isAdmin) return <Navigate to="/" replace />;
 
-   if (isLoading) {
-     return (
-       <div className="p-8 flex justify-center">
-         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-       </div>
-     );
-   }
+   if (isLoading) return <LoadingState message="Carregando mídias..." />;
  
    return (
      <div className="container mx-auto p-4 sm:p-8 space-y-8">
-       <div className="flex items-center gap-3 border-b pb-6">
-         <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
-           <Shield className="h-6 w-6 text-primary" />
-         </div>
-         <div>
-           <h1 className="text-3xl font-display font-black text-primary">Moderação de Mídia</h1>
-           <p className="text-muted-foreground">Revise vídeos e fotos enviados pelos artistas.</p>
-         </div>
-       </div>
+       <SectionHeader
+         title="Moderação de Mídia"
+         subtitle="Revise vídeos e fotos enviados pelos artistas."
+       />
  
        {!media || media.length === 0 ? (
          <Card className="border-dashed py-20">

@@ -28,7 +28,7 @@ import { exportSingleEventPdf, exportBulkEventsPdf } from "@/lib/pdfExport";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { handleError } from "@/lib/error-handler";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { PageLoader } from "@/components/ui/PageLoader";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { buildWhatsappUrl, validateBrazilianMobile, formatPhoneDisplay, renderTemplate } from "@/lib/whatsapp";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -434,7 +434,7 @@ export default function AdminEvents() {
      return list;
    }, [submissions, statusFilter, categoryFilter, search]);
 
-  if (authLoading || permsLoading) return <PageLoader className="py-20" />;
+  if (authLoading || permsLoading) return <LoadingState fullPage message="Verificando permissões..." />;
   if (!user || !hasPermission('events.read')) return <Navigate to="/" replace />;
 
   return (
@@ -647,7 +647,7 @@ export default function AdminEvents() {
            </div>
           
           {loading ? (
-            <PageLoader />
+            <LoadingState message="Carregando eventos..." />
           ) : filtered.length === 0 ? (
             <div className="py-20 text-center text-muted-foreground space-y-2">
               <CalendarDays className="h-12 w-12 mx-auto opacity-20" />

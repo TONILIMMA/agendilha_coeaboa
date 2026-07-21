@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Copy, Send, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 interface Ev {
   id: string;
@@ -123,17 +125,10 @@ export default function AdminAgendaInforma() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-display font-bold flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-primary" />
-            AgendIlha Informa
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Gere o roteiro do dia em formato pronto para WhatsApp.
-          </p>
-        </div>
-        <div className="flex items-end gap-2">
+      <SectionHeader
+        title="AgendIlha Informa"
+        subtitle="Gere o roteiro do dia em formato pronto para WhatsApp."
+        rightElement={
           <div>
             <Label htmlFor="date" className="text-xs">Data</Label>
             <Input
@@ -144,8 +139,8 @@ export default function AdminAgendaInforma() {
               className="w-[170px]"
             />
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">
@@ -184,9 +179,7 @@ export default function AdminAgendaInforma() {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="flex justify-center py-6">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                </div>
+                <LoadingState message="Carregando eventos..." className="py-6" />
               ) : events.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-6">
                   Nenhum evento aprovado para esta data.
