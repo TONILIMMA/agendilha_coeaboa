@@ -1,0 +1,150 @@
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+export interface EventPdfData {
+  event_title?: string | null;
+  date?: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
+  location?: string | null;
+  address_street?: string | null;
+  address_number?: string | null;
+  address_neighborhood?: string | null;
+  address_city?: string | null;
+  category?: string | null;
+  age_rating?: string | null;
+  description?: string | null;
+  artist_name?: string | null;
+  music_style?: string | null;
+  sale_price?: string | null;
+}
+
+export interface AtrativoPdfData {
+  name?: string | null;
+  tipo_atrativo?: string | null;
+  estilos?: string[] | null;
+  description?: string | null;
+  contact_whatsapp?: string | null;
+  email?: string | null;
+}
+
+function fmtDate(iso?: string | null) {
+  if (!iso) return "—";
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString("pt-BR", {
+      weekday: "long", day: "2-digit", month: "long", year: "numeric",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+function drawHeader(doc: jsPDF, title: string, subtitle: string) {
+  doc.setFillColor(15, 23, 42); // slate-900
+  doc.rect(0, 0, 210, 28, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text("AgendIlha", 14, 12);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text(subtitle, 14, 20);
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text(title, 14, 40, { maxWidth: 180 });
+}
+
+function drawFooter(doc: jsPDF) {
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text(
+      `Gerado em ${new Date().toLocaleString("pt-BR")} — agendilha.lovable.app`,
+      14,
+      287,
+    );
+    doc.text(`Página ${i} de ${pageCount}`, 196, 287, { align: "right" });
+  }
+}
+
+export function exportEventToPdf(event: EventPdfData, filename?: string) {
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  drawHeader(doc, event.event_title || "Evento sem título", "Ficha do evento");
+
+  const addr = [event.address_street, event.address_number].filter(Boolean).join(", ");
+  const local = [event.location, addr, event.address_neighborhood, event.address_city]
+    .filter(Boolean).join(" — ");
+
+  const rows: [string, string][] = [
+    ["Data", fmtDate(event.date)],
+    ["Horário", `${event.start_time || "—"}${event.end_time ? ` até ${event.end_time}` : ""}`],
+    ["Local", local || "—"],
+    ["Categoria", event.category || "—"],
+    ["Classificação", event.age_rating || "Livre"],
+    ["Atrativo", event.artist_name || "—"],
+    ["Estilo", event.music_style || "—"],
+    ["Ingresso / Preço", event.sale_price || "—"],
+  ];
+
+  autoTable(doc, {
+    startY: 48,
+    head: [["Informação", "Detalhe"]],
+    body: rows,
+    styles: { fontSize: 10, cellPadding: 3 },
+    headStyles: { fillColor: [234, 88, 12], textColor: 255 },
+    columnStyles: { 0: { cellWidth: 45, fontStyle: "bold" }, 1: { cellWidth: 145 } },
+    theme: "grid",
+  });
+
+  if (event.description) {
+    const y = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("Descrição", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(doc.splitTextToSize(event.description, 180), 14, y + 6);
+  }
+
+  drawFooter(doc);
+  doc.save(filename || `evento-${(event.event_title || "agendilha").toLowerCase().replace(/\s+/g, "-")}.pdf`);
+}
+
+export function exportAtrativoToPdf(a: AtrativoPdfData, filename?: string) {
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  drawHeader(doc, a.name || "Atrativo sem nome", "Ficha do atrativo");
+
+  const rows: [string, string][] = [
+    ["Tipo", a.tipo_atrativo || "—"],
+    ["Estilos", (a.estilos || []).join(", ") || "—"],
+    ["WhatsApp", a.contact_whatsapp || "—"],
+    ["E-mail", a.email || "—"],
+  ];
+
+  autoTable(doc, {
+    startY: 48,
+    head: [["Informação", "Detalhe"]],
+    body: rows,
+    styles: { fontSize: 10, cellPadding: 3 },
+    headStyles: { fillColor: [234, 88, 12], textColor: 255 },
+    columnStyles: { 0: { cellWidth: 45, fontStyle: "bold" }, 1: { cellWidth: 145 } },
+    theme: "grid",
+  });
+
+  if (a.description) {
+    const y = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("Sobre", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(doc.splitTextToSize(a.description, 180), 14, y + 6);
+  }
+
+  drawFooter(doc);
+  doc.save(filename || `atrativo-${(a.name || "agendilha").toLowerCase().replace(/\s+/g, "-")}.pdf`);
+}
