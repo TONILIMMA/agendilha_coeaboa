@@ -20,6 +20,7 @@ import { formatBrazilianDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import { getEventFallbackImage } from "@/lib/event-utils";
 import { EventWhatsAppCardExport } from "@/components/EventWhatsAppCard";
+import { getEventOgShareUrl } from "@/lib/sharing";
 
 interface Event {
   id: string;
@@ -99,7 +100,7 @@ export default function EventDetail() {
 
   const handleShare = () => {
     if (!event) return;
-    const url = window.location.href;
+    const url = getEventOgShareUrl(event.slug);
     if (navigator.share) {
       navigator.share({
         title: event.event_title,
@@ -154,11 +155,12 @@ export default function EventDetail() {
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([event.location, fullAddress].filter(Boolean).join(", "))}`;
 
   const shareToFriend = () => {
+    const shareUrl = getEventOgShareUrl(event.slug);
     const msg = `Olha esse rolê na Ilha 🌴\n\n*${event.event_title}*` +
       (event.date ? `\n🗓️ ${formatBrazilianDate(event.date)}` : "") +
       (event.start_time ? ` · ${event.start_time}` : "") +
       (event.location ? `\n📍 ${event.location}${event.address_neighborhood ? ` – ${event.address_neighborhood}` : ""}` : "") +
-      `\n\nDetalhes: ${window.location.href}`;
+      `\n\nDetalhes: ${shareUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
