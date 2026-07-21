@@ -597,6 +597,61 @@ export default function PromotorAtrativos() {
             : `Um PDF único com ${previewSheets.length} ficha${previewSheets.length > 1 ? "s" : ""} — uma por página.`
         }
         sheets={previewSheets}
+        filename={
+          previewMode === "single"
+            ? `atrativo-${(items.find((a) => a.id === previewSingleId)?.name || "agendilha")}`
+            : `atrativos-agendilha-${new Date().toISOString().slice(0, 10)}`
+        }
+        cover={previewMode === "consolidated" && selectedItems.length > 0 ? {
+          eventTitle: `Atrativos selecionados (${selectedItems.length})`,
+          date: new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }),
+          location: user?.email ? `Divulgador: ${user.email}` : null,
+          subtitle: "Capa — PDF consolidado",
+        } : null}
+        beforeSheets={previewMode === "consolidated" ? (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <div className="text-sm font-semibold">Escolha o que entra no PDF</div>
+                <div className="text-xs text-muted-foreground">
+                  {selectedItems.length} de {items.length} selecionado{selectedItems.length === 1 ? "" : "s"}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button" size="sm" variant="outline"
+                  onClick={() => setSelected(new Set(items.map((a) => a.id)))}
+                >Marcar todos</Button>
+                <Button
+                  type="button" size="sm" variant="ghost"
+                  onClick={() => setSelected(new Set())}
+                >Limpar</Button>
+              </div>
+            </div>
+            <div className="max-h-56 overflow-auto rounded-md border divide-y">
+              {items.map((a) => (
+                <label
+                  key={a.id}
+                  className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-muted/50 cursor-pointer"
+                >
+                  <Checkbox
+                    checked={selected.has(a.id)}
+                    onCheckedChange={() => toggleSelected(a.id)}
+                  />
+                  <span className="flex-1 truncate">{a.name}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {a.tipo_atrativo || "—"}
+                  </span>
+                </label>
+              ))}
+              {items.length === 0 && (
+                <div className="px-3 py-6 text-sm text-muted-foreground text-center">
+                  Você ainda não tem atrativos cadastrados.
+                </div>
+              )}
+            </div>
+          </div>
+        ) : undefined}
         downloadLabel={previewMode === "single" ? "Baixar PDF" : `Baixar PDF consolidado (${previewSheets.length})`}
         onDownload={handleDownloadPreview}
       />
