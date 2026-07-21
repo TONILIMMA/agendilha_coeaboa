@@ -81,9 +81,24 @@ export function isValidBrazilianMobile(phone: string): boolean {
   return validateBrazilianMobile(phone).valid;
 }
 
+/**
+ * Máscara de exibição para celular brasileiro.
+ * Sanitiza qualquer coisa colada: espaços, hífens, parênteses, "+", "00",
+ * prefixo internacional 55, e outros caracteres não numéricos.
+ * Sempre devolve no formato "(XX) 9XXXX-XXXX", cortando dígitos excedentes.
+ */
 export function formatPhoneDisplay(value: string): string {
+  if (!value) return "";
+  // Remove tudo que não é dígito (isso já cuida de espaços, +, -, (, ), etc.)
   let d = onlyDigits(value);
+  // Remove prefixo internacional 00 (ex.: "0055...") ou 55 quando o total
+  // excede o comprimento local esperado (11 dígitos).
+  if (d.startsWith("00")) d = d.slice(2);
   if (d.startsWith("55") && d.length > 11) d = d.slice(2);
+  // Remove um eventual 0 de operadora antes do DDD (ex.: "021 99...")
+  if (d.length === 12 && d.startsWith("0")) d = d.slice(1);
+  // Limita ao tamanho local máximo (DDD + 9 + 8 = 11 dígitos).
+  if (d.length > 11) d = d.slice(0, 11);
   if (d.length <= 2) return d;
   if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7, 11)}`;
