@@ -34,7 +34,8 @@ import {
   ArrowRightCircle,
   Loader2,
   Phone,
-  CheckCircle2
+  CheckCircle2,
+  Compass
 } from "lucide-react";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,6 +63,7 @@ const genres = [
   { id: "cultura", label: "Cultura", icon: Sparkles },
   { id: "gastronomia", label: "Gastronomia", icon: Globe2 },
   { id: "esporte", label: "Esporte", icon: Calendar },
+  { id: "turismo", label: "Turismo", icon: Compass },
   { id: "outros", label: "Outros", icon: Megaphone },
 ];
 
