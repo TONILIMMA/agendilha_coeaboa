@@ -418,7 +418,9 @@ export async function exportEditorialAgendaPdf(events: EventData[], title: strin
    try {
      const mime = LOGO_MIME === "JPEG" ? "jpeg" : "png";
      doc.addImage(`data:image/${mime};base64,${AGENDILHA_LOGO_BASE64}`, LOGO_MIME, PAGE_W/2 - 20, 15, 40, 40);
-   } catch (e) {}
+   } catch {
+     // Logo opcional: seguimos sem ele se falhar
+   }
 
    doc.setTextColor(255, 255, 255);
    doc.setFont("helvetica", "bold");

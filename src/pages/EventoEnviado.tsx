@@ -13,15 +13,14 @@ interface Submission {
 export default function EventoEnviado() {
   const { id } = useParams<{ id: string }>();
   // Defensive: this page only makes sense with a real submission id.
-  // Without it, redirect to the user's submissions list instead of rendering
-  // the static "Recebemos seu evento" hero on the wrong route.
-  if (!id || !/^[0-9a-f-]{10,}$/i.test(id)) {
-    return <Navigate to="/meus-eventos" replace />;
-  }
+  const validId = !!id && /^[0-9a-f-]{10,}$/i.test(id);
   const { data: sub, isLoading: loading } = useSubmission<Submission>(
-    id,
+    validId ? id! : "",
     "id, event_title, date, status"
   );
+  if (!validId) {
+    return <Navigate to="/meus-eventos" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-16">

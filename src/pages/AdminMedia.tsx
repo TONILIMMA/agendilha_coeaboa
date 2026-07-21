@@ -20,11 +20,8 @@
  
   export default function AdminMedia() {
     const { user, isAdmin, loading: authLoading } = useAuth();
-    if (authLoading) return <div className="p-8 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-    if (!user || !isAdmin) return <Navigate to="/" replace />;
-
-   const queryClient = useQueryClient();
-   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+    const queryClient = useQueryClient();
+    const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
  
    const { data: media, isLoading } = useQuery({
      queryKey: ["admin-pending-media"],

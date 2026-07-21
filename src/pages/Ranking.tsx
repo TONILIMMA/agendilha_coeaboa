@@ -145,7 +145,7 @@ export default function Ranking() {
       });
 
       const ids = Array.from(map.keys());
-      let nameMap = new Map<string, string>();
+      const nameMap = new Map<string, string>();
       if (ids.length) {
         const { data: profs } = await supabase
           .from("profiles")
