@@ -148,6 +148,7 @@ export const AppRoutes = () => (
         {/* Públicas */}
         <Route path={ROUTES.LANDING} element={<Landing />} />
         <Route path={ROUTES.EXPLORAR} element={<Explorar />} />
+        <Route path={ROUTES.EVENTO_IMPRIMIR} element={<PrintEvent />} />
 
         {/* Cadastro por perfil (sem AppShell, fullscreen mobile-first) */}
         <Route path={ROUTES.CADASTRO} element={<CadastroEscolha />} />
@@ -173,7 +174,6 @@ export const AppRoutes = () => (
         <Route element={<AppShell maxWidth="lg"><Outlet /></AppShell>}>
           <Route path={ROUTES.ARTISTA_PROFILE} element={<ArtistProfile />} />
           <Route path={ROUTES.EVENTO_DETAIL} element={<EventDetail />} />
-        <Route path={ROUTES.EVENTO_IMPRIMIR} element={<PrintEvent />} />
           <Route path={ROUTES.ESTABELECIMENTO_DETAIL} element={<EstabelecimentoDetail />} />
         </Route>
 
