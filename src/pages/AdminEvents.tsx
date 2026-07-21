@@ -439,8 +439,7 @@ export default function AdminEvents() {
   if (!user || !hasPermission('events.read')) return <Navigate to="/" replace />;
 
   return (
-    <div className="animate-fade-in">
-      <div className="mx-auto max-w-7xl px-4 py-8">
+    <PageContainer maxWidth="7xl">
          {/* Header Area */}
          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-10">
            <div className="space-y-1">
