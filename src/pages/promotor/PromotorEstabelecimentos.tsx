@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, MapPin, Pencil, Trash2, Loader2 } from "lucide-react";
 import { PageLoader } from "@/components/ui/PageLoader";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -150,20 +151,16 @@ export default function PromotorEstabelecimentos() {
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto pb-12">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <PromotorBadge />
-          <h1 className="text-2xl sm:text-3xl font-black font-display mt-2">
-            Meus estabelecimentos
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Somente você pode editar os estabelecimentos cadastrados aqui.
-          </p>
-        </div>
-        <Link to={ROUTES.PROMOTOR_ATRATIVOS}>
-          <Button variant="outline">Ir para Atrativos</Button>
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow={<PromotorBadge />}
+        title="Meus estabelecimentos"
+        description="Somente você pode editar os estabelecimentos cadastrados aqui."
+        actions={
+          <Link to={ROUTES.PROMOTOR_ATRATIVOS}>
+            <Button variant="outline">Ir para Atrativos</Button>
+          </Link>
+        }
+      />
 
       <Card className="p-5 space-y-4">
         <h2 className="font-bold text-lg">
