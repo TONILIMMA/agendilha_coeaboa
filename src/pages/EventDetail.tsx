@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -170,6 +171,33 @@ export default function EventDetail() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      {(() => {
+        const pageUrl = `${window.location.origin}/evento/${event.slug}`;
+        const fallback = getEventFallbackImage(event.category);
+        const imgRaw = event.image_url || (event.fotos && event.fotos[0]) || fallback;
+        const ogImage = imgRaw?.startsWith("http") ? imgRaw : `${window.location.origin}${imgRaw}`;
+        const rawDesc = event.description
+          || [event.location, event.address_neighborhood].filter(Boolean).join(" — ")
+          || "Confira este evento no AgendIlha.";
+        const description = rawDesc.replace(/\s+/g, " ").trim().slice(0, 150);
+        const title = `${event.event_title} — AgendIlha`;
+        return (
+          <Helmet>
+            <title>{title}</title>
+            <meta name="description" content={description} />
+            <link rel="canonical" href={pageUrl} />
+            <meta property="og:title" content={event.event_title} />
+            <meta property="og:description" content={description} />
+            <meta property="og:image" content={ogImage} />
+            <meta property="og:url" content={pageUrl} />
+            <meta property="og:type" content="article" />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={event.event_title} />
+            <meta name="twitter:description" content={description} />
+            <meta name="twitter:image" content={ogImage} />
+          </Helmet>
+        );
+      })()}
       {/* Hero */}
       <div className="relative w-full h-[44vh] md:h-[64vh] overflow-hidden">
         <img
