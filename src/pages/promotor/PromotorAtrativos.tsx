@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Sparkles, Pencil, Trash2, Loader2, FileDown, FileStack, Eye } from "lucide-react";
 import { PageLoader } from "@/components/ui/PageLoader";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { exportAtrativoToPdf, exportAtrativosConsolidatedPdf } from "@/lib/exportEventPdf";
 import { PrintPreviewDialog, PrintPreviewSheet } from "@/components/pdf/PrintPreviewDialog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -263,20 +264,16 @@ export default function PromotorAtrativos() {
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto pb-12">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <PromotorBadge />
-          <h1 className="text-2xl sm:text-3xl font-black font-display mt-2">
-            Meus atrativos
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Cadastre as atrações sob sua responsabilidade.
-          </p>
-        </div>
-        <Link to={ROUTES.PROMOTOR_ESTABELECIMENTOS}>
-          <Button variant="outline">Ir para Estabelecimentos</Button>
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow={<PromotorBadge />}
+        title="Meus atrativos"
+        description="Cadastre as atrações sob sua responsabilidade."
+        actions={
+          <Link to={ROUTES.PROMOTOR_ESTABELECIMENTOS}>
+            <Button variant="outline">Ir para Estabelecimentos</Button>
+          </Link>
+        }
+      />
 
       <Card className="p-5 space-y-4">
         <h2 className="font-bold text-lg">
