@@ -119,7 +119,7 @@ export default function Ranking() {
     setLoading(true);
     try {
       let q = supabase
-        .from("submissions")
+        .from("public_submissions")
         .select("user_id, status, created_at, category");
 
       if (period === "custom") {
