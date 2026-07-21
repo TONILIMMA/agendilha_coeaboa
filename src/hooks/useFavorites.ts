@@ -65,7 +65,7 @@
        if (context?.previousFavorites) {
          queryClient.setQueryData(["favorites", user?.id], context.previousFavorites);
        }
-       console.error("Error toggling favorite:", err);
+       // best-effort; UI already reverted state
        toast.error("Erro ao atualizar favorito.");
      },
      onSettled: () => {

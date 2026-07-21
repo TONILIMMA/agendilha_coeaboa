@@ -94,7 +94,7 @@ export function useAgendaData() {
     try {
       await supabase.rpc("increment_shares", { event_id: id });
     } catch (e) {
-      console.error("Error tracking share:", e);
+      // best-effort telemetry; ignore failures
     }
   }, []);
 
