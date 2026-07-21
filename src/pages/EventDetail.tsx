@@ -81,7 +81,7 @@ export default function EventDetail() {
         // Try to resolve linked estabelecimento by name (location text)
         if (data.location) {
           supabase
-            .from("estabelecimentos")
+            .from("estabelecimentos_public")
             .select("id")
             .ilike("nome", data.location)
             .maybeSingle()

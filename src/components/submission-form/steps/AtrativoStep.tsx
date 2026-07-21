@@ -29,13 +29,12 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
     const q = query.trim();
     const [atrativosRes, artistsRes] = await Promise.all([
       supabase
-        .from("atrativos")
+        .from("atrativos_public")
         .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp")
         .ilike("name", `%${q}%`)
-        .eq("is_approved", true)
         .limit(6),
       supabase
-        .from("artist_profiles")
+        .from("public_artist_profiles")
         .select("id, name, artist_type, genre, bio, whatsapp, is_approved")
         .ilike("name", `%${q}%`)
         .eq("is_approved", true)
