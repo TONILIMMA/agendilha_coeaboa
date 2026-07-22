@@ -32,6 +32,7 @@ export const ROUTES = {
   CADASTRO_PUBLICO: "/cadastro/publico",
   CADASTRO_DIVULGADOR: "/cadastro/divulgador",
   CADASTRO_ARTISTA: "/cadastro/artista",
+  CADASTRO_BANDA: "/cadastro/banda",
   CADASTRO_SUCESSO: "/cadastro/sucesso",
   CARROSSEL: "/carrossel",
   EVENTO_ENVIADO: "/evento-enviado/:id",
