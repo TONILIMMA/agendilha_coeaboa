@@ -14,6 +14,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
+import { InlineError } from "@/components/errors/InlineError";
 
 const NEIGHBORHOODS = [
   "Bancários","Cacuia","Cidade Universitária","Cocotá","Freguesia","Galeão",
@@ -56,6 +58,14 @@ function presetMatches(eventDate: string | null, preset: DatePreset, customDate?
 }
 
 export default function Explorar() {
+  return (
+    <SectionErrorBoundary context="Explorar">
+      <ExplorarInner />
+    </SectionErrorBoundary>
+  );
+}
+
+function ExplorarInner() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const initialCat = params.get("category") || "all";
@@ -66,7 +76,7 @@ export default function Explorar() {
   const [category, setCategory] = useState<string>(initialCat);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const { data: events = [], isLoading } = useQuery({
+  const { data: events = [], isLoading, error, refetch } = useQuery({
     queryKey: ["explorar-events"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -249,6 +259,13 @@ export default function Explorar() {
               <div key={i} className="aspect-square rounded-3xl bg-muted/40 animate-pulse" />
             ))}
           </div>
+        ) : error ? (
+          <InlineError
+            error={error}
+            title="Não deu pra carregar os rolês agora."
+            description="Confere tua conexão e tenta de novo."
+            onRetry={() => refetch()}
+          />
         ) : filtered.length === 0 ? (
           <div className="bg-muted/30 rounded-3xl p-12 text-center border border-dashed border-primary/15">
             <Sparkles className="h-10 w-10 text-primary/30 mx-auto mb-4" />

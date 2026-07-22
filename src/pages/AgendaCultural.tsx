@@ -48,6 +48,7 @@ import { toast } from "sonner";
 
 import { useAgendaData } from "@/hooks/useAgendaData";
 import { categoryLabels, type AgendaEvent } from "@/components/agenda/types";
+import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 import {
   buildWhatsAppShare,
   formatDayLabel,
@@ -59,6 +60,14 @@ import { DayEventCard } from "@/components/agenda/DayEventCard";
 import { EventDetailDialog } from "@/components/agenda/EventDetailDialog";
 
 export default function AgendaCultural() {
+  return (
+    <SectionErrorBoundary context="AgendaCultural">
+      <AgendaCulturalInner />
+    </SectionErrorBoundary>
+  );
+}
+
+function AgendaCulturalInner() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { profile } = useProfile();
