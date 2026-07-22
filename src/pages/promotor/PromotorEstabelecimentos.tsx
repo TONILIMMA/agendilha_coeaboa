@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
+import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 import { PromotorBadge } from "@/components/promotor/PromotorBadge";
 import { useProfile } from "@/hooks/useProfile";
 import { PhotoGallery } from "@/components/media/PhotoGallery";
@@ -49,6 +50,14 @@ const empty = {
 };
 
 export default function PromotorEstabelecimentos() {
+  return (
+    <SectionErrorBoundary context="PromotorEstabelecimentos">
+      <PromotorEstabelecimentosInner />
+    </SectionErrorBoundary>
+  );
+}
+
+function PromotorEstabelecimentosInner() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const { data: items = [], isLoading: loading } = useMyEstabelecimentos(user?.id);
