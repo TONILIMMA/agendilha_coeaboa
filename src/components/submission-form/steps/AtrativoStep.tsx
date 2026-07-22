@@ -3,11 +3,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
-import { Music, Search, Info, Lock } from "lucide-react";
+import { Music, Search, Info, Lock, Link2, RefreshCw, Unlink } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 import { EventPreview } from "../EventPreview";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const CATEGORIES = [
   { value: "musica", label: "Música / Show" },
@@ -20,6 +22,99 @@ const CATEGORIES = [
 
 export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
   const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [resyncing, setResyncing] = useState(false);
+
+  const sourceId: string | undefined = form.watch("atrativoSourceId");
+  const sourceType: "artist" | "atrativo" | undefined = form.watch("atrativoSourceType");
+  const linkedName: string | undefined = form.watch("atrativoLinkedName");
+  const linkedAt: string | undefined = form.watch("atrativoLinkedAt");
+
+  // Aplica o snapshot no rascunho a partir de uma linha do banco.
+  const applySnapshot = (row: any, kind: "artist" | "atrativo") => {
+    if (kind === "artist") {
+      form.setValue("atrativoName", row.name ?? "", { shouldDirty: true });
+      form.setValue("atrativoType", row.artist_type ?? "", { shouldDirty: true });
+      form.setValue("atrativoStyle", row.genre ?? "", { shouldDirty: true });
+      form.setValue("atrativoDescription", (row.bio ?? "").slice(0, 500), { shouldDirty: true });
+      form.setValue(
+        "atrativoContact",
+        row.whatsapp ? formatPhoneDisplay(row.whatsapp) : "",
+        { shouldDirty: true, shouldValidate: true },
+      );
+      if (row.contact_email) {
+        form.setValue("atrativoEmail", row.contact_email, { shouldDirty: true });
+      }
+      form.setValue("atrativoCategory", "musica", { shouldDirty: true });
+    } else {
+      form.setValue("atrativoName", row.name ?? "", { shouldDirty: true });
+      form.setValue("atrativoType", row.tipo_atrativo || row.type || "", { shouldDirty: true });
+      form.setValue(
+        "atrativoStyle",
+        Array.isArray(row.estilos) ? row.estilos.join(", ") : (row.style ?? ""),
+        { shouldDirty: true },
+      );
+      form.setValue("atrativoDescription", (row.description ?? "").slice(0, 500), { shouldDirty: true });
+      form.setValue(
+        "atrativoContact",
+        row.contact_whatsapp ? formatPhoneDisplay(row.contact_whatsapp) : "",
+        { shouldDirty: true, shouldValidate: true },
+      );
+    }
+  };
+
+  const linkSource = (id: string, kind: "artist" | "atrativo", row: any) => {
+    applySnapshot(row, kind);
+    form.setValue("atrativoSourceId", id, { shouldDirty: true });
+    form.setValue("atrativoSourceType", kind, { shouldDirty: true });
+    form.setValue("atrativoLinkedAt", new Date().toISOString(), { shouldDirty: true });
+    form.setValue("atrativoLinkedName", row.name ?? "", { shouldDirty: true });
+  };
+
+  const unlinkSource = () => {
+    form.setValue("atrativoSourceId", undefined, { shouldDirty: true });
+    form.setValue("atrativoSourceType", undefined, { shouldDirty: true });
+    form.setValue("atrativoLinkedAt", undefined, { shouldDirty: true });
+    form.setValue("atrativoLinkedName", undefined, { shouldDirty: true });
+    toast.success("Vínculo desfeito. Agora dá pra editar tudo à mão.");
+  };
+
+  const resyncFromSource = async () => {
+    if (!sourceId || !sourceType) return;
+    setResyncing(true);
+    try {
+      if (sourceType === "artist") {
+        const { data, error } = await supabase
+          .from("public_artist_profiles")
+          .select("id, name, artist_type, genre, bio, whatsapp, contact_email")
+          .eq("id", sourceId)
+          .maybeSingle();
+        if (error) throw error;
+        if (!data) {
+          toast.error("Perfil do artista não está mais disponível.");
+          return;
+        }
+        applySnapshot(data, "artist");
+      } else {
+        const { data, error } = await supabase
+          .from("atrativos_public")
+          .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp")
+          .eq("id", sourceId)
+          .maybeSingle();
+        if (error) throw error;
+        if (!data) {
+          toast.error("Atrativo não está mais disponível.");
+          return;
+        }
+        applySnapshot(data, "atrativo");
+      }
+      form.setValue("atrativoLinkedAt", new Date().toISOString(), { shouldDirty: true });
+      toast.success("Rascunho atualizado com os dados atuais do perfil.");
+    } catch (e: any) {
+      toast.error(e?.message || "Não deu pra atualizar do perfil agora.");
+    } finally {
+      setResyncing(false);
+    }
+  };
 
   const searchAtrativo = async (query: string) => {
     if (query.trim().length < 2) {
@@ -35,7 +130,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         .limit(6),
       supabase
         .from("public_artist_profiles")
-        .select("id, name, artist_type, genre, bio, whatsapp, is_approved")
+        .select("id, name, artist_type, genre, bio, whatsapp, contact_email, is_approved")
         .ilike("name", `%${q}%`)
         .eq("is_approved", true)
         .limit(4),
@@ -43,24 +138,16 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
 
     const merged = [
       ...((atrativosRes.data ?? []).map((a: any) => ({
-        id: `atr-${a.id}`,
-        name: a.name,
-        type: a.tipo_atrativo || a.type || "",
-        style: (Array.isArray(a.estilos) ? a.estilos.join(", ") : "") || a.style || "",
-        description: a.description || "",
-        contact: a.contact_whatsapp || "",
-        category: "",
-        approved: true,
+        __kind: "atrativo" as const,
+        __id: a.id,
+        row: a,
+        display: { name: a.name, type: a.tipo_atrativo || a.type || "" },
       }))),
       ...((artistsRes.data ?? []).map((s: any) => ({
-        id: `art-${s.id}`,
-        name: s.name,
-        type: s.artist_type || "",
-        style: s.genre || "",
-        description: s.bio || "",
-        contact: s.whatsapp || "",
-        category: "musica",
-        approved: true,
+        __kind: "artist" as const,
+        __id: s.id,
+        row: s,
+        display: { name: s.name, type: s.artist_type || "" },
       }))),
     ];
     setSuggestions(merged);
@@ -92,6 +179,12 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                     {...field}
                     onChange={(e) => {
                       field.onChange(e);
+                      // digitar manualmente quebra o vínculo — draft vira snapshot livre
+                      if (sourceId && e.target.value !== linkedName) {
+                        form.setValue("atrativoSourceId", undefined);
+                        form.setValue("atrativoSourceType", undefined);
+                        form.setValue("atrativoLinkedName", undefined);
+                      }
                       searchAtrativo(e.target.value);
                     }}
                   />
@@ -104,33 +197,65 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         />
         {suggestions.length > 0 && (
           <div className="absolute z-50 w-full mt-1 bg-background border rounded-lg shadow-lg overflow-hidden">
-            {suggestions.map((s) => (
+            {suggestions.map((s: any) => (
               <button
-                key={s.id}
+                key={`${s.__kind}-${s.__id}`}
                 type="button"
                 className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm"
                 onClick={() => {
-                  form.setValue("atrativoName", s.name);
-                  form.setValue("atrativoType", s.type || "");
-                  form.setValue("atrativoStyle", s.style || "");
-                  form.setValue("atrativoDescription", s.description || "");
-                  form.setValue(
-                    "atrativoContact",
-                    s.contact ? formatPhoneDisplay(s.contact) : ""
-                  );
-                  if (s.category) form.setValue("atrativoCategory", s.category);
+                  linkSource(s.__id, s.__kind, s.row);
                   setSuggestions([]);
+                  toast.success(`Vinculado a "${s.row.name}". Os dados viram um snapshot do perfil.`);
                 }}
               >
-                <span className="font-bold">{s.name}</span>
-                {s.type && <span className="text-muted-foreground ml-2">({s.type})</span>}
+                <span className="font-bold">{s.display.name}</span>
+                {s.display.type && <span className="text-muted-foreground ml-2">({s.display.type})</span>}
+                <span className="ml-2 text-[10px] uppercase tracking-wider text-primary/70">
+                  {s.__kind === "artist" ? "Artista" : "Atrativo"}
+                </span>
               </button>
             ))}
           </div>
         )}
+        {sourceId && (
+          <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs">
+            <Link2 className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span className="font-semibold text-primary">
+              Vinculado a {sourceType === "artist" ? "perfil de artista" : "atrativo"}: {linkedName}
+            </span>
+            {linkedAt && (
+              <span className="text-muted-foreground">
+                · snapshot de {new Date(linkedAt).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
+              </span>
+            )}
+            <div className="ml-auto flex gap-1">
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-xs"
+                onClick={resyncFromSource}
+                disabled={resyncing}
+              >
+                <RefreshCw className={"h-3 w-3 mr-1 " + (resyncing ? "animate-spin" : "")} />
+                Atualizar do perfil
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-xs"
+                onClick={unlinkSource}
+              >
+                <Unlink className="h-3 w-3 mr-1" />
+                Desvincular
+              </Button>
+            </div>
+          </div>
+        )}
         <p className="text-[11px] text-muted-foreground mt-1 flex items-start gap-1">
           <Lock className="h-3 w-3 mt-0.5 shrink-0" />
-          Depois de aprovado, o cadastro do atrativo só é alterado pela nossa equipe — abra um chamado se precisar mudar algo.
+          O rascunho guarda um snapshot do perfil no momento do vínculo — mudanças posteriores no cadastro só entram se você clicar em "Atualizar do perfil".
         </p>
       </div>
 
