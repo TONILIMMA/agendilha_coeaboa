@@ -65,10 +65,10 @@ export const sidebarConfig: SidebarSection[] = [
       },
       { 
         id: "artists", 
-        label: "Artistas Locais", 
+        label: "Artistas", 
         path: ROUTES.ARTISTAS, 
         icon: Users, 
-        roles: ["public_guest", "public_registered"] 
+        roles: ["public_guest", "public_registered", "promoter", "admin", "master"] 
       },
       { 
         id: "promoter_ranking", 
