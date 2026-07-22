@@ -621,31 +621,38 @@ export default function CadastroBanda() {
                 <Info className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">WhatsApp</Label>
+                <div className="space-y-2" data-field="whatsapp">
+                  <Label className="text-base font-semibold">
+                    WhatsApp <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(formatPhoneDisplay(e.target.value))}
                     placeholder="(21) 99999-9999"
                     inputMode="tel"
                     maxLength={16}
-                    className="h-12"
+                    aria-invalid={!!errors.whatsapp}
+                    className={cn("h-12", errors.whatsapp && "border-destructive focus-visible:ring-destructive")}
                   />
-                  {whatsapp && !("valid" in whatsappValid && whatsappValid.valid) && (
+                  {errors.whatsapp ? (
+                    <p className="text-xs text-destructive">{errors.whatsapp}</p>
+                  ) : whatsapp && !("valid" in whatsappValid && whatsappValid.valid) && (
                     <p className="text-xs text-destructive">
                       {"reason" in whatsappValid ? whatsappValid.reason : "Número inválido"}
                     </p>
                   )}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" data-field="contactEmail">
                   <Label className="text-base font-semibold">E-mail</Label>
                   <Input
                     type="email"
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
                     placeholder="contato@banda.com"
-                    className="h-12"
+                    aria-invalid={!!errors.contactEmail}
+                    className={cn("h-12", errors.contactEmail && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {errors.contactEmail && <p className="text-xs text-destructive">{errors.contactEmail}</p>}
                 </div>
               </div>
             </section>
@@ -654,50 +661,63 @@ export default function CadastroBanda() {
             <section className="space-y-4 mt-6">
               <h2 className="text-lg font-bold">Links externos</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-2" data-field="instagram">
                   <Label className="text-base font-semibold">Instagram</Label>
                   <Input
                     value={instagram}
                     onChange={(e) => setInstagram(e.target.value)}
                     placeholder="@sua.banda"
-                    className="h-12"
+                    aria-invalid={!!errors.instagram}
+                    className={cn("h-12", errors.instagram && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {errors.instagram && <p className="text-xs text-destructive">{errors.instagram}</p>}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" data-field="spotify">
                   <Label className="text-base font-semibold">Spotify</Label>
                   <Input
                     value={spotify}
                     onChange={(e) => setSpotify(e.target.value)}
                     placeholder="https://open.spotify.com/..."
-                    className="h-12"
+                    aria-invalid={!!errors.spotify}
+                    className={cn("h-12", errors.spotify && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {errors.spotify && <p className="text-xs text-destructive">{errors.spotify}</p>}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" data-field="youtube">
                   <Label className="text-base font-semibold">YouTube</Label>
                   <Input
                     value={youtube}
                     onChange={(e) => setYoutube(e.target.value)}
                     placeholder="https://youtube.com/..."
-                    className="h-12"
+                    aria-invalid={!!errors.youtube}
+                    className={cn("h-12", errors.youtube && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {errors.youtube && <p className="text-xs text-destructive">{errors.youtube}</p>}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" data-field="website">
                   <Label className="text-base font-semibold">Site oficial</Label>
                   <Input
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="https://..."
-                    className="h-12"
+                    aria-invalid={!!errors.website}
+                    className={cn("h-12", errors.website && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {errors.website && <p className="text-xs text-destructive">{errors.website}</p>}
                 </div>
               </div>
             </section>
 
             {/* Save */}
             <div className="sticky bottom-4 mt-8 z-10">
+              {submitAttempted && hasErrors && (
+                <p className="mb-2 text-center text-xs text-destructive font-medium">
+                  Tem campo faltando ou inválido. Confere aí em cima.
+                </p>
+              )}
               <Button
                 onClick={handleSave}
-                disabled={saving || !canEdit}
+                disabled={saving || !canEdit || (submitAttempted && hasErrors)}
                 className="w-full h-14 text-base font-bold rounded-full gradient-sunset shadow-lg"
               >
                 {saving ? (
