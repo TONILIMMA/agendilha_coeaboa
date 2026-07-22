@@ -70,6 +70,11 @@ const formSchema = z.object({
   atrativoCategory: z.enum(["musica", "gastronomia", "cultura", "esporte", "turismo", "outros"], {
     errorMap: () => ({ message: "Selecione uma categoria (inclui Turismo)" }),
   }),
+  // Vínculo com cadastro externo (snapshot: draft NÃO segue mudanças posteriores do perfil)
+  atrativoSourceId: z.string().uuid().optional(),
+  atrativoSourceType: z.enum(["artist", "atrativo"]).optional(),
+  atrativoLinkedAt: z.string().optional(),
+  atrativoLinkedName: z.string().optional(),
 
   locationName: z.string().trim().min(1, "O nome do local é obrigatório"),
   eventAddress: z.string().trim().min(1, "O endereço completo é obrigatório"),
