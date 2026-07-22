@@ -490,7 +490,7 @@ export default function CadastroBanda() {
 
             {/* Identidade */}
             <section className="space-y-4 mt-6">
-              <div className="space-y-2">
+              <div className="space-y-2" data-field="name">
                 <Label htmlFor="name" className="text-base font-semibold">
                   Nome artístico / Banda <span className="text-destructive">*</span>
                 </Label>
@@ -499,15 +499,19 @@ export default function CadastroBanda() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Como o público chama vocês"
-                  className="h-12"
+                  aria-invalid={!!errors.name}
+                  className={cn("h-12", errors.name && "border-destructive focus-visible:ring-destructive")}
                 />
+                {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">Gênero musical</Label>
+                <div className="space-y-2" data-field="genre">
+                  <Label className="text-base font-semibold">
+                    Gênero musical <span className="text-destructive">*</span>
+                  </Label>
                   <Select value={genre} onValueChange={setGenre}>
-                    <SelectTrigger className="h-12">
+                    <SelectTrigger aria-invalid={!!errors.genre} className={cn("h-12", errors.genre && "border-destructive focus-visible:ring-destructive")}>
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -516,20 +520,27 @@ export default function CadastroBanda() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.genre && <p className="text-xs text-destructive">{errors.genre}</p>}
                   {genre === "Outro" && (
-                    <Input
-                      value={genreFree}
-                      onChange={(e) => setGenreFree(e.target.value)}
-                      placeholder="Digita o gênero"
-                      className="h-11 mt-2"
-                    />
+                    <div data-field="genreFree">
+                      <Input
+                        value={genreFree}
+                        onChange={(e) => setGenreFree(e.target.value)}
+                        placeholder="Digita o gênero"
+                        aria-invalid={!!errors.genreFree}
+                        className={cn("h-11 mt-2", errors.genreFree && "border-destructive focus-visible:ring-destructive")}
+                      />
+                      {errors.genreFree && <p className="text-xs text-destructive mt-1">{errors.genreFree}</p>}
+                    </div>
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">Tipo</Label>
+                <div className="space-y-2" data-field="artistType">
+                  <Label className="text-base font-semibold">
+                    Tipo <span className="text-destructive">*</span>
+                  </Label>
                   <Select value={artistType} onValueChange={(v) => setArtistType(v as any)}>
-                    <SelectTrigger className="h-12">
+                    <SelectTrigger aria-invalid={!!errors.artistType} className={cn("h-12", errors.artistType && "border-destructive focus-visible:ring-destructive")}>
                       <SelectValue placeholder="Cover, autoral..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -538,11 +549,14 @@ export default function CadastroBanda() {
                       <SelectItem value="both">Cover + Autoral</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.artistType && <p className="text-xs text-destructive">{errors.artistType}</p>}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="bio" className="text-base font-semibold">Breve descrição</Label>
+              <div className="space-y-2" data-field="bio">
+                <Label htmlFor="bio" className="text-base font-semibold">
+                  Breve descrição <span className="text-destructive">*</span>
+                </Label>
                 <Textarea
                   id="bio"
                   value={bio}
@@ -550,8 +564,15 @@ export default function CadastroBanda() {
                   placeholder="Conta em poucas linhas o que rola no palco."
                   rows={4}
                   maxLength={600}
+                  aria-invalid={!!errors.bio}
+                  className={cn(errors.bio && "border-destructive focus-visible:ring-destructive")}
                 />
-                <p className="text-xs text-muted-foreground">{bio.length}/600</p>
+                <div className="flex items-center justify-between">
+                  {errors.bio ? (
+                    <p className="text-xs text-destructive">{errors.bio}</p>
+                  ) : <span />}
+                  <p className="text-xs text-muted-foreground">{bio.length}/600</p>
+                </div>
               </div>
             </section>
 
