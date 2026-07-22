@@ -32,12 +32,28 @@ import { handleError } from "@/lib/error-handler";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 import { MediaUploadForm } from "@/components/artist-setup/MediaUploadForm";
 import { cn } from "@/lib/utils";
+import { z } from "zod";
 
 const GENEROS = [
   "Samba", "Pagode", "MPB", "Rock", "Pop", "Sertanejo", "Forró",
   "Reggae", "Funk", "Rap / Hip-Hop", "Eletrônica", "Jazz", "Blues",
   "Bossa Nova", "Gospel", "Axé", "Piseiro", "Instrumental", "Outro",
 ];
+
+const optionalUrl = z
+  .string()
+  .trim()
+  .max(300, "Link muito longo.")
+  .refine((v) => !v || /^https?:\/\/\S+\.\S+/i.test(v), {
+    message: "Coloca o link completo começando com https://",
+  })
+  .optional()
+  .or(z.literal(""));
+
+type FieldErrors = Partial<Record<
+  "name" | "genre" | "genreFree" | "artistType" | "bio" | "whatsapp" | "contactEmail" | "instagram" | "spotify" | "youtube" | "website",
+  string
+>>;
 
 type ArtistRow = {
   id: string;
@@ -89,6 +105,8 @@ export default function CadastroBanda() {
   const [youtube, setYoutube] = useState("");
   const [website, setWebsite] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const canEdit = useMemo(() => {
     // Novo cadastro OU dono do perfil existente
@@ -227,26 +245,76 @@ export default function CadastroBanda() {
     }
   }
 
-  function validate(): string | null {
-    if (!name.trim() || name.trim().length < 2) return "Informa o nome artístico.";
-    if (whatsapp) {
+  function runValidation(): FieldErrors {
+    const e: FieldErrors = {};
+
+    const trimmedName = name.trim();
+    if (!trimmedName) e.name = "Informa o nome artístico ou da banda.";
+    else if (trimmedName.length < 2) e.name = "Nome muito curto — pelo menos 2 letras.";
+    else if (trimmedName.length > 120) e.name = "Nome muito longo — até 120 caracteres.";
+
+    if (!genre) e.genre = "Escolhe um gênero musical.";
+    if (genre === "Outro" && !genreFree.trim()) e.genreFree = "Diz aí qual é o gênero.";
+
+    if (!artistType) e.artistType = "Selecciona se é cover, autoral ou os dois.";
+
+    const trimmedBio = bio.trim();
+    if (!trimmedBio) e.bio = "Escreve uma descrição curtinha do trampo.";
+    else if (trimmedBio.length < 20) e.bio = "Um pouquinho mais — mínimo de 20 caracteres.";
+
+    if (!whatsapp.trim()) {
+      e.whatsapp = "WhatsApp é obrigatório pra receber contato de show.";
+    } else {
       const v = validateBrazilianMobile(whatsapp);
-      if (!v.valid) return "Celular inválido. Use DDD + 9 + 8 dígitos.";
+      if (!v.valid) e.whatsapp = "reason" in v && v.reason ? v.reason : "Celular inválido. Use DDD + 9 + 8 dígitos.";
     }
-    if (contactEmail && !/^\S+@\S+\.\S+$/.test(contactEmail)) {
-      return "E-mail inválido.";
+
+    if (contactEmail.trim() && !z.string().email().safeParse(contactEmail.trim()).success) {
+      e.contactEmail = "E-mail inválido.";
     }
-    return null;
+
+    const urlFields: Array<[keyof FieldErrors, string]> = [
+      ["spotify", spotify],
+      ["youtube", youtube],
+      ["website", website],
+    ];
+    for (const [key, value] of urlFields) {
+      const parsed = optionalUrl.safeParse(value);
+      if (!parsed.success) e[key] = parsed.error.issues[0]?.message || "Link inválido.";
+    }
+
+    if (instagram.trim() && instagram.trim().length > 60) {
+      e.instagram = "Usuário muito longo.";
+    }
+
+    return e;
   }
+
+  // Revalida ao vivo depois da 1ª tentativa de envio
+  useEffect(() => {
+    if (!submitAttempted) return;
+    setErrors(runValidation());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, genre, genreFree, artistType, bio, whatsapp, contactEmail, instagram, spotify, youtube, website, submitAttempted]);
+
+  const hasErrors = Object.keys(errors).length > 0;
 
   async function handleSave() {
     if (!user) {
       toast.error("Faz login pra salvar seu cadastro.");
       return;
     }
-    const err = validate();
-    if (err) {
-      toast.error(err);
+    setSubmitAttempted(true);
+    const validationErrors = runValidation();
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      toast.error("Confere os campos destacados antes de salvar.");
+      // rola até o primeiro erro
+      const firstKey = Object.keys(validationErrors)[0];
+      const el = document.querySelector(`[data-field="${firstKey}"]`);
+      if (el && "scrollIntoView" in el) {
+        (el as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       return;
     }
     if (!canEdit) {
@@ -422,7 +490,7 @@ export default function CadastroBanda() {
 
             {/* Identidade */}
             <section className="space-y-4 mt-6">
-              <div className="space-y-2">
+              <div className="space-y-2" data-field="name">
                 <Label htmlFor="name" className="text-base font-semibold">
                   Nome artístico / Banda <span className="text-destructive">*</span>
                 </Label>
@@ -431,15 +499,19 @@ export default function CadastroBanda() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Como o público chama vocês"
-                  className="h-12"
+                  aria-invalid={!!errors.name}
+                  className={cn("h-12", errors.name && "border-destructive focus-visible:ring-destructive")}
                 />
+                {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">Gênero musical</Label>
+                <div className="space-y-2" data-field="genre">
+                  <Label className="text-base font-semibold">
+                    Gênero musical <span className="text-destructive">*</span>
+                  </Label>
                   <Select value={genre} onValueChange={setGenre}>
-                    <SelectTrigger className="h-12">
+                    <SelectTrigger aria-invalid={!!errors.genre} className={cn("h-12", errors.genre && "border-destructive focus-visible:ring-destructive")}>
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -448,20 +520,27 @@ export default function CadastroBanda() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.genre && <p className="text-xs text-destructive">{errors.genre}</p>}
                   {genre === "Outro" && (
-                    <Input
-                      value={genreFree}
-                      onChange={(e) => setGenreFree(e.target.value)}
-                      placeholder="Digita o gênero"
-                      className="h-11 mt-2"
-                    />
+                    <div data-field="genreFree">
+                      <Input
+                        value={genreFree}
+                        onChange={(e) => setGenreFree(e.target.value)}
+                        placeholder="Digita o gênero"
+                        aria-invalid={!!errors.genreFree}
+                        className={cn("h-11 mt-2", errors.genreFree && "border-destructive focus-visible:ring-destructive")}
+                      />
+                      {errors.genreFree && <p className="text-xs text-destructive mt-1">{errors.genreFree}</p>}
+                    </div>
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">Tipo</Label>
+                <div className="space-y-2" data-field="artistType">
+                  <Label className="text-base font-semibold">
+                    Tipo <span className="text-destructive">*</span>
+                  </Label>
                   <Select value={artistType} onValueChange={(v) => setArtistType(v as any)}>
-                    <SelectTrigger className="h-12">
+                    <SelectTrigger aria-invalid={!!errors.artistType} className={cn("h-12", errors.artistType && "border-destructive focus-visible:ring-destructive")}>
                       <SelectValue placeholder="Cover, autoral..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -470,11 +549,14 @@ export default function CadastroBanda() {
                       <SelectItem value="both">Cover + Autoral</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.artistType && <p className="text-xs text-destructive">{errors.artistType}</p>}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="bio" className="text-base font-semibold">Breve descrição</Label>
+              <div className="space-y-2" data-field="bio">
+                <Label htmlFor="bio" className="text-base font-semibold">
+                  Breve descrição <span className="text-destructive">*</span>
+                </Label>
                 <Textarea
                   id="bio"
                   value={bio}
@@ -482,8 +564,15 @@ export default function CadastroBanda() {
                   placeholder="Conta em poucas linhas o que rola no palco."
                   rows={4}
                   maxLength={600}
+                  aria-invalid={!!errors.bio}
+                  className={cn(errors.bio && "border-destructive focus-visible:ring-destructive")}
                 />
-                <p className="text-xs text-muted-foreground">{bio.length}/600</p>
+                <div className="flex items-center justify-between">
+                  {errors.bio ? (
+                    <p className="text-xs text-destructive">{errors.bio}</p>
+                  ) : <span />}
+                  <p className="text-xs text-muted-foreground">{bio.length}/600</p>
+                </div>
               </div>
             </section>
 
@@ -532,31 +621,38 @@ export default function CadastroBanda() {
                 <Info className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">WhatsApp</Label>
+                <div className="space-y-2" data-field="whatsapp">
+                  <Label className="text-base font-semibold">
+                    WhatsApp <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(formatPhoneDisplay(e.target.value))}
                     placeholder="(21) 99999-9999"
                     inputMode="tel"
                     maxLength={16}
-                    className="h-12"
+                    aria-invalid={!!errors.whatsapp}
+                    className={cn("h-12", errors.whatsapp && "border-destructive focus-visible:ring-destructive")}
                   />
-                  {whatsapp && !("valid" in whatsappValid && whatsappValid.valid) && (
+                  {errors.whatsapp ? (
+                    <p className="text-xs text-destructive">{errors.whatsapp}</p>
+                  ) : whatsapp && !("valid" in whatsappValid && whatsappValid.valid) && (
                     <p className="text-xs text-destructive">
                       {"reason" in whatsappValid ? whatsappValid.reason : "Número inválido"}
                     </p>
                   )}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" data-field="contactEmail">
                   <Label className="text-base font-semibold">E-mail</Label>
                   <Input
                     type="email"
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
                     placeholder="contato@banda.com"
-                    className="h-12"
+                    aria-invalid={!!errors.contactEmail}
+                    className={cn("h-12", errors.contactEmail && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {errors.contactEmail && <p className="text-xs text-destructive">{errors.contactEmail}</p>}
                 </div>
               </div>
             </section>
@@ -565,50 +661,63 @@ export default function CadastroBanda() {
             <section className="space-y-4 mt-6">
               <h2 className="text-lg font-bold">Links externos</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-2" data-field="instagram">
                   <Label className="text-base font-semibold">Instagram</Label>
                   <Input
                     value={instagram}
                     onChange={(e) => setInstagram(e.target.value)}
                     placeholder="@sua.banda"
-                    className="h-12"
+                    aria-invalid={!!errors.instagram}
+                    className={cn("h-12", errors.instagram && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {errors.instagram && <p className="text-xs text-destructive">{errors.instagram}</p>}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" data-field="spotify">
                   <Label className="text-base font-semibold">Spotify</Label>
                   <Input
                     value={spotify}
                     onChange={(e) => setSpotify(e.target.value)}
                     placeholder="https://open.spotify.com/..."
-                    className="h-12"
+                    aria-invalid={!!errors.spotify}
+                    className={cn("h-12", errors.spotify && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {errors.spotify && <p className="text-xs text-destructive">{errors.spotify}</p>}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" data-field="youtube">
                   <Label className="text-base font-semibold">YouTube</Label>
                   <Input
                     value={youtube}
                     onChange={(e) => setYoutube(e.target.value)}
                     placeholder="https://youtube.com/..."
-                    className="h-12"
+                    aria-invalid={!!errors.youtube}
+                    className={cn("h-12", errors.youtube && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {errors.youtube && <p className="text-xs text-destructive">{errors.youtube}</p>}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2" data-field="website">
                   <Label className="text-base font-semibold">Site oficial</Label>
                   <Input
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="https://..."
-                    className="h-12"
+                    aria-invalid={!!errors.website}
+                    className={cn("h-12", errors.website && "border-destructive focus-visible:ring-destructive")}
                   />
+                  {errors.website && <p className="text-xs text-destructive">{errors.website}</p>}
                 </div>
               </div>
             </section>
 
             {/* Save */}
             <div className="sticky bottom-4 mt-8 z-10">
+              {submitAttempted && hasErrors && (
+                <p className="mb-2 text-center text-xs text-destructive font-medium">
+                  Tem campo faltando ou inválido. Confere aí em cima.
+                </p>
+              )}
               <Button
                 onClick={handleSave}
-                disabled={saving || !canEdit}
+                disabled={saving || !canEdit || (submitAttempted && hasErrors)}
                 className="w-full h-14 text-base font-bold rounded-full gradient-sunset shadow-lg"
               >
                 {saving ? (
