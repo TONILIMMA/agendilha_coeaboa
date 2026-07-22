@@ -10,6 +10,16 @@ import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 import { EventPreview } from "../EventPreview";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const CATEGORIES = [
   { value: "musica", label: "Música / Show" },
@@ -23,6 +33,7 @@ const CATEGORIES = [
 export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [resyncing, setResyncing] = useState(false);
+  const [confirmUnlink, setConfirmUnlink] = useState(false);
 
   const sourceId: string | undefined = form.watch("atrativoSourceId");
   const sourceType: "artist" | "atrativo" | undefined = form.watch("atrativoSourceType");
@@ -245,7 +256,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 size="sm"
                 variant="ghost"
                 className="h-7 px-2 text-xs"
-                onClick={unlinkSource}
+                onClick={() => setConfirmUnlink(true)}
               >
                 <Unlink className="h-3 w-3 mr-1" />
                 Desvincular
@@ -253,6 +264,27 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
             </div>
           </div>
         )}
+        <AlertDialog open={confirmUnlink} onOpenChange={setConfirmUnlink}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Desvincular esse atrativo?</AlertDialogTitle>
+              <AlertDialogDescription>
+                O rascunho fica solto pra você editar à mão. Os dados que já estão preenchidos continuam aí — mas o link com o perfil "{linkedName}" se perde e o botão "Atualizar do perfil" some. Dá pra vincular de novo depois buscando pelo nome.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Deixa como tá</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  unlinkSource();
+                  setConfirmUnlink(false);
+                }}
+              >
+                Desvincular
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <p className="text-[11px] text-muted-foreground mt-1 flex items-start gap-1">
           <Lock className="h-3 w-3 mt-0.5 shrink-0" />
           O rascunho guarda um snapshot do perfil no momento do vínculo — mudanças posteriores no cadastro só entram se você clicar em "Atualizar do perfil".
