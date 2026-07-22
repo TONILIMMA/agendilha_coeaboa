@@ -32,12 +32,28 @@ import { handleError } from "@/lib/error-handler";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 import { MediaUploadForm } from "@/components/artist-setup/MediaUploadForm";
 import { cn } from "@/lib/utils";
+import { z } from "zod";
 
 const GENEROS = [
   "Samba", "Pagode", "MPB", "Rock", "Pop", "Sertanejo", "Forró",
   "Reggae", "Funk", "Rap / Hip-Hop", "Eletrônica", "Jazz", "Blues",
   "Bossa Nova", "Gospel", "Axé", "Piseiro", "Instrumental", "Outro",
 ];
+
+const optionalUrl = z
+  .string()
+  .trim()
+  .max(300, "Link muito longo.")
+  .refine((v) => !v || /^https?:\/\/\S+\.\S+/i.test(v), {
+    message: "Coloca o link completo começando com https://",
+  })
+  .optional()
+  .or(z.literal(""));
+
+type FieldErrors = Partial<Record<
+  "name" | "genre" | "genreFree" | "artistType" | "bio" | "whatsapp" | "contactEmail" | "instagram" | "spotify" | "youtube" | "website",
+  string
+>>;
 
 type ArtistRow = {
   id: string;
@@ -89,6 +105,8 @@ export default function CadastroBanda() {
   const [youtube, setYoutube] = useState("");
   const [website, setWebsite] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const canEdit = useMemo(() => {
     // Novo cadastro OU dono do perfil existente
@@ -227,26 +245,76 @@ export default function CadastroBanda() {
     }
   }
 
-  function validate(): string | null {
-    if (!name.trim() || name.trim().length < 2) return "Informa o nome artístico.";
-    if (whatsapp) {
+  function runValidation(): FieldErrors {
+    const e: FieldErrors = {};
+
+    const trimmedName = name.trim();
+    if (!trimmedName) e.name = "Informa o nome artístico ou da banda.";
+    else if (trimmedName.length < 2) e.name = "Nome muito curto — pelo menos 2 letras.";
+    else if (trimmedName.length > 120) e.name = "Nome muito longo — até 120 caracteres.";
+
+    if (!genre) e.genre = "Escolhe um gênero musical.";
+    if (genre === "Outro" && !genreFree.trim()) e.genreFree = "Diz aí qual é o gênero.";
+
+    if (!artistType) e.artistType = "Selecciona se é cover, autoral ou os dois.";
+
+    const trimmedBio = bio.trim();
+    if (!trimmedBio) e.bio = "Escreve uma descrição curtinha do trampo.";
+    else if (trimmedBio.length < 20) e.bio = "Um pouquinho mais — mínimo de 20 caracteres.";
+
+    if (!whatsapp.trim()) {
+      e.whatsapp = "WhatsApp é obrigatório pra receber contato de show.";
+    } else {
       const v = validateBrazilianMobile(whatsapp);
-      if (!v.valid) return "Celular inválido. Use DDD + 9 + 8 dígitos.";
+      if (!v.valid) e.whatsapp = "reason" in v && v.reason ? v.reason : "Celular inválido. Use DDD + 9 + 8 dígitos.";
     }
-    if (contactEmail && !/^\S+@\S+\.\S+$/.test(contactEmail)) {
-      return "E-mail inválido.";
+
+    if (contactEmail.trim() && !z.string().email().safeParse(contactEmail.trim()).success) {
+      e.contactEmail = "E-mail inválido.";
     }
-    return null;
+
+    const urlFields: Array<[keyof FieldErrors, string]> = [
+      ["spotify", spotify],
+      ["youtube", youtube],
+      ["website", website],
+    ];
+    for (const [key, value] of urlFields) {
+      const parsed = optionalUrl.safeParse(value);
+      if (!parsed.success) e[key] = parsed.error.issues[0]?.message || "Link inválido.";
+    }
+
+    if (instagram.trim() && instagram.trim().length > 60) {
+      e.instagram = "Usuário muito longo.";
+    }
+
+    return e;
   }
+
+  // Revalida ao vivo depois da 1ª tentativa de envio
+  useEffect(() => {
+    if (!submitAttempted) return;
+    setErrors(runValidation());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, genre, genreFree, artistType, bio, whatsapp, contactEmail, instagram, spotify, youtube, website, submitAttempted]);
+
+  const hasErrors = Object.keys(errors).length > 0;
 
   async function handleSave() {
     if (!user) {
       toast.error("Faz login pra salvar seu cadastro.");
       return;
     }
-    const err = validate();
-    if (err) {
-      toast.error(err);
+    setSubmitAttempted(true);
+    const validationErrors = runValidation();
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      toast.error("Confere os campos destacados antes de salvar.");
+      // rola até o primeiro erro
+      const firstKey = Object.keys(validationErrors)[0];
+      const el = document.querySelector(`[data-field="${firstKey}"]`);
+      if (el && "scrollIntoView" in el) {
+        (el as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       return;
     }
     if (!canEdit) {
