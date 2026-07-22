@@ -36,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { buildTodayWhatsAppSummary, buildWeekWhatsAppSummary, openWhatsAppWithText } from "@/lib/todayWhatsappSummary";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
+import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 
 
 interface Submission {
@@ -173,6 +174,14 @@ function buildTemplateVars(sub: Submission, reason?: string | null): Record<stri
 }
 
 export default function AdminEvents() {
+  return (
+    <SectionErrorBoundary context="AdminEvents">
+      <AdminEventsInner />
+    </SectionErrorBoundary>
+  );
+}
+
+function AdminEventsInner() {
   const { user, loading: authLoading } = useAuth();
   const { hasPermission, loading: permsLoading } = useAppPermissions();
   const canRead = hasPermission('events.read');
