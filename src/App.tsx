@@ -54,6 +54,7 @@ const CadastroEscolha = lazy(() => import("./pages/cadastro/CadastroEscolha"));
 const CadastroPublico = lazy(() => import("./pages/cadastro/CadastroPublico"));
 const CadastroDivulgador = lazy(() => import("./pages/cadastro/CadastroDivulgador"));
 const CadastroArtista = lazy(() => import("./pages/cadastro/CadastroArtista"));
+const CadastroBanda = lazy(() => import("./pages/cadastro/CadastroBanda"));
 const CadastroSucesso = lazy(() => import("./pages/cadastro/CadastroSucesso"));
 const Carrossel = lazy(() => import("./pages/Carrossel"));
 const EventoEnviado = lazy(() => import("./pages/EventoEnviado"));
@@ -172,6 +173,7 @@ export const AppRoutes = () => (
         <Route path={ROUTES.CADASTRO_PUBLICO} element={<CadastroPublico />} />
         <Route path={ROUTES.CADASTRO_DIVULGADOR} element={<CadastroDivulgador />} />
         <Route path={ROUTES.CADASTRO_ARTISTA} element={<CadastroArtista />} />
+        <Route path={ROUTES.CADASTRO_BANDA} element={<ProtectedRoute><CadastroBanda /></ProtectedRoute>} />
         <Route path={ROUTES.CADASTRO_SUCESSO} element={<CadastroSucesso />} />
         <Route path={ROUTES.CADASTRO_PROMOTOR} element={<CadastroPromotor />} />
         

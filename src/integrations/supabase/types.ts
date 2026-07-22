@@ -235,6 +235,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           city: string | null
+          contact_email: string | null
           cover_url: string | null
           created_at: string
           differentials: string | null
@@ -244,6 +245,7 @@ export type Database = {
           is_approved: boolean | null
           is_verified: boolean | null
           member_count: number | null
+          members: string[] | null
           moderation_status: string | null
           name: string
           neighborhood: string | null
@@ -266,6 +268,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
+          contact_email?: string | null
           cover_url?: string | null
           created_at?: string
           differentials?: string | null
@@ -275,6 +278,7 @@ export type Database = {
           is_approved?: boolean | null
           is_verified?: boolean | null
           member_count?: number | null
+          members?: string[] | null
           moderation_status?: string | null
           name: string
           neighborhood?: string | null
@@ -297,6 +301,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
+          contact_email?: string | null
           cover_url?: string | null
           created_at?: string
           differentials?: string | null
@@ -306,6 +311,7 @@ export type Database = {
           is_approved?: boolean | null
           is_verified?: boolean | null
           member_count?: number | null
+          members?: string[] | null
           moderation_status?: string | null
           name?: string
           neighborhood?: string | null
