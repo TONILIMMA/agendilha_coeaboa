@@ -183,6 +183,7 @@ export type Database = {
           ai_score: number | null
           artist_id: string
           created_at: string
+          display_order: number
           id: string
           is_approved: boolean | null
           media_type: string | null
@@ -194,6 +195,7 @@ export type Database = {
           ai_score?: number | null
           artist_id: string
           created_at?: string
+          display_order?: number
           id?: string
           is_approved?: boolean | null
           media_type?: string | null
@@ -205,6 +207,7 @@ export type Database = {
           ai_score?: number | null
           artist_id?: string
           created_at?: string
+          display_order?: number
           id?: string
           is_approved?: boolean | null
           media_type?: string | null

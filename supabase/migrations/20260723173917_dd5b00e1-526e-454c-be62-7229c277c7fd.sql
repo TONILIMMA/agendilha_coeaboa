@@ -1,0 +1,2 @@
+ALTER TABLE public.artist_media ADD COLUMN IF NOT EXISTS display_order integer NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_artist_media_artist_order ON public.artist_media(artist_id, display_order);
