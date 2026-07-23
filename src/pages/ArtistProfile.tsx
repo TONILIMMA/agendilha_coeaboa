@@ -61,11 +61,50 @@ export default function ArtistProfile() {
     },
   });
 
+  // Shows futuros do artista (aprovados/publicados) — via view pública sem PII.
+  const { data: shows = [] } = useQuery({
+    queryKey: ["artist-shows", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data, error } = await supabase
+        .from("public_submissions")
+        .select(
+          "id, slug, event_title, date, start_time, location, address_neighborhood, image_url, category"
+        )
+        .eq("artist_id", id!)
+        .in("status", ["aprovado", "publicado"])
+        .gte("date", today)
+        .order("date", { ascending: true })
+        .limit(50);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const [showFilter, setShowFilter] = useState<ShowFilter>("todos");
+
+  const filteredShows = useMemo(() => {
+    if (showFilter === "todos") return shows;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const limit = new Date(now);
+    limit.setDate(now.getDate() + (showFilter === "semana" ? 7 : 30));
+    return shows.filter((s: any) => {
+      if (!s.date) return false;
+      const d = new Date(`${s.date}T00:00:00`);
+      return d >= now && d <= limit;
+    });
+  }, [shows, showFilter]);
+
   if (isLoading) return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
   if (!artist) return <div className="min-h-screen flex items-center justify-center">Artista não encontrado.</div>;
 
-  const videos = artist.artist_media?.filter((m: any) => m.media_type === "video") || [];
-  const images = artist.artist_media?.filter((m: any) => m.media_type === "image") || [];
+  const sortedMedia = [...(artist.artist_media || [])].sort(
+    (a: any, b: any) => (a.display_order ?? 0) - (b.display_order ?? 0)
+  );
+  const videos = sortedMedia.filter((m: any) => m.media_type === "video");
+  const images = sortedMedia.filter((m: any) => m.media_type === "image");
 
   return (
     <div className="min-h-screen bg-background pb-20">
