@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
+import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,9 @@ import {
   Globe, 
   Music, 
   Save, 
-  Loader2
+  Loader2,
+  ShieldCheck,
+  Phone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -50,6 +53,7 @@ const MUSICAL_INTERESTS = [
 export default function ProfileSettings() {
   const { user } = useAuth();
   const { profile, loaded, saveProfile } = useProfile();
+  const { isAdmin } = useAppPermissions();
   const [loading, setLoading] = useState(false);
   const [artistProfile, setArtistProfile] = useState<any>(null);
   const [artistLoaded, setArtistLoaded] = useState(false);
@@ -64,6 +68,10 @@ export default function ProfileSettings() {
 
   // Promotor extras
   const [whatsappPhone, setWhatsappPhone] = useState("");
+  // Admin-only editable phone (profiles.phone)
+  const [adminPhone, setAdminPhone] = useState("");
+  const [adminPhoneError, setAdminPhoneError] = useState<string | null>(null);
+  const [initialAdminPhone, setInitialAdminPhone] = useState("");
   const [addressStreet, setAddressStreet] = useState("");
   const [addressNumber, setAddressNumber] = useState("");
   const [addressComplement, setAddressComplement] = useState("");
@@ -93,6 +101,8 @@ export default function ProfileSettings() {
       setCoverageArea((profile as any).coverage_area || []);
 
       setWhatsappPhone((profile as any).whatsapp_phone || profile.phone || "");
+      setAdminPhone(formatPhoneMask(profile.phone || ""));
+      setInitialAdminPhone(profile.phone || "");
       setAddressStreet((profile as any).address_street || "");
       setAddressNumber((profile as any).address_number || "");
       setAddressComplement((profile as any).address_complement || "");
