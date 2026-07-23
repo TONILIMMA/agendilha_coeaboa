@@ -241,10 +241,78 @@ export default function ArtistProfile() {
               <h2 className="text-xl font-display font-bold mb-4 flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" /> Agenda de Shows
               </h2>
-              <div className="bg-card rounded-2xl p-8 border border-border shadow-sm text-center">
-                <p className="text-muted-foreground mb-4">Nenhum show confirmado para os próximos dias.</p>
-                <Button variant="outline" className="rounded-full">Ver Agenda Completa</Button>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {[
+                  { id: "todos", label: "Todos" },
+                  { id: "semana", label: "Próximos 7 dias" },
+                  { id: "mes", label: "Próximos 30 dias" },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setShowFilter(opt.id as ShowFilter)}
+                    className={cn(
+                      "text-xs font-semibold rounded-full px-3 py-1.5 border transition-all",
+                      showFilter === opt.id
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-transparent text-foreground/70 border-foreground/15 hover:bg-foreground/5"
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
               </div>
+              {filteredShows.length === 0 ? (
+                <div className="bg-card rounded-2xl p-8 border border-border shadow-sm text-center">
+                  <p className="text-muted-foreground mb-4">
+                    {shows.length === 0
+                      ? "Nenhum show confirmado por aqui ainda."
+                      : "Nenhum show nesse período. Ajusta o filtro."}
+                  </p>
+                  <Link to="/explorar">
+                    <Button variant="outline" className="rounded-full">
+                      Ver agenda completa
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {filteredShows.map((s: any) => {
+                    const img = s.image_url || getEventFallbackImage(s.category);
+                    return (
+                      <Link
+                        key={s.id}
+                        to={`/evento/${s.slug}`}
+                        className="group flex gap-3 items-center rounded-2xl border border-border bg-card p-3 hover:border-primary/40 hover:shadow-md transition"
+                      >
+                        <div className="h-16 w-16 rounded-xl overflow-hidden bg-muted shrink-0">
+                          <img
+                            src={img}
+                            alt={s.event_title}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-semibold uppercase tracking-widest text-primary">
+                            {s.date ? formatBrazilianDate(s.date) : "Data a confirmar"}
+                            {s.start_time ? ` · ${s.start_time}` : ""}
+                          </p>
+                          <h3 className="font-semibold text-sm truncate">
+                            {s.event_title}
+                          </h3>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {[s.location, s.address_neighborhood]
+                              .filter(Boolean)
+                              .join(" · ") || "Local a confirmar"}
+                          </p>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </section>
           </div>
  
