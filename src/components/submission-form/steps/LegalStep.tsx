@@ -3,7 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { Scale, Info, MessageCircle, ExternalLink, Lock, MessageSquare, AlertTriangle, Send } from "lucide-react";
+import { Scale, Info, MessageCircle, ExternalLink, Lock, MessageSquare, AlertTriangle, Send, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/routes/config";
 import { useEffect, useRef, useState } from "react";
@@ -19,16 +19,13 @@ import { MyChangeRequestsList } from "@/components/change-requests/MyChangeReque
 
 export function LegalStep({ form, isPublished = false, submissionId }: { form: UseFormReturn<any>; isPublished?: boolean; submissionId?: string }) {
   const { user } = useAuth();
-  const promotorName = form.watch("nickName") || form.watch("companyName");
-  const atrativoName = form.watch("atrativoName");
-  const locationName = form.watch("locationName");
-  const duvidasSource = form.watch("duvidasSource") || "promotor";
-  const promotorPhone = form.watch("basicPhone");
-  const atrativoContact = form.watch("atrativoContact");
-  const locationContact = form.watch("locationContact");
+  const nickName = form.watch("nickName") || "";
+  const basicPhone = form.watch("basicPhone") || "";
+  const responsavelNome = form.watch("responsavelNome") || "";
+  const usarMeuWhatsapp = form.watch("usarMeuWhatsapp");
   const duvidasWhatsapp = form.watch("duvidasWhatsapp") || "";
+  const tipoResponsavel = form.watch("tipoResponsavel") || "";
   const eventTitle = form.watch("eventTitle") || "";
-  const lastAutoRef = useRef<string>("");
   const [changeReqOpen, setChangeReqOpen] = useState(false);
   const [changeReqReason, setChangeReqReason] = useState("");
   const [changeReqNewPhone, setChangeReqNewPhone] = useState("");
@@ -36,23 +33,24 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
   const [changeReqSaving, setChangeReqSaving] = useState(false);
   const [changeReqRefresh, setChangeReqRefresh] = useState(0);
 
-  // Auto-preenche o número quando muda a fonte selecionada, respeitando edição manual do usuário.
+  // Sincroniza o WhatsApp do responsável com o WhatsApp principal do cadastro
+  // quando o usuário marca "Usar o mesmo WhatsApp do meu cadastro". Se ele
+  // desmarcar, o campo fica editável pra informar outro contato (produtor,
+  // sócio, gerente etc.).
   useEffect(() => {
-    if (isPublished) return; // trava após publicação
-    const currentPhone = form.getValues("duvidasWhatsapp") || "";
-    const suggested =
-      duvidasSource === "atrativo"
-        ? atrativoContact
-        : duvidasSource === "estabelecimento"
-        ? locationContact
-        : promotorPhone;
-    // Se o campo está vazio ou ainda contém a sugestão anterior automática, atualiza.
-    if (!currentPhone || currentPhone === lastAutoRef.current) {
-      const next = suggested || "";
-      lastAutoRef.current = next;
-      form.setValue("duvidasWhatsapp", next, { shouldValidate: true, shouldDirty: false });
+    if (isPublished) return;
+    if (usarMeuWhatsapp) {
+      form.setValue("duvidasWhatsapp", basicPhone || "", { shouldValidate: true, shouldDirty: false });
     }
-  }, [duvidasSource, promotorPhone, atrativoContact, locationContact, form, isPublished]);
+  }, [usarMeuWhatsapp, basicPhone, isPublished, form]);
+
+  // Pré-preenche o nome do responsável com o nome do cadastro, mas mantém editável.
+  useEffect(() => {
+    if (isPublished) return;
+    if (!responsavelNome && nickName) {
+      form.setValue("responsavelNome", nickName, { shouldDirty: false });
+    }
+  }, [nickName, responsavelNome, isPublished, form]);
 
   const phoneValidation = validateBrazilianMobile(duvidasWhatsapp);
   const previewMessage = eventTitle
@@ -167,64 +165,70 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
         </Link>
       </div>
 
-      <FormField
-        control={form.control}
-        name="duvidasSource"
-        render={({ field }) => (
-          <FormItem className="rounded-md border p-4 space-y-3">
-            <FormLabel className="flex items-center gap-2 text-primary font-bold">
-              <MessageCircle className="h-4 w-4" />
-              Quem responde dúvidas sobre este evento?
-            </FormLabel>
-            <p className="text-xs text-muted-foreground">
-              Quando alguém clicar em <strong>“Tirar dúvidas”</strong> na página do evento, vai cair no WhatsApp da opção escolhida.
+      {/*
+        Seção "Responsável pelo evento" (Fase 7 – novo modelo).
+        - responsavelNome vem do cadastro base (nickName), mas é editável.
+        - usarMeuWhatsapp true → duvidasWhatsapp espelha basicPhone (só leitura).
+        - usarMeuWhatsapp false → duvidasWhatsapp fica editável e obrigatório.
+        - tipoResponsavel + campos de perfil são opcionais e reaproveitados.
+      */}
+      <div className="rounded-md border p-4 space-y-4">
+        <div className="flex items-start gap-2 text-primary font-bold text-sm">
+          <User className="h-4 w-4 mt-0.5" />
+          <div>
+            <div>Responsável pelo evento</div>
+            <p className="text-xs font-normal text-muted-foreground mt-1">
+              Você é o responsável por essa divulgação. Confere se os dados abaixo estão certos —
+              vamos usar esse WhatsApp pra receber dúvidas do público.
             </p>
-            <FormControl>
-              <RadioGroup
-                value={field.value || "promotor"}
-                onValueChange={field.onChange}
-                className="grid gap-2"
-              >
-                <label className="flex items-start gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/40">
-                  <RadioGroupItem value="promotor" className="mt-0.5" />
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">Promotor</div>
-                    <div className="text-xs text-muted-foreground">
-                      {promotorName || "Você (definido na Etapa 1)"}
-                    </div>
-                  </div>
-                </label>
-                <label className="flex items-start gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/40">
-                  <RadioGroupItem value="atrativo" className="mt-0.5" />
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">Atrativo</div>
-                    <div className="text-xs text-muted-foreground">
-                      {atrativoName || "Contato do atrativo (Etapa 4)"}
-                    </div>
-                  </div>
-                </label>
-                <label className="flex items-start gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/40">
-                  <RadioGroupItem value="estabelecimento" className="mt-0.5" />
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">Estabelecimento</div>
-                    <div className="text-xs text-muted-foreground">
-                      {locationName || "Contato do local (Etapa 5)"}
-                    </div>
-                  </div>
-                </label>
-              </RadioGroup>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+          </div>
+        </div>
+
+        <FormField
+          control={form.control}
+          name="responsavelNome"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nome do responsável</FormLabel>
+              <FormControl>
+                <Input placeholder="Como quer aparecer na divulgação?" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="usarMeuWhatsapp"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start gap-3 space-y-0 rounded-md border bg-muted/30 p-3">
+              <FormControl>
+                <Checkbox
+                  checked={field.value !== false}
+                  disabled={isPublished}
+                  onCheckedChange={(v) => field.onChange(v === true)}
+                />
+              </FormControl>
+              <div className="text-sm leading-tight">
+                <FormLabel className="cursor-pointer">Usar o mesmo WhatsApp do meu cadastro</FormLabel>
+                <p className="text-xs text-muted-foreground">
+                  {basicPhone
+                    ? `Vamos usar ${formatPhoneDisplay(basicPhone)} pra receber dúvidas.`
+                    : "Preencha o WhatsApp no seu cadastro base pra reaproveitar."}
+                </p>
+              </div>
+            </FormItem>
+          )}
+        />
+      </div>
 
       <FormField
         control={form.control}
         name="duvidasWhatsapp"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>WhatsApp do responsável pelas informações</FormLabel>
+            <FormLabel>WhatsApp do responsável pelo evento</FormLabel>
             <FormControl>
               <TooltipProvider>
                 <Tooltip>
@@ -232,14 +236,14 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                     <div className="relative">
                       <Input
                         inputMode="tel"
-                        placeholder="(21) 9XXXX-XXXX – número que receberá dúvidas sobre o evento"
+                        placeholder="(21) 9XXXX-XXXX – WhatsApp que vai receber dúvidas"
                         value={field.value || ""}
-                        readOnly={isPublished}
-                        aria-readonly={isPublished}
+                        readOnly={isPublished || usarMeuWhatsapp}
+                        aria-readonly={isPublished || usarMeuWhatsapp}
                         aria-describedby={isPublished ? "duvidas-whatsapp-lock" : undefined}
-                        className={isPublished ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
+                        className={(isPublished || usarMeuWhatsapp) ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
                         onChange={(e) => {
-                          if (isPublished) return;
+                          if (isPublished || usarMeuWhatsapp) return;
                           field.onChange(formatPhoneDisplay(e.target.value));
                         }}
                       />
@@ -271,8 +275,9 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
               </Button>
             )}
             <p className="text-xs text-muted-foreground">
-              É esse número que vai receber as dúvidas do público via WhatsApp.
-              {duvidasSource === "promotor" && " Pré-preenchido com seu contato — pode trocar se quiser usar outro."}
+              {usarMeuWhatsapp
+                ? "Usando o WhatsApp do seu cadastro. Desmarque acima pra informar outro número (produtor, sócio, gerente…)."
+                : "Digite o WhatsApp de quem vai responder às dúvidas sobre esse evento."}
             </p>
 
             {/* Pré-visualização do link do WhatsApp */}
@@ -310,6 +315,75 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
           </FormItem>
         )}
       />
+
+      {/*
+        Caracterização opcional do responsável — reaproveitada em divulgações futuras
+        (persistida em submissions.responsavel_tipo + responsavel_perfil).
+      */}
+      <FormField
+        control={form.control}
+        name="tipoResponsavel"
+        render={({ field }) => (
+          <FormItem className="rounded-md border p-4 space-y-3">
+            <FormLabel className="flex items-center gap-2 text-primary font-bold">
+              <MessageCircle className="h-4 w-4" />
+              Como você quer se identificar? <span className="text-[10px] font-normal text-muted-foreground">(opcional)</span>
+            </FormLabel>
+            <p className="text-xs text-muted-foreground">
+              Ajuda a gente a caracterizar seu perfil e reaproveitar em próximas divulgações.
+            </p>
+            <FormControl>
+              <RadioGroup
+                value={field.value || ""}
+                onValueChange={field.onChange}
+                className="grid gap-2 sm:grid-cols-2"
+              >
+                {[
+                  { v: "artista", l: "Artista / Músico" },
+                  { v: "estabelecimento", l: "Estabelecimento" },
+                  { v: "produtor", l: "Produtor / Organizador" },
+                  { v: "outro", l: "Outro" },
+                ].map((opt) => (
+                  <label key={opt.v} className="flex items-center gap-2 rounded-md border p-2 cursor-pointer hover:bg-muted/40 text-sm">
+                    <RadioGroupItem value={opt.v} />
+                    <span>{opt.l}</span>
+                  </label>
+                ))}
+              </RadioGroup>
+            </FormControl>
+          </FormItem>
+        )}
+      />
+
+      {tipoResponsavel === "artista" && (
+        <div className="rounded-md border p-4 space-y-3">
+          <div className="text-xs text-muted-foreground">Perfil de artista (opcional — usado nas próximas divulgações).</div>
+          <FormField control={form.control} name="perfilNomeArtistico" render={({ field }) => (
+            <FormItem><FormLabel>Nome artístico</FormLabel><FormControl><Input {...field} placeholder="Nome que aparece nos flyers" /></FormControl><FormMessage /></FormItem>
+          )} />
+          <FormField control={form.control} name="perfilEstiloMusical" render={({ field }) => (
+            <FormItem><FormLabel>Estilo musical</FormLabel><FormControl><Input {...field} placeholder="Samba, MPB, Rock…" /></FormControl><FormMessage /></FormItem>
+          )} />
+          <FormField control={form.control} name="perfilLinkPrincipal" render={({ field }) => (
+            <FormItem><FormLabel>Link principal</FormLabel><FormControl><Input {...field} placeholder="Instagram, Spotify, YouTube…" /></FormControl><FormMessage /></FormItem>
+          )} />
+        </div>
+      )}
+
+      {tipoResponsavel === "estabelecimento" && (
+        <div className="rounded-md border p-4 space-y-3">
+          <div className="text-xs text-muted-foreground">Perfil do estabelecimento (opcional).</div>
+          <FormField control={form.control} name="perfilNomeEstabelecimento" render={({ field }) => (
+            <FormItem><FormLabel>Nome do estabelecimento</FormLabel><FormControl><Input {...field} placeholder="Ex.: Bar do Zé" /></FormControl><FormMessage /></FormItem>
+          )} />
+          <FormField control={form.control} name="perfilCategoriaLocal" render={({ field }) => (
+            <FormItem><FormLabel>Categoria</FormLabel><FormControl><Input {...field} placeholder="Bar, restaurante, casa de show…" /></FormControl><FormMessage /></FormItem>
+          )} />
+          <FormField control={form.control} name="perfilEnderecoResumido" render={({ field }) => (
+            <FormItem><FormLabel>Endereço resumido</FormLabel><FormControl><Input {...field} placeholder="Rua e bairro" /></FormControl><FormMessage /></FormItem>
+          )} />
+        </div>
+      )}
 
       <FormField
         control={form.control}

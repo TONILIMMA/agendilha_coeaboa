@@ -79,6 +79,7 @@ export default function ProfileSettings() {
   const [loading, setLoading] = useState(false);
   const [artistProfile, setArtistProfile] = useState<any>(null);
   const [artistLoaded, setArtistLoaded] = useState(false);
+  const [baseErrors, setBaseErrors] = useState<{ name?: string; whatsapp?: string; bairro?: string }>({});
 
   // Form states
   const [name, setName] = useState("");
@@ -167,6 +168,21 @@ export default function ProfileSettings() {
   }
 
   async function handleSave() {
+    // Cadastro base único (nome, WhatsApp principal, bairro) — obrigatório
+    // pra qualquer usuário conseguir divulgar evento depois.
+    const nextErrors: { name?: string; whatsapp?: string; bairro?: string } = {};
+    if (!name.trim()) nextErrors.name = "Informe seu nome.";
+    const waErr = validateAdminPhone(whatsappPhone);
+    if (!whatsappPhone.trim()) nextErrors.whatsapp = "Informe seu WhatsApp com DDD.";
+    else if (waErr) nextErrors.whatsapp = waErr;
+    if (!homeLocation.trim()) nextErrors.bairro = "Escolha o bairro onde mora ou trabalha.";
+    setBaseErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      toast.error("Complete seu cadastro base", {
+        description: Object.values(nextErrors).join(" "),
+      });
+      return;
+    }
     // Validate admin phone before saving
     if (isAdmin) {
       const err = validateAdminPhone(adminPhone);
@@ -185,6 +201,10 @@ export default function ProfileSettings() {
         social_links: { instagram, facebook },
         coverage_area: coverageArea,
         whatsapp_phone: whatsappPhone,
+        // whatsapp_phone é o "WhatsApp principal" do cadastro base — vale pra todos os perfis.
+        // Se o usuário não for admin (que edita `phone` num campo separado), espelhamos
+        // esse valor em `profiles.phone` também, pra o app buscar sempre no mesmo lugar.
+        ...(isAdmin ? {} : { phone: (whatsappPhone || "").replace(/\D/g, "") || null }),
         address_street: addressStreet,
         address_number: addressNumber,
         address_complement: addressComplement,
@@ -244,32 +264,60 @@ export default function ProfileSettings() {
         <CardHeader>
           <CardTitle className="text-lg font-display flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
-            Informações Gerais
+            Cadastro base
           </CardTitle>
-          <CardDescription>Dados básicos da sua conta.</CardDescription>
+          <CardDescription>
+            Esses três dados são obrigatórios pra qualquer usuário — inclusive pra divulgar evento depois.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nome Completo</Label>
+            <Label htmlFor="name">Nome <span className="text-destructive">*</span></Label>
             <Input 
               id="name" 
               value={name} 
               onChange={(e) => setName(e.target.value)} 
+              aria-invalid={!!baseErrors.name}
             />
+            {baseErrors.name && <p className="text-xs text-destructive">{baseErrors.name}</p>}
           </div>
-          
+
+          <div className="space-y-2">
+            <Label htmlFor="whatsapp-principal" className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-muted-foreground" /> WhatsApp principal <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="whatsapp-principal"
+              inputMode="tel"
+              placeholder="21 9XXXX-XXXX"
+              value={whatsappPhone}
+              onChange={(e) => setWhatsappPhone(formatPhoneMask(e.target.value))}
+              aria-invalid={!!baseErrors.whatsapp}
+            />
+            {baseErrors.whatsapp ? (
+              <p className="text-xs text-destructive">{baseErrors.whatsapp}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">DDD + número. Esse WhatsApp vai ser usado como contato principal.</p>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" /> Bairro onde mora
+              <MapPin className="h-4 w-4 text-muted-foreground" /> Bairro <span className="text-destructive">*</span>
             </Label>
             <Select value={homeLocation} onValueChange={setHomeLocation}>
-              <SelectTrigger>
+              <SelectTrigger aria-invalid={!!baseErrors.bairro}>
                 <SelectValue placeholder="Selecione seu bairro" />
               </SelectTrigger>
               <SelectContent>
                 {NEIGHBORHOODS.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}
               </SelectContent>
             </Select>
+            {baseErrors.bairro ? (
+              <p className="text-xs text-destructive">{baseErrors.bairro}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">Bairro onde mora ou trabalha.</p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -369,10 +417,7 @@ export default function ProfileSettings() {
             <CardDescription>Usamos esses dados para contato e divulgação.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Telefone / WhatsApp</Label>
-              <Input value={whatsappPhone} onChange={(e) => setWhatsappPhone(e.target.value)} placeholder="(21) 99999-9999" />
-            </div>
+            {/* WhatsApp principal agora é campo do "Cadastro base" acima — evita duplicar. */}
             <div className="space-y-2">
               <Label>Redes sociais (links ou @)</Label>
               <Textarea value={socialNetworks} onChange={(e) => setSocialNetworks(e.target.value)} rows={2} placeholder="@instagram, facebook.com/..." />

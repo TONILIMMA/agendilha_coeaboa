@@ -50,11 +50,25 @@ const formSchema = z.object({
   legalAcceptance: z.literal(true, {
     errorMap: () => ({ message: "Você precisa aceitar os termos para continuar" }),
   }),
-  duvidasSource: z.enum(["promotor", "atrativo", "estabelecimento"]).default("promotor"),
+  // Novo modelo (Fase 7): "Responsável pelo evento".
+  // Substitui o antigo seletor promotor/atrativo/estabelecimento.
+  responsavelNome: z.string().trim().min(1, "Informe o nome do responsável").max(100),
+  usarMeuWhatsapp: z.boolean().default(true),
+  // duvidasWhatsapp = WhatsApp do responsável (mantivemos o nome do campo p/ compat com backend).
   duvidasWhatsapp: z.string().trim().optional().default(""),
+  // Campo legado — mantido em 'promotor' pra compat com telas antigas.
+  duvidasSource: z.enum(["promotor", "atrativo", "estabelecimento"]).default("promotor"),
   duvidasAuthorized: z.literal(true, {
     errorMap: () => ({ message: "Você precisa autorizar o uso deste WhatsApp" }),
   }),
+  // Caracterização opcional do responsável (reaproveitada em divulgações futuras).
+  tipoResponsavel: z.enum(["artista", "estabelecimento", "produtor", "outro"]).optional(),
+  perfilNomeArtistico: z.string().trim().max(120).optional(),
+  perfilEstiloMusical: z.string().trim().max(120).optional(),
+  perfilLinkPrincipal: z.string().trim().max(300).optional(),
+  perfilNomeEstabelecimento: z.string().trim().max(120).optional(),
+  perfilCategoriaLocal: z.string().trim().max(80).optional(),
+  perfilEnderecoResumido: z.string().trim().max(200).optional(),
 
   category: z.string().trim().optional(),
   eventTitle: z.string().trim().min(1, "Dá um nome pro rolê"),
@@ -152,6 +166,8 @@ export default function SubmissionForm() {
       fotos: [],
       duvidasSource: "promotor",
       duvidasWhatsapp: "",
+      responsavelNome: "",
+      usarMeuWhatsapp: true,
     },
     mode: "onChange",
   });
@@ -164,6 +180,13 @@ export default function SubmissionForm() {
       // pra evitar que um telefone/e-mail antigo salvo no navegador continue vencendo.
       if (profile.responsible_name) form.setValue("nickName", profile.responsible_name, { shouldDirty: false });
       if (profile.phone) form.setValue("basicPhone", profile.phone, { shouldDirty: false, shouldValidate: true });
+      // Cadastro base → pré-preenche o "Responsável" da Fase 7.
+      if (profile.responsible_name && !currentValues.responsavelNome) {
+        form.setValue("responsavelNome", profile.responsible_name, { shouldDirty: false });
+      }
+      if (profile.phone && !currentValues.duvidasWhatsapp) {
+        form.setValue("duvidasWhatsapp", profile.phone, { shouldDirty: false });
+      }
       if (profile.company_name || profile.responsible_name) {
         form.setValue("companyName", profile.company_name || profile.responsible_name || "", { shouldDirty: false });
       }
@@ -308,7 +331,7 @@ export default function SubmissionForm() {
       case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
       case 4: return ["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory", "atrativoType", "atrativoStyle", "atrativoDescription"];
       case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
-      case 7: return ["legalAcceptance", "duvidasSource", "duvidasWhatsapp", "duvidasAuthorized"];
+      case 7: return ["legalAcceptance", "responsavelNome", "duvidasWhatsapp", "duvidasAuthorized"];
       default: return [];
     }
   };
@@ -375,7 +398,7 @@ export default function SubmissionForm() {
       // Map camelCase form fields → snake_case DB columns
       const payload: any = {
         company_name: clean(values.companyName),
-        responsible_name: clean(values.nickName),
+        // responsible_name é preenchido abaixo com o nome do responsável (Fase 7).
         email: clean(values.email),
         phone: clean(values.basicPhone),
         event_title: clean(values.eventTitle) || clean(values.atrativoName),
@@ -408,8 +431,20 @@ export default function SubmissionForm() {
         terms_accepted_at: values.legalAcceptance ? new Date().toISOString() : null,
         age_rating: values.ageRating,
         is_suitable_for_minors: values.isSuitableForMinors,
-        duvidas_source: values.duvidasSource || 'promotor',
+        duvidas_source: 'promotor',
         responsavel_duvidas_whatsapp: clean(values.duvidasWhatsapp),
+        // Responsável pelo evento (nova Fase 7). O nome do responsável
+        // sobrescreve `responsible_name` no registro do evento.
+        responsible_name: clean(values.responsavelNome) || clean(values.nickName),
+        responsavel_tipo: values.tipoResponsavel || null,
+        responsavel_perfil: {
+          nome_artistico: clean(values.perfilNomeArtistico),
+          estilo_musical: clean(values.perfilEstiloMusical),
+          link_principal: clean(values.perfilLinkPrincipal),
+          nome_estabelecimento: clean(values.perfilNomeEstabelecimento),
+          categoria_local: clean(values.perfilCategoriaLocal),
+          endereco_resumido: clean(values.perfilEnderecoResumido),
+        },
         image_url: imageUrl || null,
         image_url_story: values.eventImageUrlStory || null,
         image_url_whatsapp: values.eventImageUrlWhatsapp || null,

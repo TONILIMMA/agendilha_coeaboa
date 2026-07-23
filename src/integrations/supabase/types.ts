@@ -1382,6 +1382,8 @@ export type Database = {
           rejection_reason: string | null
           report_count: number | null
           responsavel_duvidas_whatsapp: string | null
+          responsavel_perfil: Json | null
+          responsavel_tipo: string | null
           responsible_name: string | null
           responsible_person: string | null
           review_started_at: string | null
@@ -1474,6 +1476,8 @@ export type Database = {
           rejection_reason?: string | null
           report_count?: number | null
           responsavel_duvidas_whatsapp?: string | null
+          responsavel_perfil?: Json | null
+          responsavel_tipo?: string | null
           responsible_name?: string | null
           responsible_person?: string | null
           review_started_at?: string | null
@@ -1566,6 +1570,8 @@ export type Database = {
           rejection_reason?: string | null
           report_count?: number | null
           responsavel_duvidas_whatsapp?: string | null
+          responsavel_perfil?: Json | null
+          responsavel_tipo?: string | null
           responsible_name?: string | null
           responsible_person?: string | null
           review_started_at?: string | null
