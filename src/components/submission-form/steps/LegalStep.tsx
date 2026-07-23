@@ -1,9 +1,16 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { UseFormReturn } from "react-hook-form";
-import { Scale, Info } from "lucide-react";
+import { Scale, Info, MessageCircle, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ROUTES } from "@/routes/config";
 
 export function LegalStep({ form }: { form: UseFormReturn<any> }) {
+  const promotorName = form.watch("nickName") || form.watch("companyName");
+  const atrativoName = form.watch("atrativoName");
+  const locationName = form.watch("locationName");
+
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-2">
@@ -23,6 +30,75 @@ export function LegalStep({ form }: { form: UseFormReturn<any> }) {
         <p>2. A gente dá uma olhada rápida antes de publicar no AgendIlha.</p>
         <p>3. Se rolar algo impróprio ou falso, tiramos do ar.</p>
       </div>
+
+      <div className="flex flex-wrap gap-3 text-xs">
+        <Link
+          to={ROUTES.TERMOS}
+          target="_blank"
+          className="inline-flex items-center gap-1 text-primary underline underline-offset-4 hover:text-primary/80"
+        >
+          Termos de Uso <ExternalLink className="h-3 w-3" />
+        </Link>
+        <Link
+          to={ROUTES.PRIVACIDADE}
+          target="_blank"
+          className="inline-flex items-center gap-1 text-primary underline underline-offset-4 hover:text-primary/80"
+        >
+          Política de Privacidade <ExternalLink className="h-3 w-3" />
+        </Link>
+      </div>
+
+      <FormField
+        control={form.control}
+        name="duvidasSource"
+        render={({ field }) => (
+          <FormItem className="rounded-md border p-4 space-y-3">
+            <FormLabel className="flex items-center gap-2 text-primary font-bold">
+              <MessageCircle className="h-4 w-4" />
+              Quem responde dúvidas sobre este evento?
+            </FormLabel>
+            <p className="text-xs text-muted-foreground">
+              Quando alguém clicar em <strong>“Tirar dúvidas”</strong> na página do evento, vai cair no WhatsApp da opção escolhida.
+            </p>
+            <FormControl>
+              <RadioGroup
+                value={field.value || "promotor"}
+                onValueChange={field.onChange}
+                className="grid gap-2"
+              >
+                <label className="flex items-start gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/40">
+                  <RadioGroupItem value="promotor" className="mt-0.5" />
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">Promotor</div>
+                    <div className="text-xs text-muted-foreground">
+                      {promotorName || "Você (definido na Etapa 1)"}
+                    </div>
+                  </div>
+                </label>
+                <label className="flex items-start gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/40">
+                  <RadioGroupItem value="atrativo" className="mt-0.5" />
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">Atrativo</div>
+                    <div className="text-xs text-muted-foreground">
+                      {atrativoName || "Contato do atrativo (Etapa 4)"}
+                    </div>
+                  </div>
+                </label>
+                <label className="flex items-start gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/40">
+                  <RadioGroupItem value="estabelecimento" className="mt-0.5" />
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">Estabelecimento</div>
+                    <div className="text-xs text-muted-foreground">
+                      {locationName || "Contato do local (Etapa 5)"}
+                    </div>
+                  </div>
+                </label>
+              </RadioGroup>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <FormField
         control={form.control}
