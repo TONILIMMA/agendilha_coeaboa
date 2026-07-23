@@ -96,10 +96,11 @@ const formSchema = z.object({
   atrativoLinkedAt: z.string().optional(),
   atrativoLinkedName: z.string().optional(),
 
-  locationName: z.string().trim().min(1, "O nome do local é obrigatório"),
-  eventAddress: z.string().trim().min(1, "O endereço completo é obrigatório"),
-  locationType: z.enum(["public", "commercial"], { required_error: "Selecione o tipo do local" }),
+  locationName: z.string().trim().min(1, "Informe o nome do local/estabelecimento"),
+  eventAddress: z.string().trim().min(1, "Informe o endereço resumido"),
+  locationType: z.enum(["public", "commercial"], { required_error: "Selecione a categoria do espaço" }),
   locationContact: z.string().trim().optional(),
+  localTipo: z.string().trim().min(1, "Selecione o tipo de local (bar, praça, restaurante...)"),
 
   description: z.string().trim().max(500).optional(),
   contactSocial: z.string().trim().max(300).optional(),
@@ -107,7 +108,7 @@ const formSchema = z.object({
   additionalDetails: z.string().trim().optional(),
   stage: z.string().optional(),
   responsiblePerson: z.string().trim().optional(),
-  addressNeighborhood: z.string().optional(),
+  addressNeighborhood: z.string().trim().min(1, "Selecione o bairro do local"),
   addressCity: z.string().optional(),
   addressState: z.string().optional(),
   ageRating: z.enum(["Livre", "10+", "12+", "14+", "16+", "18+"]).default("Livre"),
@@ -294,10 +295,12 @@ export default function SubmissionForm() {
     atrativoContact: "WhatsApp do atrativo",
     atrativoEmail: "E-mail do atrativo",
     atrativoCategory: "Categoria do atrativo",
-    locationName: "Nome do local",
-    eventAddress: "Endereço do evento",
-    locationType: "Tipo do local",
-    locationContact: "Contato do responsável pelo local",
+    locationName: "Nome do local/estabelecimento",
+    eventAddress: "Endereço resumido do local",
+    locationType: "Categoria do espaço",
+    locationContact: "Contato do local/estabelecimento",
+    localTipo: "Tipo de local",
+    addressNeighborhood: "Bairro do local",
     legalAcceptance: "Aceite dos termos",
     duvidasWhatsapp: "WhatsApp do responsável pelas informações",
     duvidasAuthorized: "Autorização de uso do WhatsApp",
@@ -330,7 +333,7 @@ export default function SubmissionForm() {
       case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
       case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
       case 4: return ["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory", "atrativoType", "atrativoStyle", "atrativoDescription"];
-      case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
+      case 5: return ["locationName", "localTipo", "addressNeighborhood", "eventAddress", "locationType", "locationContact"];
       case 7: return ["legalAcceptance", "responsavelNome", "duvidasWhatsapp", "duvidasAuthorized"];
       default: return [];
     }
@@ -425,6 +428,7 @@ export default function SubmissionForm() {
         atrativo_contact: clean(values.atrativoContact),
         location_type: values.locationType,
         location_contact: clean(values.locationContact),
+        local_tipo: clean((values as any).localTipo),
         legal_acceptance: values.legalAcceptance,
         legal_acceptance_date: values.legalAcceptance ? new Date().toISOString() : null,
         terms_accepted: values.legalAcceptance,
@@ -476,7 +480,7 @@ export default function SubmissionForm() {
       companyName: 2, email: 2, addressZip: 2, addressStreet: 2, addressNumber: 2,
       category: 3, eventTitle: 3, date: 3, startTime: 3, endTime: 3,
       atrativoName: 4, atrativoType: 4, atrativoStyle: 4, atrativoDescription: 4, atrativoContact: 4, atrativoEmail: 4, atrativoCategory: 4,
-      locationName: 5, eventAddress: 5, locationType: 5, locationContact: 5,
+      locationName: 5, localTipo: 5, addressNeighborhood: 5, eventAddress: 5, locationType: 5, locationContact: 5,
       legalAcceptance: 7,
       duvidasWhatsapp: 7,
       duvidasAuthorized: 7,
