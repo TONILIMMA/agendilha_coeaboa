@@ -167,6 +167,15 @@ export default function ProfileSettings() {
   }
 
   async function handleSave() {
+    // Validate admin phone before saving
+    if (isAdmin) {
+      const err = validateAdminPhone(adminPhone);
+      if (err) {
+        setAdminPhoneError(err);
+        toast.error("Telefone inválido", { description: err });
+        return;
+      }
+    }
     setLoading(true);
     try {
       const profileData: any = {
@@ -186,6 +195,13 @@ export default function ProfileSettings() {
         avatar_url: avatarUrl,
         contact_social: socialNetworks,
       };
+
+      // Admin/Master pode editar diretamente o telefone principal do perfil.
+      // A trigger `trg_log_profile_phone_change` registra a mudança em audit_logs.
+      if (isAdmin) {
+        const digits = adminPhone.replace(/\D/g, "");
+        profileData.phone = digits || null;
+      }
 
       await saveProfile(profileData);
 
