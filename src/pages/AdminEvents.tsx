@@ -481,6 +481,7 @@ function AdminEventsInner() {
 
   return (
     <PageContainer maxWidth="7xl">
+         <PublishBlockDialog info={publishBlock} onClose={() => setPublishBlock(null)} />
          {/* Header Area */}
          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-10">
            <div className="space-y-1">
