@@ -343,6 +343,11 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
 
             {/* Right (row 1): user dropdown only on mobile, full actions on sm+ */}
+            {!user && (
+              <div className="ml-auto flex items-center">
+                <UpdateAppButton compact />
+              </div>
+            )}
             {user && !isAgenda && (() => {
             // Use centralized name resolution from useUserBadge (profile → company → collaborator → metadata → email/phone)
             const fullName = badgeName && badgeName !== "Usuário" ? badgeName : "Divulgador";
