@@ -1315,6 +1315,7 @@ export type Database = {
           rejected_by: string | null
           rejection_reason: string | null
           report_count: number | null
+          responsavel_duvidas_whatsapp: string | null
           responsible_name: string | null
           responsible_person: string | null
           review_started_at: string | null
@@ -1406,6 +1407,7 @@ export type Database = {
           rejected_by?: string | null
           rejection_reason?: string | null
           report_count?: number | null
+          responsavel_duvidas_whatsapp?: string | null
           responsible_name?: string | null
           responsible_person?: string | null
           review_started_at?: string | null
@@ -1497,6 +1499,7 @@ export type Database = {
           rejected_by?: string | null
           rejection_reason?: string | null
           report_count?: number | null
+          responsavel_duvidas_whatsapp?: string | null
           responsible_name?: string | null
           responsible_person?: string | null
           review_started_at?: string | null
@@ -1979,6 +1982,7 @@ export type Database = {
           published_at: string | null
           rejection_reason: string | null
           report_count: number | null
+          responsavel_duvidas_whatsapp: string | null
           sale_price: string | null
           shares_count: number | null
           short_copy: string | null
@@ -2043,6 +2047,7 @@ export type Database = {
           published_at?: string | null
           rejection_reason?: string | null
           report_count?: number | null
+          responsavel_duvidas_whatsapp?: string | null
           sale_price?: string | null
           shares_count?: number | null
           short_copy?: string | null
@@ -2107,6 +2112,7 @@ export type Database = {
           published_at?: string | null
           rejection_reason?: string | null
           report_count?: number | null
+          responsavel_duvidas_whatsapp?: string | null
           sale_price?: string | null
           shares_count?: number | null
           short_copy?: string | null
