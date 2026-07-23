@@ -5,6 +5,7 @@ import { openWhatsappNotification } from "@/lib/notifications";
 import { logger } from "@/lib/logger";
 import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import type { EditorialStatus, Submission } from "./types";
+import { missingPublishFields } from "@/lib/publishValidation";
 
 type SubmissionUpdate = TablesUpdate<"submissions">;
 type AuditInsert = TablesInsert<"event_audit_log">;
@@ -89,6 +90,14 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
     extra: Partial<Submission> = {},
   ) => {
     const prev = submissions.find(s => s.id === id);
+    // Bloqueia agendar/publicar sem os dados mínimos.
+    if (newStatus === "publicado" || newStatus === "agendado" || newStatus === "pronto_divulgar") {
+      const missing = missingPublishFields(prev);
+      if (missing.length) {
+        toast.error(`Não dá pra ${newStatus === "publicado" ? "publicar" : newStatus === "agendado" ? "agendar" : "marcar como pronto"}: falta ${missing.join(", ")}.`);
+        return false;
+      }
+    }
     const patch = { editorial_status: newStatus, ...extra } as SubmissionUpdate;
     // Optimistic update
     setSubmissions(curr => curr.map(s => s.id === id ? { ...s, ...patch } : s));
@@ -116,6 +125,11 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
   ) => {
     if (!userId) return false;
     const sub = submissions.find(s => s.id === id);
+    const missing = missingPublishFields(sub);
+    if (missing.length) {
+      toast.error(`Não dá pra publicar: falta ${missing.join(", ")}.`);
+      return false;
+    }
     const channels = Array.from(new Set([...(sub?.published_channels || []), channel]));
     const prev = sub;
     setSubmissions(curr => curr.map(s => s.id === id ? { ...s, published_channels: channels, editorial_status: "publicado" } : s));

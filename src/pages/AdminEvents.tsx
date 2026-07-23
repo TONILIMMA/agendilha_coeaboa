@@ -37,6 +37,7 @@ import { Label } from "@/components/ui/label";
 import { buildTodayWhatsAppSummary, buildWeekWhatsAppSummary, openWhatsAppWithText } from "@/lib/todayWhatsappSummary";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
+import { missingPublishFields } from "@/lib/publishValidation";
 
 
 interface Submission {
@@ -269,6 +270,16 @@ function AdminEventsInner() {
       updateData.rejected_by = user?.id;
     }
 
+    // Antes de aprovar/publicar, garante os campos mínimos.
+    if (newStatus === 'aprovado' || newStatus === 'publicado') {
+      const sub = submissions.find((s) => s.id === id);
+      const missing = missingPublishFields(sub);
+      if (missing.length) {
+        toast.error(`Não dá pra ${newStatus === 'publicado' ? 'publicar' : 'aprovar'}: falta ${missing.join(', ')}.`);
+        return;
+      }
+    }
+
     const { error } = await supabase.from("submissions").update(updateData).eq("id", id);
 
     if (error) {
@@ -277,7 +288,8 @@ function AdminEventsInner() {
       toast.success(`Status atualizado para ${newStatus}`);
       if (newStatus === 'aprovado') {
         const sub = submissions.find((s) => s.id === id);
-        if (sub) setFlyerOffer(sub);
+        // Só oferece flyer genérico quando o promotor NÃO mandou arte própria.
+        if (sub && !sub.image_url) setFlyerOffer(sub);
       }
       fetchAll(); // Refresh to get generated slugs/copies
     }
@@ -304,6 +316,14 @@ function AdminEventsInner() {
   async function confirmReview() {
     if (!review) return;
     const { sub, kind, reason, message } = review;
+    if (kind === "approved") {
+      const missing = missingPublishFields(sub);
+      if (missing.length) {
+        toast.error(`Não dá pra aprovar: falta ${missing.join(', ')}.`);
+        setReview({ ...review, submitting: false });
+        return;
+      }
+    }
     setReview({ ...review, submitting: true });
 
     const payload: any =
@@ -332,7 +352,7 @@ function AdminEventsInner() {
     toast.success(kind === "approved" ? "Evento aprovado." : "Evento rejeitado.");
 
     if (kind === "approved") {
-      setFlyerOffer(sub);
+      if (!sub.image_url) setFlyerOffer(sub);
     }
 
     const phoneCheck = validateBrazilianMobile(sub.phone || "");
@@ -353,6 +373,12 @@ function AdminEventsInner() {
 
   async function confirmGenerateFlyer() {
     if (!flyerOffer) return;
+    // Guarda dupla: nunca sobrescreve arte enviada pelo promotor.
+    if (flyerOffer.image_url) {
+      toast.info("Esse evento já tem flyer do promotor. Mantendo a arte original.");
+      setFlyerOffer(null);
+      return;
+    }
     setGeneratingFlyer(true);
     try {
       const dataUrl = await generateFallbackFlyer({
