@@ -833,11 +833,17 @@ function AdminEventsInner() {
                           <>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                 <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'approved')}>
-                                   <CheckCircle className="h-4 w-4" />
-                                 </Button>
+                                 <span className="inline-flex">
+                                   <Button size="icon" variant="outline" disabled={missingPublishFields(sub).length > 0} className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm disabled:opacity-50" onClick={() => openReview(sub, 'approved')}>
+                                     <CheckCircle className="h-4 w-4" />
+                                   </Button>
+                                 </span>
                                </TooltipTrigger>
-                               <TooltipContent>Aprovar</TooltipContent>
+                               <TooltipContent>
+                                 {missingPublishFields(sub).length > 0
+                                   ? `Falta: ${missingPublishFields(sub).join(", ")}`
+                                   : "Aprovar"}
+                               </TooltipContent>
                              </Tooltip>
                              
                              <Tooltip>
@@ -861,11 +867,17 @@ function AdminEventsInner() {
                         ) : sub.status === 'rejeitado' ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                               <Button size="icon" variant="outline" className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'approved')}>
-                                <CheckCircle className="h-4 w-4" />
-                              </Button>
+                              <span className="inline-flex">
+                                <Button size="icon" variant="outline" disabled={missingPublishFields(sub).length > 0} className="h-9 w-9 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm disabled:opacity-50" onClick={() => openReview(sub, 'approved')}>
+                                  <CheckCircle className="h-4 w-4" />
+                                </Button>
+                              </span>
                             </TooltipTrigger>
-                            <TooltipContent>Reverter para Aprovado</TooltipContent>
+                            <TooltipContent>
+                              {missingPublishFields(sub).length > 0
+                                ? `Falta: ${missingPublishFields(sub).join(", ")}`
+                                : "Reverter para Aprovado"}
+                            </TooltipContent>
                           </Tooltip>
                         ) : null}
 
@@ -1016,7 +1028,18 @@ function AdminEventsInner() {
                           )}
                           <div className="pt-4 flex flex-wrap gap-2 border-t border-border/50">
                             {sub.status !== 'aprovado' && (
-                             <Button size="sm" variant="default" onClick={() => openReview(sub, 'approved')} className="bg-emerald-600 hover:bg-emerald-700"><CheckCircle className="h-4 w-4 mr-2" /> Aprovar e Publicar</Button>
+                             (() => {
+                               const missing = missingPublishFields(sub);
+                               const disabled = missing.length > 0;
+                               const btn = (
+                                 <Button size="sm" variant="default" disabled={disabled} onClick={() => openReview(sub, 'approved')} className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50">
+                                   <CheckCircle className="h-4 w-4 mr-2" /> Aprovar e Publicar
+                                 </Button>
+                               );
+                               return disabled ? (
+                                 <Tooltip><TooltipTrigger asChild><span className="inline-flex">{btn}</span></TooltipTrigger><TooltipContent>Falta: {missing.join(", ")}</TooltipContent></Tooltip>
+                               ) : btn;
+                             })()
                             )}
                             {sub.status !== 'rejeitado' && (
                              <Button size="sm" variant="outline" onClick={() => openReview(sub, 'rejected')} className="text-rose-600 border-rose-200 hover:bg-rose-50"><XCircle className="h-4 w-4 mr-2" /> Rejeitar</Button>
