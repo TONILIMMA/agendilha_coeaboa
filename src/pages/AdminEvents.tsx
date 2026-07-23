@@ -278,7 +278,9 @@ function AdminEventsInner() {
       const sub = submissions.find((s) => s.id === id);
       const missing = missingPublishFields(sub);
       if (missing.length) {
-        toast.error(`Não dá pra ${newStatus === 'publicado' ? 'publicar' : 'aprovar'}: falta ${missing.join(', ')}.`);
+        const action = newStatus === 'publicado' ? 'publicar' : 'aprovar';
+        setPublishBlock({ eventTitle: sub?.event_title, action, missing });
+        toast.error(`Não dá pra ${action}: falta ${missing.join(', ')}.`);
         return;
       }
     }
@@ -292,7 +294,7 @@ function AdminEventsInner() {
       if (newStatus === 'aprovado') {
         const sub = submissions.find((s) => s.id === id);
         // Só oferece flyer genérico quando o promotor NÃO mandou arte própria.
-        if (sub && !sub.image_url) setFlyerOffer(sub);
+        if (sub && shouldOfferGenericFlyer(sub)) setFlyerOffer(sub);
       }
       fetchAll(); // Refresh to get generated slugs/copies
     }
