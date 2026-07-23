@@ -13,8 +13,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { MyChangeRequestsList } from "@/components/change-requests/MyChangeRequestsList";
 
-export function LegalStep({ form, isPublished = false }: { form: UseFormReturn<any>; isPublished?: boolean }) {
+export function LegalStep({ form, isPublished = false, submissionId }: { form: UseFormReturn<any>; isPublished?: boolean; submissionId?: string }) {
+  const { user } = useAuth();
   const promotorName = form.watch("nickName") || form.watch("companyName");
   const atrativoName = form.watch("atrativoName");
   const locationName = form.watch("locationName");
@@ -28,6 +32,9 @@ export function LegalStep({ form, isPublished = false }: { form: UseFormReturn<a
   const [changeReqOpen, setChangeReqOpen] = useState(false);
   const [changeReqReason, setChangeReqReason] = useState("");
   const [changeReqNewPhone, setChangeReqNewPhone] = useState("");
+  const [changeReqRevoke, setChangeReqRevoke] = useState(false);
+  const [changeReqSaving, setChangeReqSaving] = useState(false);
+  const [changeReqRefresh, setChangeReqRefresh] = useState(0);
 
   // Auto-preenche o número quando muda a fonte selecionada, respeitando edição manual do usuário.
   useEffect(() => {
@@ -59,10 +66,11 @@ export function LegalStep({ form, isPublished = false }: { form: UseFormReturn<a
   const openChangeRequest = () => {
     setChangeReqReason("");
     setChangeReqNewPhone(duvidasWhatsapp);
+    setChangeReqRevoke(false);
     setChangeReqOpen(true);
   };
 
-  const submitChangeRequest = () => {
+  const submitChangeRequest = async () => {
     if (!changeReqReason.trim()) {
       toast.error("Explica rapidinho o que precisa mudar.");
       return;
@@ -74,22 +82,30 @@ export function LegalStep({ form, isPublished = false }: { form: UseFormReturn<a
       toast.error(newPhoneValidation.reason);
       return;
     }
-    const lines = [
-      "📣 *Solicitação de alteração — AgendIlha*",
-      "",
-      eventTitle ? `Evento: *${eventTitle}*` : null,
-      `WhatsApp atual: ${duvidasWhatsapp || "(não informado)"}`,
-      changeReqNewPhone && newPhoneValidation && newPhoneValidation.valid
-        ? `WhatsApp novo: ${newPhoneValidation.display}`
-        : null,
-      "",
-      "Motivo:",
-      changeReqReason.trim(),
-    ].filter(Boolean);
-    const url = `https://wa.me/?text=${encodeURIComponent(lines.join("\n"))}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    if (!submissionId || !user?.id) {
+      toast.error("Não consegui identificar o evento. Recarregue a página e tente de novo.");
+      return;
+    }
+    const wantsPhone = !!(changeReqNewPhone && newPhoneValidation?.valid);
+    const request_type = wantsPhone && changeReqRevoke ? "both" : changeReqRevoke ? "authorization" : "whatsapp";
+    setChangeReqSaving(true);
+    const { error } = await (supabase as any).from("submission_change_requests").insert({
+      submission_id: submissionId,
+      requested_by: user.id,
+      request_type,
+      current_whatsapp: duvidasWhatsapp || null,
+      proposed_whatsapp: wantsPhone ? newPhoneValidation!.display : null,
+      revoke_authorization: changeReqRevoke,
+      reason: changeReqReason.trim(),
+    });
+    setChangeReqSaving(false);
+    if (error) {
+      toast.error("Não deu pra enviar sua solicitação. Tenta de novo.");
+      return;
+    }
+    toast.success("Solicitação enviada! A moderação já foi notificada.");
     setChangeReqOpen(false);
-    toast.success("Pedido preparado! Envia pro contato da moderação no WhatsApp.");
+    setChangeReqRefresh((n) => n + 1);
   };
 
   return (
