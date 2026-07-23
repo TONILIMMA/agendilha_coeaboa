@@ -217,6 +217,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
 
              {/* Mobile Nav Trigger */}
              <div className="flex items-center gap-2">
+               <UpdateAppButton compact />
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -271,6 +272,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
+              <UpdateAppButton compact />
               {(isAdmin || perms.isCollaborator) && (
                 <Button 
                   size="sm" 
