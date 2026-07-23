@@ -398,7 +398,7 @@ export default function SubmissionForm() {
       // Map camelCase form fields → snake_case DB columns
       const payload: any = {
         company_name: clean(values.companyName),
-        responsible_name: clean(values.nickName),
+        // responsible_name é preenchido abaixo com o nome do responsável (Fase 7).
         email: clean(values.email),
         phone: clean(values.basicPhone),
         event_title: clean(values.eventTitle) || clean(values.atrativoName),
