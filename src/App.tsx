@@ -233,6 +233,9 @@ export const AppRoutes = () => (
         <Route element={<AppShell maxWidth="md"><Outlet /></AppShell>}>
           <Route path={ROUTES.CONFIGURACOES} element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path={ROUTES.PERFIL} element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+          <Route path={ROUTES.TERMOS} element={<TermosPage />} />
+          <Route path={ROUTES.PRIVACIDADE} element={<PrivacidadePage />} />
+          <Route path={ROUTES.IMPULSIONAMENTO} element={<ImpulsionamentoPage />} />
         </Route>
         <Route path="/coeaboa" element={<Navigate to={ROUTES.AGENDA} replace />} />
         <Route path="/lp" element={<Navigate to={ROUTES.LANDING} replace />} />
