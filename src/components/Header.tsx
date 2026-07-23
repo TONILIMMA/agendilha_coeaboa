@@ -217,6 +217,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
 
              {/* Mobile Nav Trigger */}
              <div className="flex items-center gap-2">
+               <UpdateAppButton compact />
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -271,6 +272,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
+              <UpdateAppButton compact />
               {(isAdmin || perms.isCollaborator) && (
                 <Button 
                   size="sm" 
@@ -341,6 +343,11 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
 
             {/* Right (row 1): user dropdown only on mobile, full actions on sm+ */}
+            {!user && (
+              <div className="ml-auto flex items-center">
+                <UpdateAppButton compact />
+              </div>
+            )}
             {user && !isAgenda && (() => {
             // Use centralized name resolution from useUserBadge (profile → company → collaborator → metadata → email/phone)
             const fullName = badgeName && badgeName !== "Usuário" ? badgeName : "Divulgador";
