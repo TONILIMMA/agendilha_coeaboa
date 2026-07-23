@@ -50,6 +50,10 @@ const formSchema = z.object({
     errorMap: () => ({ message: "Você precisa aceitar os termos para continuar" }),
   }),
   duvidasSource: z.enum(["promotor", "atrativo", "estabelecimento"]).default("promotor"),
+  duvidasWhatsapp: z.string().trim().optional().default(""),
+  duvidasAuthorized: z.literal(true, {
+    errorMap: () => ({ message: "Você precisa autorizar o uso deste WhatsApp" }),
+  }),
 
   category: z.string().trim().optional(),
   eventTitle: z.string().trim().min(1, "Dá um nome pro rolê"),
@@ -101,6 +105,21 @@ const formSchema = z.object({
 }, {
   message: "Contato do responsável é obrigatório para estabelecimentos comerciais",
   path: ["locationContact"],
+}).superRefine((data, ctx) => {
+  // WhatsApp do responsável por dúvidas: sempre exigimos número válido; para atrativo/estabelecimento é obrigatório.
+  const phone = (data.duvidasWhatsapp || "").trim();
+  if (!phone) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["duvidasWhatsapp"],
+      message: "Informe o WhatsApp que vai receber as dúvidas",
+    });
+    return;
+  }
+  const v = validateBrazilianMobile(phone);
+  if (v.valid === false) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["duvidasWhatsapp"], message: v.reason });
+  }
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -131,6 +150,7 @@ export default function SubmissionForm() {
       locationName: "", eventAddress: "", locationType: "commercial",
       fotos: [],
       duvidasSource: "promotor",
+      duvidasWhatsapp: "",
     },
     mode: "onChange",
   });
@@ -255,6 +275,8 @@ export default function SubmissionForm() {
     locationType: "Tipo do local",
     locationContact: "Contato do responsável pelo local",
     legalAcceptance: "Aceite dos termos",
+    duvidasWhatsapp: "WhatsApp do responsável pelas informações",
+    duvidasAuthorized: "Autorização de uso do WhatsApp",
   };
 
   const nextStep = async () => {
@@ -285,7 +307,7 @@ export default function SubmissionForm() {
       case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
       case 4: return ["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory", "atrativoType", "atrativoStyle", "atrativoDescription"];
       case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
-      case 7: return ["legalAcceptance", "duvidasSource"];
+      case 7: return ["legalAcceptance", "duvidasSource", "duvidasWhatsapp", "duvidasAuthorized"];
       default: return [];
     }
   };
@@ -386,6 +408,7 @@ export default function SubmissionForm() {
         age_rating: values.ageRating,
         is_suitable_for_minors: values.isSuitableForMinors,
         duvidas_source: values.duvidasSource || 'promotor',
+        responsavel_duvidas_whatsapp: clean(values.duvidasWhatsapp),
         image_url: imageUrl || null,
         image_url_story: values.eventImageUrlStory || null,
         image_url_whatsapp: values.eventImageUrlWhatsapp || null,
@@ -419,6 +442,8 @@ export default function SubmissionForm() {
       atrativoName: 4, atrativoType: 4, atrativoStyle: 4, atrativoDescription: 4, atrativoContact: 4, atrativoEmail: 4, atrativoCategory: 4,
       locationName: 5, eventAddress: 5, locationType: 5, locationContact: 5,
       legalAcceptance: 7,
+      duvidasWhatsapp: 7,
+      duvidasAuthorized: 7,
     };
     const target = stepMap[firstKey];
     if (target) setCurrentStep(target);
