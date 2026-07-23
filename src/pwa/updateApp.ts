@@ -38,8 +38,8 @@ function isAppShellCache(name: string): boolean {
 }
 
 async function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | "timeout"> {
-  return await Promise.race<Promise<T | "timeout">>([
-    p.then((v) => v as T),
+  return Promise.race([
+    p,
     new Promise<"timeout">((resolve) => setTimeout(() => resolve("timeout"), ms)),
   ]);
 }
