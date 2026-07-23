@@ -70,7 +70,7 @@ export function LegalStep({ form, isPublished = false }: { form: UseFormReturn<a
     const newPhoneValidation = changeReqNewPhone
       ? validateBrazilianMobile(changeReqNewPhone)
       : null;
-    if (changeReqNewPhone && newPhoneValidation && !newPhoneValidation.valid) {
+    if (changeReqNewPhone && newPhoneValidation && newPhoneValidation.valid === false) {
       toast.error(newPhoneValidation.reason);
       return;
     }
@@ -79,7 +79,7 @@ export function LegalStep({ form, isPublished = false }: { form: UseFormReturn<a
       "",
       eventTitle ? `Evento: *${eventTitle}*` : null,
       `WhatsApp atual: ${duvidasWhatsapp || "(não informado)"}`,
-      changeReqNewPhone && newPhoneValidation?.valid
+      changeReqNewPhone && newPhoneValidation && newPhoneValidation.valid
         ? `WhatsApp novo: ${newPhoneValidation.display}`
         : null,
       "",
