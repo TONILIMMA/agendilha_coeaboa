@@ -391,8 +391,8 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
               <Send className="h-4 w-4 text-primary" /> Solicitar alteração à moderação
             </DialogTitle>
             <DialogDescription>
-              Como o evento já está publicado, a mudança precisa passar pela moderação. Descreve o que
-              precisa e a gente monta uma mensagem prontinha pra você enviar pelo WhatsApp.
+              Como o evento já está publicado, a mudança precisa passar pela moderação. A equipe recebe uma notificação
+              na hora e você acompanha o status aqui embaixo.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -405,6 +405,13 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                 onChange={(e) => setChangeReqNewPhone(formatPhoneDisplay(e.target.value))}
               />
             </div>
+            <label className="flex items-start gap-2 rounded-md border p-2 text-xs cursor-pointer">
+              <Checkbox
+                checked={changeReqRevoke}
+                onCheckedChange={(v) => setChangeReqRevoke(v === true)}
+              />
+              <span>Também quero revogar a autorização de usar este WhatsApp como contato oficial.</span>
+            </label>
             <div className="space-y-1">
               <label className="text-xs font-medium">Motivo da alteração</label>
               <Textarea
@@ -417,12 +424,18 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setChangeReqOpen(false)}>Cancelar</Button>
-            <Button onClick={submitChangeRequest} className="gap-1">
-              <Send className="h-4 w-4" /> Enviar pedido no WhatsApp
+            <Button onClick={submitChangeRequest} disabled={changeReqSaving} className="gap-1">
+              <Send className="h-4 w-4" /> {changeReqSaving ? "Enviando…" : "Enviar solicitação"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {isPublished && submissionId && (
+        <div className="rounded-md border p-4 space-y-2">
+          <MyChangeRequestsList submissionId={submissionId} refreshKey={changeReqRefresh} />
+        </div>
+      )}
     </div>
   );
 }
