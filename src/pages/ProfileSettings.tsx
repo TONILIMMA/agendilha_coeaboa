@@ -417,10 +417,7 @@ export default function ProfileSettings() {
             <CardDescription>Usamos esses dados para contato e divulgação.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Telefone / WhatsApp</Label>
-              <Input value={whatsappPhone} onChange={(e) => setWhatsappPhone(e.target.value)} placeholder="(21) 99999-9999" />
-            </div>
+            {/* WhatsApp principal agora é campo do "Cadastro base" acima — evita duplicar. */}
             <div className="space-y-2">
               <Label>Redes sociais (links ou @)</Label>
               <Textarea value={socialNetworks} onChange={(e) => setSocialNetworks(e.target.value)} rows={2} placeholder="@instagram, facebook.com/..." />
