@@ -176,10 +176,10 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
         <div className="flex items-start gap-2 text-primary font-bold text-sm">
           <User className="h-4 w-4 mt-0.5" />
           <div>
-            <div>Responsável pelo evento</div>
+            <div>Promotor/Divulgador</div>
             <p className="text-xs font-normal text-muted-foreground mt-1">
-              Você é o responsável por essa divulgação. Confere se os dados abaixo estão certos —
-              vamos usar esse WhatsApp pra receber dúvidas do público.
+              Você é o promotor/divulgador desse evento. Confere se os dados abaixo estão certos —
+              esse WhatsApp vai receber as dúvidas do público. Se o promotor for outra pessoa, ajuste aqui.
             </p>
           </div>
         </div>
@@ -189,7 +189,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
           name="responsavelNome"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome do responsável</FormLabel>
+              <FormLabel>Nome do promotor/divulgador *</FormLabel>
               <FormControl>
                 <Input placeholder="Como quer aparecer na divulgação?" {...field} />
               </FormControl>
@@ -340,7 +340,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
               >
                 {[
                   { v: "artista", l: "Artista / Músico" },
-                  { v: "estabelecimento", l: "Estabelecimento" },
+                  { v: "estabelecimento", l: "Local/Estabelecimento" },
                   { v: "produtor", l: "Produtor / Organizador" },
                   { v: "outro", l: "Outro" },
                 ].map((opt) => (

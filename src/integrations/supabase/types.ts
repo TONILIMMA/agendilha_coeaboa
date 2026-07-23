@@ -1362,6 +1362,7 @@ export type Database = {
           latitude: number | null
           legal_acceptance: boolean | null
           legal_acceptance_date: string | null
+          local_tipo: string | null
           location: string | null
           location_contact: string | null
           location_type: string | null
@@ -1456,6 +1457,7 @@ export type Database = {
           latitude?: number | null
           legal_acceptance?: boolean | null
           legal_acceptance_date?: string | null
+          local_tipo?: string | null
           location?: string | null
           location_contact?: string | null
           location_type?: string | null
@@ -1550,6 +1552,7 @@ export type Database = {
           latitude?: number | null
           legal_acceptance?: boolean | null
           legal_acceptance_date?: string | null
+          local_tipo?: string | null
           location?: string | null
           location_contact?: string | null
           location_type?: string | null
