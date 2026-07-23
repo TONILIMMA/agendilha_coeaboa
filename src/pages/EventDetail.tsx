@@ -49,6 +49,8 @@ interface Event {
   sale_price?: string | null;
   promotion_type?: string | null;
   promotion_rules?: string | null;
+  duvidas_source?: string | null;
+  duvidas_phone?: string | null;
 }
 
 export default function EventDetail() {
@@ -162,6 +164,24 @@ export default function EventDetail() {
       (event.location ? `\n📍 ${event.location}${event.address_neighborhood ? ` – ${event.address_neighborhood}` : ""}` : "") +
       `\n\nDetalhes: ${shareUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+  };
+
+  const duvidasPhone = event.duvidas_phone ? event.duvidas_phone.replace(/\D/g, "") : "";
+  const duvidasSource = event.duvidas_source || "promotor";
+  const duvidasLabel =
+    duvidasSource === "atrativo"
+      ? "atrativo"
+      : duvidasSource === "estabelecimento"
+      ? "estabelecimento"
+      : "promotor";
+  const openDuvidas = () => {
+    if (!duvidasPhone) {
+      toast.info("Sem WhatsApp cadastrado pra dúvidas neste rolê.");
+      return;
+    }
+    const phone = duvidasPhone.startsWith("55") ? duvidasPhone : `55${duvidasPhone}`;
+    const msg = `Oi! Vi o rolê *${event.event_title}* no AgendIlha e queria tirar uma dúvida.`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
   const priceLabel = (() => {
