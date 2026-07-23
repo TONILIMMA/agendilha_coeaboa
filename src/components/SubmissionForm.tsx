@@ -49,9 +49,10 @@ const formSchema = z.object({
   legalAcceptance: z.literal(true, {
     errorMap: () => ({ message: "Você precisa aceitar os termos para continuar" }),
   }),
+  duvidasSource: z.enum(["promotor", "atrativo", "estabelecimento"]).default("promotor"),
 
   category: z.string().trim().optional(),
-  eventTitle: z.string().trim().optional(),
+  eventTitle: z.string().trim().min(1, "Dá um nome pro rolê"),
   date: z.string().trim().min(1, "Selecione a data"),
   startTime: z.string().trim().min(1, "Campo obrigatório"),
   endTime: z.string().trim().optional(),
@@ -129,6 +130,7 @@ export default function SubmissionForm() {
       atrativoName: "", atrativoType: "", atrativoContact: "", atrativoEmail: "", atrativoCategory: undefined as any,
       locationName: "", eventAddress: "", locationType: "commercial",
       fotos: [],
+      duvidasSource: "promotor",
     },
     mode: "onChange",
   });
@@ -283,7 +285,7 @@ export default function SubmissionForm() {
       case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
       case 4: return ["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory", "atrativoType", "atrativoStyle", "atrativoDescription"];
       case 5: return ["locationName", "eventAddress", "locationType", "locationContact"];
-      case 7: return ["legalAcceptance"];
+      case 7: return ["legalAcceptance", "duvidasSource"];
       default: return [];
     }
   };
@@ -383,6 +385,7 @@ export default function SubmissionForm() {
         terms_accepted_at: values.legalAcceptance ? new Date().toISOString() : null,
         age_rating: values.ageRating,
         is_suitable_for_minors: values.isSuitableForMinors,
+        duvidas_source: values.duvidasSource || 'promotor',
         image_url: imageUrl || null,
         image_url_story: values.eventImageUrlStory || null,
         image_url_whatsapp: values.eventImageUrlWhatsapp || null,

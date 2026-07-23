@@ -1274,6 +1274,7 @@ export type Database = {
           date: string | null
           deleted_at: string | null
           description: string | null
+          duvidas_source: string
           editorial_published_at: string | null
           editorial_status: Database["public"]["Enums"]["editorial_status"]
           email: string | null
@@ -1364,6 +1365,7 @@ export type Database = {
           date?: string | null
           deleted_at?: string | null
           description?: string | null
+          duvidas_source?: string
           editorial_published_at?: string | null
           editorial_status?: Database["public"]["Enums"]["editorial_status"]
           email?: string | null
@@ -1454,6 +1456,7 @@ export type Database = {
           date?: string | null
           deleted_at?: string | null
           description?: string | null
+          duvidas_source?: string
           editorial_published_at?: string | null
           editorial_status?: Database["public"]["Enums"]["editorial_status"]
           email?: string | null
@@ -1947,6 +1950,8 @@ export type Database = {
           date: string | null
           deleted_at: string | null
           description: string | null
+          duvidas_phone: string | null
+          duvidas_source: string | null
           end_time: string | null
           event_title: string | null
           fotos: string[] | null
@@ -2009,6 +2014,8 @@ export type Database = {
           date?: string | null
           deleted_at?: string | null
           description?: string | null
+          duvidas_phone?: never
+          duvidas_source?: string | null
           end_time?: string | null
           event_title?: string | null
           fotos?: string[] | null
@@ -2071,6 +2078,8 @@ export type Database = {
           date?: string | null
           deleted_at?: string | null
           description?: string | null
+          duvidas_phone?: never
+          duvidas_source?: string | null
           end_time?: string | null
           event_title?: string | null
           fotos?: string[] | null

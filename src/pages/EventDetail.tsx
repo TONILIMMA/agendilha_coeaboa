@@ -49,6 +49,8 @@ interface Event {
   sale_price?: string | null;
   promotion_type?: string | null;
   promotion_rules?: string | null;
+  duvidas_source?: string | null;
+  duvidas_phone?: string | null;
 }
 
 export default function EventDetail() {
@@ -162,6 +164,24 @@ export default function EventDetail() {
       (event.location ? `\n📍 ${event.location}${event.address_neighborhood ? ` – ${event.address_neighborhood}` : ""}` : "") +
       `\n\nDetalhes: ${shareUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+  };
+
+  const duvidasPhone = event.duvidas_phone ? event.duvidas_phone.replace(/\D/g, "") : "";
+  const duvidasSource = event.duvidas_source || "promotor";
+  const duvidasLabel =
+    duvidasSource === "atrativo"
+      ? "atrativo"
+      : duvidasSource === "estabelecimento"
+      ? "estabelecimento"
+      : "promotor";
+  const openDuvidas = () => {
+    if (!duvidasPhone) {
+      toast.info("Sem WhatsApp cadastrado pra dúvidas neste rolê.");
+      return;
+    }
+    const phone = duvidasPhone.startsWith("55") ? duvidasPhone : `55${duvidasPhone}`;
+    const msg = `Oi! Vi o rolê *${event.event_title}* no AgendIlha e queria tirar uma dúvida.`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
   const priceLabel = (() => {
@@ -403,6 +423,16 @@ export default function EventDetail() {
 
             {/* Shareable flyer */}
             <div className="space-y-3">
+              {duvidasPhone && (
+                <Button
+                  variant="outline"
+                  className="w-full h-11 rounded-full border-foreground/15 gap-2"
+                  onClick={openDuvidas}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Tirar dúvidas com o {duvidasLabel}
+                </Button>
+              )}
               <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 px-1">
                 Card para WhatsApp
               </h3>

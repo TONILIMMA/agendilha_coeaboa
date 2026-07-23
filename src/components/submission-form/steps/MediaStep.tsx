@@ -27,9 +27,11 @@ export function MediaStep({ form, imageSource, setImageSource, eventImage, setEv
       <div className="space-y-2">
         <h2 className="text-xl font-bold text-primary flex items-center gap-2">
           <ImageIcon className="h-5 w-5" />
-          Flyer ou Banner do Evento
+          Flyer ou Banner do Evento <span className="text-xs font-normal text-muted-foreground">(opcional)</span>
         </h2>
-        <p className="text-sm text-muted-foreground">Escolha como quer adicionar a arte do seu evento.</p>
+        <p className="text-sm text-muted-foreground">
+          Não precisa mandar arte — se pular esta etapa, a gente gera um flyer padrão do AgendIlha com os dados do rolê.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
