@@ -472,6 +472,50 @@ export default function ProfileSettings() {
         </Card>
       )}
 
+      {/* Admin/Master only: editar telefone principal */}
+      {isAdmin && (
+        <Card className="border-primary/30">
+          <CardHeader>
+            <CardTitle className="text-lg font-display flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              Telefone (Admin)
+            </CardTitle>
+            <CardDescription>
+              Campo visível apenas para Administradores. Toda alteração fica registrada no log de auditoria.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Label htmlFor="admin-phone" className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              Telefone
+            </Label>
+            <Input
+              id="admin-phone"
+              inputMode="numeric"
+              placeholder="21 99999-9999"
+              value={adminPhone}
+              maxLength={13}
+              aria-invalid={!!adminPhoneError}
+              onChange={(e) => {
+                const masked = formatPhoneMask(e.target.value);
+                setAdminPhone(masked);
+                setAdminPhoneError(validateAdminPhone(masked));
+              }}
+            />
+            {adminPhoneError ? (
+              <p className="text-sm text-destructive">{adminPhoneError}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Formato brasileiro: DDD + número (ex.: 21 99999-9999). Apenas dígitos.
+                {initialAdminPhone && adminPhone.replace(/\D/g, "") !== initialAdminPhone
+                  ? " Alteração pendente — será registrada ao salvar."
+                  : ""}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex justify-end gap-3 pt-4">
         <Button variant="outline" disabled={loading}>Cancelar</Button>
         <Button onClick={handleSave} disabled={loading} className="gradient-sunset text-white min-w-[120px]">
