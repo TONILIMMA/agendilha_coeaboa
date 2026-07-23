@@ -14,6 +14,7 @@ import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { StepIndicator } from "./submission-form/StepIndicator";
+import { PublishChecklist } from "./submission-form/PublishChecklist";
 import { 
   ContactStep, ProfessionalStep, EventStep, AtrativoStep, 
   LocationStep, MediaStep, LegalStep, ReviewStep 
@@ -498,6 +499,9 @@ export default function SubmissionForm() {
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8 mt-8">
+          {currentStep >= 3 && currentStep < 8 && (
+            <PublishChecklist form={form} goToStep={setCurrentStep} variant="compact" />
+          )}
           {currentStep === 1 && <ContactStep form={form} onRestoreFromProfile={restoreContactFromProfile} hasProfile={!!(profile?.phone || profile?.responsible_name || profile?.email)} />}
           {currentStep === 2 && <ProfessionalStep form={form} />}
           {currentStep === 3 && <EventStep form={form} />}
