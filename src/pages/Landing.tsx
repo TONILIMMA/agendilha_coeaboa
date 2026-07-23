@@ -512,7 +512,7 @@ export default function Landing() {
           <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium text-foreground/70">
             <Link to="/agenda" className="hover:text-primary transition-colors">Agenda</Link>
             <Link to="/coe-a-boa" className="hover:text-primary transition-colors">Coé a Boa?</Link>
-            <Link to="/agenda-cultural" className="hover:text-primary transition-colors">Agenda Cultural</Link>
+            <Link to="/agenda" className="hover:text-primary transition-colors">Agenda Cultural</Link>
             <Link to="/auth" className="hover:text-primary transition-colors">Divulgue seu evento</Link>
             <a href="#contato" className="hover:text-primary transition-colors">Contato</a>
           </nav>
