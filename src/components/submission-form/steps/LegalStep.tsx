@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { MyChangeRequestsList } from "@/components/change-requests/MyChangeRequestsList";
+import { PromotorAutocomplete } from "@/components/promotor/PromotorAutocomplete";
 
 export function LegalStep({ form, isPublished = false, submissionId }: { form: UseFormReturn<any>; isPublished?: boolean; submissionId?: string }) {
   const { user } = useAuth();
@@ -191,7 +192,25 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
             <FormItem>
               <FormLabel>Nome do promotor/divulgador *</FormLabel>
               <FormControl>
-                <Input placeholder="Como quer aparecer na divulgação?" {...field} />
+                <PromotorAutocomplete
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  disabled={isPublished}
+                  onSelect={(p) => {
+                    field.onChange(p.nome);
+                    if (p.whatsapp) {
+                      form.setValue("usarMeuWhatsapp", false, { shouldDirty: true });
+                      form.setValue("duvidasWhatsapp", formatPhoneDisplay(p.whatsapp), {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }
+                    if (p.tipo) {
+                      form.setValue("tipoResponsavel", p.tipo, { shouldDirty: true });
+                    }
+                  }}
+                  placeholder="Como quer aparecer na divulgação?"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
