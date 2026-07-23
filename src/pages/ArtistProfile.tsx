@@ -16,9 +16,15 @@ import {
   ChevronLeft,
   CheckCircle2,
   Share2,
-  Heart
+  Heart,
+  ArrowRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useMemo, useState } from "react";
+import { formatBrazilianDate } from "@/lib/date-utils";
+import { getEventFallbackImage } from "@/lib/event-utils";
+
+type ShowFilter = "todos" | "semana" | "mes";
 
 export default function ArtistProfile() {
   const { id } = useParams();
