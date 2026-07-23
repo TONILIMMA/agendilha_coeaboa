@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
 import { FullPreviewDialog } from "../FullPreviewDialog";
+import { PublishChecklist } from "../PublishChecklist";
 
 interface ReviewStepProps {
   form: UseFormReturn<any>;
@@ -31,6 +32,8 @@ export function ReviewStep({ form, goToStep }: ReviewStepProps) {
         <h2 className="text-xl font-bold text-primary">Revise seus dados</h2>
         <p className="text-sm text-muted-foreground">Confira se tudo está correto antes de enviar.</p>
       </div>
+
+      <PublishChecklist form={form} goToStep={goToStep} variant="full" />
 
       <Button
         type="button"
