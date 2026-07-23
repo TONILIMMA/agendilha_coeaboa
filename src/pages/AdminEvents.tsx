@@ -315,6 +315,14 @@ function AdminEventsInner() {
   async function confirmReview() {
     if (!review) return;
     const { sub, kind, reason, message } = review;
+    if (kind === "approved") {
+      const missing = missingPublishFields(sub);
+      if (missing.length) {
+        toast.error(`Não dá pra aprovar: falta ${missing.join(', ')}.`);
+        setReview({ ...review, submitting: false });
+        return;
+      }
+    }
     setReview({ ...review, submitting: true });
 
     const payload: any =
@@ -343,7 +351,7 @@ function AdminEventsInner() {
     toast.success(kind === "approved" ? "Evento aprovado." : "Evento rejeitado.");
 
     if (kind === "approved") {
-      setFlyerOffer(sub);
+      if (!sub.image_url) setFlyerOffer(sub);
     }
 
     const phoneCheck = validateBrazilianMobile(sub.phone || "");
@@ -364,6 +372,12 @@ function AdminEventsInner() {
 
   async function confirmGenerateFlyer() {
     if (!flyerOffer) return;
+    // Guarda dupla: nunca sobrescreve arte enviada pelo promotor.
+    if (flyerOffer.image_url) {
+      toast.info("Esse evento já tem flyer do promotor. Mantendo a arte original.");
+      setFlyerOffer(null);
+      return;
+    }
     setGeneratingFlyer(true);
     try {
       const dataUrl = await generateFallbackFlyer({
