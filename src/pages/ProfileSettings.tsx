@@ -33,6 +33,28 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+// Mask "DD NNNNN-NNNN" (aceita 10 ou 11 dígitos; até 11)
+function formatPhoneMask(raw: string): string {
+  const d = (raw || "").replace(/\D/g, "").slice(0, 11);
+  if (d.length === 0) return "";
+  if (d.length <= 2) return d;
+  if (d.length <= 7) return `${d.slice(0, 2)} ${d.slice(2)}`;
+  const isMobile = d.length === 11;
+  const mid = isMobile ? d.slice(2, 7) : d.slice(2, 6);
+  const end = isMobile ? d.slice(7) : d.slice(6);
+  return `${d.slice(0, 2)} ${mid}-${end}`;
+}
+
+function validateAdminPhone(raw: string): string | null {
+  const d = (raw || "").replace(/\D/g, "");
+  if (d.length === 0) return null; // vazio permitido para limpar
+  if (d.length < 10 || d.length > 11) return "Use DDD + número (10 ou 11 dígitos).";
+  const ddd = parseInt(d.slice(0, 2), 10);
+  if (ddd < 11 || ddd > 99) return "DDD inválido.";
+  if (d.length === 11 && d[2] !== "9") return "Celular deve começar com 9 após o DDD.";
+  return null;
+}
+
 const NEIGHBORHOODS = [
   "Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia",
   "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras",
