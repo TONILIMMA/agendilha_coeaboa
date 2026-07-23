@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Public can view published submissions (safe columns)" ON public.submissions;
