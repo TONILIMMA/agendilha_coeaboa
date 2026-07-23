@@ -324,6 +324,7 @@ function AdminEventsInner() {
     if (kind === "approved") {
       const missing = missingPublishFields(sub);
       if (missing.length) {
+        setPublishBlock({ eventTitle: sub.event_title, action: "aprovar", missing });
         toast.error(`Não dá pra aprovar: falta ${missing.join(', ')}.`);
         setReview({ ...review, submitting: false });
         return;
@@ -357,7 +358,7 @@ function AdminEventsInner() {
     toast.success(kind === "approved" ? "Evento aprovado." : "Evento rejeitado.");
 
     if (kind === "approved") {
-      if (!sub.image_url) setFlyerOffer(sub);
+      if (shouldOfferGenericFlyer(sub)) setFlyerOffer(sub);
     }
 
     const phoneCheck = validateBrazilianMobile(sub.phone || "");
