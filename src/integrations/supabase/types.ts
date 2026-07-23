@@ -1244,6 +1244,72 @@ export type Database = {
         }
         Relationships: []
       }
+      submission_change_requests: {
+        Row: {
+          created_at: string
+          current_whatsapp: string | null
+          decided_at: string | null
+          decided_by: string | null
+          decision_notes: string | null
+          id: string
+          proposed_whatsapp: string | null
+          reason: string
+          request_type: string
+          requested_by: string
+          revoke_authorization: boolean
+          status: string
+          submission_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_whatsapp?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_notes?: string | null
+          id?: string
+          proposed_whatsapp?: string | null
+          reason: string
+          request_type?: string
+          requested_by: string
+          revoke_authorization?: boolean
+          status?: string
+          submission_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_whatsapp?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_notes?: string | null
+          id?: string
+          proposed_whatsapp?: string | null
+          reason?: string
+          request_type?: string
+          requested_by?: string
+          revoke_authorization?: boolean
+          status?: string
+          submission_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submission_change_requests_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "public_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_change_requests_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       submissions: {
         Row: {
           additional_details: string | null
