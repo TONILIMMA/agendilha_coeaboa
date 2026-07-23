@@ -26,6 +26,7 @@ import { KanbanBoard } from "@/components/events-admin/KanbanBoard";
 import { PipelineMetrics } from "@/components/events-admin/PipelineMetrics";
 import { PublicationLogTable } from "@/components/events-admin/PublicationLogTable";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { PublishBlockDialog, type PublishBlockInfo } from "@/components/events-admin/PublishBlockDialog";
 
 export default function Eventos() {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -40,6 +41,7 @@ export default function Eventos() {
   const [editorialFilter, setEditorialFilter] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
+  const [publishBlock, setPublishBlock] = useState<PublishBlockInfo | null>(null);
 
   const { auditLogs, fetchAuditLog } = useAuditLogs();
   const actions = useEventActions({
@@ -47,6 +49,7 @@ export default function Eventos() {
     submissions,
     setSubmissions,
     onCollapse: () => setExpandedId(null),
+    onPublishBlocked: setPublishBlock,
   });
 
   const activeSubmissions = submissions.filter(s => !s.deleted_at);
@@ -132,6 +135,7 @@ export default function Eventos() {
 
   return (
     <div className="mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-6">
+      <PublishBlockDialog info={publishBlock} onClose={() => setPublishBlock(null)} />
       <div className="mb-5 sm:mb-6 rounded-2xl border border-border bg-card/60 backdrop-blur-md p-4 sm:p-5 shadow-sm animate-in fade-in duration-300">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">

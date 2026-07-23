@@ -37,7 +37,8 @@ import { Label } from "@/components/ui/label";
 import { buildTodayWhatsAppSummary, buildWeekWhatsAppSummary, openWhatsAppWithText } from "@/lib/todayWhatsappSummary";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
-import { missingPublishFields } from "@/lib/publishValidation";
+import { missingPublishFields, shouldOfferGenericFlyer } from "@/lib/publishValidation";
+import { PublishBlockDialog, type PublishBlockInfo } from "@/components/events-admin/PublishBlockDialog";
 
 
 interface Submission {
@@ -209,6 +210,8 @@ function AdminEventsInner() {
   // Após aprovar, oferecemos ao admin gerar um flyer genérico da marca.
   const [flyerOffer, setFlyerOffer] = useState<Submission | null>(null);
   const [generatingFlyer, setGeneratingFlyer] = useState(false);
+  // Alerta on-screen listando exatamente quais campos ainda faltam.
+  const [publishBlock, setPublishBlock] = useState<PublishBlockInfo | null>(null);
 
   async function fetchAll() {
     setLoading(true);
@@ -275,7 +278,9 @@ function AdminEventsInner() {
       const sub = submissions.find((s) => s.id === id);
       const missing = missingPublishFields(sub);
       if (missing.length) {
-        toast.error(`Não dá pra ${newStatus === 'publicado' ? 'publicar' : 'aprovar'}: falta ${missing.join(', ')}.`);
+        const action = newStatus === 'publicado' ? 'publicar' : 'aprovar';
+        setPublishBlock({ eventTitle: sub?.event_title, action, missing });
+        toast.error(`Não dá pra ${action}: falta ${missing.join(', ')}.`);
         return;
       }
     }
@@ -289,7 +294,7 @@ function AdminEventsInner() {
       if (newStatus === 'aprovado') {
         const sub = submissions.find((s) => s.id === id);
         // Só oferece flyer genérico quando o promotor NÃO mandou arte própria.
-        if (sub && !sub.image_url) setFlyerOffer(sub);
+        if (sub && shouldOfferGenericFlyer(sub)) setFlyerOffer(sub);
       }
       fetchAll(); // Refresh to get generated slugs/copies
     }
@@ -319,6 +324,7 @@ function AdminEventsInner() {
     if (kind === "approved") {
       const missing = missingPublishFields(sub);
       if (missing.length) {
+        setPublishBlock({ eventTitle: sub.event_title, action: "aprovar", missing });
         toast.error(`Não dá pra aprovar: falta ${missing.join(', ')}.`);
         setReview({ ...review, submitting: false });
         return;
@@ -352,7 +358,7 @@ function AdminEventsInner() {
     toast.success(kind === "approved" ? "Evento aprovado." : "Evento rejeitado.");
 
     if (kind === "approved") {
-      if (!sub.image_url) setFlyerOffer(sub);
+      if (shouldOfferGenericFlyer(sub)) setFlyerOffer(sub);
     }
 
     const phoneCheck = validateBrazilianMobile(sub.phone || "");
@@ -475,6 +481,7 @@ function AdminEventsInner() {
 
   return (
     <PageContainer maxWidth="7xl">
+         <PublishBlockDialog info={publishBlock} onClose={() => setPublishBlock(null)} />
          {/* Header Area */}
          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-10">
            <div className="space-y-1">

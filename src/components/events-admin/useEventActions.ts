@@ -6,6 +6,7 @@ import { logger } from "@/lib/logger";
 import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import type { EditorialStatus, Submission } from "./types";
 import { missingPublishFields } from "@/lib/publishValidation";
+import type { PublishBlockInfo } from "./PublishBlockDialog";
 
 type SubmissionUpdate = TablesUpdate<"submissions">;
 type AuditInsert = TablesInsert<"event_audit_log">;
@@ -16,9 +17,10 @@ interface Options {
   submissions: Submission[];
   setSubmissions: React.Dispatch<React.SetStateAction<Submission[]>>;
   onCollapse: () => void;
+  onPublishBlocked?: (info: PublishBlockInfo) => void;
 }
 
-export function useEventActions({ userId, submissions, setSubmissions, onCollapse }: Options) {
+export function useEventActions({ userId, submissions, setSubmissions, onCollapse, onPublishBlocked }: Options) {
   const logAudit = useCallback(async (eventId: string, action: string, notes?: string) => {
     if (!userId) return;
     const payload: AuditInsert = {
@@ -94,7 +96,9 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
     if (newStatus === "publicado" || newStatus === "agendado" || newStatus === "pronto_divulgar") {
       const missing = missingPublishFields(prev);
       if (missing.length) {
-        toast.error(`Não dá pra ${newStatus === "publicado" ? "publicar" : newStatus === "agendado" ? "agendar" : "marcar como pronto"}: falta ${missing.join(", ")}.`);
+        const action = newStatus === "publicado" ? "publicar" : newStatus === "agendado" ? "agendar" : "marcar como pronto";
+        onPublishBlocked?.({ eventTitle: prev?.event_title, action, missing });
+        toast.error(`Não dá pra ${action}: falta ${missing.join(", ")}.`);
         return false;
       }
     }
@@ -127,6 +131,7 @@ export function useEventActions({ userId, submissions, setSubmissions, onCollaps
     const sub = submissions.find(s => s.id === id);
     const missing = missingPublishFields(sub);
     if (missing.length) {
+      onPublishBlocked?.({ eventTitle: sub?.event_title, action: "publicar", missing });
       toast.error(`Não dá pra publicar: falta ${missing.join(", ")}.`);
       return false;
     }
