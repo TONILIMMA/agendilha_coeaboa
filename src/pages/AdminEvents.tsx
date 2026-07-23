@@ -37,6 +37,7 @@ import { Label } from "@/components/ui/label";
 import { buildTodayWhatsAppSummary, buildWeekWhatsAppSummary, openWhatsAppWithText } from "@/lib/todayWhatsappSummary";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
+import { missingPublishFields } from "@/lib/publishValidation";
 
 
 interface Submission {
