@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
+import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,10 +26,34 @@ import {
   Globe, 
   Music, 
   Save, 
-  Loader2
+  Loader2,
+  ShieldCheck,
+  Phone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+// Mask "DD NNNNN-NNNN" (aceita 10 ou 11 dígitos; até 11)
+function formatPhoneMask(raw: string): string {
+  const d = (raw || "").replace(/\D/g, "").slice(0, 11);
+  if (d.length === 0) return "";
+  if (d.length <= 2) return d;
+  if (d.length <= 7) return `${d.slice(0, 2)} ${d.slice(2)}`;
+  const isMobile = d.length === 11;
+  const mid = isMobile ? d.slice(2, 7) : d.slice(2, 6);
+  const end = isMobile ? d.slice(7) : d.slice(6);
+  return `${d.slice(0, 2)} ${mid}-${end}`;
+}
+
+function validateAdminPhone(raw: string): string | null {
+  const d = (raw || "").replace(/\D/g, "");
+  if (d.length === 0) return null; // vazio permitido para limpar
+  if (d.length < 10 || d.length > 11) return "Use DDD + número (10 ou 11 dígitos).";
+  const ddd = parseInt(d.slice(0, 2), 10);
+  if (ddd < 11 || ddd > 99) return "DDD inválido.";
+  if (d.length === 11 && d[2] !== "9") return "Celular deve começar com 9 após o DDD.";
+  return null;
+}
 
 const NEIGHBORHOODS = [
   "Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia",
@@ -50,6 +75,7 @@ const MUSICAL_INTERESTS = [
 export default function ProfileSettings() {
   const { user } = useAuth();
   const { profile, loaded, saveProfile } = useProfile();
+  const { isAdmin } = useAppPermissions();
   const [loading, setLoading] = useState(false);
   const [artistProfile, setArtistProfile] = useState<any>(null);
   const [artistLoaded, setArtistLoaded] = useState(false);
@@ -64,6 +90,10 @@ export default function ProfileSettings() {
 
   // Promotor extras
   const [whatsappPhone, setWhatsappPhone] = useState("");
+  // Admin-only editable phone (profiles.phone)
+  const [adminPhone, setAdminPhone] = useState("");
+  const [adminPhoneError, setAdminPhoneError] = useState<string | null>(null);
+  const [initialAdminPhone, setInitialAdminPhone] = useState("");
   const [addressStreet, setAddressStreet] = useState("");
   const [addressNumber, setAddressNumber] = useState("");
   const [addressComplement, setAddressComplement] = useState("");
@@ -93,6 +123,8 @@ export default function ProfileSettings() {
       setCoverageArea((profile as any).coverage_area || []);
 
       setWhatsappPhone((profile as any).whatsapp_phone || profile.phone || "");
+      setAdminPhone(formatPhoneMask(profile.phone || ""));
+      setInitialAdminPhone(profile.phone || "");
       setAddressStreet((profile as any).address_street || "");
       setAddressNumber((profile as any).address_number || "");
       setAddressComplement((profile as any).address_complement || "");
@@ -135,6 +167,15 @@ export default function ProfileSettings() {
   }
 
   async function handleSave() {
+    // Validate admin phone before saving
+    if (isAdmin) {
+      const err = validateAdminPhone(adminPhone);
+      if (err) {
+        setAdminPhoneError(err);
+        toast.error("Telefone inválido", { description: err });
+        return;
+      }
+    }
     setLoading(true);
     try {
       const profileData: any = {
@@ -154,6 +195,13 @@ export default function ProfileSettings() {
         avatar_url: avatarUrl,
         contact_social: socialNetworks,
       };
+
+      // Admin/Master pode editar diretamente o telefone principal do perfil.
+      // A trigger `trg_log_profile_phone_change` registra a mudança em audit_logs.
+      if (isAdmin) {
+        const digits = adminPhone.replace(/\D/g, "");
+        profileData.phone = digits || null;
+      }
 
       await saveProfile(profileData);
 
@@ -420,6 +468,50 @@ export default function ProfileSettings() {
               <Label>Instagram / Link de Portfólio</Label>
               <Input value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="Link ou @arroba" />
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Admin/Master only: editar telefone principal */}
+      {isAdmin && (
+        <Card className="border-primary/30">
+          <CardHeader>
+            <CardTitle className="text-lg font-display flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              Telefone (Admin)
+            </CardTitle>
+            <CardDescription>
+              Campo visível apenas para Administradores. Toda alteração fica registrada no log de auditoria.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Label htmlFor="admin-phone" className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              Telefone
+            </Label>
+            <Input
+              id="admin-phone"
+              inputMode="numeric"
+              placeholder="21 99999-9999"
+              value={adminPhone}
+              maxLength={13}
+              aria-invalid={!!adminPhoneError}
+              onChange={(e) => {
+                const masked = formatPhoneMask(e.target.value);
+                setAdminPhone(masked);
+                setAdminPhoneError(validateAdminPhone(masked));
+              }}
+            />
+            {adminPhoneError ? (
+              <p className="text-sm text-destructive">{adminPhoneError}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Formato brasileiro: DDD + número (ex.: 21 99999-9999). Apenas dígitos.
+                {initialAdminPhone && adminPhone.replace(/\D/g, "") !== initialAdminPhone
+                  ? " Alteração pendente — será registrada ao salvar."
+                  : ""}
+              </p>
+            )}
           </CardContent>
         </Card>
       )}
