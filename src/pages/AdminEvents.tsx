@@ -269,6 +269,16 @@ function AdminEventsInner() {
       updateData.rejected_by = user?.id;
     }
 
+    // Antes de aprovar/publicar, garante os campos mínimos.
+    if (newStatus === 'aprovado' || newStatus === 'publicado') {
+      const sub = submissions.find((s) => s.id === id);
+      const missing = missingPublishFields(sub);
+      if (missing.length) {
+        toast.error(`Não dá pra ${newStatus === 'publicado' ? 'publicar' : 'aprovar'}: falta ${missing.join(', ')}.`);
+        return;
+      }
+    }
+
     const { error } = await supabase.from("submissions").update(updateData).eq("id", id);
 
     if (error) {
@@ -277,7 +287,8 @@ function AdminEventsInner() {
       toast.success(`Status atualizado para ${newStatus}`);
       if (newStatus === 'aprovado') {
         const sub = submissions.find((s) => s.id === id);
-        if (sub) setFlyerOffer(sub);
+        // Só oferece flyer genérico quando o promotor NÃO mandou arte própria.
+        if (sub && !sub.image_url) setFlyerOffer(sub);
       }
       fetchAll(); // Refresh to get generated slugs/copies
     }
