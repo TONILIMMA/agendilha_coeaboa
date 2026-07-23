@@ -423,6 +423,16 @@ export default function EventDetail() {
 
             {/* Shareable flyer */}
             <div className="space-y-3">
+              {duvidasPhone && (
+                <Button
+                  variant="outline"
+                  className="w-full h-11 rounded-full border-foreground/15 gap-2"
+                  onClick={openDuvidas}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Tirar dúvidas com o {duvidasLabel}
+                </Button>
+              )}
               <h3 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/55 px-1">
                 Card para WhatsApp
               </h3>
