@@ -13,7 +13,7 @@ import { formatDate } from "@/components/events-admin/types";
 import { useAuth } from "@/contexts/AuthContext";
 
 type RowExt = ChangeRequestRow & {
-  submission?: { id: string; event_title: string | null; responsible_name: string | null; duvidas_whatsapp?: string | null };
+  submission?: { id: string; event_title: string | null; responsible_name: string | null; responsavel_duvidas_whatsapp?: string | null };
   requester?: { user_id: string; responsible_name: string | null; company_name: string | null; email: string | null };
 };
 
@@ -36,7 +36,7 @@ export function ChangeRequestsPanel({ focusId }: Props) {
     setLoading(true);
     const { data, error } = await (supabase as any)
       .from("submission_change_requests")
-      .select("*, submission:submissions(id,event_title,responsible_name,duvidas_whatsapp)")
+      .select("*, submission:submissions(id,event_title,responsible_name,responsavel_duvidas_whatsapp)")
       .order("created_at", { ascending: false });
     if (error) { toast.error("Não consegui carregar as solicitações."); setLoading(false); return; }
     const list = (data as RowExt[]) || [];
@@ -95,20 +95,13 @@ export function ChangeRequestsPanel({ focusId }: Props) {
       .eq("id", row.id);
     if (error) { setSaving(false); toast.error("Não deu pra salvar a decisão."); return; }
 
-    // Se aprovado, aplica na submission.
-    if (action === "aprovado") {
-      const subPatch: Record<string, unknown> = {};
-      if (row.request_type !== "authorization" && newPhone.trim()) {
-        subPatch.duvidas_whatsapp = newPhone.trim();
-        subPatch.responsavel_duvidas_whatsapp = newPhone.trim();
-      }
-      if (row.revoke_authorization || row.request_type === "authorization" || row.request_type === "both") {
-        subPatch.duvidas_authorized = !row.revoke_authorization;
-      }
-      if (Object.keys(subPatch).length) {
-        const { error: se } = await supabase.from("submissions").update(subPatch as any).eq("id", row.submission_id);
-        if (se) toast.warning("Decisão salva, mas não consegui atualizar o evento automaticamente. Ajuste manual.");
-      }
+    // Se aprovado e for troca de WhatsApp, aplica no evento na hora.
+    if (action === "aprovado" && row.request_type !== "authorization" && newPhone.trim()) {
+      const { error: se } = await supabase
+        .from("submissions")
+        .update({ responsavel_duvidas_whatsapp: newPhone.trim() } as any)
+        .eq("id", row.submission_id);
+      if (se) toast.warning("Decisão salva, mas o WhatsApp do evento precisa ser ajustado manualmente.");
     }
 
     toast.success(action === "aprovado" ? "Solicitação aprovada." : "Solicitação rejeitada.");
