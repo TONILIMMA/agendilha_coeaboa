@@ -275,6 +275,8 @@ export default function SubmissionForm() {
     locationType: "Tipo do local",
     locationContact: "Contato do responsável pelo local",
     legalAcceptance: "Aceite dos termos",
+    duvidasWhatsapp: "WhatsApp do responsável pelas informações",
+    duvidasAuthorized: "Autorização de uso do WhatsApp",
   };
 
   const nextStep = async () => {
@@ -440,6 +442,8 @@ export default function SubmissionForm() {
       atrativoName: 4, atrativoType: 4, atrativoStyle: 4, atrativoDescription: 4, atrativoContact: 4, atrativoEmail: 4, atrativoCategory: 4,
       locationName: 5, eventAddress: 5, locationType: 5, locationContact: 5,
       legalAcceptance: 7,
+      duvidasWhatsapp: 7,
+      duvidasAuthorized: 7,
     };
     const target = stepMap[firstKey];
     if (target) setCurrentStep(target);
