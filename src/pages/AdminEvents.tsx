@@ -39,6 +39,7 @@ import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 import { missingPublishFields, shouldOfferGenericFlyer } from "@/lib/publishValidation";
 import { PublishBlockDialog, type PublishBlockInfo } from "@/components/events-admin/PublishBlockDialog";
+import { ChangeRequestsPanel } from "@/components/events-admin/ChangeRequestsPanel";
 
 
 interface Submission {
@@ -599,6 +600,10 @@ function AdminEventsInner() {
              </CardContent>
            </Card>
          </div>
+
+         <ChangeRequestsPanel
+           focusId={typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("change_request") : null}
+         />
 
          {/* Filtros rápidos */}
          <div className="mb-4 flex flex-wrap items-center gap-2">
