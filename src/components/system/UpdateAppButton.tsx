@@ -2,33 +2,40 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { runAppUpdate } from "@/pwa/updateApp";
 
 /**
- * Botão "Atualizar app" — força o navegador/PWA a buscar a versão mais nova.
- * Se houver Service Worker, dispara update + skipWaiting. Caso contrário,
- * limpa caches e recarrega ignorando cache.
+ * Botão "Atualizar app" — força o navegador/PWA a buscar a versão mais nova
+ * de forma segura: respeita offline, prioriza troca de Service Worker via
+ * `skipWaiting` (sem limpar caches à toa) e só invalida caches específicos
+ * do app-shell quando de fato precisa reobter a build.
  */
 export function UpdateAppButton({ compact = false }: { compact?: boolean }) {
   const [loading, setLoading] = useState(false);
 
   const handleUpdate = async () => {
+    if (loading) return;
     setLoading(true);
-    try {
-      if ("serviceWorker" in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map((r) => r.update().catch(() => undefined)));
-        const waiting = regs.find((r) => r.waiting)?.waiting;
-        if (waiting) waiting.postMessage({ type: "SKIP_WAITING" });
-      }
-      if ("caches" in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map((k) => caches.delete(k)));
-      }
-      toast.success("Atualizando…");
-      setTimeout(() => window.location.reload(), 400);
-    } catch {
-      window.location.reload();
+    const result = await runAppUpdate();
+    if (result.status === "offline") {
+      toast.error("Sem conexão", {
+        description: "Conecte-se à internet pra atualizar o app.",
+      });
+      setLoading(false);
+      return;
     }
+    if (result.status === "unstable") {
+      toast.warning("Conexão instável", {
+        description: "Não deu pra checar a versão mais nova. Tenta de novo em instantes.",
+      });
+      setLoading(false);
+      return;
+    }
+    toast.success(
+      result.status === "sw-activated" ? "Nova versão pronta — recarregando…" : "Atualizando…",
+    );
+    // Deixa o toast aparecer antes de recarregar.
+    setTimeout(() => window.location.reload(), 400);
   };
 
   return (
