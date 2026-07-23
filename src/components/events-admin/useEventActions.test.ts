@@ -26,7 +26,7 @@ vi.mock("@/lib/logger", () => ({ logger: { error: vi.fn(), warn: vi.fn(), info: 
 import { useEventActions } from "./useEventActions";
 import type { Submission } from "./types";
 
-const baseSubmission: Partial<Submission> = {
+const baseSubmission = {
   id: "evt-1",
   event_title: "Show do Zé",
   date: "2026-08-01",
@@ -34,10 +34,10 @@ const baseSubmission: Partial<Submission> = {
   location: "Praça",
   image_url: "https://cdn/arte-do-promotor.jpg",
   editorial_status: "recebido",
-};
+} as unknown as Submission;
 
-function setup(overrides: Partial<Submission> = {}) {
-  const sub = { ...baseSubmission, ...overrides } as Submission;
+function setup(overrides: Record<string, unknown> = {}) {
+  const sub = { ...(baseSubmission as unknown as Record<string, unknown>), ...overrides } as unknown as Submission;
   const setSubmissions = vi.fn();
   const onPublishBlocked = vi.fn();
   const hook = renderHook(() =>
