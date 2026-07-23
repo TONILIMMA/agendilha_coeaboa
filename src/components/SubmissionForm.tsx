@@ -385,6 +385,7 @@ export default function SubmissionForm() {
         terms_accepted_at: values.legalAcceptance ? new Date().toISOString() : null,
         age_rating: values.ageRating,
         is_suitable_for_minors: values.isSuitableForMinors,
+        duvidas_source: values.duvidasSource || 'promotor',
         image_url: imageUrl || null,
         image_url_story: values.eventImageUrlStory || null,
         image_url_whatsapp: values.eventImageUrlWhatsapp || null,
