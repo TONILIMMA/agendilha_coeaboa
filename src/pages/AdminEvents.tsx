@@ -37,7 +37,8 @@ import { Label } from "@/components/ui/label";
 import { buildTodayWhatsAppSummary, buildWeekWhatsAppSummary, openWhatsAppWithText } from "@/lib/todayWhatsappSummary";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
-import { missingPublishFields } from "@/lib/publishValidation";
+import { missingPublishFields, shouldOfferGenericFlyer } from "@/lib/publishValidation";
+import { PublishBlockDialog, type PublishBlockInfo } from "@/components/events-admin/PublishBlockDialog";
 
 
 interface Submission {
@@ -209,6 +210,8 @@ function AdminEventsInner() {
   // Após aprovar, oferecemos ao admin gerar um flyer genérico da marca.
   const [flyerOffer, setFlyerOffer] = useState<Submission | null>(null);
   const [generatingFlyer, setGeneratingFlyer] = useState(false);
+  // Alerta on-screen listando exatamente quais campos ainda faltam.
+  const [publishBlock, setPublishBlock] = useState<PublishBlockInfo | null>(null);
 
   async function fetchAll() {
     setLoading(true);
