@@ -487,6 +487,7 @@ export default function SubmissionForm() {
               .from("submissions")
               .update({ estabelecimento_id: novoLocal.id })
               .eq("id", result.id);
+            emitEntityCreated("estabelecimento");
           }
         }
 
@@ -506,6 +507,7 @@ export default function SubmissionForm() {
             responsavel_id: user.id,
             created_by: user.id,
           });
+          emitEntityCreated("atrativo");
         }
       } catch (e) {
         // Não bloqueia o envio se o reuso falhar (ex.: nome duplicado).
