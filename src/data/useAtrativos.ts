@@ -43,6 +43,22 @@ export function useMyAtrativos(userId: string | null | undefined) {
   });
 }
 
+/** Lista completa de atrativos — restrito no cliente a Admin/Master. */
+export function useAllAtrativos(enabled: boolean) {
+  return useQuery({
+    queryKey: [...qk.atrativos.all, "list"],
+    enabled,
+    queryFn: async (): Promise<AtrativoRow[]> => {
+      const { data, error } = await supabase
+        .from("atrativos")
+        .select(SELECT_MINE + ", responsavel_id, created_by")
+        .order("name");
+      if (error) throw error;
+      return (data ?? []) as AtrativoRow[];
+    },
+  });
+}
+
 export function useUpsertAtrativo() {
   const qc = useQueryClient();
   return useMutation({
