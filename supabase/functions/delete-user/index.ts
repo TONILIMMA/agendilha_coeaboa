@@ -82,10 +82,25 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Clean up dependent rows first to avoid FK violations on auth.users delete
+    // Clean up dependent rows first to avoid FK violations on auth.users delete.
+    // Delete rows owned by the user
     await adminClient.from("user_roles").delete().eq("user_id", targetUserId);
     await adminClient.from("submissions").delete().eq("user_id", targetUserId);
     await adminClient.from("profiles").delete().eq("user_id", targetUserId);
+    await adminClient.from("app_notifications").delete().eq("user_id", targetUserId);
+    await adminClient.from("user_favorites").delete().eq("user_id", targetUserId);
+    await adminClient.from("user_activity_logs").delete().eq("user_id", targetUserId);
+    await adminClient.from("follows").delete().eq("user_id", targetUserId);
+    await adminClient.from("promotor_profiles").delete().eq("user_id", targetUserId);
+    await adminClient.from("admin_configs").delete().eq("user_id", targetUserId);
+    await adminClient.from("location_requests").delete().eq("user_id", targetUserId);
+    await adminClient.from("submission_change_requests").delete().eq("requested_by", targetUserId);
+
+    // Null out non-cascading references that would block auth.users deletion
+    await adminClient.from("audit_logs").update({ actor_id: null }).eq("actor_id", targetUserId);
+    await adminClient.from("moderation_logs").update({ moderator_id: null }).eq("moderator_id", targetUserId);
+    await adminClient.from("submission_change_requests").update({ decided_by: null }).eq("decided_by", targetUserId);
+    await adminClient.from("app_user_roles").update({ assigned_by: null }).eq("assigned_by", targetUserId);
 
     // Now delete from auth
     const { error } = await adminClient.auth.admin.deleteUser(targetUserId);
