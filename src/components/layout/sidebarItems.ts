@@ -65,10 +65,17 @@ export const sidebarConfig: SidebarSection[] = [
       },
       { 
         id: "artists", 
-        label: "Artistas", 
+        label: "Atrativos", 
         path: ROUTES.ARTISTAS, 
         icon: Users, 
         roles: ["public_guest", "public_registered", "promoter", "admin", "master"] 
+      },
+      {
+        id: "estabelecimentos_explorar",
+        label: "Locais/Estabelecimentos",
+        path: ROUTES.ADMIN_ESTABELECIMENTOS,
+        icon: Building2,
+        roles: ["admin", "master"]
       },
       { 
         id: "promoter_ranking", 
@@ -138,13 +145,6 @@ export const sidebarConfig: SidebarSection[] = [
         label: "Templates WhatsApp",
         path: ROUTES.ADMIN_WHATSAPP_TEMPLATES,
         icon: MessageSquare,
-        roles: ["admin", "master"]
-      },
-      {
-        id: "estabelecimentos",
-        label: "Locais/Estabelecimentos",
-        path: ROUTES.ADMIN_ESTABELECIMENTOS,
-        icon: Building2,
         roles: ["admin", "master"]
       },
       {
