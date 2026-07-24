@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -82,27 +82,30 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Delete user from auth (cascades to profiles and user_roles via FK)
+    // Clean up dependent rows first to avoid FK violations on auth.users delete
+    await adminClient.from("user_roles").delete().eq("user_id", targetUserId);
+    await adminClient.from("submissions").delete().eq("user_id", targetUserId);
+    await adminClient.from("profiles").delete().eq("user_id", targetUserId);
+
+    // Now delete from auth
     const { error } = await adminClient.auth.admin.deleteUser(targetUserId);
 
-    // Tolerate "User not found" — may be an orphaned profile row without an auth user
-    if (error && !/not found/i.test(error.message)) {
-      return new Response(JSON.stringify({ error: error.message }), {
+    if (error && !/not found/i.test(error.message ?? "")) {
+      console.error("deleteUser error:", JSON.stringify(error));
+      const msg = error.message || (error as any).code || "Falha ao excluir usuário no auth";
+      return new Response(JSON.stringify({ error: msg }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Also clean up profiles and submissions manually in case no cascade
-    await adminClient.from("profiles").delete().eq("user_id", targetUserId);
-    await adminClient.from("submissions").delete().eq("user_id", targetUserId);
-    await adminClient.from("user_roles").delete().eq("user_id", targetUserId);
-
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error("delete-user exception:", err);
+    const msg = err instanceof Error ? err.message : (typeof err === "string" ? err : JSON.stringify(err));
+    return new Response(JSON.stringify({ error: msg || "Erro inesperado" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
