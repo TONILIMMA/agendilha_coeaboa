@@ -534,6 +534,21 @@ export default function SubmissionForm() {
         console.warn("[SubmissionForm] auto-create local/atrativo falhou", e);
       }
 
+      // Atualiza/cria o perfil de Promotor/Divulgador do usuário logado,
+      // pra pré-preencher os campos nas próximas divulgações.
+      try {
+        if (user?.id && clean(values.responsavelNome)) {
+          await upsertPromotorProfile({
+            user_id: user.id,
+            promotor_nome: clean(values.responsavelNome)!,
+            promotor_whatsapp: clean(values.duvidasWhatsapp),
+            tipo_promotor: values.tipoResponsavel || null,
+          });
+        }
+      } catch (e) {
+        console.warn("[SubmissionForm] upsert promotor_profile falhou", e);
+      }
+
       localStorage.removeItem(DRAFT_KEY);
       navigate(`/evento-enviado/${result.id}`, { replace: true });
     } catch (error) {
