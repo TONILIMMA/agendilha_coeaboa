@@ -43,7 +43,7 @@ export function UserFiltersBar({
 }: Props) {
   return (
     <>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {chips.map((chip) => {
           const active = filterStatus === chip.key;
           return (
@@ -51,7 +51,7 @@ export function UserFiltersBar({
               key={chip.key}
               onClick={() => setFilterStatus(chip.key)}
               className={cn(
-                "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all",
+                "inline-flex shrink-0 items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all",
                 active
                   ? "bg-primary text-primary-foreground border-primary shadow-sm"
                   : chip.color + " hover:opacity-80"
@@ -71,7 +71,7 @@ export function UserFiltersBar({
         })}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-card border border-border rounded-xl shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border rounded-xl shadow-sm">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
