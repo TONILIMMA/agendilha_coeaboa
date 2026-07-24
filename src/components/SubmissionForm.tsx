@@ -220,6 +220,23 @@ export default function SubmissionForm() {
     }
   }, [loaded, profile, form]);
 
+  // Perfil de Promotor/Divulgador (por usuário) tem prioridade sobre o cadastro base
+  // pra reaproveitar nome/WhatsApp/tipo em divulgações futuras.
+  useEffect(() => {
+    if (promotorLoading || !promotorProfile) return;
+    const current = form.getValues();
+    if (promotorProfile.promotor_nome) {
+      form.setValue("responsavelNome", promotorProfile.promotor_nome, { shouldDirty: false });
+    }
+    if (promotorProfile.promotor_whatsapp) {
+      form.setValue("usarMeuWhatsapp", false, { shouldDirty: false });
+      form.setValue("duvidasWhatsapp", promotorProfile.promotor_whatsapp, { shouldDirty: false });
+    }
+    if (promotorProfile.tipo_promotor && !current.tipoResponsavel) {
+      form.setValue("tipoResponsavel", promotorProfile.tipo_promotor as any, { shouldDirty: false });
+    }
+  }, [promotorLoading, promotorProfile, form]);
+
   // Restaura a etapa 1 com os dados mais recentes do perfil (sobrepondo o rascunho).
   const restoreContactFromProfile = () => {
     if (!profile) return;
