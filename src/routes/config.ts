@@ -15,6 +15,7 @@ export const ROUTES = {
   ADMIN_USERS: "/admin/users",
   ADMIN_COLLABORATORS: "/admin/collaborators",
   ADMIN_ESTABELECIMENTOS: "/admin/estabelecimentos",
+  ADMIN_ATRATIVOS: "/admin/atrativos",
   MASTER_DASHBOARD: "/master/dashboard",
   MASTER_USUARIOS: "/master/usuarios",
   MASTER_LOGS: "/master/logs",
