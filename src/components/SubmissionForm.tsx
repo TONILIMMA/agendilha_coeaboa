@@ -456,9 +456,61 @@ export default function SubmissionForm() {
         status: 'pendente',
       };
 
+      // Vincula Local/Estabelecimento existente (se o usuário selecionou pelo autocomplete).
+      const selectedEstabId = (values as any).estabelecimentoId || null;
+      if (selectedEstabId) payload.estabelecimento_id = selectedEstabId;
+
       const result = await addSubmission(payload as any);
 
       if (!result) return; // toast already shown by ctx
+
+      // "Primeira vez grava, próximas vezes reaproveita".
+      // Cria Local/Estabelecimento e Atrativo quando o usuário digitou nomes novos,
+      // pra que apareçam no autocomplete em divulgações futuras (após aprovação).
+      try {
+        if (!selectedEstabId && user?.id && clean(values.locationName)) {
+          const { data: novoLocal } = await supabaseClient
+            .from("estabelecimentos")
+            .insert({
+              nome: clean(values.locationName)!,
+              tipo: clean((values as any).localTipo),
+              bairro: clean(values.addressNeighborhood),
+              endereco: clean(values.eventAddress),
+              contato: clean(values.locationContact),
+              responsavel_id: user.id,
+              created_by: user.id,
+            })
+            .select("id")
+            .maybeSingle();
+          if (novoLocal?.id) {
+            await supabaseClient
+              .from("submissions")
+              .update({ estabelecimento_id: novoLocal.id })
+              .eq("id", result.id);
+          }
+        }
+
+        const atrativoLinkedType = (values as any).atrativoSourceType;
+        const atrativoLinkedId = (values as any).atrativoSourceId;
+        if (
+          user?.id &&
+          clean(values.atrativoName) &&
+          !(atrativoLinkedType === "atrativo" && atrativoLinkedId)
+        ) {
+          await supabaseClient.from("atrativos").insert({
+            name: clean(values.atrativoName)!,
+            type: clean(values.atrativoType),
+            style: clean(values.atrativoStyle),
+            description: clean(values.atrativoDescription),
+            contact_whatsapp: clean(values.atrativoContact),
+            responsavel_id: user.id,
+            created_by: user.id,
+          });
+        }
+      } catch (e) {
+        // Não bloqueia o envio se o reuso falhar (ex.: nome duplicado).
+        console.warn("[SubmissionForm] auto-create local/atrativo falhou", e);
+      }
 
       localStorage.removeItem(DRAFT_KEY);
       navigate(`/evento-enviado/${result.id}`, { replace: true });
