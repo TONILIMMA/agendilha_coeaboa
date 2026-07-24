@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Plus, Search, Loader2, Pencil, Trash2, Check, X, ShieldCheck } from "lucide-react";
+import { Sparkles, Plus, Search, Loader2, Pencil, Trash2, Check, X, ShieldCheck, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -48,6 +48,7 @@ export default function AdminAtrativos() {
   const [newForm, setNewForm] = useState({ name: "", type: "", description: "" });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<AtrativoRow>>({});
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -188,10 +189,54 @@ export default function AdminAtrativos() {
         <div className="grid grid-cols-1 gap-3">
           {filtered.map((a) => {
             const isEditing = editingId === a.id;
+            const isExpanded = expandedId === a.id || isEditing;
             return (
-              <Card key={a.id} className={a.is_approved ? "" : "border-amber-300"}>
-                <CardContent className="p-4 space-y-3">
-                  {isEditing ? (
+              <Card
+                key={a.id}
+                className={`overflow-hidden transition-all duration-300 ${
+                  isExpanded ? "shadow-md ring-2 ring-primary/20" : "hover:shadow-md"
+                } ${a.is_approved ? "" : "border-amber-300"}`}
+              >
+                <CardContent className="p-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isEditing) return;
+                      setExpandedId((v) => (v === a.id ? null : a.id));
+                    }}
+                    aria-expanded={isExpanded}
+                    className="w-full text-left p-4 flex items-start justify-between gap-3"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-bold truncate">{a.name}</h4>
+                      <p className="text-xs text-muted-foreground">
+                        {[a.type, a.tipo_atrativo].filter(Boolean).join(" · ") || "sem categoria"}
+                      </p>
+                      {a.description && !isExpanded && (
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{a.description}</p>
+                      )}
+                    </div>
+                    <div className="shrink-0 flex items-center gap-2">
+                      {a.is_approved ? (
+                        <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 inline-flex items-center gap-1">
+                          <ShieldCheck className="h-3 w-3" /> aprovado
+                        </span>
+                      ) : (
+                        <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800">
+                          pendente
+                        </span>
+                      )}
+                      {isExpanded ? (
+                        <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </div>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="border-t border-border bg-muted/20 p-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                      {isEditing ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Field label="Nome*" value={String(editForm.name ?? "")} onChange={(v) => setEditForm({ ...editForm, name: v })} />
                       <Field label="Categoria" value={String(editForm.type ?? "")} onChange={(v) => setEditForm({ ...editForm, type: v })} />
@@ -199,30 +244,9 @@ export default function AdminAtrativos() {
                         <Field label="Descrição" value={String(editForm.description ?? "")} onChange={(v) => setEditForm({ ...editForm, description: v })} />
                       </div>
                     </div>
-                  ) : (
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <h4 className="font-bold truncate">{a.name}</h4>
-                        <p className="text-xs text-muted-foreground">
-                          {[a.type, a.tipo_atrativo].filter(Boolean).join(" · ") || "sem categoria"}
-                        </p>
-                        {a.description && (
-                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{a.description}</p>
-                        )}
-                      </div>
-                      <div className="shrink-0">
-                        {a.is_approved ? (
-                          <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 inline-flex items-center gap-1">
-                            <ShieldCheck className="h-3 w-3" /> aprovado
-                          </span>
-                        ) : (
-                          <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800">
-                            pendente
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                      ) : a.description ? (
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{a.description}</p>
+                      ) : null}
 
                   <div className="flex flex-wrap gap-2">
                     {isEditing ? (
@@ -265,6 +289,8 @@ export default function AdminAtrativos() {
                       </>
                     )}
                   </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             );
