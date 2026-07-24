@@ -22,6 +22,7 @@ import {
 import { validateBrazilianMobile } from "@/lib/whatsapp";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { emitEntityCreated } from "@/lib/entityEvents";
+import { usePromotorProfile, upsertPromotorProfile } from "@/data/usePromotorProfile";
 
 const formSchema = z.object({
   imageSource: z.enum(["upload", "ai"]).optional(),
