@@ -65,6 +65,7 @@ const AdminAtrativos = lazy(() => import("./pages/AdminAtrativos"));
 const CadastroPromotor = lazy(() => import("./pages/cadastro/CadastroPromotor"));
 const PromotorEstabelecimentos = lazy(() => import("./pages/promotor/PromotorEstabelecimentos"));
 const PromotorAtrativos = lazy(() => import("./pages/promotor/PromotorAtrativos"));
+const PromotorPerfil = lazy(() => import("./pages/PromotorPerfil"));
 const TermosPage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.TermosPage })));
 const PrivacidadePage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.PrivacidadePage })));
 const ImpulsionamentoPage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.ImpulsionamentoPage })));
@@ -219,6 +220,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.PROMOTOR_HOME} element={<Navigate to={ROUTES.PROMOTOR_ESTABELECIMENTOS} replace />} />
           <Route path={ROUTES.PROMOTOR_ESTABELECIMENTOS} element={<PromotorEstabelecimentos />} />
           <Route path={ROUTES.PROMOTOR_ATRATIVOS} element={<PromotorAtrativos />} />
+          <Route path={ROUTES.PROMOTOR_PERFIL} element={<PromotorPerfil />} />
         </Route>
 
         {/* Master Pages - isolated from regular admin permissions */}

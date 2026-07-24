@@ -22,6 +22,7 @@ import {
 import { validateBrazilianMobile } from "@/lib/whatsapp";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { emitEntityCreated } from "@/lib/entityEvents";
+import { usePromotorProfile, upsertPromotorProfile } from "@/data/usePromotorProfile";
 
 const formSchema = z.object({
   imageSource: z.enum(["upload", "ai"]).optional(),
@@ -153,6 +154,7 @@ export default function SubmissionForm() {
   const { user } = useAuth();
   const { isCollaborator, isPromoter } = usePermissions();
   const { profile, loaded } = useProfile();
+  const { profile: promotorProfile, loading: promotorLoading } = usePromotorProfile();
   const [currentStep, setCurrentStep] = useState(1);
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const draftLoadedRef = useRef(false);
@@ -217,6 +219,23 @@ export default function SubmissionForm() {
       }
     }
   }, [loaded, profile, form]);
+
+  // Perfil de Promotor/Divulgador (por usuário) tem prioridade sobre o cadastro base
+  // pra reaproveitar nome/WhatsApp/tipo em divulgações futuras.
+  useEffect(() => {
+    if (promotorLoading || !promotorProfile) return;
+    const current = form.getValues();
+    if (promotorProfile.promotor_nome) {
+      form.setValue("responsavelNome", promotorProfile.promotor_nome, { shouldDirty: false });
+    }
+    if (promotorProfile.promotor_whatsapp) {
+      form.setValue("usarMeuWhatsapp", false, { shouldDirty: false });
+      form.setValue("duvidasWhatsapp", promotorProfile.promotor_whatsapp, { shouldDirty: false });
+    }
+    if (promotorProfile.tipo_promotor && !current.tipoResponsavel) {
+      form.setValue("tipoResponsavel", promotorProfile.tipo_promotor as any, { shouldDirty: false });
+    }
+  }, [promotorLoading, promotorProfile, form]);
 
   // Restaura a etapa 1 com os dados mais recentes do perfil (sobrepondo o rascunho).
   const restoreContactFromProfile = () => {
@@ -513,6 +532,21 @@ export default function SubmissionForm() {
       } catch (e) {
         // Não bloqueia o envio se o reuso falhar (ex.: nome duplicado).
         console.warn("[SubmissionForm] auto-create local/atrativo falhou", e);
+      }
+
+      // Atualiza/cria o perfil de Promotor/Divulgador do usuário logado,
+      // pra pré-preencher os campos nas próximas divulgações.
+      try {
+        if (user?.id && clean(values.responsavelNome)) {
+          await upsertPromotorProfile({
+            user_id: user.id,
+            promotor_nome: clean(values.responsavelNome)!,
+            promotor_whatsapp: clean(values.duvidasWhatsapp),
+            tipo_promotor: values.tipoResponsavel || null,
+          });
+        }
+      } catch (e) {
+        console.warn("[SubmissionForm] upsert promotor_profile falhou", e);
       }
 
       localStorage.removeItem(DRAFT_KEY);

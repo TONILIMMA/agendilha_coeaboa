@@ -1217,6 +1217,36 @@ export type Database = {
         }
         Relationships: []
       }
+      promotor_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          promotor_nome: string
+          promotor_whatsapp: string | null
+          tipo_promotor: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          promotor_nome: string
+          promotor_whatsapp?: string | null
+          tipo_promotor?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          promotor_nome?: string
+          promotor_whatsapp?: string | null
+          tipo_promotor?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       segmentos_notificacao: {
         Row: {
           ativo: boolean

@@ -98,6 +98,13 @@ export const sidebarConfig: SidebarSection[] = [
         icon: PlusCircle, 
         roles: ["promoter"] 
       },
+      {
+        id: "promotor_perfil",
+        label: "Perfil de Promotor",
+        path: ROUTES.PROMOTOR_PERFIL,
+        icon: User,
+        roles: ["promoter", "admin", "master"]
+      },
       { 
         id: "manage_events", 
         label: "Gerenciar Eventos", 
