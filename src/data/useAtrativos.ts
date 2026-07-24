@@ -38,7 +38,7 @@ export function useMyAtrativos(userId: string | null | undefined) {
         .eq("responsavel_id", userId!)
         .order("name");
       if (error) throw error;
-      return (data ?? []) as AtrativoRow[];
+      return ((data ?? []) as unknown) as AtrativoRow[];
     },
   });
 }
