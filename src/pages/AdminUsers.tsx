@@ -367,30 +367,33 @@ export default function AdminUsers() {
         title="Gestão de Usuários" 
         subtitle="Controle de acessos, papéis administrativos e moderação da comunidade."
         rightElement={
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="rounded-full gap-2 border-primary/20 hover:border-primary/50"
-                onClick={exportToPDF}
-              >
-                <Download className="h-4 w-4" />
-                PDF
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="rounded-full gap-2 border-emerald-500/20 hover:border-emerald-500/50 text-emerald-600"
-                onClick={shareOnWhatsapp}
-              >
-                <Share2 className="h-4 w-4" />
-                WhatsApp
-              </Button>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-full border border-border">
-              <Users className="h-4 w-4 text-primary" />
-              <span className="text-sm font-bold">{users.length} usuários</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              aria-label="Exportar PDF"
+              className="rounded-full gap-2 border-primary/20 hover:border-primary/50 px-3 sm:px-4"
+              onClick={exportToPDF}
+            >
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">PDF</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              aria-label="Compartilhar no WhatsApp"
+              className="rounded-full gap-2 border-emerald-500/20 hover:border-emerald-500/50 text-emerald-600 px-3 sm:px-4"
+              onClick={shareOnWhatsapp}
+            >
+              <Share2 className="h-4 w-4" />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </Button>
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-muted/50 rounded-full border border-border">
+              <Users className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-sm font-bold whitespace-nowrap">
+                {users.length}
+                <span className="hidden sm:inline"> usuários</span>
+              </span>
             </div>
           </div>
         }
