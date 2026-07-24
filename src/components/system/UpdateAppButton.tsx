@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { runAppUpdate } from "@/pwa/updateApp";
+import { useAuth } from "@/contexts/AuthContext";
 
 /**
  * Botão "Atualizar app" — força o navegador/PWA a buscar a versão mais nova
@@ -12,6 +13,10 @@ import { runAppUpdate } from "@/pwa/updateApp";
  */
 export function UpdateAppButton({ compact = false }: { compact?: boolean }) {
   const [loading, setLoading] = useState(false);
+  const { isAdmin } = useAuth();
+
+  // Restrito a administradores (inclui Admin Master).
+  if (!isAdmin) return null;
 
   const handleUpdate = async () => {
     if (loading) return;
