@@ -557,7 +557,7 @@ function AdminEventsInner() {
          </div>
 
          {/* KPIs */}
-         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
            {/* Pendentes — destaque âmbar com alerta quando > 0 */}
            <Card
              onClick={() => setStatusFilter('pendente')}
@@ -568,12 +568,12 @@ function AdminEventsInner() {
                  : "bg-white border-transparent"
              )}
            >
-             <CardContent className="p-4 flex items-start justify-between gap-2">
+             <CardContent className="p-3 sm:p-4 flex items-start justify-between gap-2">
                <div>
                  <p className="text-[10px] font-black uppercase text-amber-700 tracking-wider flex items-center gap-1.5">
                    {kpis.pending > 0 && <AlertCircle className="h-3.5 w-3.5" />} Pendentes
                  </p>
-                 <p className="text-3xl font-black text-amber-600 mt-1">{kpis.pending}</p>
+                 <p className="text-2xl sm:text-3xl font-black text-amber-600 mt-1">{kpis.pending}</p>
                  {kpis.pending > 0 && (
                    <p className="text-[10px] text-amber-700/80 font-bold mt-1">Aguardando curadoria</p>
                  )}
@@ -582,21 +582,21 @@ function AdminEventsInner() {
              </CardContent>
            </Card>
            <Card onClick={() => setStatusFilter('aprovado')} className="cursor-pointer bg-white border-none shadow-sm hover:shadow-md transition-all">
-             <CardContent className="p-4">
+             <CardContent className="p-3 sm:p-4">
                <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">Aprovados</p>
-               <p className="text-3xl font-black text-emerald-600 mt-1">{kpis.approved}</p>
+               <p className="text-2xl sm:text-3xl font-black text-emerald-600 mt-1">{kpis.approved}</p>
              </CardContent>
            </Card>
            <Card onClick={() => setStatusFilter('rejeitado')} className="cursor-pointer bg-white border-none shadow-sm hover:shadow-md transition-all">
-             <CardContent className="p-4">
+             <CardContent className="p-3 sm:p-4">
                <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">Rejeitados</p>
-               <p className="text-3xl font-black text-rose-600 mt-1">{kpis.rejected}</p>
+               <p className="text-2xl sm:text-3xl font-black text-rose-600 mt-1">{kpis.rejected}</p>
              </CardContent>
            </Card>
            <Card onClick={() => setStatusFilter('all')} className="cursor-pointer bg-white border-none shadow-sm hover:shadow-md transition-all">
-             <CardContent className="p-4">
+             <CardContent className="p-3 sm:p-4">
                <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">Total</p>
-               <p className="text-3xl font-black text-slate-600 mt-1">{kpis.total}</p>
+               <p className="text-2xl sm:text-3xl font-black text-slate-600 mt-1">{kpis.total}</p>
              </CardContent>
            </Card>
          </div>
