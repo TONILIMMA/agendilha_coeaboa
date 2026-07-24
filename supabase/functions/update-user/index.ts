@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { user_id, responsible_name, phone, status } = await req.json();
+    const { user_id, responsible_name, phone, status, address_neighborhood } = await req.json();
     if (!user_id) {
       return new Response(JSON.stringify({ error: "user_id required" }), {
         status: 400,
@@ -53,8 +53,20 @@ Deno.serve(async (req) => {
 
     const updates: Record<string, string | null> = {};
     if (typeof responsible_name === "string") updates.responsible_name = responsible_name.trim() || null;
-    if (typeof phone === "string") updates.phone = phone.trim() || null;
+    if (typeof phone === "string") {
+      const digits = phone.replace(/\D/g, "");
+      if (digits.length > 0 && (digits.length < 10 || digits.length > 11)) {
+        return new Response(JSON.stringify({ error: "Telefone inválido — informe DDD + número (10 ou 11 dígitos)" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      updates.phone = digits || null;
+    }
     if (typeof status === "string") updates.status = status.trim() || null;
+    if (typeof address_neighborhood === "string") {
+      updates.address_neighborhood = address_neighborhood.trim() || null;
+    }
 
     if (Object.keys(updates).length === 0) {
       return new Response(JSON.stringify({ error: "No fields to update" }), {

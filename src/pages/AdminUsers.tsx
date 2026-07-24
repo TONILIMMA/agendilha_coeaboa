@@ -42,6 +42,8 @@ export default function AdminUsers() {
   const [isMaster, setIsMaster] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editNeighborhood, setEditNeighborhood] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
   const [togglingMaster, setTogglingMaster] = useState<string | null>(null);
   const [showAdminConfirm, setShowAdminConfirm] = useState<UserWithRole | null>(null);
@@ -197,11 +199,15 @@ export default function AdminUsers() {
   function startEdit(u: UserWithRole) {
     setEditingId(u.id);
     setEditName(u.responsible_name || "");
+    setEditPhone(u.phone || "");
+    setEditNeighborhood(u.address_neighborhood || "");
   }
 
   function cancelEdit() {
     setEditingId(null);
     setEditName("");
+    setEditPhone("");
+    setEditNeighborhood("");
   }
 
   async function saveEdit(targetUser: UserWithRole) {
@@ -210,10 +216,20 @@ export default function AdminUsers() {
       toast.error("Nome muito curto");
       return;
     }
+    const phoneDigits = editPhone.replace(/\D/g, "");
+    if (phoneDigits.length > 0 && (phoneDigits.length < 10 || phoneDigits.length > 11)) {
+      toast.error("WhatsApp inválido — use DDD + número (10 ou 11 dígitos)");
+      return;
+    }
     setSavingEdit(true);
     try {
-      await callEdge("update-user", { user_id: targetUser.id, responsible_name: trimmed });
-      toast.success("Nome atualizado");
+      await callEdge("update-user", {
+        user_id: targetUser.id,
+        responsible_name: trimmed,
+        phone: phoneDigits,
+        address_neighborhood: editNeighborhood.trim(),
+      });
+      toast.success("Dados atualizados");
       cancelEdit();
       await fetchUsers();
     } catch (err: any) {
@@ -443,8 +459,12 @@ export default function AdminUsers() {
                 isMaster={isMaster}
                 editingId={editingId}
                 editName={editName}
+                editPhone={editPhone}
+                editNeighborhood={editNeighborhood}
                 savingEdit={savingEdit}
                 setEditName={setEditName}
+                setEditPhone={setEditPhone}
+                setEditNeighborhood={setEditNeighborhood}
                 onStartEdit={startEdit}
                 onCancelEdit={cancelEdit}
                 onSaveEdit={saveEdit}

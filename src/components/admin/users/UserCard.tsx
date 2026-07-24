@@ -31,8 +31,12 @@ interface UserCardProps {
   // edit
   editingId: string | null;
   editName: string;
+  editPhone: string;
+  editNeighborhood: string;
   savingEdit: boolean;
   setEditName: (v: string) => void;
+  setEditPhone: (v: string) => void;
+  setEditNeighborhood: (v: string) => void;
   onStartEdit: (u: UserWithRole) => void;
   onCancelEdit: () => void;
   onSaveEdit: (u: UserWithRole) => void;
@@ -57,8 +61,12 @@ export function UserCard(props: UserCardProps) {
     isMaster,
     editingId,
     editName,
+    editPhone,
+    editNeighborhood,
     savingEdit,
     setEditName,
+    setEditPhone,
+    setEditNeighborhood,
     onStartEdit,
     onCancelEdit,
     onSaveEdit,
@@ -183,26 +191,54 @@ export function UserCard(props: UserCardProps) {
             <div className="space-y-2">
               <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Editar dados</p>
               {isEditing ? (
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="h-10"
-                    autoFocus
-                    disabled={savingEdit}
-                    placeholder="Nome do responsável"
-                  />
-                  <Button size="sm" className="h-10 px-3" onClick={() => onSaveEdit(u)} disabled={savingEdit}>
-                    {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                  </Button>
-                  <Button size="sm" variant="ghost" className="h-10 px-3" onClick={onCancelEdit} disabled={savingEdit}>
-                    <X className="h-4 w-4" />
-                  </Button>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1 sm:col-span-2">
+                      <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Nome do responsável</label>
+                      <Input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        autoFocus
+                        disabled={savingEdit}
+                        placeholder="Nome do responsável"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">WhatsApp</label>
+                      <Input
+                        value={editPhone}
+                        onChange={(e) => setEditPhone(e.target.value)}
+                        disabled={savingEdit}
+                        placeholder="(21) 99999-9999"
+                        inputMode="tel"
+                      />
+                      <p className="text-[10px] text-muted-foreground">DDD + número. Deixe em branco pra remover.</p>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Bairro</label>
+                      <Input
+                        value={editNeighborhood}
+                        onChange={(e) => setEditNeighborhood(e.target.value)}
+                        disabled={savingEdit}
+                        placeholder="Ex: Centro"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" className="gap-2" onClick={() => onSaveEdit(u)} disabled={savingEdit}>
+                      {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                      Salvar
+                    </Button>
+                    <Button size="sm" variant="ghost" className="gap-2" onClick={onCancelEdit} disabled={savingEdit}>
+                      <X className="h-4 w-4" />
+                      Cancelar
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <Button size="sm" variant="outline" className="gap-2" onClick={() => onStartEdit(u)}>
                   <Pencil className="h-3.5 w-3.5" />
-                  Editar nome
+                  Editar dados
                 </Button>
               )}
             </div>
