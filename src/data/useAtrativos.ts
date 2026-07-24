@@ -38,7 +38,25 @@ export function useMyAtrativos(userId: string | null | undefined) {
         .eq("responsavel_id", userId!)
         .order("name");
       if (error) throw error;
-      return (data ?? []) as AtrativoRow[];
+      return ((data ?? []) as unknown) as AtrativoRow[];
+    },
+  });
+}
+
+/** Lista completa de atrativos — restrito no cliente a Admin/Master. */
+export function useAllAtrativos(enabled: boolean) {
+  return useQuery({
+    queryKey: [...qk.atrativos.all, "list"],
+    enabled,
+    queryFn: async (): Promise<AtrativoRow[]> => {
+      const { data, error } = await supabase
+        .from("atrativos")
+        .select(
+          "id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos, is_approved, responsavel_id, created_by",
+        )
+        .order("name");
+      if (error) throw error;
+      return ((data ?? []) as unknown) as AtrativoRow[];
     },
   });
 }
