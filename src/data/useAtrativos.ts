@@ -51,10 +51,12 @@ export function useAllAtrativos(enabled: boolean) {
     queryFn: async (): Promise<AtrativoRow[]> => {
       const { data, error } = await supabase
         .from("atrativos")
-        .select(SELECT_MINE + ", responsavel_id, created_by")
+        .select(
+          "id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos, is_approved, responsavel_id, created_by",
+        )
         .order("name");
       if (error) throw error;
-      return (data ?? []) as AtrativoRow[];
+      return ((data ?? []) as unknown) as AtrativoRow[];
     },
   });
 }
