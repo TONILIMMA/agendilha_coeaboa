@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function ChangePasswordSection({ isTemporary = false, onSuccess }: Props) {
-  const { user } = useAuth();
+  const { user, refreshMustChangePassword } = useAuth();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -42,35 +42,40 @@ export function ChangePasswordSection({ isTemporary = false, onSuccess }: Props)
       toast.error("As senhas não coincidem");
       return;
     }
-    if (!isTemporary && newPassword === currentPassword) {
+    if (newPassword === currentPassword) {
       toast.error("A nova senha deve ser diferente da atual");
       return;
     }
 
     setSubmitting(true);
     try {
-      if (!isTemporary) {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: user.email,
-          password: currentPassword,
+      // Reautentica imediatamente antes da alteração. Isso substitui sessões
+      // antigas que podem ter sido revogadas quando a senha temporária foi criada.
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+      if (signInError) {
+        toast.error("Senha atual incorreta", {
+          description: isTemporary
+            ? "Digite a senha temporária usada para entrar."
+            : "Confira a senha atual e tente novamente.",
         });
-        if (signInError) {
-          toast.error("Senha atual incorreta");
-          setSubmitting(false);
-          return;
-        }
+        return;
       }
 
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) {
         const msg = error.message || "";
         const isWeak = /weak|pwned|leaked|easy to guess|short/i.test(msg);
+        const isMissingSession = /auth session missing|session.*(missing|not found)/i.test(msg);
         toast.error(
-          isWeak
+          isMissingSession
+            ? "Sua sessão expirou. Entre novamente e repita a troca de senha."
+            : isWeak
             ? "Senha vazada ou muito fraca. Use uma combinação mais segura."
             : msg || "Erro ao atualizar senha",
         );
-        setSubmitting(false);
         return;
       }
 
@@ -79,6 +84,7 @@ export function ChangePasswordSection({ isTemporary = false, onSuccess }: Props)
         .from("profiles")
         .update({ must_change_password: false })
         .eq("user_id", user.id);
+      await refreshMustChangePassword();
 
       toast.success("Senha alterada!", {
         description: "Sua nova senha já está ativa.",
@@ -108,19 +114,19 @@ export function ChangePasswordSection({ isTemporary = false, onSuccess }: Props)
         </div>
       )}
 
-      {!isTemporary && (
-        <div className="space-y-2">
-          <Label htmlFor="current-password">Senha atual</Label>
-          <PasswordInput
-            id="current-password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-            placeholder="Digite sua senha atual"
-          />
-        </div>
-      )}
+      <div className="space-y-2">
+        <Label htmlFor="current-password">
+          {isTemporary ? "Senha temporária" : "Senha atual"}
+        </Label>
+        <PasswordInput
+          id="current-password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+          placeholder={isTemporary ? "Digite a senha temporária" : "Digite sua senha atual"}
+        />
+      </div>
 
       <div className="space-y-2">
         <Label htmlFor="new-password">Nova senha</Label>
