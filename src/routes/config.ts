@@ -43,6 +43,7 @@ export const ROUTES = {
   PROMOTOR_HOME: "/promotor",
   PROMOTOR_ESTABELECIMENTOS: "/promotor/estabelecimentos",
   PROMOTOR_ATRATIVOS: "/promotor/atrativos",
+  PROMOTOR_PERFIL: "/promotor/perfil",
   TERMOS: "/termos",
   PRIVACIDADE: "/privacidade",
   IMPULSIONAMENTO: "/impulsionamento-em-breve",
