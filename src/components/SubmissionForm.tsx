@@ -21,6 +21,7 @@ import {
 } from "./submission-form/steps";
 import { validateBrazilianMobile } from "@/lib/whatsapp";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
+import { emitEntityCreated } from "@/lib/entityEvents";
 
 const formSchema = z.object({
   imageSource: z.enum(["upload", "ai"]).optional(),
@@ -487,6 +488,7 @@ export default function SubmissionForm() {
               .from("submissions")
               .update({ estabelecimento_id: novoLocal.id })
               .eq("id", result.id);
+            emitEntityCreated("estabelecimento");
           }
         }
 
@@ -506,6 +508,7 @@ export default function SubmissionForm() {
             responsavel_id: user.id,
             created_by: user.id,
           });
+          emitEntityCreated("atrativo");
         }
       } catch (e) {
         // Não bloqueia o envio se o reuso falhar (ex.: nome duplicado).

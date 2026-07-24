@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Plus } from "lucide-react";
+import { Search, MapPin, Plus, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onEntityCreated } from "@/lib/entityEvents";
 
 export interface EstabelecimentoSuggestion {
   id: string;
@@ -21,6 +22,7 @@ interface Props {
   onSelect: (estab: EstabelecimentoSuggestion) => void;
   placeholder?: string;
   className?: string;
+  selected?: boolean;
 }
 
 /**
@@ -34,11 +36,15 @@ export function EstabelecimentoAutocomplete({
   onSelect,
   placeholder = "Nome do estabelecimento",
   className,
+  selected,
 }: Props) {
   const [suggestions, setSuggestions] = useState<EstabelecimentoSuggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const debounceRef = useRef<number | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => onEntityCreated("estabelecimento", () => setRefreshKey((k) => k + 1)), []);
 
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -63,11 +69,12 @@ export function EstabelecimentoAutocomplete({
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, [value]);
+  }, [value, refreshKey]);
 
   const exactMatch = suggestions.some(
     (s) => s.nome.trim().toLowerCase() === value.trim().toLowerCase()
   );
+  const duplicateWarning = !selected && exactMatch && value.trim().length >= 2;
 
   return (
     <div className={`relative ${className ?? ""}`}>
@@ -115,6 +122,16 @@ export function EstabelecimentoAutocomplete({
               Nenhum correspondente — &quot;{value.trim()}&quot; será cadastrado como novo estabelecimento ao salvar.
             </div>
           )}
+        </div>
+      )}
+      {duplicateWarning && (
+        <div
+          role="alert"
+          className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 flex items-start gap-2"
+          data-testid="estabelecimento-duplicate-alert"
+        >
+          <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+          <span>Esse estabelecimento já existe — selecione da lista pra reaproveitar o cadastro.</span>
         </div>
       )}
     </div>

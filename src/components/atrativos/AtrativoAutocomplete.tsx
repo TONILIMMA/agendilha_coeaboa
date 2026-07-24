@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, AlertTriangle, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { onEntityCreated } from "@/lib/entityEvents";
 
 export interface AtrativoSuggestion {
   id: string;
@@ -15,13 +16,17 @@ interface Props {
   onChange: (v: string) => void;
   onSelect: (a: AtrativoSuggestion) => void;
   placeholder?: string;
+  selected?: boolean;
 }
 
 /** Autocomplete por nome em public.atrativos (case-insensitive, debounce 250ms). */
-export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder }: Props) {
+export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder, selected }: Props) {
   const [suggestions, setSuggestions] = useState<AtrativoSuggestion[]>([]);
   const [open, setOpen] = useState(false);
   const timer = useRef<number | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => onEntityCreated("atrativo", () => setRefreshKey((k) => k + 1)), []);
 
   useEffect(() => {
     if (timer.current) window.clearTimeout(timer.current);
@@ -40,7 +45,13 @@ export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder }:
     return () => {
       if (timer.current) window.clearTimeout(timer.current);
     };
-  }, [value]);
+  }, [value, refreshKey]);
+
+  const exactMatch = suggestions.some(
+    (s) => s.name.trim().toLowerCase() === value.trim().toLowerCase(),
+  );
+  const duplicateWarning = !selected && exactMatch && value.trim().length >= 2;
+  const showNewHint = !exactMatch && value.trim().length >= 2;
 
   return (
     <div className="relative">
@@ -77,6 +88,22 @@ export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder }:
               )}
             </button>
           ))}
+          {showNewHint && (
+            <div className="px-3 py-2 text-xs text-muted-foreground border-t bg-muted/30 flex items-center gap-2">
+              <Plus className="h-3.5 w-3.5" />
+              Novo atrativo — “{value.trim()}” será cadastrado ao salvar.
+            </div>
+          )}
+        </div>
+      )}
+      {duplicateWarning && (
+        <div
+          role="alert"
+          className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 flex items-start gap-2"
+          data-testid="atrativo-duplicate-alert"
+        >
+          <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+          <span>Já existe um atrativo com esse nome — selecione da lista pra reaproveitar.</span>
         </div>
       )}
     </div>
