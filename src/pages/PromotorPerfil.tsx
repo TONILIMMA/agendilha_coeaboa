@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { PageContainer } from "@/components/layout/PageContainer";
-import { LoadingState } from "@/components/ui/loading-state";
+import { PageContainer } from "@/components/ui/PageContainer";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ export default function PromotorPerfil() {
     if (whats.trim()) {
       const v = validateBrazilianMobile(whats);
       if (!v.valid) {
-        toast.error(v.reason || "WhatsApp inválido.");
+        toast.error((v as any).reason || "WhatsApp inválido.");
         return;
       }
     }
