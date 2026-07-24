@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, User, Plus } from "lucide-react";
+import { Search, User, Plus, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { onEntityCreated } from "@/lib/entityEvents";
 
 export interface PromotorSuggestion {
   nome: string;
@@ -16,6 +17,8 @@ interface Props {
   onSelect: (p: PromotorSuggestion) => void;
   placeholder?: string;
   disabled?: boolean;
+  /** Se true, o valor atual corresponde a um promotor selecionado. */
+  selected?: boolean;
 }
 
 /**
@@ -29,11 +32,15 @@ export function PromotorAutocomplete({
   onSelect,
   placeholder = "Nome do promotor/divulgador",
   disabled,
+  selected,
 }: Props) {
   const { user } = useAuth();
   const [suggestions, setSuggestions] = useState<PromotorSuggestion[]>([]);
   const [open, setOpen] = useState(false);
   const debounceRef = useRef<number | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => onEntityCreated("promotor", () => setRefreshKey((k) => k + 1)), []);
 
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -69,11 +76,13 @@ export function PromotorAutocomplete({
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, [value, user?.id]);
+  }, [value, user?.id, refreshKey]);
 
   const exactMatch = suggestions.some(
     (s) => s.nome.trim().toLowerCase() === value.trim().toLowerCase(),
   );
+  const duplicateWarning =
+    !selected && exactMatch && value.trim().length >= 1;
 
   return (
     <div className="relative">
@@ -120,6 +129,16 @@ export function PromotorAutocomplete({
               Novo promotor — “{value.trim()}” será salvo neste evento.
             </div>
           )}
+        </div>
+      )}
+      {duplicateWarning && (
+        <div
+          role="alert"
+          className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 flex items-start gap-2"
+          data-testid="promotor-duplicate-alert"
+        >
+          <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+          <span>Já existe um promotor com esse nome — selecione da lista pra não duplicar o cadastro.</span>
         </div>
       )}
     </div>
