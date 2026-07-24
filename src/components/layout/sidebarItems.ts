@@ -66,16 +66,16 @@ export const sidebarConfig: SidebarSection[] = [
       { 
         id: "artists", 
         label: "Atrativos", 
-        path: ROUTES.ARTISTAS, 
+        path: ROUTES.PROMOTOR_ATRATIVOS, 
         icon: Users, 
-        roles: ["public_guest", "public_registered", "promoter", "admin", "master"] 
+        roles: ["promoter", "admin", "master"] 
       },
       {
         id: "estabelecimentos_explorar",
         label: "Locais/Estabelecimentos",
-        path: ROUTES.ADMIN_ESTABELECIMENTOS,
+        path: ROUTES.PROMOTOR_ESTABELECIMENTOS,
         icon: Building2,
-        roles: ["admin", "master"]
+        roles: ["promoter", "admin", "master"]
       },
       { 
         id: "promoter_ranking", 
