@@ -211,6 +211,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_AGENDA_INFORMA} element={<AdminAgendaInforma />} />
           <Route path={ROUTES.ADMIN_WHATSAPP_TEMPLATES} element={<AdminWhatsAppTemplates />} />
           <Route path={ROUTES.ADMIN_ESTABELECIMENTOS} element={<AdminEstabelecimentos />} />
+          <Route path={ROUTES.ADMIN_ATRATIVOS} element={<AdminAtrativos />} />
         </Route>
 
         {/* Promotor area — guarded by user_type=promotor (admins/masters incluídos) */}
