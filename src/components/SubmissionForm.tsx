@@ -154,6 +154,7 @@ export default function SubmissionForm() {
   const { user } = useAuth();
   const { isCollaborator, isPromoter } = usePermissions();
   const { profile, loaded } = useProfile();
+  const { profile: promotorProfile, loading: promotorLoading } = usePromotorProfile();
   const [currentStep, setCurrentStep] = useState(1);
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const draftLoadedRef = useRef(false);
