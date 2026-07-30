@@ -218,23 +218,25 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
 
     setBusy(true);
     try {
-      const { error } = await supabase.rpc("reset_admin_pin_with_password", {
-        new_pin: newPin,
-        current_password: resetPassword,
+      // Reautentica com a senha atual para provar que é o dono da conta
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email || "",
+        password: resetPassword,
       });
 
-      if (error) {
-        // Se a RPC não existir ou der erro, mostra mensagem amigável
-        const msg = error.message?.toLowerCase() || "";
-        if (msg.includes("senha") || msg.includes("password") || msg.includes("incorrect")) {
-          toast.error("Senha atual incorreta");
-        } else {
-          toast.error(error.message || "Erro ao redefinir PIN");
-        }
+      if (signInError) {
+        toast.error("Senha atual incorreta");
         return;
       }
 
-      writeToken(user.id, ""); // limpa token antigo
+      // Atualiza o PIN no backend
+      const { error: updateError } = await supabase.rpc("update_admin_pin", { new_pin: newPin });
+      if (updateError) {
+        toast.error(updateError.message || "Erro ao salvar novo PIN");
+        return;
+      }
+
+      removeToken();
       setResetPassword("");
       setNewPin("");
       setConfirmPin("");
