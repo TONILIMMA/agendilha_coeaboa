@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Plus, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { onEntityCreated } from "@/lib/entityEvents";
+import { useAutocompleteSearch } from "@/hooks/useAutocompleteSearch";
 
 export interface EstabelecimentoSuggestion {
   id: string;
@@ -41,33 +42,40 @@ export function EstabelecimentoAutocomplete({
   selected,
   onCreateNew,
 }: Props) {
-  const [suggestions, setSuggestions] = useState<EstabelecimentoSuggestion[]>([]);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const debounceRef = useRef<number | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => onEntityCreated("estabelecimento", () => setRefreshKey((k) => k + 1)), []);
 
-  useEffect(() => {
-    if (debounceRef.current) window.clearTimeout(debounceRef.current);
-    const q = value?.trim() ?? "";
-    debounceRef.current = window.setTimeout(async () => {
-      setLoading(true);
+  const fetchPage = useCallback(
+    async (q: string, from: number, to: number, signal: AbortSignal) => {
       let query = supabase
         .from("estabelecimentos_public")
         .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato")
         .order("nome", { ascending: true })
-        .limit(q.length >= 1 ? 12 : 30);
-      if (q.length >= 1) query = query.ilike("nome", `%${q}%`);
+        .range(from, to)
+        .abortSignal(signal);
+      if (q) query = query.ilike("nome", `%${q}%`);
       const { data } = await query;
-      setSuggestions((data as EstabelecimentoSuggestion[]) ?? []);
-      setLoading(false);
-    }, q.length ? 200 : 0);
-    return () => {
-      if (debounceRef.current) window.clearTimeout(debounceRef.current);
-    };
-  }, [value, refreshKey]);
+      return (data ?? []) as EstabelecimentoSuggestion[];
+    },
+    [],
+  );
+
+  const {
+    items: suggestions,
+    loading,
+    loadingMore,
+    hasMore,
+    loadMore,
+  } = useAutocompleteSearch<EstabelecimentoSuggestion>({
+    term: value,
+    fetchPage,
+    pageSize: 12,
+    debounceMs: 150,
+    refreshKey,
+    enabled: open,
+  });
 
   const exactMatch = suggestions.some(
     (s) => s.nome.trim().toLowerCase() === value.trim().toLowerCase()
@@ -122,6 +130,21 @@ export function EstabelecimentoAutocomplete({
               </span>
             </button>
           ))}
+          {loading && suggestions.length === 0 && (
+            <div className="px-4 py-2 text-xs text-muted-foreground">Buscando locais...</div>
+          )}
+          {hasMore && (
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                loadMore();
+              }}
+              className="w-full px-4 py-2 text-xs font-medium text-primary hover:bg-muted border-t"
+            >
+              {loadingMore ? "Carregando..." : "Carregar mais"}
+            </button>
+          )}
           {value.trim().length >= 2 && !exactMatch && (
             <button
               type="button"
