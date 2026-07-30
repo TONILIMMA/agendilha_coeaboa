@@ -91,7 +91,7 @@ export function checkLocationAutofill(v: {
 
   if (v.locationCep?.trim()) {
     const cep = validateCep(v.locationCep);
-    if (!cep.valid) {
+    if (cep.valid === false) {
       issues.push({ field: "locationCep", label: "CEP", message: cep.reason, level: "error" });
     }
   }
@@ -99,7 +99,7 @@ export function checkLocationAutofill(v: {
   const contato = (v.locationContact ?? "").trim();
   if (contato) {
     const phone = validateBrazilianMobile(contato);
-    if (!phone.valid) {
+    if (phone.valid === false) {
       issues.push({ field: "locationContact", label: "Contato do local", message: phone.reason, level: "error" });
     }
   } else if (v.locationType === "commercial") {
@@ -132,7 +132,7 @@ export function checkAtrativoAutofill(v: {
   const phone = validateBrazilianMobile(v.atrativoContact ?? "");
   if (!v.atrativoContact?.trim()) {
     issues.push({ field: "atrativoContact", label: "WhatsApp do atrativo", message: "Informe o celular do atrativo.", level: "error" });
-  } else if (!phone.valid) {
+  } else if (phone.valid === false) {
     issues.push({ field: "atrativoContact", label: "WhatsApp do atrativo", message: phone.reason, level: "error" });
   }
 
