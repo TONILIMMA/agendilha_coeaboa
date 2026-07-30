@@ -1,0 +1,1 @@
+UPDATE public.admin_configs SET pin_hash = NULL WHERE user_id = '44c5515f-e338-405a-b4bb-e76e2549cf53';
