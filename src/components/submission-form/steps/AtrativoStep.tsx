@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { Music, Search, Info, Lock, Link2, RefreshCw, Unlink } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 import { EventPreview } from "../EventPreview";
@@ -156,24 +156,53 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
     }
   };
 
-  const searchAtrativo = async (query: string) => {
+  const searchTimer = useRef<number | null>(null);
+  const searchSeq = useRef(0);
+  const searchAbort = useRef<AbortController | null>(null);
+  const searchCache = useRef(new Map<string, any[]>());
+
+  /** Debounce + cache + cancelamento: evita disparar consulta a cada tecla. */
+  const searchAtrativo = (query: string) => {
+    const q = (query ?? "").trim().toLowerCase();
+    if (searchTimer.current) window.clearTimeout(searchTimer.current);
+    const cached = searchCache.current.get(q);
+    if (cached) {
+      setSuggestions(cached);
+      return;
+    }
+    searchTimer.current = window.setTimeout(() => runSearch(q), q ? 150 : 0);
+  };
+
+  const runSearch = async (query: string) => {
     const q = (query ?? "").trim();
+    const seq = ++searchSeq.current;
+    searchAbort.current?.abort();
+    const controller = new AbortController();
+    searchAbort.current = controller;
     let atrQuery = supabase
       .from("atrativos_public")
       .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp")
       .order("name", { ascending: true })
-      .limit(q ? 10 : 20);
+      .limit(q ? 10 : 20)
+      .abortSignal(controller.signal);
     let artQuery = supabase
       .from("public_artist_profiles")
       .select("id, name, artist_type, genre, bio, whatsapp, contact_email, is_approved")
       .eq("is_approved", true)
       .order("name", { ascending: true })
-      .limit(q ? 6 : 10);
+      .limit(q ? 6 : 10)
+      .abortSignal(controller.signal);
     if (q) {
       atrQuery = atrQuery.ilike("name", `%${q}%`);
       artQuery = artQuery.ilike("name", `%${q}%`);
     }
-    const [atrativosRes, artistsRes] = await Promise.all([atrQuery, artQuery]);
+    let atrativosRes: any, artistsRes: any;
+    try {
+      [atrativosRes, artistsRes] = await Promise.all([atrQuery, artQuery]);
+    } catch {
+      return; // requisição cancelada
+    }
+    if (seq !== searchSeq.current) return; // resposta obsoleta
 
     const merged = [
       ...((atrativosRes.data ?? []).map((a: any) => ({
@@ -189,6 +218,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         display: { name: s.name, type: s.artist_type || "" },
       }))),
     ];
+    searchCache.current.set(q.toLowerCase(), merged);
     setSuggestions(merged);
   };
 

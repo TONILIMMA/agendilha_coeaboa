@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Search, AlertTriangle, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { onEntityCreated } from "@/lib/entityEvents";
+import { useAutocompleteSearch } from "@/hooks/useAutocompleteSearch";
 
 export interface AtrativoSuggestion {
   id: string;
@@ -31,32 +32,42 @@ interface Props {
 
 /** Autocomplete por nome em public.atrativos (case-insensitive, debounce 250ms). */
 export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder, selected }: Props) {
-  const [suggestions, setSuggestions] = useState<AtrativoSuggestion[]>([]);
   const [open, setOpen] = useState(false);
-  const timer = useRef<number | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => onEntityCreated("atrativo", () => setRefreshKey((k) => k + 1)), []);
 
-  useEffect(() => {
-    if (timer.current) window.clearTimeout(timer.current);
-    const q = value?.trim() ?? "";
-    timer.current = window.setTimeout(async () => {
+  const fetchPage = useCallback(
+    async (q: string, from: number, to: number, signal: AbortSignal) => {
       let query = supabase
         .from("atrativos_public")
         .select(
           "id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp, cidade_regiao, estado, pais, logo_url, fotos, estabelecimento_id",
         )
         .order("name", { ascending: true })
-        .limit(q.length >= 1 ? 12 : 30);
-      if (q.length >= 1) query = query.ilike("name", `%${q}%`);
+        .range(from, to)
+        .abortSignal(signal);
+      if (q) query = query.ilike("name", `%${q}%`);
       const { data } = await query;
-      setSuggestions((data ?? []) as AtrativoSuggestion[]);
-    }, q.length ? 200 : 0);
-    return () => {
-      if (timer.current) window.clearTimeout(timer.current);
-    };
-  }, [value, refreshKey]);
+      return (data ?? []) as AtrativoSuggestion[];
+    },
+    [],
+  );
+
+  const {
+    items: suggestions,
+    loading,
+    loadingMore,
+    hasMore,
+    loadMore,
+  } = useAutocompleteSearch<AtrativoSuggestion>({
+    term: value,
+    fetchPage,
+    pageSize: 12,
+    debounceMs: 150,
+    refreshKey,
+    enabled: open,
+  });
 
   const exactMatch = suggestions.some(
     (s) => s.name.trim().toLowerCase() === value.trim().toLowerCase(),
@@ -80,7 +91,7 @@ export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder, s
           className="pl-9"
         />
       </div>
-      {open && suggestions.length > 0 && (
+      {open && (suggestions.length > 0 || loading) && (
         <div className="absolute z-20 mt-1 w-full rounded-lg border bg-popover shadow-lg overflow-hidden max-h-72 overflow-y-auto">
           {value.trim().length < 1 && (
             <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted/40">
@@ -104,6 +115,19 @@ export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder, s
               )}
             </button>
           ))}
+          {loading && suggestions.length === 0 && (
+            <div className="px-3 py-2 text-xs text-muted-foreground">Buscando atrativos...</div>
+          )}
+          {hasMore && (
+            <button
+              type="button"
+              onMouseDown={(ev) => ev.preventDefault()}
+              onClick={() => loadMore()}
+              className="w-full px-3 py-2 text-xs font-medium text-primary hover:bg-muted border-t"
+            >
+              {loadingMore ? "Carregando..." : "Carregar mais"}
+            </button>
+          )}
           {showNewHint && (
             <div className="px-3 py-2 text-xs text-muted-foreground border-t bg-muted/30 flex items-center gap-2">
               <Plus className="h-3.5 w-3.5" />
