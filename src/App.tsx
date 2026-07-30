@@ -34,7 +34,6 @@ const Explorar = lazy(() => import("./pages/Explorar"));
 const AdminCollaborators = lazy(() => import("./pages/AdminCollaborators"));
 const AdminMaster = lazy(() => import("./pages/AdminMaster"));
 const Ranking = lazy(() => import("./pages/Ranking"));
-const AdminPinGate = lazy(() => import("@/components/AdminPinGate"));
 const SubmitEvent = lazy(() => import("./pages/SubmitEvent"));
 const AdminNewsletter = lazy(() => import("./pages/AdminNewsletter"));
 const ArtistProfile = lazy(() => import("./pages/ArtistProfile"));
