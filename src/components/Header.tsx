@@ -36,6 +36,7 @@ import { useUserBadge } from "@/hooks/useUserBadge";
 import SubmissionsPanel from "@/components/SubmissionsPanel";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { UpdateAppButton } from "@/components/system/UpdateAppButton";
+import { MobileTabBar, MobileTabBarSpacer } from "@/components/layout/MobileTabBar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -216,14 +217,14 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
 
              {/* Mobile Nav Trigger */}
-             <div className="flex items-center gap-2">
+             <div className="flex md:hidden items-center gap-2">
                <UpdateAppButton compact />
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={handleMobileMenu} 
                 className={cn(
-                  "h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm transition-all"
+                  "h-10 w-10 shrink-0 rounded-full bg-white/50 border border-white/40 shadow-sm transition-all"
                 )}
               >
                 <Menu className="h-5 w-5 text-foreground" />
@@ -232,6 +233,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
           </div>
         </header>
+        <MobileTabBar onMenuClick={handleMobileMenu} />
          {!onMobileMenuToggle && (
            <Sheet open={internalMobileOpen} onOpenChange={setInternalMobileOpen}>
              <SheetContent side="left" className="p-0 w-[280px] sm:w-80 bg-sidebar border-r border-border">
