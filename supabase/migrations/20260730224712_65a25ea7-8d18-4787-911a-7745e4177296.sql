@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.reset_admin_pin_with_password(text, text);

@@ -2397,10 +2397,6 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
-      reset_admin_pin_with_password: {
-        Args: { current_password: string; new_pin: string }
-        Returns: undefined
-      }
       revoke_admin_pin_session: {
         Args: { input_token: string }
         Returns: undefined
