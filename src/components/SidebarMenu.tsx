@@ -145,7 +145,7 @@ export function SidebarMenu({ onClose }: Props) {
       </div>
 
       {/* Footer - Sair da Conta is isolated here */}
-      <div className="p-4 mt-auto border-t border-sidebar-border bg-sidebar-accent/5">
+      <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] mt-auto border-t border-sidebar-border bg-sidebar-accent/5 shrink-0">
         {user ? (
           <Button 
             variant="ghost" 

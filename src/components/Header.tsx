@@ -36,6 +36,7 @@ import { useUserBadge } from "@/hooks/useUserBadge";
 import SubmissionsPanel from "@/components/SubmissionsPanel";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { UpdateAppButton } from "@/components/system/UpdateAppButton";
+import { MobileTabBar, MobileTabBarSpacer } from "@/components/layout/MobileTabBar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -216,14 +217,14 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
 
              {/* Mobile Nav Trigger */}
-             <div className="flex items-center gap-2">
+             <div className="flex md:hidden items-center gap-2">
                <UpdateAppButton compact />
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={handleMobileMenu} 
                 className={cn(
-                  "h-10 w-10 rounded-full bg-white/50 border border-white/40 shadow-sm transition-all"
+                  "h-10 w-10 shrink-0 rounded-full bg-white/50 border border-white/40 shadow-sm transition-all"
                 )}
               >
                 <Menu className="h-5 w-5 text-foreground" />
@@ -232,6 +233,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
             </div>
           </div>
         </header>
+        <MobileTabBar onMenuClick={handleMobileMenu} />
          {!onMobileMenuToggle && (
            <Sheet open={internalMobileOpen} onOpenChange={setInternalMobileOpen}>
              <SheetContent side="left" className="p-0 w-[280px] sm:w-80 bg-sidebar border-r border-border">
@@ -271,7 +273,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
               </Link>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <UpdateAppButton compact />
               {(isAdmin || perms.isCollaborator) && (
                 <Button 
@@ -284,7 +286,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                       navigate("/auth?redirect=/enviar-evento");
                     }
                   }}
-                  className="rounded-full text-xs font-semibold tracking-tight border border-foreground/15 text-foreground hover:bg-foreground/5 bg-transparent shadow-none px-5 h-9 sm:h-10 active:scale-95"
+                  className="hidden sm:inline-flex rounded-full text-xs font-semibold tracking-tight border border-foreground/15 text-foreground hover:bg-foreground/5 bg-transparent shadow-none px-5 h-9 sm:h-10 active:scale-95"
                 >
                   Divulgar evento
                 </Button>
@@ -295,6 +297,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
           </div>
           <div className="h-1 w-full gradient-pumpkin-strip opacity-90" />
         </header>
+        <MobileTabBar onMenuClick={handleMobileMenu} />
         {!onMobileMenuToggle && (
           <Sheet open={internalMobileOpen} onOpenChange={setInternalMobileOpen}>
             <SheetContent side="left" className="p-0 w-[280px] sm:w-80 bg-sidebar border-r border-border">
@@ -527,6 +530,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
       </header>
       {/* Decorative pumpkin/terracotta strip below the header */}
       <div className="sticky top-[var(--header-strip-offset,0)] z-40 h-1 w-full gradient-pumpkin-strip shadow-[0_2px_8px_-2px_hsl(22_70%_55%/0.25)]" aria-hidden="true" />
+      <MobileTabBar onMenuClick={handleMobileMenu} />
       {!onMobileMenuToggle && (
         <Sheet open={internalMobileOpen} onOpenChange={setInternalMobileOpen}>
           <SheetContent side="left" className="p-0 w-[280px] sm:w-80 bg-sidebar border-r border-border">

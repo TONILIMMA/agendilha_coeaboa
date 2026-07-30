@@ -5,6 +5,13 @@
 @tailwind utilities;
 
 @layer base {
+  /* Espaço para a barra de navegação inferior do mobile (evita cortes/sobreposição) */
+  @media (max-width: 767px) {
+    body {
+      padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+    }
+  }
+
   :root {
     /* ── Editorial Warm Sand · Premium Local ── */
     --background: 40 33% 97%;          /* #faf8f5 ivory sand */
