@@ -273,7 +273,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
               </Link>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <UpdateAppButton compact />
               {(isAdmin || perms.isCollaborator) && (
                 <Button 
@@ -286,7 +286,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                       navigate("/auth?redirect=/enviar-evento");
                     }
                   }}
-                  className="rounded-full text-xs font-semibold tracking-tight border border-foreground/15 text-foreground hover:bg-foreground/5 bg-transparent shadow-none px-5 h-9 sm:h-10 active:scale-95"
+                  className="hidden sm:inline-flex rounded-full text-xs font-semibold tracking-tight border border-foreground/15 text-foreground hover:bg-foreground/5 bg-transparent shadow-none px-5 h-9 sm:h-10 active:scale-95"
                 >
                   Divulgar evento
                 </Button>
@@ -297,6 +297,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
           </div>
           <div className="h-1 w-full gradient-pumpkin-strip opacity-90" />
         </header>
+        <MobileTabBar onMenuClick={handleMobileMenu} />
         {!onMobileMenuToggle && (
           <Sheet open={internalMobileOpen} onOpenChange={setInternalMobileOpen}>
             <SheetContent side="left" className="p-0 w-[280px] sm:w-80 bg-sidebar border-r border-border">
@@ -529,6 +530,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
       </header>
       {/* Decorative pumpkin/terracotta strip below the header */}
       <div className="sticky top-[var(--header-strip-offset,0)] z-40 h-1 w-full gradient-pumpkin-strip shadow-[0_2px_8px_-2px_hsl(22_70%_55%/0.25)]" aria-hidden="true" />
+      <MobileTabBar onMenuClick={handleMobileMenu} />
       {!onMobileMenuToggle && (
         <Sheet open={internalMobileOpen} onOpenChange={setInternalMobileOpen}>
           <SheetContent side="left" className="p-0 w-[280px] sm:w-80 bg-sidebar border-r border-border">
