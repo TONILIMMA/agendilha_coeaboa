@@ -70,6 +70,10 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         row.contact_whatsapp ? formatPhoneDisplay(row.contact_whatsapp) : "",
         { shouldDirty: true, shouldValidate: true },
       );
+      const cat = (row.tipo_atrativo || row.type || "").toLowerCase();
+      if (CATEGORIES.some((c) => c.value === cat)) {
+        form.setValue("atrativoCategory", cat, { shouldDirty: true });
+      }
     }
   };
 
@@ -128,24 +132,23 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
   };
 
   const searchAtrativo = async (query: string) => {
-    if (query.trim().length < 2) {
-      setSuggestions([]);
-      return;
+    const q = (query ?? "").trim();
+    let atrQuery = supabase
+      .from("atrativos_public")
+      .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp")
+      .order("name", { ascending: true })
+      .limit(q ? 10 : 20);
+    let artQuery = supabase
+      .from("public_artist_profiles")
+      .select("id, name, artist_type, genre, bio, whatsapp, contact_email, is_approved")
+      .eq("is_approved", true)
+      .order("name", { ascending: true })
+      .limit(q ? 6 : 10);
+    if (q) {
+      atrQuery = atrQuery.ilike("name", `%${q}%`);
+      artQuery = artQuery.ilike("name", `%${q}%`);
     }
-    const q = query.trim();
-    const [atrativosRes, artistsRes] = await Promise.all([
-      supabase
-        .from("atrativos_public")
-        .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp")
-        .ilike("name", `%${q}%`)
-        .limit(6),
-      supabase
-        .from("public_artist_profiles")
-        .select("id, name, artist_type, genre, bio, whatsapp, contact_email, is_approved")
-        .ilike("name", `%${q}%`)
-        .eq("is_approved", true)
-        .limit(4),
-    ]);
+    const [atrativosRes, artistsRes] = await Promise.all([atrQuery, artQuery]);
 
     const merged = [
       ...((atrativosRes.data ?? []).map((a: any) => ({
@@ -188,6 +191,8 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                     placeholder="Banda, DJ, artista, ponto turístico..."
                     className="h-12 pr-10"
                     {...field}
+                    onFocus={() => searchAtrativo(field.value ?? "")}
+                    onBlur={() => window.setTimeout(() => setSuggestions([]), 150)}
                     onChange={(e) => {
                       field.onChange(e);
                       // digitar manualmente quebra o vínculo — draft vira snapshot livre
@@ -207,11 +212,15 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
           )}
         />
         {suggestions.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-background border rounded-lg shadow-lg overflow-hidden">
+          <div className="absolute z-50 w-full mt-1 bg-background border rounded-lg shadow-lg overflow-hidden max-h-72 overflow-y-auto">
+            <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted/40">
+              Atrativos e artistas já cadastrados
+            </div>
             {suggestions.map((s: any) => (
               <button
                 key={`${s.__kind}-${s.__id}`}
                 type="button"
+                onMouseDown={(ev) => ev.preventDefault()}
                 className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm"
                 onClick={() => {
                   linkSource(s.__id, s.__kind, s.row);
