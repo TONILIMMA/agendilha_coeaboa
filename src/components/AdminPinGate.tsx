@@ -122,7 +122,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
-      const result = data as { session_token?: string; requires_change?: boolean; error_message?: string } | null;
+      const result = data?.[0] as { session_token?: string; requires_change?: boolean; error_message?: string } | undefined;
 
       if (!result || result.error_message) {
         toast.error(result?.error_message || "PIN incorreto");
