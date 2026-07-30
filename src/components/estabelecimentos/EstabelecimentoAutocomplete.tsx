@@ -23,6 +23,8 @@ interface Props {
   placeholder?: string;
   className?: string;
   selected?: boolean;
+  /** Chamado quando o usuário opta por cadastrar um local novo com o texto digitado. */
+  onCreateNew?: (name: string) => void;
 }
 
 /**
@@ -37,6 +39,7 @@ export function EstabelecimentoAutocomplete({
   placeholder = "Nome do estabelecimento",
   className,
   selected,
+  onCreateNew,
 }: Props) {
   const [suggestions, setSuggestions] = useState<EstabelecimentoSuggestion[]>([]);
   const [open, setOpen] = useState(false);
@@ -120,10 +123,19 @@ export function EstabelecimentoAutocomplete({
             </button>
           ))}
           {value.trim().length >= 2 && !exactMatch && (
-            <div className="px-4 py-2 text-xs text-muted-foreground border-t bg-muted/30 flex items-center gap-2">
+            <button
+              type="button"
+              data-testid="estabelecimento-create-new"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onCreateNew?.(value.trim());
+                setOpen(false);
+              }}
+              className="w-full px-4 py-2 text-left text-xs border-t bg-muted/30 hover:bg-muted flex items-center gap-2 text-primary font-semibold"
+            >
               <Plus className="h-3.5 w-3.5" />
-              Nenhum correspondente — &quot;{value.trim()}&quot; será cadastrado como novo estabelecimento ao salvar.
-            </div>
+              Cadastrar novo local: &quot;{value.trim()}&quot;
+            </button>
           )}
         </div>
       )}
