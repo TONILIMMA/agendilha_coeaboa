@@ -34,7 +34,6 @@ const Explorar = lazy(() => import("./pages/Explorar"));
 const AdminCollaborators = lazy(() => import("./pages/AdminCollaborators"));
 const AdminMaster = lazy(() => import("./pages/AdminMaster"));
 const Ranking = lazy(() => import("./pages/Ranking"));
-const AdminPinGate = lazy(() => import("@/components/AdminPinGate"));
 const SubmitEvent = lazy(() => import("./pages/SubmitEvent"));
 const AdminNewsletter = lazy(() => import("./pages/AdminNewsletter"));
 const ArtistProfile = lazy(() => import("./pages/ArtistProfile"));
@@ -204,7 +203,7 @@ export const AppRoutes = () => (
         {/* Admin Pages - Full sidebar integration */}
         <Route element={<ProtectedRoute requiredPermission="events.read"><AppShell showSidebar={true} maxWidth="xl"><Outlet /></AppShell></ProtectedRoute>}>
           <Route path={ROUTES.ADMIN_EVENTS} element={<AdminEvents />} />
-          <Route path={ROUTES.ADMIN_USERS} element={<AdminPinGate><AdminUsers /></AdminPinGate>} />
+          <Route path={ROUTES.ADMIN_USERS} element={<AdminUsers />} />
           <Route path={ROUTES.ADMIN_COLLABORATORS} element={<AdminCollaborators />} />
           <Route path={ROUTES.ADMIN_NEWSLETTER} element={<AdminNewsletter />} />
           <Route path={ROUTES.ADMIN_ARTISTS} element={<AdminArtists />} />
@@ -225,9 +224,9 @@ export const AppRoutes = () => (
 
         {/* Master Pages - isolated from regular admin permissions */}
         <Route element={<ProtectedRoute masterOnly><AppShell showSidebar={true} maxWidth="xl"><Outlet /></AppShell></ProtectedRoute>}>
-          <Route path={ROUTES.MASTER_DASHBOARD} element={<AdminPinGate><AdminMaster /></AdminPinGate>} />
-          <Route path={ROUTES.MASTER_USUARIOS} element={<AdminPinGate><AdminUsers /></AdminPinGate>} />
-          <Route path={ROUTES.MASTER_LOGS} element={<AdminPinGate><AdminAuditLogs /></AdminPinGate>} />
+          <Route path={ROUTES.MASTER_DASHBOARD} element={<AdminMaster />} />
+          <Route path={ROUTES.MASTER_USUARIOS} element={<AdminUsers />} />
+          <Route path={ROUTES.MASTER_LOGS} element={<AdminAuditLogs />} />
           <Route path={ROUTES.ADMIN_AUDIT} element={<AdminAuditLogs />} />
           <Route path={ROUTES.RANKING} element={<Ranking />} />
         </Route>
