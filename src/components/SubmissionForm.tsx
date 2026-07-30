@@ -173,7 +173,7 @@ export default function SubmissionForm() {
       category: "", eventTitle: "", date: "", startTime: "",
       ageRating: "Livre", isSuitableForMinors: true,
       atrativoName: "", atrativoType: "", atrativoContact: "", atrativoEmail: "", atrativoCategory: undefined as any,
-      locationName: "", eventAddress: "", locationType: "commercial",
+      locationName: "", eventAddress: "", locationType: "commercial", locationCep: "",
       fotos: [],
       duvidasSource: "promotor",
       duvidasWhatsapp: "",
