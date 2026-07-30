@@ -8,6 +8,10 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 import { EventPreview } from "../EventPreview";
+import { AutofillIssues } from "../AutofillIssues";
+import { checkAtrativoAutofill } from "@/lib/autofillValidation";
+import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -34,6 +38,15 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [resyncing, setResyncing] = useState(false);
   const [confirmUnlink, setConfirmUnlink] = useState(false);
+  const [novoAtrativo, setNovoAtrativo] = useState(false);
+
+  const watched = form.watch(["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory"]);
+  const issues = checkAtrativoAutofill({
+    atrativoName: watched[0],
+    atrativoContact: watched[1],
+    atrativoEmail: watched[2],
+    atrativoCategory: watched[3],
+  });
 
   const sourceId: string | undefined = form.watch("atrativoSourceId");
   const sourceType: "artist" | "atrativo" | undefined = form.watch("atrativoSourceType");
@@ -77,7 +90,19 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
     }
   };
 
+  const criarNovoAtrativo = (nome: string) => {
+    setNovoAtrativo(true);
+    setSuggestions([]);
+    form.setValue("atrativoName", nome, { shouldDirty: true, shouldValidate: true });
+    form.setValue("atrativoSourceId", undefined);
+    form.setValue("atrativoSourceType", undefined);
+    form.setValue("atrativoLinkedName", undefined);
+    form.setValue("atrativoLinkedAt", undefined);
+    toast.success(`"${nome}" será cadastrado como novo atrativo ao enviar.`);
+  };
+
   const linkSource = (id: string, kind: "artist" | "atrativo", row: any) => {
+    setNovoAtrativo(false);
     applySnapshot(row, kind);
     form.setValue("atrativoSourceId", id, { shouldDirty: true });
     form.setValue("atrativoSourceType", kind, { shouldDirty: true });
@@ -235,7 +260,31 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 </span>
               </button>
             ))}
+            {(() => {
+              const typed = (form.watch("atrativoName") ?? "").trim();
+              const exact = suggestions.some(
+                (s: any) => (s.row?.name ?? "").trim().toLowerCase() === typed.toLowerCase(),
+              );
+              if (typed.length < 2 || exact) return null;
+              return (
+                <button
+                  type="button"
+                  data-testid="atrativo-create-new"
+                  onMouseDown={(ev) => ev.preventDefault()}
+                  onClick={() => criarNovoAtrativo(typed)}
+                  className="w-full px-4 py-2 text-left text-xs border-t bg-muted/30 hover:bg-muted flex items-center gap-2 text-primary font-semibold"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Cadastrar novo atrativo: "{typed}"
+                </button>
+              );
+            })()}
           </div>
+        )}
+        {novoAtrativo && !sourceId && (
+          <Badge variant="secondary" className="mt-2" data-testid="novo-atrativo-badge">
+            Novo atrativo — preencha contato e categoria que a gente cadastra ao enviar
+          </Badge>
         )}
         {sourceId && (
           <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs">
@@ -481,6 +530,11 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
       />
 
       <EventPreview form={form} variant="atrativo" />
+
+      <AutofillIssues
+        issues={issues}
+        okMessage="Atrativo conferido — WhatsApp, e-mail e categoria estão ok."
+      />
     </div>
   );
 }

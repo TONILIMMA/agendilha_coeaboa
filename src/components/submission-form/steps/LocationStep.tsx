@@ -7,7 +7,12 @@ import {
   EstabelecimentoAutocomplete,
   type EstabelecimentoSuggestion,
 } from "@/components/estabelecimentos/EstabelecimentoAutocomplete";
-import { BAIRROS, PLACEHOLDER_BAIRRO } from "@/lib/neighborhoods";
+import { BAIRROS, PLACEHOLDER_BAIRRO, isBairroValido } from "@/lib/neighborhoods";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { AutofillIssues } from "../AutofillIssues";
+import { checkLocationAutofill, formatCep, cepDigits, validateCep } from "@/lib/autofillValidation";
+import { formatPhoneDisplay } from "@/lib/whatsapp";
 
 const LOCAL_TIPOS = [
   { v: "bar", l: "Bar" },
@@ -20,6 +25,56 @@ const LOCAL_TIPOS = [
 ] as const;
 
 export function LocationStep({ form }: { form: UseFormReturn<any> }) {
+  const [novoLocal, setNovoLocal] = useState(false);
+  const [cepLoading, setCepLoading] = useState(false);
+
+  const watched = form.watch([
+    "locationName",
+    "localTipo",
+    "addressNeighborhood",
+    "eventAddress",
+    "locationCep",
+    "locationContact",
+    "locationType",
+  ]);
+  const issues = checkLocationAutofill({
+    locationName: watched[0],
+    localTipo: watched[1],
+    addressNeighborhood: watched[2],
+    eventAddress: watched[3],
+    locationCep: watched[4],
+    locationContact: watched[5],
+    locationType: watched[6],
+  });
+
+  const buscarCep = async (raw: string) => {
+    const d = cepDigits(raw);
+    if (d.length !== 8 || validateCep(d).valid === false) return;
+    setCepLoading(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${d}/json/`);
+      const data = await res.json();
+      if (data?.erro) return;
+      const endereco = [data.logradouro, data.bairro].filter(Boolean).join(", ");
+      if (endereco) form.setValue("eventAddress", endereco, { shouldValidate: true });
+      if (data.bairro && isBairroValido(data.bairro)) {
+        form.setValue("addressNeighborhood", data.bairro, { shouldValidate: true });
+      }
+      if (data.localidade) form.setValue("addressCity", data.localidade);
+      if (data.uf) form.setValue("addressState", data.uf);
+    } catch {
+      /* silencioso — o usuário ainda pode digitar à mão */
+    } finally {
+      setCepLoading(false);
+    }
+  };
+
+  const iniciarNovoLocal = (nome: string) => {
+    setNovoLocal(true);
+    form.setValue("locationName", nome, { shouldValidate: true });
+    form.setValue("estabelecimentoId", "");
+  };
+
   const handleSelectEstab = (s: EstabelecimentoSuggestion) => {
     form.setValue("locationName", s.nome, { shouldValidate: true });
     form.setValue("estabelecimentoId", s.id);
@@ -33,7 +88,9 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
         ["praca", "outro"].includes(s.tipo) ? "public" : "commercial",
       );
     }
-    if (s.contato) form.setValue("locationContact", s.contato);
+    if (s.contato) form.setValue("locationContact", formatPhoneDisplay(s.contato), { shouldValidate: true });
+    if (s.cep) form.setValue("locationCep", formatCep(s.cep), { shouldValidate: true });
+    setNovoLocal(false);
   };
 
   return (
@@ -65,9 +122,15 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
                   }
                 }}
                 onSelect={handleSelectEstab}
+                onCreateNew={iniciarNovoLocal}
                 placeholder="Ex.: Bar do Zé, Praça Jerusalém, Ilha Plaza..."
               />
             </FormControl>
+            {novoLocal && !form.watch("estabelecimentoId") && (
+              <Badge variant="secondary" className="mt-1" data-testid="novo-local-badge">
+                Novo local — preencha os dados abaixo que a gente cadastra ao enviar
+              </Badge>
+            )}
             <FormMessage />
           </FormItem>
         )}
@@ -123,6 +186,45 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
 
       <FormField
         control={form.control}
+        name="locationCep"
+        render={({ field }) => {
+          const v = validateCep(field.value);
+          const filled = (field.value ?? "").trim().length > 0;
+          return (
+            <FormItem>
+              <FormLabel>CEP do local (opcional)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="00000-000"
+                  inputMode="numeric"
+                  maxLength={9}
+                  className="h-12"
+                  {...field}
+                  value={field.value ?? ""}
+                  onChange={(e) => {
+                    const masked = formatCep(e.target.value);
+                    field.onChange(masked);
+                    if (cepDigits(masked).length === 8) buscarCep(masked);
+                  }}
+                />
+              </FormControl>
+              {cepLoading ? (
+                <p className="text-xs text-muted-foreground">Buscando endereço...</p>
+              ) : filled && v.valid ? (
+                <p className="text-xs text-emerald-600">✓ CEP válido.</p>
+              ) : filled && v.valid === false ? (
+                <p className="text-xs text-destructive">{v.reason}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground">Digitou o CEP? A gente preenche rua e bairro.</p>
+              )}
+              <FormMessage />
+            </FormItem>
+          );
+        }}
+      />
+
+      <FormField
+        control={form.control}
         name="eventAddress"
         render={({ field }) => (
           <FormItem>
@@ -165,13 +267,25 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
             <FormItem>
               <FormLabel>Contato do local (opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="WhatsApp ou E-mail" className="h-12" {...field} />
+                <Input
+                  placeholder="(21) 99999-9999"
+                  inputMode="tel"
+                  maxLength={16}
+                  className="h-12"
+                  {...field}
+                  onChange={(e) => field.onChange(formatPhoneDisplay(e.target.value))}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
       </div>
+
+      <AutofillIssues
+        issues={issues}
+        okMessage="Dados do local conferidos — telefone, CEP/endereço e tipo estão ok."
+      />
     </div>
   );
 }
