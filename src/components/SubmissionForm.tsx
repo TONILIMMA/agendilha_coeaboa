@@ -102,6 +102,13 @@ const formSchema = z.object({
   eventAddress: z.string().trim().min(1, "Informe o endereço resumido"),
   locationType: z.enum(["public", "commercial"], { required_error: "Selecione a categoria do espaço" }),
   locationContact: z.string().trim().optional(),
+  locationCep: z.string().trim().optional().superRefine((val, ctx) => {
+    if (!val) return;
+    const d = val.replace(/\D/g, "");
+    if (d.length !== 8) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "CEP precisa ter 8 dígitos" });
+    }
+  }),
   localTipo: z.string().trim().min(1, "Selecione o tipo de local (bar, praça, restaurante...)"),
 
   description: z.string().trim().max(500).optional(),
@@ -319,6 +326,7 @@ export default function SubmissionForm() {
     eventAddress: "Endereço resumido do local",
     locationType: "Categoria do espaço",
     locationContact: "Contato do local/estabelecimento",
+    locationCep: "CEP do local",
     localTipo: "Tipo de local",
     addressNeighborhood: "Bairro do local",
     legalAcceptance: "Aceite dos termos",
@@ -353,7 +361,7 @@ export default function SubmissionForm() {
       case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
       case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
       case 4: return ["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory", "atrativoType", "atrativoStyle", "atrativoDescription"];
-      case 5: return ["locationName", "localTipo", "addressNeighborhood", "eventAddress", "locationType", "locationContact"];
+      case 5: return ["locationName", "localTipo", "addressNeighborhood", "eventAddress", "locationType", "locationContact", "locationCep"];
       case 7: return ["legalAcceptance", "responsavelNome", "duvidasWhatsapp", "duvidasAuthorized"];
       default: return [];
     }
@@ -496,6 +504,7 @@ export default function SubmissionForm() {
               tipo: clean((values as any).localTipo),
               bairro: clean(values.addressNeighborhood),
               endereco: clean(values.eventAddress),
+              cep: clean((values as any).locationCep),
               contato: clean(values.locationContact),
               responsavel_id: user.id,
               created_by: user.id,
@@ -569,7 +578,7 @@ export default function SubmissionForm() {
       companyName: 2, email: 2, addressZip: 2, addressStreet: 2, addressNumber: 2,
       category: 3, eventTitle: 3, date: 3, startTime: 3, endTime: 3,
       atrativoName: 4, atrativoType: 4, atrativoStyle: 4, atrativoDescription: 4, atrativoContact: 4, atrativoEmail: 4, atrativoCategory: 4,
-      locationName: 5, localTipo: 5, addressNeighborhood: 5, eventAddress: 5, locationType: 5, locationContact: 5,
+      locationName: 5, localTipo: 5, addressNeighborhood: 5, eventAddress: 5, locationType: 5, locationContact: 5, locationCep: 5,
       legalAcceptance: 7,
       duvidasWhatsapp: 7,
       duvidasAuthorized: 7,
