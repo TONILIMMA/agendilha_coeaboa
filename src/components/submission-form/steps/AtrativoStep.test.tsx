@@ -34,13 +34,17 @@ vi.mock("@/integrations/supabase/client", () => {
     q.select = vi.fn().mockReturnValue(q);
     q.ilike = vi.fn().mockReturnValue(q);
     q.eq = vi.fn().mockReturnValue(q);
-    q.limit = vi.fn().mockResolvedValue({ data: rows, error: null });
+    q.order = vi.fn().mockReturnValue(q);
+    q.range = vi.fn().mockReturnValue(q);
+    q.limit = vi.fn().mockReturnValue(q);
+    q.abortSignal = vi.fn().mockResolvedValue({ data: rows, error: null });
+    q.then = (resolve: any) => Promise.resolve({ data: rows, error: null }).then(resolve);
     return q;
   };
   return {
     supabase: {
       from: vi.fn((table: string) =>
-        table === "atrativos" ? build(atrativosRows) : build(artistRows)
+        table.startsWith("atrativos") ? build(atrativosRows) : build(artistRows)
       ),
     },
   };
