@@ -8,77 +8,103 @@ import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-const SESSION_KEY = "admin_pin_unlocked";
-const TTL_MS = 30 * 60 * 1000; // 30 min
+const SESSION_KEY = "admin_pin_token";
+const TTL_MS = 30 * 60 * 1000; // 30 min (espelho do backend)
 
-type UnlockToken = { userId: string; nonce: string; expiresAt: number };
+type StoredToken = { userId: string; token: string; expiresAt: number };
 
-const readUnlock = (userId: string): boolean => {
+const readToken = (userId: string): string | null => {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);
-    if (!raw) return false;
-    const parsed = JSON.parse(raw) as UnlockToken;
-    if (parsed.userId !== userId) return false;
-    if (!parsed.nonce || parsed.nonce.length < 16) return false;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredToken;
+    if (parsed.userId !== userId) return null;
     if (Date.now() > parsed.expiresAt) {
       sessionStorage.removeItem(SESSION_KEY);
-      return false;
+      return null;
     }
-    return true;
+    return parsed.token;
   } catch {
     sessionStorage.removeItem(SESSION_KEY);
-    return false;
+    return null;
   }
 };
 
-const writeUnlock = (userId: string) => {
-  const nonce = crypto.getRandomValues(new Uint8Array(16))
-    .reduce((s, b) => s + b.toString(16).padStart(2, "0"), "");
-  const payload: UnlockToken = { userId, nonce, expiresAt: Date.now() + TTL_MS };
+const writeToken = (userId: string, token: string) => {
+  const payload: StoredToken = { userId, token, expiresAt: Date.now() + TTL_MS };
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(payload));
 };
 
+const removeToken = () => sessionStorage.removeItem(SESSION_KEY);
+
+type Mode = "verify" | "change" | "forgot";
+
 /**
- * Gate de PIN para áreas sensíveis (ex: Usuários).
- * - PIN padrão: 0000
- * - No primeiro acesso (PIN ainda padrão), exige troca obrigatória.
- * - Desbloqueio persiste por sessão (sessionStorage).
- * - Validação agora via RPC no backend para maior segurança.
+ * Gate de PIN para áreas sensíveis do Painel Master/Admin.
+ * - O desbloqueio agora é validado pelo backend (tabela admin_pin_sessions).
+ * - Sessões expiram em 30 minutos e podem ser revogadas.
+ * - PIN padrão 0000 só funciona no primeiro acesso e força troca imediata.
+ * - "Esqueci o PIN" permite redefinir usando a senha da conta.
+ * - Apenas administradores/master podem acessar.
  */
 export default function AdminPinGate({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [unlocked, setUnlocked] = useState(false);
+  const [mode, setMode] = useState<Mode>("verify");
   const [pin, setPin] = useState("");
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
-  const [mustChange, setMustChange] = useState(false);
+  const [resetPassword, setResetPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [isDefaultPin, setIsDefaultPin] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!user) {
-      sessionStorage.removeItem(SESSION_KEY);
+      removeToken();
+      setUnlocked(false);
+      setMode("verify");
+      return;
+    }
+
+    const token = readToken(user.id);
+    if (!token) {
       setUnlocked(false);
       return;
     }
-    if (readUnlock(user.id)) setUnlocked(true);
+
+    // Valida o token no backend ao carregar
+    let cancelled = false;
+    supabase.rpc("verify_admin_pin_session", { input_token: token }).then(({ data, error }) => {
+      if (cancelled) return;
+      if (error || !data) {
+        removeToken();
+        setUnlocked(false);
+      } else {
+        setUnlocked(true);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   useEffect(() => {
     const checkStatus = async () => {
       if (!user) return;
-      // Check if user has a set PIN or needs to change the default one
       const { data, error } = await supabase
-        .from('admin_configs')
-        .select('pin_hash')
-        .eq('user_id', user.id)
+        .from("admin_configs")
+        .select("pin_hash, requires_change")
+        .eq("user_id", user.id)
         .maybeSingle();
-      
-      if (!data || !data.pin_hash) {
-        setIsDefaultPin(true);
-      } else {
-        setIsDefaultPin(false);
+
+      if (error) {
+        console.error("Error checking admin pin status:", error);
+        return;
       }
+
+      const noPin = !data || !data.pin_hash;
+      setIsDefaultPin(noPin || data?.requires_change);
     };
     checkStatus();
   }, [user]);
@@ -89,31 +115,33 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (pin.length !== 4) return;
-    
+
     setBusy(true);
     try {
-      // Se ainda não há PIN definido, aceita o PIN padrão "0000" e força a troca
-      if (isDefaultPin) {
-        if (pin === "0000") {
-          setMustChange(true);
-        } else {
-          toast.error("PIN incorreto. Use o PIN padrão 0000 no primeiro acesso.");
-          setPin("");
-        }
-        return;
-      }
+      const { data, error } = await supabase.rpc("create_admin_pin_session", { input_pin: pin });
 
-      const { data, error } = await supabase.rpc('verify_admin_pin', { input_pin: pin });
-      
       if (error) throw error;
-      
-      if (!data) {
-        toast.error("PIN incorreto");
+
+      const result = data?.[0] as { session_token?: string; requires_change?: boolean; error_message?: string } | undefined;
+
+      if (!result || result.error_message) {
+        toast.error(result?.error_message || "PIN incorreto");
         setPin("");
         return;
       }
 
-      writeUnlock(user.id);
+      if (result.requires_change) {
+        setMode("change");
+        toast.info("Você precisa definir um novo PIN para continuar.");
+        return;
+      }
+
+      if (!result.session_token) {
+        toast.error("Não foi possível criar a sessão de acesso.");
+        return;
+      }
+
+      writeToken(user.id, result.session_token);
       setUnlocked(true);
     } catch (error) {
       console.error("Error verifying PIN:", error);
@@ -140,11 +168,26 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
 
     setBusy(true);
     try {
-      const { error } = await supabase.rpc('update_admin_pin', { new_pin: newPin });
+      const { error } = await supabase.rpc("update_admin_pin", { new_pin: newPin });
       if (error) throw error;
-      
-      writeUnlock(user.id);
+
+      // Após trocar o PIN, cria a sessão de desbloqueio com o novo PIN
+      const { data: sessionData, error: sessionError } = await supabase.rpc("create_admin_pin_session", { input_pin: newPin });
+      if (sessionError) throw sessionError;
+
+      const result = sessionData?.[0] as { session_token?: string; error_message?: string } | undefined;
+      if (!result?.session_token) {
+        toast.error("PIN salvo, mas não foi possível abrir a sessão. Tente entrar de novo.");
+        setMode("verify");
+        setPin("");
+        setNewPin("");
+        setConfirmPin("");
+        return;
+      }
+
+      writeToken(user.id, result.session_token);
       toast.success("PIN atualizado com sucesso");
+      setIsDefaultPin(false);
       setUnlocked(true);
     } catch (error) {
       console.error("Error updating PIN:", error);
@@ -154,22 +197,79 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleForgotPin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!/^\d{4}$/.test(newPin)) {
+      toast.error("O PIN deve ter 4 dígitos");
+      return;
+    }
+    if (newPin === "0000") {
+      toast.error("Escolha um PIN diferente do padrão");
+      return;
+    }
+    if (newPin !== confirmPin) {
+      toast.error("Os PINs não coincidem");
+      return;
+    }
+    if (resetPassword.length < 8) {
+      toast.error("Digite sua senha atual corretamente");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      // Reautentica com a senha atual para provar que é o dono da conta
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email || "",
+        password: resetPassword,
+      });
+
+      if (signInError) {
+        toast.error("Senha atual incorreta");
+        return;
+      }
+
+      // Atualiza o PIN no backend
+      const { error: updateError } = await supabase.rpc("update_admin_pin", { new_pin: newPin });
+      if (updateError) {
+        toast.error(updateError.message || "Erro ao salvar novo PIN");
+        return;
+      }
+
+      removeToken();
+      setResetPassword("");
+      setNewPin("");
+      setConfirmPin("");
+      setMode("verify");
+      toast.success("PIN redefinido. Agora entre com o novo PIN.");
+    } catch (error) {
+      console.error("Error resetting PIN:", error);
+      toast.error("Erro ao redefinir PIN");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const title = mode === "change" ? "Defina seu novo PIN" : mode === "forgot" ? "Redefinir PIN" : "Acesso restrito";
+  const description =
+    mode === "change"
+      ? "Por segurança, troque o PIN padrão antes de acessar a área administrativa."
+      : mode === "forgot"
+      ? "Digite sua senha atual e escolha um novo PIN de 4 dígitos."
+      : "Digite o PIN de 4 dígitos para acessar esta área. PIN padrão: 0000.";
+
   return (
     <Dialog open modal>
       <DialogContent className="sm:max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
-            {mustChange ? "Defina seu novo PIN" : "Acesso restrito"}
+            {title}
           </DialogTitle>
-          <DialogDescription>
-            {mustChange
-              ? "Por segurança, troque o PIN padrão antes de acessar a área administrativa."
-              : "Digite o PIN de 4 dígitos para acessar esta área. PIN padrão: 0000."}
-          </DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
-        {!mustChange ? (
+        {mode === "verify" && (
           <form onSubmit={handleVerify} className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="pin">PIN</Label>
@@ -185,13 +285,27 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
                 className="text-center text-2xl tracking-[0.5em]"
               />
             </div>
-            <DialogFooter>
+            <DialogFooter className="flex-col gap-2">
               <Button type="submit" className="w-full" disabled={busy || pin.length !== 4}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar"}
               </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-xs"
+                onClick={() => {
+                  setPin("");
+                  setMode("forgot");
+                }}
+                disabled={busy}
+              >
+                Esqueci o PIN
+              </Button>
             </DialogFooter>
           </form>
-        ) : (
+        )}
+
+        {mode === "change" && (
           <form onSubmit={handleChange} className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="newpin">Novo PIN</Label>
@@ -223,6 +337,67 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
             <DialogFooter>
               <Button type="submit" className="w-full" disabled={busy}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Salvar novo PIN"}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+
+        {mode === "forgot" && (
+          <form onSubmit={handleForgotPin} className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="reset-password">Senha atual da conta</Label>
+              <Input
+                id="reset-password"
+                type="password"
+                autoFocus
+                value={resetPassword}
+                onChange={(e) => setResetPassword(e.target.value)}
+                placeholder="Sua senha de login"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="forgot-newpin">Novo PIN</Label>
+              <Input
+                id="forgot-newpin"
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                value={newPin}
+                onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
+                placeholder="••••"
+                className="text-center text-xl tracking-[0.4em]"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="forgot-confirmpin">Confirmar PIN</Label>
+              <Input
+                id="forgot-confirmpin"
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                value={confirmPin}
+                onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
+                placeholder="••••"
+                className="text-center text-xl tracking-[0.4em]"
+              />
+            </div>
+            <DialogFooter className="flex-col gap-2">
+              <Button type="submit" className="w-full" disabled={busy}>
+                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Redefinir PIN"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-xs"
+                onClick={() => {
+                  setMode("verify");
+                  setResetPassword("");
+                  setNewPin("");
+                  setConfirmPin("");
+                }}
+                disabled={busy}
+              >
+                Voltar ao login
               </Button>
             </DialogFooter>
           </form>

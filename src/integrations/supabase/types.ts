@@ -18,22 +18,88 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          last_changed_at: string | null
           pin_hash: string | null
+          requires_change: boolean
           updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
+          last_changed_at?: string | null
           pin_hash?: string | null
+          requires_change?: boolean
           updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
+          last_changed_at?: string | null
           pin_hash?: string | null
+          requires_change?: boolean
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_pin_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: unknown
+          success: boolean
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          success?: boolean
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_pin_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: unknown
+          last_verified_at: string
+          token_hash: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown
+          last_verified_at?: string
+          token_hash: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown
+          last_verified_at?: string
+          token_hash?: string
+          user_agent?: string | null
           user_id?: string
         }
         Relationships: []
@@ -2251,8 +2317,21 @@ export type Database = {
     }
     Functions: {
       _cpf_hash: { Args: { _cpf: string }; Returns: string }
+      cleanup_admin_pin_sessions: { Args: never; Returns: undefined }
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       contains_bad_words: { Args: { text_to_check: string }; Returns: boolean }
+      count_recent_failed_pin_attempts: {
+        Args: { _user_id: string }
+        Returns: number
+      }
+      create_admin_pin_session: {
+        Args: { input_pin: string }
+        Returns: {
+          error_message: string
+          requires_change: boolean
+          session_token: string
+        }[]
+      }
       generate_slug: { Args: { title: string }; Returns: string }
       get_admin_dashboard_stats: {
         Args: {
@@ -2314,8 +2393,20 @@ export type Database = {
         }
         Returns: undefined
       }
+      reset_admin_pin_as_master: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
+      revoke_admin_pin_session: {
+        Args: { input_token: string }
+        Returns: undefined
+      }
       update_admin_pin: { Args: { new_pin: string }; Returns: undefined }
       verify_admin_pin: { Args: { input_pin: string }; Returns: boolean }
+      verify_admin_pin_session: {
+        Args: { input_token: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user" | "master"

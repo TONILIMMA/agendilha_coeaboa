@@ -177,6 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    sessionStorage.removeItem("admin_pin_token");
     await supabase.auth.signOut();
   };
 
