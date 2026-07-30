@@ -175,7 +175,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       const { data: sessionData, error: sessionError } = await supabase.rpc("create_admin_pin_session", { input_pin: newPin });
       if (sessionError) throw sessionError;
 
-      const result = sessionData as { session_token?: string; error_message?: string } | null;
+      const result = sessionData?.[0] as { session_token?: string; error_message?: string } | undefined;
       if (!result?.session_token) {
         toast.error("PIN salvo, mas não foi possível abrir a sessão. Tente entrar de novo.");
         setMode("verify");
