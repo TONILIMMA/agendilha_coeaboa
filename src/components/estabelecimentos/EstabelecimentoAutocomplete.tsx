@@ -76,7 +76,6 @@ export function EstabelecimentoAutocomplete({
       <div className="relative">
         <Input
           value={value}
-          onChange={(e) => onChange(e.target.value)}
           onChange={(e) => {
             onChange(e.target.value);
             setOpen(true);
