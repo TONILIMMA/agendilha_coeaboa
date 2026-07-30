@@ -37,7 +37,7 @@ vi.mock("@/integrations/supabase/client", () => {
     q.order = vi.fn().mockReturnValue(q);
     q.range = vi.fn().mockReturnValue(q);
     q.limit = vi.fn().mockReturnValue(q);
-    q.abortSignal = vi.fn().mockResolvedValue({ data: rows, error: null });
+    q.abortSignal = vi.fn().mockReturnValue(q);
     q.then = (resolve: any) => Promise.resolve({ data: rows, error: null }).then(resolve);
     return q;
   };
