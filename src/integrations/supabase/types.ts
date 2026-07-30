@@ -2317,6 +2317,14 @@ export type Database = {
     }
     Functions: {
       _cpf_hash: { Args: { _cpf: string }; Returns: string }
+      admin_pin_status: {
+        Args: never
+        Returns: {
+          has_pin: boolean
+          is_admin: boolean
+          requires_change: boolean
+        }[]
+      }
       cleanup_admin_pin_sessions: { Args: never; Returns: undefined }
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       contains_bad_words: { Args: { text_to_check: string }; Returns: boolean }
@@ -2397,11 +2405,25 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      reset_admin_pin_with_password: {
+        Args: { current_password: string; new_pin: string }
+        Returns: undefined
+      }
       revoke_admin_pin_session: {
         Args: { input_token: string }
         Returns: undefined
       }
-      update_admin_pin: { Args: { new_pin: string }; Returns: undefined }
+      setup_admin_pin: {
+        Args: { new_pin: string }
+        Returns: {
+          error_message: string
+          session_token: string
+        }[]
+      }
+      update_admin_pin: {
+        Args: { current_pin: string; new_pin: string }
+        Returns: undefined
+      }
       verify_admin_pin: { Args: { input_pin: string }; Returns: boolean }
       verify_admin_pin_session: {
         Args: { input_token: string }
