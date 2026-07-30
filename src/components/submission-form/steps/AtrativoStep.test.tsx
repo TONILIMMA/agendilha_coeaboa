@@ -106,7 +106,7 @@ describe("AtrativoStep autocomplete", () => {
       expect(dump.atrativoType).toBe("Banda");
       expect(dump.atrativoStyle).toBe("Rock, Pop Rock");
       expect(dump.atrativoDescription).toBe("Banda de rock da ilha.");
-      expect(dump.atrativoContact).toBe("48999990001");
+      expect(dump.atrativoContact).toBe("(48) 99999-0001");
     });
   });
 
@@ -123,7 +123,7 @@ describe("AtrativoStep autocomplete", () => {
       expect(dump.atrativoType).toBe("DJ");
       expect(dump.atrativoStyle).toBe("House");
       expect(dump.atrativoDescription).toBe("Artista aprovado.");
-      expect(dump.atrativoContact).toBe("48999990009");
+      expect(dump.atrativoContact).toBe("(48) 99999-0009");
     });
   });
 });
