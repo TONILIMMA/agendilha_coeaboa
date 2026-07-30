@@ -26,7 +26,13 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
     const enderecoCompleto = [s.endereco, s.numero, s.bairro].filter(Boolean).join(", ");
     if (enderecoCompleto) form.setValue("eventAddress", enderecoCompleto, { shouldValidate: true });
     if (s.bairro) form.setValue("addressNeighborhood", s.bairro, { shouldValidate: true });
-    if (s.tipo) form.setValue("locationType", s.tipo);
+    if (s.tipo) {
+      form.setValue("localTipo", s.tipo, { shouldValidate: true });
+      form.setValue(
+        "locationType",
+        ["praca", "outro"].includes(s.tipo) ? "public" : "commercial",
+      );
+    }
     if (s.contato) form.setValue("locationContact", s.contato);
   };
 

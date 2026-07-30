@@ -9,6 +9,16 @@ export interface AtrativoSuggestion {
   name: string;
   type: string | null;
   estabelecimento_id: string | null;
+  tipo_atrativo?: string | null;
+  style?: string | null;
+  estilos?: string[] | null;
+  description?: string | null;
+  contact_whatsapp?: string | null;
+  cidade_regiao?: string | null;
+  estado?: string | null;
+  pais?: string | null;
+  logo_url?: string | null;
+  fotos?: string[] | null;
 }
 
 interface Props {
@@ -30,18 +40,19 @@ export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder, s
 
   useEffect(() => {
     if (timer.current) window.clearTimeout(timer.current);
-    if (!value || value.trim().length < 2) {
-      setSuggestions([]);
-      return;
-    }
+    const q = value?.trim() ?? "";
     timer.current = window.setTimeout(async () => {
-      const { data } = await supabase
+      let query = supabase
         .from("atrativos_public")
-        .select("id, name, type, estabelecimento_id")
-        .ilike("name", `%${value.trim()}%`)
-        .limit(6);
+        .select(
+          "id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp, cidade_regiao, estado, pais, logo_url, fotos, estabelecimento_id",
+        )
+        .order("name", { ascending: true })
+        .limit(q.length >= 1 ? 12 : 30);
+      if (q.length >= 1) query = query.ilike("name", `%${q}%`);
+      const { data } = await query;
       setSuggestions((data ?? []) as AtrativoSuggestion[]);
-    }, 250);
+    }, q.length ? 200 : 0);
     return () => {
       if (timer.current) window.clearTimeout(timer.current);
     };
@@ -70,7 +81,12 @@ export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder, s
         />
       </div>
       {open && suggestions.length > 0 && (
-        <div className="absolute z-20 mt-1 w-full rounded-lg border bg-popover shadow-lg overflow-hidden">
+        <div className="absolute z-20 mt-1 w-full rounded-lg border bg-popover shadow-lg overflow-hidden max-h-72 overflow-y-auto">
+          {value.trim().length < 1 && (
+            <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted/40">
+              Atrativos já cadastrados
+            </div>
+          )}
           {suggestions.map((s) => (
             <button
               key={s.id}

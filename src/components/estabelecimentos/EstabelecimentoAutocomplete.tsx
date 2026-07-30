@@ -49,23 +49,18 @@ export function EstabelecimentoAutocomplete({
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     const q = value?.trim() ?? "";
-    if (q.length < 2) {
-      setSuggestions([]);
-      setOpen(false);
-      return;
-    }
     debounceRef.current = window.setTimeout(async () => {
       setLoading(true);
-      const { data } = await supabase
+      let query = supabase
         .from("estabelecimentos_public")
         .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato")
-        .ilike("nome", `%${q}%`)
         .order("nome", { ascending: true })
-        .limit(8);
+        .limit(q.length >= 1 ? 12 : 30);
+      if (q.length >= 1) query = query.ilike("nome", `%${q}%`);
+      const { data } = await query;
       setSuggestions((data as EstabelecimentoSuggestion[]) ?? []);
-      setOpen(true);
       setLoading(false);
-    }, 250);
+    }, q.length ? 200 : 0);
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
@@ -81,8 +76,11 @@ export function EstabelecimentoAutocomplete({
       <div className="relative">
         <Input
           value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={() => suggestions.length > 0 && setOpen(true)}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
           onBlur={() => window.setTimeout(() => setOpen(false), 150)}
           placeholder={placeholder}
           className="h-12 pr-10"
@@ -92,7 +90,12 @@ export function EstabelecimentoAutocomplete({
       </div>
 
       {open && (suggestions.length > 0 || (value.trim().length >= 2 && !loading)) && (
-        <div className="absolute z-50 w-full mt-1 bg-popover border rounded-lg shadow-lg overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-popover border rounded-lg shadow-lg overflow-hidden max-h-72 overflow-y-auto">
+          {value.trim().length < 1 && suggestions.length > 0 && (
+            <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted/40">
+              Locais já cadastrados
+            </div>
+          )}
           {suggestions.map((s) => (
             <button
               key={s.id}
