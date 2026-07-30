@@ -34,7 +34,6 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
       );
     }
     if (s.contato) form.setValue("locationContact", s.contato);
-    if (s.cep) form.setValue("eventCep", s.cep);
   };
 
   return (
