@@ -12,6 +12,8 @@ export interface SuggestInputProps extends React.ComponentProps<typeof Input> {
   /** Lista extra (aparece antes das do banco). */
   extraSuggestions?: string[];
   suggestLimit?: number;
+  /** Ajusta cada valor vindo do banco antes de virar opção (ex.: 20:00:00 -> 20:00). */
+  normalizeOption?: (value: string) => string;
 }
 
 /**
@@ -20,7 +22,18 @@ export interface SuggestInputProps extends React.ComponentProps<typeof Input> {
  * celular, sem mudar o visual do campo.
  */
 export const SuggestInput = React.forwardRef<HTMLInputElement, SuggestInputProps>(
-  ({ suggestFrom, suggestColumn, extraSuggestions, suggestLimit = 8, value, ...props }, ref) => {
+  (
+    {
+      suggestFrom,
+      suggestColumn,
+      extraSuggestions,
+      suggestLimit = 8,
+      normalizeOption,
+      value,
+      ...props
+    },
+    ref,
+  ) => {
     const listId = React.useMemo(() => `suggest-${++idSeq}`, []);
     const term = typeof value === "string" ? value : "";
     const { suggestions } = useFieldSuggestions({
@@ -32,13 +45,14 @@ export const SuggestInput = React.forwardRef<HTMLInputElement, SuggestInputProps
 
     const options = React.useMemo(() => {
       const seen = new Set<string>();
-      return [...(extraSuggestions ?? []), ...suggestions].filter((opt) => {
+      const normalized = normalizeOption ? suggestions.map(normalizeOption) : suggestions;
+      return [...(extraSuggestions ?? []), ...normalized].filter((opt) => {
         const key = opt.trim().toLowerCase();
         if (!key || seen.has(key)) return false;
         seen.add(key);
         return true;
       });
-    }, [extraSuggestions, suggestions]);
+    }, [extraSuggestions, suggestions, normalizeOption]);
 
     return (
       <>
