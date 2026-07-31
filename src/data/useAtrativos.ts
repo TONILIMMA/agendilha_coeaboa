@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { qk } from "./queryKeys";
+import { emitEntityChanged } from "@/lib/entityEvents";
 
 export interface AtrativoRow {
   id: string;
@@ -83,6 +84,7 @@ export function useUpsertAtrativo() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.atrativos.all });
+      emitEntityChanged("atrativo");
     },
   });
 }
@@ -96,6 +98,7 @@ export function useDeleteAtrativo() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.atrativos.all });
+      emitEntityChanged("atrativo");
     },
   });
 }
