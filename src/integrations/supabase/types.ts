@@ -2413,6 +2413,43 @@ export type Database = {
         Args: { input_token: string }
         Returns: undefined
       }
+      search_atrativos_autocomplete: {
+        Args: { _limit?: number; _offset?: number; _q?: string }
+        Returns: {
+          cidade_regiao: string
+          contact_whatsapp: string
+          description: string
+          estabelecimento_id: string
+          estado: string
+          estilos: string[]
+          fotos: string[]
+          id: string
+          is_approved: boolean
+          logo_url: string
+          name: string
+          pais: string
+          style: string
+          tipo_atrativo: string
+          type: string
+        }[]
+      }
+      search_estabelecimentos_autocomplete: {
+        Args: { _limit?: number; _offset?: number; _q?: string }
+        Returns: {
+          bairro: string
+          cep: string
+          complemento: string
+          contato: string
+          endereco: string
+          fotos: string[]
+          id: string
+          is_approved: boolean
+          nome: string
+          numero: string
+          tipo: string
+          tipos: string[]
+        }[]
+      }
       setup_admin_pin: {
         Args: { new_pin: string }
         Returns: {
