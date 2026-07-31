@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { DivulgadorRequestsPanel } from "@/components/admin/DivulgadorRequestsPanel";
 import { Button } from "@/components/ui/button";
 import { Users, Download, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -414,6 +415,8 @@ export default function AdminUsers() {
           </div>
         }
       />
+
+      <DivulgadorRequestsPanel />
 
       {/* KPIs */}
       <UserKpis kpis={kpis as UserKpisData} />
