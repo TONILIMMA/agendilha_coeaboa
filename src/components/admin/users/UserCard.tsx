@@ -86,6 +86,8 @@ export function UserCard(props: UserCardProps) {
   const [expanded, setExpanded] = useState(false);
   const isSelf = u.id === currentUserId;
   const canEditRoles = isMaster && !isSelf;
+  // Admin/Master já tem todos os privilégios — não precisa (nem mostra) tipo Divulgador.
+  const isAdminUser = u.status === "admin" || u.status === "master" || !!u.is_admin || !!u.is_master;
   const isEditing = editingId === u.id;
 
   // Tipos disponíveis na ficha administrativa
@@ -118,7 +120,7 @@ export function UserCard(props: UserCardProps) {
                 {u.responsible_name || <span className="text-muted-foreground italic text-sm">Nome não definido</span>}
               </h3>
               {u.status && <StatusBadge role={u.status} />}
-              {u.user_type && u.user_type !== "usuario" && (
+              {!isAdminUser && u.user_type && u.user_type !== "usuario" && (
                 <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-widest px-2 py-0">
                   {u.user_type}
                 </Badge>
@@ -251,7 +253,15 @@ export function UserCard(props: UserCardProps) {
               )}
             </div>
 
-            {/* Bloco: Tipo de usuário */}
+            {/* Bloco: Tipo de usuário — escondido pra Admin/Master */}
+            {isAdminUser ? (
+              <div className="space-y-2">
+                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Tipo de usuário</p>
+                <p className="text-xs text-muted-foreground">
+                  É Admin — já tem todos os privilégios, não precisa marcar como Divulgador.
+                </p>
+              </div>
+            ) : (
             <div className="space-y-2">
               <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Tipo de usuário</p>
               <div className="flex items-center gap-2">
@@ -272,6 +282,7 @@ export function UserCard(props: UserCardProps) {
                 {updatingType === u.id && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
               </div>
             </div>
+            )}
 
             {/* Bloco: Papéis administrativos (somente master) */}
             {canEditRoles && (
