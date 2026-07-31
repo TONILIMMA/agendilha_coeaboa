@@ -138,7 +138,7 @@ export function PromotorAutocomplete({
           data-testid="promotor-duplicate-alert"
         >
           <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-          <span>Já existe um promotor com esse nome — selecione da lista pra não duplicar o cadastro.</span>
+          <span>Já existe um divulgador com esse nome — selecione da lista pra não duplicar o cadastro.</span>
         </div>
       )}
     </div>
