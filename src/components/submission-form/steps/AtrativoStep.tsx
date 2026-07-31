@@ -6,6 +6,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Music, Search, Info, Lock, Link2, RefreshCw, Unlink } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { onEntityCreated } from "@/lib/entityEvents";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 import { EventPreview } from "../EventPreview";
 import { AutofillIssues } from "../AutofillIssues";
