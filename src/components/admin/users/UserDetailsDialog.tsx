@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -5,6 +6,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPhoneDisplay } from "@/lib/whatsapp";
 import { formatBrazilianDate } from "@/lib/date-utils";
@@ -17,7 +21,18 @@ interface Props {
   user: UserWithRole | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  /** Só admin/master pode mexer nas permissões */
+  canManage?: boolean;
 }
+
+type PermKey = "can_submit" | "can_approve" | "can_edit" | "can_delete";
+
+const PERM_FIELDS: { key: PermKey; label: string; hint: string }[] = [
+  { key: "can_submit", label: "Enviar eventos", hint: "Pode cadastrar novos rolês" },
+  { key: "can_approve", label: "Aprovar eventos", hint: "Libera evento pra aparecer no app" },
+  { key: "can_edit", label: "Editar eventos", hint: "Pode ajustar dados de eventos" },
+  { key: "can_delete", label: "Apagar eventos", hint: "Pode mandar evento pra lixeira" },
+];
 
 const TYPE_LABELS: Record<string, string> = {
   usuario: "Usuário público",
@@ -28,10 +43,10 @@ const TYPE_LABELS: Record<string, string> = {
   artist: "Músico / Artista",
 };
 
-export function UserDetailsDialog({ user, open, onOpenChange }: Props) {
+export function UserDetailsDialog({ user, open, onOpenChange, canManage = true }: Props) {
   const userId = user?.id;
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["user-details", userId],
     enabled: open && !!userId,
     queryFn: async () => {
@@ -57,15 +72,53 @@ export function UserDetailsDialog({ user, open, onOpenChange }: Props) {
     },
   });
 
+  const [perms, setPerms] = useState<Record<PermKey, boolean>>({
+    can_submit: false, can_approve: false, can_edit: false, can_delete: false,
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const c = data?.collab;
+    setPerms({
+      can_submit: !!c?.can_submit,
+      can_approve: !!c?.can_approve,
+      can_edit: !!c?.can_edit,
+      can_delete: !!c?.can_delete,
+    });
+  }, [data?.collab, userId]);
+
+  const dirty = !!data && PERM_FIELDS.some(
+    (f) => perms[f.key] !== !!(data.collab as any)?.[f.key]
+  );
+
+  async function savePerms() {
+    if (!userId) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("collaborators")
+      .upsert(
+        {
+          user_id: userId,
+          name: user?.responsible_name ?? null,
+          email: user?.email ?? null,
+          is_active: true,
+          ...perms,
+        } as any,
+        { onConflict: "user_id" }
+      );
+    setSaving(false);
+    if (error) {
+      toast.error("Não rolou salvar as permissões", { description: error.message });
+      return;
+    }
+    toast.success("Permissões atualizadas");
+    refetch();
+  }
+
   if (!user) return null;
 
   const isAdmin = user.status === "admin" || user.status === "master" || !!user.is_admin;
-  const perms = [
-    { label: "Enviar eventos", ok: isAdmin || !!data?.collab?.can_submit },
-    { label: "Aprovar eventos", ok: isAdmin || !!data?.collab?.can_approve },
-    { label: "Editar eventos", ok: isAdmin || !!data?.collab?.can_edit },
-    { label: "Apagar eventos", ok: isAdmin || !!data?.collab?.can_delete },
-  ];
+  const effective = (key: PermKey) => isAdmin || perms[key];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -124,19 +177,33 @@ export function UserDetailsDialog({ user, open, onOpenChange }: Props) {
                 Admin já tem tudo liberado.
               </p>
             )}
-            <div className="grid grid-cols-2 gap-2">
-              {perms.map((p) => (
+            <div className="space-y-2">
+              {PERM_FIELDS.map((f) => (
                 <div
-                  key={p.label}
-                  className={`flex items-center gap-2 text-xs rounded-lg border px-2.5 py-2 ${
-                    p.ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-border bg-muted/30 text-muted-foreground"
-                  }`}
+                  key={f.key}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2"
                 >
-                  {p.ok ? <Check className="h-3.5 w-3.5 shrink-0" /> : <X className="h-3.5 w-3.5 shrink-0" />}
-                  {p.label}
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">{f.label}</p>
+                    <p className="text-[11px] text-muted-foreground">{f.hint}</p>
+                  </div>
+                  <Switch
+                    checked={effective(f.key)}
+                    disabled={!canManage || isAdmin || isLoading || saving}
+                    onCheckedChange={(v) => setPerms((prev) => ({ ...prev, [f.key]: v }))}
+                    aria-label={f.label}
+                  />
                 </div>
               ))}
             </div>
+            {canManage && !isAdmin && (
+              <div className="flex justify-end">
+                <Button size="sm" onClick={savePerms} disabled={!dirty || saving}>
+                  {saving && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
+                  Salvar permissões
+                </Button>
+              </div>
+            )}
             {!!data?.roles?.length && (
               <p className="text-[11px] text-muted-foreground">
                 Papéis no sistema: {data.roles.join(", ")}
