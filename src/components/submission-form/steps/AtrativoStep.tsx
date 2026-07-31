@@ -191,11 +191,14 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
     searchAbort.current?.abort();
     const controller = new AbortController();
     searchAbort.current = controller;
-    let atrQuery = supabase
-      .from("atrativos_public")
-      .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp")
-      .order("name", { ascending: true })
-      .limit(q ? 10 : 20)
+    // Lista todos os atrativos cadastrados (aprovados ou não) para o
+    // preenchimento; a função exige login e não devolve dados do responsável.
+    const atrQuery = supabase
+      .rpc("search_atrativos_autocomplete", {
+        _q: q || null,
+        _limit: q ? 10 : 20,
+        _offset: 0,
+      })
       .abortSignal(controller.signal);
     let artQuery = supabase
       .from("public_artist_profiles")
@@ -205,7 +208,6 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
       .limit(q ? 6 : 10)
       .abortSignal(controller.signal);
     if (q) {
-      atrQuery = atrQuery.ilike("name", `%${q}%`);
       artQuery = artQuery.ilike("name", `%${q}%`);
     }
     let atrativosRes: any, artistsRes: any;
