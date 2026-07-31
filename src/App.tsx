@@ -51,7 +51,6 @@ const MustChangePassword = lazy(() => import("./pages/MustChangePassword"));
 const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
 const CadastroEscolha = lazy(() => import("./pages/cadastro/CadastroEscolha"));
 const CadastroPublico = lazy(() => import("./pages/cadastro/CadastroPublico"));
-const CadastroDivulgador = lazy(() => import("./pages/cadastro/CadastroDivulgador"));
 const CadastroArtista = lazy(() => import("./pages/cadastro/CadastroArtista"));
 const CadastroBanda = lazy(() => import("./pages/cadastro/CadastroBanda"));
 const CadastroSucesso = lazy(() => import("./pages/cadastro/CadastroSucesso"));
@@ -175,7 +174,7 @@ export const AppRoutes = () => (
         {/* Cadastro por perfil (sem AppShell, fullscreen mobile-first) */}
         <Route path={ROUTES.CADASTRO} element={<CadastroEscolha />} />
         <Route path={ROUTES.CADASTRO_PUBLICO} element={<CadastroPublico />} />
-        <Route path={ROUTES.CADASTRO_DIVULGADOR} element={<CadastroDivulgador />} />
+        <Route path={ROUTES.CADASTRO_DIVULGADOR} element={<CadastroPromotor />} />
         <Route path={ROUTES.CADASTRO_ARTISTA} element={<CadastroArtista />} />
         <Route path={ROUTES.CADASTRO_BANDA} element={<ProtectedRoute><CadastroBanda /></ProtectedRoute>} />
         <Route path={ROUTES.CADASTRO_SUCESSO} element={<CadastroSucesso />} />
@@ -214,7 +213,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_ATRATIVOS} element={<AdminAtrativos />} />
         </Route>
 
-        {/* Promotor area — guarded by user_type=promotor (admins/masters incluídos) */}
+        {/* Promotor area — guarded by user_type=divulgador (admins/masters incluídos) */}
         <Route element={<PromotorRoute><AppShell maxWidth="lg"><Outlet /></AppShell></PromotorRoute>}>
           <Route path={ROUTES.PROMOTOR_HOME} element={<Navigate to={ROUTES.PROMOTOR_ESTABELECIMENTOS} replace />} />
           <Route path={ROUTES.PROMOTOR_ESTABELECIMENTOS} element={<PromotorEstabelecimentos />} />
