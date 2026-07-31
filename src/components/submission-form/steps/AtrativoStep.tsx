@@ -99,7 +99,9 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
     form.setValue("atrativoSourceType", undefined);
     form.setValue("atrativoLinkedName", undefined);
     form.setValue("atrativoLinkedAt", undefined);
-    toast.success(`"${nome}" será cadastrado como novo atrativo ao enviar.`);
+    // Abre o modal já com o nome digitado — sem redigitar nada.
+    setNovoAtrativoNome(nome);
+    setNovoAtrativoOpen(true);
   };
 
   const linkSource = (id: string, kind: "artist" | "atrativo", row: any) => {
