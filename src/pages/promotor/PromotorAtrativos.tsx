@@ -645,6 +645,12 @@ export default function PromotorAtrativos() {
         downloadLabel={previewMode === "single" ? "Baixar PDF" : `Baixar PDF consolidado (${previewSheets.length})`}
         onDownload={handleDownloadPreview}
       />
+      <NovoEstabelecimentoDialog
+        open={novoLocalOpen}
+        onOpenChange={setNovoLocalOpen}
+        initialName={novoLocalNome}
+        onCreated={handleSelectEstab}
+      />
     </div>
   );
 }
