@@ -87,7 +87,14 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem>
             <FormLabel>Horário de início *</FormLabel>
             <FormControl>
-              <Input type="time" className="h-12" {...field} />
+              <SuggestInput
+                type="time"
+                className="h-12"
+                suggestFrom="public_submissions"
+                suggestColumn="start_time"
+                normalizeOption={(v) => v.slice(0, 5)}
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -188,7 +195,14 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem>
             <FormLabel>Horário previsto para término</FormLabel>
             <FormControl>
-              <Input type="time" className="h-12" {...field} />
+              <SuggestInput
+                type="time"
+                className="h-12"
+                suggestFrom="public_submissions"
+                suggestColumn="end_time"
+                normalizeOption={(v) => v.slice(0, 5)}
+                {...field}
+              />
             </FormControl>
             <p className="text-[11px] text-muted-foreground italic">
               Sem término definido se ficar vazio.
