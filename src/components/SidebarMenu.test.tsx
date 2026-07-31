@@ -7,6 +7,9 @@ import * as authContext from '../contexts/AuthContext';
 import * as submissionContext from '../contexts/SubmissionContext';
 
 // Mocks
+vi.mock('@/hooks/useDivulgadorStatus', () => ({
+  useDivulgadorStatus: () => ({ loading: false, isAdmin: false, isDivulgador: false, profile: null, request: null, refresh: vi.fn() }),
+}));
 vi.mock('../hooks/useUserBadge');
 vi.mock('../contexts/AuthContext');
 vi.mock('../contexts/SubmissionContext');

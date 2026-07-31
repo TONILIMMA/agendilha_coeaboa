@@ -10,6 +10,9 @@ import { AppRoutes } from '@/App';
 vi.mock('@/contexts/AuthContext');
 vi.mock('@/hooks/useAppPermissions');
 vi.mock('@/hooks/useUserBadge');
+vi.mock('@/hooks/useDivulgadorStatus', () => ({
+  useDivulgadorStatus: () => ({ loading: false, isAdmin: false, isDivulgador: false, profile: null, request: null, refresh: vi.fn() }),
+}));
 
 // Mock lazy components to speed up tests and avoid loading issues
 vi.mock('@/pages/AdminEvents', () => ({ default: () => <div data-testid="admin-events">Admin Events</div> }));
