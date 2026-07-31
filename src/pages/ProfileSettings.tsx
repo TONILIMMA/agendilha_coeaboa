@@ -412,7 +412,7 @@ export default function ProfileSettings() {
           <CardHeader>
             <CardTitle className="text-lg font-display flex items-center gap-2">
               <User className="h-5 w-5 text-primary" />
-              Dados para ser promotor
+              Dados para ser divulgador
             </CardTitle>
             <CardDescription>Usamos esses dados para contato e divulgação.</CardDescription>
           </CardHeader>

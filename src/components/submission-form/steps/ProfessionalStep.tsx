@@ -18,7 +18,7 @@ export function ProfessionalStep({ form }: { form: UseFormReturn<any> }) {
       <div className="space-y-2">
         <h2 className="text-xl font-bold text-primary flex items-center gap-2">
           <Building2 className="h-5 w-5" />
-          Dados da Empresa/Promotor
+          Dados da Empresa/Divulgador
         </h2>
         <p className="text-sm text-muted-foreground">Informações para emissão e organização.</p>
       </div>
@@ -26,7 +26,7 @@ export function ProfessionalStep({ form }: { form: UseFormReturn<any> }) {
       <Alert variant="default" className="bg-primary/5 border-primary/20">
         <Info className="h-4 w-4 text-primary" />
         <AlertDescription className="text-xs text-primary/80">
-          Como promotor logado, seus dados foram vinculados automaticamente. Você pode alterá-los se este evento pertencer a outra organização.
+          Como divulgador logado, seus dados foram vinculados automaticamente. Você pode alterá-los se este evento pertencer a outra organização.
         </AlertDescription>
       </Alert>
 
@@ -46,7 +46,7 @@ export function ProfessionalStep({ form }: { form: UseFormReturn<any> }) {
               />
             </FormControl>
             <FormDescription className="text-[10px]">
-              O promotor responsável será vinculado a este nome.
+              O divulgador responsável será vinculado a este nome.
             </FormDescription>
             <FormMessage />
           </FormItem>

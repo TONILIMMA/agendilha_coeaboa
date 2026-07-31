@@ -79,7 +79,7 @@ export const sidebarConfig: SidebarSection[] = [
       },
       { 
         id: "promoter_ranking", 
-        label: "Ranking de Promotores", 
+        label: "Ranking de Divulgadores", 
         path: ROUTES.RANKING, 
         icon: Trophy, 
         roles: ["admin", "master"] 
@@ -107,7 +107,7 @@ export const sidebarConfig: SidebarSection[] = [
       },
       {
         id: "promotor_perfil",
-        label: "Perfil de Promotor",
+        label: "Perfil de Divulgador",
         path: ROUTES.PROMOTOR_PERFIL,
         icon: User,
         roles: ["promoter", "admin", "master"]

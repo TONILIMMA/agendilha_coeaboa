@@ -50,7 +50,7 @@ export function SidebarMenu({ onClose }: Props) {
   const roleLabels: Record<Role, string> = {
     public_guest: "Visitante",
     public_registered: "Usuário",
-    promoter: "Promotor / Divulgador",
+    promoter: "Divulgador",
     admin: "Administrador",
     master: "Admin Master"
   };

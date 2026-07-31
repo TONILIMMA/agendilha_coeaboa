@@ -168,7 +168,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         formData.password,
         formData.name,
         additionalData,
-        type === "public" ? "usuario" : (type === "promoter" ? formData.promoterType : "artist")
+        type === "public" ? "usuario" : (type === "promoter" ? "divulgador" : "artist")
       );
 
       if (error) {

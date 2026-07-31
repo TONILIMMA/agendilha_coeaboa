@@ -195,7 +195,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                    <TooltipTrigger asChild>
                      <Button
                        size="sm"
-                       aria-label="Divulgar evento — cadastro de promotor"
+                       aria-label="Divulgar evento — cadastro de divulgador"
                        onClick={() => {
                          if (user) {
                            navigate("/enviar-evento");
@@ -209,7 +209,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                      </Button>
                    </TooltipTrigger>
                    <TooltipContent side="bottom" className="max-w-[220px] text-xs leading-snug">
-                     Use este botão para cadastrar seu evento na agenda como promotor.
+                     Use este botão para cadastrar seu evento na agenda como divulgador.
                    </TooltipContent>
                  </Tooltip>
                </TooltipProvider>
