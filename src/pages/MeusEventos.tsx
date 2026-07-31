@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubmissions } from "@/data";
+import { EditarMeuEventoDialog, type EventoEditavel } from "@/components/divulgador/EditarMeuEventoDialog";
+import { Pencil, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -76,11 +78,12 @@ export default function MeusEventos() {
   const { user } = useAuth();
   const [tab, setTab] = useState<StatusKey>("todos");
   const { isDivulgador } = useDivulgadorStatus();
+  const [editing, setEditing] = useState<EventoEditavel | null>(null);
 
-  const { data: rows = [], isLoading: loading } = useSubmissions<Row>(
+  const { data: rows = [], isLoading: loading, refetch } = useSubmissions<Row>(
     {
       select:
-        "id, event_title, date, start_time, status, rejection_reason, admin_notes, approved_at, image_url, slug, created_at",
+        "id, event_title, date, start_time, end_time, location, description, status, rejection_reason, admin_notes, approved_at, image_url, slug, created_at, user_id",
       eq: user ? { user_id: user.id } : undefined,
     },
     { enabled: !!user }
@@ -211,6 +214,26 @@ export default function MeusEventos() {
                       {r.rejection_reason}
                     </p>
                   )}
+                  {isDivulgador && user && r.user_id === user.id && (
+                    <div className="pt-1">
+                      {r.status === "publicado" ? (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] text-foreground/55">
+                          <Lock className="h-3 w-3" />
+                          Já publicado — peça alteração pra curadoria.
+                        </span>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="rounded-full h-8 text-xs border-foreground/15 hover:bg-foreground/5"
+                          onClick={() => setEditing(r as unknown as EventoEditavel)}
+                        >
+                          <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                          Editar
+                        </Button>
+                      )}
+                    </div>
+                  )}
                   {(r.status === "aprovado" || r.status === "publicado") && r.slug && (
                     <Link
                       to={`/evento/${r.slug}`}
@@ -225,6 +248,13 @@ export default function MeusEventos() {
           </ul>
         )}
       </div>
+
+      <EditarMeuEventoDialog
+        evento={editing}
+        open={!!editing}
+        onOpenChange={(v) => !v && setEditing(null)}
+        onSaved={() => refetch?.()}
+      />
     </div>
   );
 }
