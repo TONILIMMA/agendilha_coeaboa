@@ -37,7 +37,7 @@ export function EstabelecimentoAutocomplete({
   value,
   onChange,
   onSelect,
-  placeholder = "Nome do estabelecimento",
+  placeholder = "Comece a digitar o nome do lugar. Se não aparecer, cadastre um novo.",
   className,
   selected,
   onCreateNew,
@@ -121,11 +121,12 @@ export function EstabelecimentoAutocomplete({
             >
               <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
               <span className="flex-1">
-                <span className="font-semibold block">{s.nome}</span>
-                {(s.endereco || s.bairro) && (
-                  <span className="text-muted-foreground text-xs">
-                    {[s.endereco, s.bairro].filter(Boolean).join(" — ")}
-                  </span>
+                <span className="font-semibold block">
+                  {s.nome}
+                  {s.bairro && <span className="font-normal text-muted-foreground"> — {s.bairro}</span>}
+                </span>
+                {s.endereco && (
+                  <span className="text-muted-foreground text-xs">{s.endereco}</span>
                 )}
               </span>
             </button>
@@ -157,7 +158,7 @@ export function EstabelecimentoAutocomplete({
               className="w-full px-4 py-2 text-left text-xs border-t bg-muted/30 hover:bg-muted flex items-center gap-2 text-primary font-semibold"
             >
               <Plus className="h-3.5 w-3.5" />
-              Cadastrar novo local: &quot;{value.trim()}&quot;
+              Cadastrar novo estabelecimento: &quot;{value.trim()}&quot;
             </button>
           )}
         </div>
