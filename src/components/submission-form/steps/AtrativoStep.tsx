@@ -1,3 +1,4 @@
+import { NovoAtrativoDialog } from "@/components/atrativos/NovoAtrativoDialog";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +41,8 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
   const [resyncing, setResyncing] = useState(false);
   const [confirmUnlink, setConfirmUnlink] = useState(false);
   const [novoAtrativo, setNovoAtrativo] = useState(false);
+  const [novoAtrativoOpen, setNovoAtrativoOpen] = useState(false);
+  const [novoAtrativoNome, setNovoAtrativoNome] = useState("");
 
   const watched = form.watch(["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory"]);
   const issues = checkAtrativoAutofill({
@@ -99,7 +102,9 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
     form.setValue("atrativoSourceType", undefined);
     form.setValue("atrativoLinkedName", undefined);
     form.setValue("atrativoLinkedAt", undefined);
-    toast.success(`"${nome}" será cadastrado como novo atrativo ao enviar.`);
+    // Abre o modal já com o nome digitado — sem redigitar nada.
+    setNovoAtrativoNome(nome);
+    setNovoAtrativoOpen(true);
   };
 
   const linkSource = (id: string, kind: "artist" | "atrativo", row: any) => {
@@ -594,6 +599,16 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
       <AutofillIssues
         issues={issues}
         okMessage="Atrativo conferido — WhatsApp, e-mail e categoria estão ok."
+      />
+
+      <NovoAtrativoDialog
+        open={novoAtrativoOpen}
+        onOpenChange={setNovoAtrativoOpen}
+        initialName={novoAtrativoNome}
+        onCreated={(a) => {
+          linkSource(a.id, "atrativo", a);
+          setSuggestions([]);
+        }}
       />
     </div>
   );

@@ -8,6 +8,7 @@ import {
   EstabelecimentoAutocomplete,
   type EstabelecimentoSuggestion,
 } from "@/components/estabelecimentos/EstabelecimentoAutocomplete";
+import { NovoEstabelecimentoDialog } from "@/components/estabelecimentos/NovoEstabelecimentoDialog";
 import { BAIRROS, PLACEHOLDER_BAIRRO, isBairroValido } from "@/lib/neighborhoods";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +29,8 @@ const LOCAL_TIPOS = [
 export function LocationStep({ form }: { form: UseFormReturn<any> }) {
   const [novoLocal, setNovoLocal] = useState(false);
   const [cepLoading, setCepLoading] = useState(false);
+  const [novoLocalOpen, setNovoLocalOpen] = useState(false);
+  const [novoLocalNome, setNovoLocalNome] = useState("");
 
   const watched = form.watch([
     "locationName",
@@ -71,9 +74,12 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
   };
 
   const iniciarNovoLocal = (nome: string) => {
+    // Abre o modal já com o que foi digitado — nada de redigitar.
     setNovoLocal(true);
+    setNovoLocalNome(nome);
     form.setValue("locationName", nome, { shouldValidate: true });
     form.setValue("estabelecimentoId", "");
+    setNovoLocalOpen(true);
   };
 
   const handleSelectEstab = (s: EstabelecimentoSuggestion) => {
@@ -298,6 +304,18 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
       <AutofillIssues
         issues={issues}
         okMessage="Dados do local conferidos — telefone, CEP/endereço e tipo estão ok."
+      />
+
+      <NovoEstabelecimentoDialog
+        open={novoLocalOpen}
+        onOpenChange={setNovoLocalOpen}
+        initialName={novoLocalNome}
+        initialEndereco={form.getValues("eventAddress") ?? ""}
+        initialBairro={form.getValues("addressNeighborhood") ?? ""}
+        onCreated={(estab) => {
+          handleSelectEstab(estab);
+          setNovoLocal(false);
+        }}
       />
     </div>
   );
