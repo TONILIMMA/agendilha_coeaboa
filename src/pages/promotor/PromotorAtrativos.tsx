@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { SuggestInput } from "@/components/ui/SuggestInput";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -298,10 +299,12 @@ export default function PromotorAtrativos() {
 
         <div className="space-y-1.5">
           <Label className="text-sm font-semibold">Tipo</Label>
-          <Input
+          <SuggestInput
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
             placeholder="Show, festival, feira…"
+            suggestFrom="atrativos_public"
+            suggestColumn="type"
           />
         </div>
 
