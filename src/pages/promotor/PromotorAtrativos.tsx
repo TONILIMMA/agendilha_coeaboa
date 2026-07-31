@@ -290,6 +290,11 @@ export default function PromotorAtrativos() {
             value={form.name}
             onChange={(v) => setForm({ ...form, name: v })}
             onSelect={handleSelectAtrativo}
+            onCreateNew={(nome) => {
+              setEditing(null);
+              setForm({ ...empty, name: nome });
+              toast.success(`Novo atrativo "${nome}" — complete os campos abaixo.`);
+            }}
             placeholder="Ex: Sunset no Galeão"
           />
           <p className="text-xs text-muted-foreground">
@@ -366,6 +371,10 @@ export default function PromotorAtrativos() {
               setForm({ ...form, estabelecimento_nome: v, estabelecimento_id: null })
             }
             onSelect={handleSelectEstab}
+            onCreateNew={(nome) => {
+              setForm((f) => ({ ...f, estabelecimento_nome: nome, estabelecimento_id: null }));
+              toast.info(`"${nome}" será cadastrado como novo local ao salvar.`);
+            }}
             placeholder="Vincule a um estabelecimento"
           />
         </div>

@@ -46,6 +46,9 @@ vi.mock("@/integrations/supabase/client", () => {
       from: vi.fn((table: string) =>
         table.startsWith("atrativos") ? build(atrativosRows) : build(artistRows)
       ),
+      rpc: vi.fn((fn: string) =>
+        fn.includes("atrativos") ? build(atrativosRows) : build(artistRows)
+      ),
     },
   };
 });
@@ -91,6 +94,7 @@ describe("AtrativoStep autocomplete", () => {
     fireEvent.change(input, { target: { value: "t" } });
     await new Promise((r) => setTimeout(r, 20));
     expect((supabase.from as any)).not.toHaveBeenCalled();
+    expect((supabase.rpc as any)).not.toHaveBeenCalled();
   });
 
   it("preenche tipo, estilo, descrição e contato ao selecionar um atrativo", async () => {
