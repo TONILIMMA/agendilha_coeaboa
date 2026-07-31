@@ -245,8 +245,10 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 <Input
                   placeholder="Banda, DJ, artista, ponto turístico..."
                   className="h-12 pr-10"
-                  autoComplete="name"
                   {...field}
+                  name="name"
+                  autoComplete="name"
+                  id="name"
                   onFocus={() => searchAtrativo(field.value ?? "")}
                   onBlur={() => window.setTimeout(() => setSuggestions([]), 150)}
                   onChange={(e) => {
@@ -398,8 +400,10 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                   inputMode="tel"
                   maxLength={16}
                   className="h-12"
-                  autoComplete="tel"
                   {...field}
+                  name="tel"
+                  autoComplete="tel"
+                  id="tel"
                   onChange={(e) => field.onChange(formatPhoneDisplay(e.target.value))}
                   onBlur={() => {
                     field.onBlur();
@@ -430,8 +434,10 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 type="email"
                 placeholder="contato@exemplo.com"
                 className="h-12"
-                autoComplete="email"
                 {...field}
+                name="email"
+                autoComplete="email"
+                id="email"
               />
               </FormControl>
               <FormMessage />
