@@ -1,5 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SuggestInput } from "@/components/ui/SuggestInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { MapPin } from "lucide-react";
@@ -232,9 +233,11 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem>
             <FormLabel>Endereço resumido *</FormLabel>
             <FormControl>
-              <Input
+              <SuggestInput
                 placeholder="Ex.: Rua X, 123 — próximo à Praça Y"
                 className="h-12"
+                suggestFrom="estabelecimentos_public"
+                suggestColumn="endereco"
                 {...field}
                 name="street-address"
                 autoComplete="street-address"
