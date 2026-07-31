@@ -153,9 +153,9 @@ function ExplorarInner() {
       {[
         { id: "all", label: "Todos" },
         { id: "today", label: "Hoje" },
+        { id: "next7", label: "Próximos dias" },
+        { id: "weekend", label: "Este fim de semana" },
         { id: "tomorrow", label: "Amanhã" },
-        { id: "weekend", label: "Fim de semana" },
-        { id: "next7", label: "Próximos 7 dias" },
       ].map(c => (
         <button
           key={c.id}
@@ -181,7 +181,7 @@ function ExplorarInner() {
             )}
           >
             <CalendarIcon className="h-3.5 w-3.5" />
-            {customDate ? format(customDate, "dd/MM", { locale: ptBR }) : "Outra data"}
+            {customDate ? format(customDate, "dd/MM", { locale: ptBR }) : "Escolher data"}
           </button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -202,7 +202,7 @@ function ExplorarInner() {
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <Select value={neighborhood} onValueChange={setNeighborhood}>
         <SelectTrigger className="h-11 rounded-xl bg-background">
-          <SelectValue placeholder="Bairro" />
+          <SelectValue placeholder="Bairros" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos os bairros</SelectItem>
@@ -211,7 +211,7 @@ function ExplorarInner() {
       </Select>
       <Select value={category} onValueChange={setCategory}>
         <SelectTrigger className="h-11 rounded-xl bg-background">
-          <SelectValue placeholder="Categoria" />
+          <SelectValue placeholder="Categorias" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todas as categorias</SelectItem>
