@@ -389,11 +389,23 @@ export default function PromotorAtrativos() {
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm font-semibold">Estado</Label>
-              <Input value={form.estado} onChange={(e) => setForm({ ...form, estado: e.target.value })} placeholder="RJ" />
+              <SuggestInput
+                value={form.estado}
+                onChange={(e) => setForm({ ...form, estado: e.target.value })}
+                placeholder="RJ"
+                suggestFrom="atrativos_public"
+                suggestColumn="estado"
+              />
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm font-semibold">Cidade / Região</Label>
-              <Input value={form.cidade_regiao} onChange={(e) => setForm({ ...form, cidade_regiao: e.target.value })} placeholder="Ilha do Governador" />
+              <SuggestInput
+                value={form.cidade_regiao}
+                onChange={(e) => setForm({ ...form, cidade_regiao: e.target.value })}
+                placeholder="Ilha do Governador"
+                suggestFrom="atrativos_public"
+                suggestColumn="cidade_regiao"
+              />
             </div>
           </div>
           <div className="space-y-1.5">
