@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format, isToday, isTomorrow, parseISO, addDays, startOfDay, endOfDay, isWithinInterval, nextSaturday, nextSunday } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, MapPin, SlidersHorizontal, X, Sparkles } from "lucide-react";
+import { CalendarIcon, Search, SlidersHorizontal, X, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
@@ -13,6 +13,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 import { InlineError } from "@/components/errors/InlineError";
@@ -74,6 +75,7 @@ function ExplorarInner() {
   const [customDate, setCustomDate] = useState<Date | undefined>();
   const [neighborhood, setNeighborhood] = useState<string>("all");
   const [category, setCategory] = useState<string>(initialCat);
+  const [term, setTerm] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const { data: events = [], isLoading, error, refetch } = useQuery({
@@ -90,25 +92,61 @@ function ExplorarInner() {
   });
 
   const filtered = useMemo(() => {
-    return events.filter(ev => {
+    const q = term.trim().toLowerCase();
+    const list = events.filter(ev => {
       if (!presetMatches(ev.date, datePreset, customDate)) return false;
       if (neighborhood !== "all" && ev.address_neighborhood !== neighborhood) return false;
       if (category !== "all" && ev.category !== category) return false;
+      if (q) {
+        const haystack = [ev.event_title, ev.location, ev.address_neighborhood, ev.description]
+          .filter(Boolean).join(" ").toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
       return true;
     });
-  }, [events, datePreset, customDate, neighborhood, category]);
+
+    // Ordem: hoje primeiro, depois próximos dias, por fim os sem data / passados
+    const rank = (ev: (typeof list)[number]) => {
+      if (!ev.date) return 3;
+      let d: Date;
+      try { d = parseISO(ev.date); } catch { return 3; }
+      if (isNaN(d.getTime())) return 3;
+      if (isToday(d)) return 0;
+      return d >= startOfDay(new Date()) ? 1 : 2;
+    };
+
+    return [...list].sort((a, b) => {
+      const ra = rank(a), rb = rank(b);
+      if (ra !== rb) return ra - rb;
+      return (a.date || "9999-12-31").localeCompare(b.date || "9999-12-31");
+    });
+  }, [events, datePreset, customDate, neighborhood, category, term]);
 
   const activeFiltersCount =
     (datePreset !== "all" ? 1 : 0) +
     (neighborhood !== "all" ? 1 : 0) +
-    (category !== "all" ? 1 : 0);
+    (category !== "all" ? 1 : 0) +
+    (term.trim() ? 1 : 0);
 
   const clearAll = () => {
     setDatePreset("all");
     setCustomDate(undefined);
     setNeighborhood("all");
     setCategory("all");
+    setTerm("");
   };
+
+  const SearchField = (
+    <div className="relative">
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Input
+        value={term}
+        onChange={(e) => setTerm(e.target.value)}
+        placeholder="Buscar por nome, local ou atração"
+        className="h-11 pl-10 rounded-xl bg-background"
+      />
+    </div>
+  );
 
   const DateChips = (
     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
@@ -193,15 +231,16 @@ function ExplorarInner() {
             <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.22em] text-secondary">Agenda completa</span>
           </div>
           <h1 className="text-4xl sm:text-6xl font-bold mb-4 font-display tracking-tight leading-[1.05] text-balance">
-            Todos os eventos <span className="text-secondary">da Ilha</span>
+            Buscar rolê <span className="text-secondary">na Ilha</span>
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto text-balance leading-relaxed">
-            Filtre por data, bairro e tipo de rolê para achar o que combina com você.
+            Filtre por bairro, data e categoria pra encontrar o evento certo.
           </p>
         </div>
 
         {/* Desktop filters */}
         <div className="hidden md:block mb-8 space-y-4 rounded-3xl border border-border/60 bg-card/40 backdrop-blur-sm p-5">
+          {SearchField}
           {DateChips}
           {Selects}
           {activeFiltersCount > 0 && (
@@ -218,13 +257,14 @@ function ExplorarInner() {
 
         {/* Mobile filters trigger */}
         <div className="md:hidden mb-6 flex items-center gap-2">
+          <div className="flex-1">{SearchField}</div>
           <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" className="flex-1 h-11 rounded-full justify-start gap-2 font-medium">
+              <Button variant="outline" className="h-11 rounded-full shrink-0 gap-2 font-medium px-4">
                 <SlidersHorizontal className="h-4 w-4" />
                 Filtrar
                 {activeFiltersCount > 0 && (
-                  <Badge variant="secondary" className="ml-auto h-5 px-2 text-[10px]">{activeFiltersCount}</Badge>
+                  <Badge variant="secondary" className="h-5 px-2 text-[10px]">{activeFiltersCount}</Badge>
                 )}
               </Button>
             </SheetTrigger>
@@ -269,9 +309,9 @@ function ExplorarInner() {
         ) : filtered.length === 0 ? (
           <div className="bg-muted/30 rounded-3xl p-12 text-center border border-dashed border-primary/15">
             <Sparkles className="h-10 w-10 text-primary/30 mx-auto mb-4" />
-            <h3 className="text-lg font-bold mb-2">Não achamos rolê com esses filtros</h3>
+            <h3 className="text-lg font-bold mb-2">Ainda não temos eventos para este filtro.</h3>
             <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-6">
-              Tenta ajustar a data, o bairro ou a categoria pra ver o que mais tá rolando.
+              Tente mudar o bairro, a data ou a categoria pra ver mais opções.
             </p>
             <Button variant="outline" onClick={clearAll} className="rounded-full font-semibold">
               Limpar filtros
