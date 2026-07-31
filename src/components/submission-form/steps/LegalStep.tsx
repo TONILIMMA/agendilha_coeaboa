@@ -177,10 +177,10 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
         <div className="flex items-start gap-2 text-primary font-bold text-sm">
           <User className="h-4 w-4 mt-0.5" />
           <div>
-            <div>Promotor/Divulgador</div>
+            <div>Divulgador</div>
             <p className="text-xs font-normal text-muted-foreground mt-1">
-              Você é o promotor/divulgador desse evento. Confere se os dados abaixo estão certos —
-              esse WhatsApp vai receber as dúvidas do público. Se o promotor for outra pessoa, ajuste aqui.
+              Você é o divulgador desse evento. Confere se os dados abaixo estão certos —
+              esse WhatsApp vai receber as dúvidas do público. Se o divulgador for outra pessoa, ajuste aqui.
             </p>
           </div>
         </div>
@@ -190,7 +190,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
           name="responsavelNome"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome do promotor/divulgador *</FormLabel>
+              <FormLabel>Nome do divulgador *</FormLabel>
               <FormControl>
                 <PromotorAutocomplete
                   value={field.value ?? ""}

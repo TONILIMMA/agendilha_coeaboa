@@ -63,7 +63,7 @@ export default function CadastroPromotor() {
         password,
         nome.trim(),
         { profile: { address_neighborhood: bairro } },
-        "promotor",
+        "divulgador",
       );
       if (error) throw error;
       toast.success(
@@ -71,7 +71,7 @@ export default function CadastroPromotor() {
       );
       navigate(ROUTES.PROMOTOR_ESTABELECIMENTOS, { replace: true });
     } catch (err) {
-      handleError(err, "Não foi possível concluir o cadastro de promotor.");
+      handleError(err, "Não foi possível concluir o cadastro de divulgador.");
     } finally {
       setLoading(false);
     }
@@ -99,7 +99,7 @@ export default function CadastroPromotor() {
           <div className="flex items-start gap-2">
             <CheckCircle2 className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" />
             <p className="text-sm text-foreground">
-              Após concluir, você entra direto no <strong>painel do promotor</strong>.
+              Após concluir, você entra direto no <strong>painel do divulgador</strong>.
             </p>
           </div>
           <div className="flex items-start gap-2">

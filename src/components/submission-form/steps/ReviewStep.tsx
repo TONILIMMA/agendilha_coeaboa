@@ -58,7 +58,7 @@ export function ReviewStep({ form, goToStep }: ReviewStepProps) {
         title="2. Profissional"
         onEdit={() => goToStep(2)}
         items={[
-          { label: "Empresa/Promotor", value: values.companyName },
+          { label: "Empresa/Divulgador", value: values.companyName },
           { label: "E-mail", value: values.email },
           { label: "Endereço", value: addressLine || null },
         ]}

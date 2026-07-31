@@ -91,7 +91,6 @@ export function UserCard(props: UserCardProps) {
   // Tipos disponíveis na ficha administrativa
   const userTypes = [
     { value: "usuario", label: "Público" },
-    { value: "promotor", label: "Promotor" },
     { value: "divulgador", label: "Divulgador" },
     { value: "estabelecimento", label: "Estabelecimento" },
   ];

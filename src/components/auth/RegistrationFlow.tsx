@@ -78,7 +78,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
     musicalInterests: [] as string[],
     eventTypeInterests: [] as string[],
     // Promoter specific
-    promoterType: "promoter" as "promoter" | "divulgador",
+    promoterType: "divulgador" as "divulgador",
     socialInstagram: "",
     socialFacebook: "",
     coverageArea: [] as string[],
@@ -168,7 +168,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         formData.password,
         formData.name,
         additionalData,
-        type === "public" ? "usuario" : (type === "promoter" ? formData.promoterType : "artist")
+        type === "public" ? "usuario" : (type === "promoter" ? "divulgador" : "artist")
       );
 
       if (error) {
@@ -203,7 +203,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
               />
               <CardOption
                 icon={<Megaphone className="h-6 w-6" />}
-                title="Promotor / Divulgador"
+                title="Divulgador"
                 description="Quero divulgar eventos e gerenciar meu público."
                 selected={type === "promoter"}
                 onClick={() => { setType("promoter"); nextStep(); }}
@@ -321,7 +321,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
             
             <div className="bg-muted/50 rounded-xl p-4 space-y-4 text-sm border border-border">
               <div className="grid grid-cols-2 gap-y-3">
-                <SummaryItem label="Perfil" value={type === 'public' ? 'Participante' : type === 'artist' ? 'Músico/Artista' : formData.promoterType === 'promoter' ? 'Promotor' : 'Divulgador'} />
+                <SummaryItem label="Perfil" value={type === 'public' ? 'Participante' : type === 'artist' ? 'Músico/Artista' : 'Divulgador'} />
                 <SummaryItem label="Nome" value={formData.name} />
                 <SummaryItem label="WhatsApp" value={formData.phone} />
                 {formData.email && <SummaryItem label={type === 'public' ? 'WhatsApp (Fique por dentro)' : 'E-mail'} value={formData.email} />}
@@ -492,32 +492,6 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
 
   const renderPromoterSpecific = () => (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label>Você atua como:</Label>
-        <div className="flex p-1 bg-muted rounded-lg">
-          <button
-            type="button"
-            onClick={() => setFormData({ ...formData, promoterType: "promoter" })}
-            className={cn(
-              "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
-              formData.promoterType === "promoter" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
-            )}
-          >
-            Promotor
-          </button>
-          <button
-            type="button"
-            onClick={() => setFormData({ ...formData, promoterType: "divulgador" })}
-            className={cn(
-              "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
-              formData.promoterType === "divulgador" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"
-            )}
-          >
-            Divulgador
-          </button>
-        </div>
-      </div>
-
       <div className="space-y-3">
         <Label>Redes Sociais</Label>
         <div className="space-y-2">
