@@ -108,7 +108,13 @@ export default function AdminUsers() {
   const kpis = useMemo(() => ({
     total: visibleUsers.length,
     publico: visibleUsers.filter((u) => (u.user_type || 'usuario') === 'usuario' && u.status === 'user').length,
-    divulgadores: visibleUsers.filter((u) => u.status === 'collaborator' || u.user_type === 'divulgador' || u.user_type === 'promotor').length,
+    // Admin/Master não conta como Divulgador — já tem todos os privilégios.
+    divulgadores: visibleUsers.filter(
+      (u) =>
+        u.status !== 'admin' &&
+        u.status !== 'master' &&
+        (u.status === 'collaborator' || u.user_type === 'divulgador' || u.user_type === 'promotor')
+    ).length,
     artistas: visibleUsers.filter((u) => u.status === 'artist' || u.user_type === 'artist').length,
     admins: visibleUsers.filter((u) => u.status === 'admin' || u.status === 'master').length,
     semBairro: visibleUsers.filter((u) => !u.address_neighborhood).length,
@@ -274,6 +280,13 @@ export default function AdminUsers() {
           .from("user_roles")
           .insert({ user_id: targetUser.id, role: "admin" });
         if (error) throw error;
+        // Admin já tem todos os privilégios: limpa o tipo "divulgador/promotor".
+        if (targetUser.user_type === "divulgador" || targetUser.user_type === "promotor") {
+          await supabase
+            .from("profiles")
+            .update({ user_type: "usuario" })
+            .eq("user_id", targetUser.id);
+        }
         toast.success(`${targetUser.responsible_name || targetUser.email} agora é admin`);
       }
       await fetchUsers();
