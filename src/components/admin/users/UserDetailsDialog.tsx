@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPhoneDisplay } from "@/lib/whatsapp";
-import { formatBrazilianDate } from "@/lib/dateUtils";
+import { formatBrazilianDate } from "@/lib/date-utils";
 import {
   Loader2, User, Phone, Mail, MapPin, Calendar, ShieldCheck, CalendarDays, Check, X,
 } from "lucide-react";
