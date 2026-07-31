@@ -80,6 +80,7 @@ export function useUpsertEstabelecimento() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.estabelecimentos.all });
+      emitEntityChanged("estabelecimento");
     },
   });
 }
@@ -93,6 +94,7 @@ export function useDeleteEstabelecimento() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.estabelecimentos.all });
+      emitEntityChanged("estabelecimento");
     },
   });
 }
