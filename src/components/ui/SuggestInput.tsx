@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { useFieldSuggestions } from "@/hooks/useFieldSuggestions";
+import { useEntityRevision } from "@/lib/entityEvents";
 
 let idSeq = 0;
 
@@ -36,11 +37,13 @@ export const SuggestInput = React.forwardRef<HTMLInputElement, SuggestInputProps
   ) => {
     const listId = React.useMemo(() => `suggest-${++idSeq}`, []);
     const term = typeof value === "string" ? value : "";
+    const revision = useEntityRevision();
     const { suggestions } = useFieldSuggestions({
       from: suggestFrom,
       column: suggestColumn,
       term,
       limit: suggestLimit,
+      refreshKey: revision,
     });
 
     const options = React.useMemo(() => {
