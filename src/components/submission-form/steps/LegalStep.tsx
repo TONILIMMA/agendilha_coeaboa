@@ -255,6 +255,8 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                     <div className="relative">
                       <Input
                         inputMode="tel"
+                        name="tel"
+                        autoComplete="tel"
                         placeholder="(21) 9XXXX-XXXX – WhatsApp que vai receber dúvidas"
                         value={field.value || ""}
                         readOnly={isPublished || usarMeuWhatsapp}
