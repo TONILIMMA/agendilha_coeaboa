@@ -228,7 +228,7 @@ export function ChangeRequestsPanel({ focusId }: Props) {
               )}
               <div className="space-y-1">
                 <label className="text-xs font-medium">Nota da decisão (opcional)</label>
-                <Textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: número confirmado com o promotor por telefone." />
+                <Textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: número confirmado com o divulgador por telefone." />
               </div>
             </div>
             <DialogFooter>

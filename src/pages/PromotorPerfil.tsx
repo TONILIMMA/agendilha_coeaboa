@@ -51,7 +51,7 @@ export default function PromotorPerfil() {
   const onSave = async () => {
     if (!targetUserId) return;
     if (!nome.trim()) {
-      toast.error("Informe o nome do promotor/divulgador.");
+      toast.error("Informe o nome do divulgador.");
       return;
     }
     if (whats.trim()) {
@@ -73,7 +73,7 @@ export default function PromotorPerfil() {
       toast.error("Não deu pra salvar seu perfil. Tenta de novo.");
       return;
     }
-    toast.success("Perfil de promotor atualizado.");
+    toast.success("Perfil de divulgador atualizado.");
     refetch();
   };
 
@@ -85,10 +85,10 @@ export default function PromotorPerfil() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
-            Meu perfil de Promotor/Divulgador
+            Meu perfil de Divulgador
           </CardTitle>
           <CardDescription>
-            Esses dados vão pré-preencher os campos de promotor nos próximos eventos que você divulgar.
+            Esses dados vão pré-preencher os campos de divulgador nos próximos eventos que você divulgar.
             {isEditingOther && (isAdmin || isMaster) && (
               <span className="block mt-1 text-amber-600">Editando perfil de outro usuário (curadoria).</span>
             )}
@@ -96,7 +96,7 @@ export default function PromotorPerfil() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="promotor-nome">Nome do promotor/divulgador *</Label>
+            <Label htmlFor="promotor-nome">Nome do divulgador *</Label>
             <Input
               id="promotor-nome"
               value={nome}
@@ -106,7 +106,7 @@ export default function PromotorPerfil() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="promotor-whats">WhatsApp do promotor</Label>
+            <Label htmlFor="promotor-whats">WhatsApp do divulgador</Label>
             <Input
               id="promotor-whats"
               inputMode="tel"
@@ -120,7 +120,7 @@ export default function PromotorPerfil() {
             </p>
           </div>
           <div className="space-y-2">
-            <Label>Tipo de promotor</Label>
+            <Label>Tipo de divulgador</Label>
             <RadioGroup value={tipo} onValueChange={setTipo} className="grid gap-2 sm:grid-cols-2">
               {TIPOS.map((opt) => (
                 <label

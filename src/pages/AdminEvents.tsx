@@ -382,7 +382,7 @@ function AdminEventsInner() {
     if (!flyerOffer) return;
     // Guarda dupla: nunca sobrescreve arte enviada pelo promotor.
     if (flyerOffer.image_url) {
-      toast.info("Esse evento já tem flyer do promotor. Mantendo a arte original.");
+      toast.info("Esse evento já tem flyer do divulgador. Mantendo a arte original.");
       setFlyerOffer(null);
       return;
     }
