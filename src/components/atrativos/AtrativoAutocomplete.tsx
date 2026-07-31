@@ -39,16 +39,15 @@ export function AtrativoAutocomplete({ value, onChange, onSelect, placeholder, s
 
   const fetchPage = useCallback(
     async (q: string, from: number, to: number, signal: AbortSignal) => {
-      let query = supabase
-        .from("atrativos_public")
-        .select(
-          "id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp, cidade_regiao, estado, pais, logo_url, fotos, estabelecimento_id",
-        )
-        .order("name", { ascending: true })
-        .range(from, to)
+      // Todos os atrativos cadastrados (aprovados ou não) aparecem para quem
+      // está logado, sem expor dados pessoais do responsável.
+      const { data } = await supabase
+        .rpc("search_atrativos_autocomplete", {
+          _q: q || null,
+          _limit: to - from + 1,
+          _offset: from,
+        })
         .abortSignal(signal);
-      if (q) query = query.ilike("name", `%${q}%`);
-      const { data } = await query;
       return (data ?? []) as AtrativoSuggestion[];
     },
     [],

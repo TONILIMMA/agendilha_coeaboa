@@ -49,14 +49,16 @@ export function EstabelecimentoAutocomplete({
 
   const fetchPage = useCallback(
     async (q: string, from: number, to: number, signal: AbortSignal) => {
-      let query = supabase
-        .from("estabelecimentos_public")
-        .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato")
-        .order("nome", { ascending: true })
-        .range(from, to)
+      // Busca todos os locais cadastrados (aprovados ou não) para facilitar o
+      // preenchimento. A função no backend exige login e não devolve dados
+      // pessoais do responsável.
+      const { data } = await supabase
+        .rpc("search_estabelecimentos_autocomplete", {
+          _q: q || null,
+          _limit: to - from + 1,
+          _offset: from,
+        })
         .abortSignal(signal);
-      if (q) query = query.ilike("nome", `%${q}%`);
-      const { data } = await query;
       return (data ?? []) as EstabelecimentoSuggestion[];
     },
     [],
