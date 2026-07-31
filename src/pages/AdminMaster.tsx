@@ -17,6 +17,7 @@ import {
   Music2,
   ChevronDown,
   ExternalLink,
+  ClipboardList,
 } from "lucide-react";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
@@ -25,6 +26,7 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { MasterPanel } from "@/components/admin-dashboard/AdminDashboard";
 import { MasterArtistsPanel } from "@/components/admin-master/MasterArtistsPanel";
+import { MasterRegistrationsPanel } from "@/components/admin-master/MasterRegistrationsPanel";
 import { useAdminMasterStats } from "@/data";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -74,7 +76,7 @@ export default function AdminMaster() {
       />
 
       <Tabs defaultValue="intelligence" className="space-y-8">
-        <TabsList className="bg-muted/50 p-1 rounded-full w-full max-w-lg mx-auto grid grid-cols-3 h-10 sm:h-12">
+        <TabsList className="bg-muted/50 p-1 rounded-full w-full max-w-2xl mx-auto grid grid-cols-4 h-10 sm:h-12">
           <TabsTrigger value="intelligence" className="rounded-full gap-2 font-bold text-[10px] sm:text-xs uppercase tracking-widest py-2 px-3">
             <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden xs:inline">Inteligência</span><span className="xs:hidden">Dados</span>
           </TabsTrigger>
@@ -83,6 +85,9 @@ export default function AdminMaster() {
           </TabsTrigger>
           <TabsTrigger value="musicos" className="rounded-full gap-2 font-bold text-[10px] sm:text-xs uppercase tracking-widest py-2 px-3">
             <Music2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden xs:inline">Músicos</span><span className="xs:hidden">Música</span>
+          </TabsTrigger>
+          <TabsTrigger value="cadastros" className="rounded-full gap-2 font-bold text-[10px] sm:text-xs uppercase tracking-widest py-2 px-3">
+            <ClipboardList className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden xs:inline">Cadastros</span><span className="xs:hidden">Base</span>
           </TabsTrigger>
         </TabsList>
 
@@ -163,6 +168,10 @@ export default function AdminMaster() {
 
         <TabsContent value="musicos" className="mt-0 focus-visible:outline-none">
           <MasterArtistsPanel />
+        </TabsContent>
+
+        <TabsContent value="cadastros" className="mt-0 focus-visible:outline-none">
+          <MasterRegistrationsPanel />
         </TabsContent>
       </Tabs>
     </div>

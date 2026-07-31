@@ -154,6 +154,20 @@ export const sidebarConfig: SidebarSection[] = [
         icon: Building2,
         roles: ["admin", "master"]
       },
+      {
+        id: "estabelecimentos_admin",
+        label: "Estabelecimentos",
+        path: ROUTES.ADMIN_ESTABELECIMENTOS,
+        icon: Building2,
+        roles: ["admin", "master"]
+      },
+      {
+        id: "divulgadores_admin",
+        label: "Divulgadores",
+        path: ROUTES.ADMIN_USERS,
+        icon: Megaphone,
+        roles: ["admin", "master"]
+      },
     ]
   },
   {
