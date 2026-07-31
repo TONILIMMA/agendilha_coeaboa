@@ -45,7 +45,13 @@ export function ContactStep({ form, onRestoreFromProfile, hasProfile }: ContactS
           <FormItem>
             <FormLabel>Seu nome ou apelido</FormLabel>
             <FormControl>
-              <Input placeholder="Como quer ser chamado?" className="h-12" {...field} />
+              <Input
+                placeholder="Como quer ser chamado?"
+                className="h-12"
+                {...field}
+                name="name"
+                autoComplete="name"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -72,6 +78,8 @@ export function ContactStep({ form, onRestoreFromProfile, hasProfile }: ContactS
                 maxLength={16}
                 className="h-12" 
                 {...field} 
+                name="tel"
+                autoComplete="tel"
                 onChange={(e) => {
                   field.onChange(formatPhoneDisplay(e.target.value));
                 }}

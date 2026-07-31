@@ -200,6 +200,8 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
                   maxLength={9}
                   className="h-12"
                   {...field}
+                  name="postal-code"
+                  autoComplete="postal-code"
                   value={field.value ?? ""}
                   onChange={(e) => {
                     const masked = formatCep(e.target.value);
@@ -230,7 +232,13 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem>
             <FormLabel>Endereço resumido *</FormLabel>
             <FormControl>
-              <Input placeholder="Ex.: Rua X, 123 — próximo à Praça Y" className="h-12" {...field} />
+              <Input
+                placeholder="Ex.: Rua X, 123 — próximo à Praça Y"
+                className="h-12"
+                {...field}
+                name="street-address"
+                autoComplete="street-address"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -273,6 +281,8 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
                   maxLength={16}
                   className="h-12"
                   {...field}
+                  name="tel"
+                  autoComplete="tel"
                   onChange={(e) => field.onChange(formatPhoneDisplay(e.target.value))}
                 />
               </FormControl>
