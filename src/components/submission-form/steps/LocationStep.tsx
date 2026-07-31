@@ -305,6 +305,18 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
         issues={issues}
         okMessage="Dados do local conferidos — telefone, CEP/endereço e tipo estão ok."
       />
+
+      <NovoEstabelecimentoDialog
+        open={novoLocalOpen}
+        onOpenChange={setNovoLocalOpen}
+        initialName={novoLocalNome}
+        initialEndereco={form.getValues("eventAddress") ?? ""}
+        initialBairro={form.getValues("addressNeighborhood") ?? ""}
+        onCreated={(estab) => {
+          handleSelectEstab(estab);
+          setNovoLocal(false);
+        }}
+      />
     </div>
   );
 }
