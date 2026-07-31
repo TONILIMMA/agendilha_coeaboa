@@ -26,5 +26,6 @@ Evento só aparece na agenda após revisão/aprovação da equipe; AgendIlha cur
 - [Event policies](mem://project/policies) — Approval workflow and 30-day trash retention
 - [Profile separation](mem://project/profile-separation) — 3 perfis (público/divulgador/artista) com tabelas e wizards próprios
 - [IA oculta e curadoria](mem://project/ia-oculta-curadoria) — Perfis de usuário, campos mínimos de evento, autocomplete, regras de "Sugestões para você"
+- [Regras de formulários](mem://project/form-copy-rules) — Cadastro em 2 camadas, rótulos curtos, placeholders, mensagens de erro padrão de promotor e evento
 - [Design direction](mem://style/design-direction) — Header layout, badges, navigation
 - [Voice and tone](mem://style/voice-and-tone) — Microcopy, descrições de evento/lugar, erros, modais de atualização
