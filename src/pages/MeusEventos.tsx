@@ -75,6 +75,7 @@ function StatusBadge({ status }: { status: string }) {
 export default function MeusEventos() {
   const { user } = useAuth();
   const [tab, setTab] = useState<StatusKey>("todos");
+  const { isDivulgador } = useDivulgadorStatus();
 
   const { data: rows = [], isLoading: loading } = useSubmissions<Row>(
     {
