@@ -186,7 +186,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ARTISTAS} element={<ArtistFeed />} />
           <Route path={ROUTES.AUTH} element={<Auth />} />
           <Route path={ROUTES.CONFIGURAR_ARTISTA} element={<ProtectedRoute><ArtistSetup /></ProtectedRoute>} />
-          <Route path={ROUTES.ENVIAR_EVENTO} element={<ProtectedRoute><SubmitEvent /></ProtectedRoute>} />
+          <Route path={ROUTES.ENVIAR_EVENTO} element={<PromotorRoute><SubmitEvent /></PromotorRoute>} />
           <Route path={ROUTES.EVENTOS} element={<ProtectedRoute><Eventos /></ProtectedRoute>} />
           <Route path={ROUTES.MEUS_EVENTOS} element={<ProtectedRoute><MeusEventos /></ProtectedRoute>} />
           <Route path={ROUTES.EVENTO_ENVIADO} element={<ProtectedRoute><EventoEnviado /></ProtectedRoute>} />
