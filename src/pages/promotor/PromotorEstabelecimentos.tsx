@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { SuggestInput } from "@/components/ui/SuggestInput";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -183,8 +184,20 @@ function PromotorEstabelecimentosInner() {
         <div className="space-y-3">
           <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Informações básicas</p>
           <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Nome*" value={form.nome} onChange={(v) => setForm({ ...form, nome: v })} />
-            <Field label="Endereço" value={form.endereco} onChange={(v) => setForm({ ...form, endereco: v })} />
+            <Field
+              label="Nome*"
+              value={form.nome}
+              onChange={(v) => setForm({ ...form, nome: v })}
+              suggestFrom="estabelecimentos_public"
+              suggestColumn="nome"
+            />
+            <Field
+              label="Endereço"
+              value={form.endereco}
+              onChange={(v) => setForm({ ...form, endereco: v })}
+              suggestFrom="estabelecimentos_public"
+              suggestColumn="endereco"
+            />
             <Field label="Bairro" value={form.bairro} onChange={(v) => setForm({ ...form, bairro: v })} />
             <Field label="Contato geral" value={form.contato} onChange={(v) => setForm({ ...form, contato: v })} placeholder="WhatsApp ou e-mail" />
           </div>
@@ -331,16 +344,30 @@ function Field({
   value,
   onChange,
   placeholder,
+  suggestFrom,
+  suggestColumn,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
+  suggestFrom?: string;
+  suggestColumn?: string;
 }) {
   return (
     <div className="space-y-1.5">
       <Label className="text-sm font-semibold">{label}</Label>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+      {suggestFrom && suggestColumn ? (
+        <SuggestInput
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          suggestFrom={suggestFrom}
+          suggestColumn={suggestColumn}
+        />
+      ) : (
+        <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+      )}
     </div>
   );
 }
