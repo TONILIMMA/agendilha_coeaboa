@@ -1,5 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SuggestInput } from "@/components/ui/SuggestInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { CalendarIcon, PartyPopper, ShieldAlert } from "lucide-react";
@@ -86,7 +87,14 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem>
             <FormLabel>Horário de início *</FormLabel>
             <FormControl>
-              <Input type="time" className="h-12" {...field} />
+              <SuggestInput
+                type="time"
+                className="h-12"
+                suggestFrom="public_submissions"
+                suggestColumn="start_time"
+                normalizeOption={(v) => v.slice(0, 5)}
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -166,7 +174,13 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem>
             <FormLabel>Nome do evento</FormLabel>
             <FormControl>
-              <Input placeholder="Ex: Festival de Inverno" className="h-12" {...field} />
+              <SuggestInput
+                placeholder="Ex: Festival de Inverno"
+                className="h-12"
+                suggestFrom="public_submissions"
+                suggestColumn="event_title"
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -181,7 +195,14 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem>
             <FormLabel>Horário previsto para término</FormLabel>
             <FormControl>
-              <Input type="time" className="h-12" {...field} />
+              <SuggestInput
+                type="time"
+                className="h-12"
+                suggestFrom="public_submissions"
+                suggestColumn="end_time"
+                normalizeOption={(v) => v.slice(0, 5)}
+                {...field}
+              />
             </FormControl>
             <p className="text-[11px] text-muted-foreground italic">
               Sem término definido se ficar vazio.

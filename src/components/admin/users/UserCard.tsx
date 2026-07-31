@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { SuggestInput } from "@/components/ui/SuggestInput";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
@@ -195,32 +196,40 @@ export function UserCard(props: UserCardProps) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1 sm:col-span-2">
                       <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Nome do responsável</label>
-                      <Input
+                      <SuggestInput
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         autoFocus
                         disabled={savingEdit}
                         placeholder="Nome do responsável"
+                        autoComplete="name"
+                        suggestFrom="profiles"
+                        suggestColumn="responsible_name"
                       />
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">WhatsApp</label>
-                      <Input
+                      <SuggestInput
                         value={editPhone}
                         onChange={(e) => setEditPhone(e.target.value)}
                         disabled={savingEdit}
                         placeholder="(21) 99999-9999"
                         inputMode="tel"
+                        autoComplete="tel"
+                        suggestFrom="profiles"
+                        suggestColumn="phone"
                       />
                       <p className="text-[10px] text-muted-foreground">DDD + número. Deixe em branco pra remover.</p>
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Bairro</label>
-                      <Input
+                      <SuggestInput
                         value={editNeighborhood}
                         onChange={(e) => setEditNeighborhood(e.target.value)}
                         disabled={savingEdit}
                         placeholder="Ex: Centro"
+                        suggestFrom="profiles"
+                        suggestColumn="address_neighborhood"
                       />
                     </div>
                   </div>
