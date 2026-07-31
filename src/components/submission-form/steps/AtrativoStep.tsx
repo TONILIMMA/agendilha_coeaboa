@@ -242,23 +242,24 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
               <FormLabel>Nome do atrativo *</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Input
-                    placeholder="Banda, DJ, artista, ponto turístico..."
-                    className="h-12 pr-10"
-                    {...field}
-                    onFocus={() => searchAtrativo(field.value ?? "")}
-                    onBlur={() => window.setTimeout(() => setSuggestions([]), 150)}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      // digitar manualmente quebra o vínculo — draft vira snapshot livre
-                      if (sourceId && e.target.value !== linkedName) {
-                        form.setValue("atrativoSourceId", undefined);
-                        form.setValue("atrativoSourceType", undefined);
-                        form.setValue("atrativoLinkedName", undefined);
-                      }
-                      searchAtrativo(e.target.value);
-                    }}
-                  />
+                <Input
+                  placeholder="Banda, DJ, artista, ponto turístico..."
+                  className="h-12 pr-10"
+                  autoComplete="name"
+                  {...field}
+                  onFocus={() => searchAtrativo(field.value ?? "")}
+                  onBlur={() => window.setTimeout(() => setSuggestions([]), 150)}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    // digitar manualmente quebra o vínculo — draft vira snapshot livre
+                    if (sourceId && e.target.value !== linkedName) {
+                      form.setValue("atrativoSourceId", undefined);
+                      form.setValue("atrativoSourceType", undefined);
+                      form.setValue("atrativoLinkedName", undefined);
+                    }
+                    searchAtrativo(e.target.value);
+                  }}
+                />
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50" />
                 </div>
               </FormControl>
@@ -392,18 +393,19 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
               <FormItem>
                 <FormLabel>Celular / WhatsApp *</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="(21) 99999-9999"
-                    inputMode="tel"
-                    maxLength={16}
-                    className="h-12"
-                    {...field}
-                    onChange={(e) => field.onChange(formatPhoneDisplay(e.target.value))}
-                    onBlur={() => {
-                      field.onBlur();
-                      form.trigger("atrativoContact");
-                    }}
-                  />
+                <Input
+                  placeholder="(21) 99999-9999"
+                  inputMode="tel"
+                  maxLength={16}
+                  className="h-12"
+                  autoComplete="tel"
+                  {...field}
+                  onChange={(e) => field.onChange(formatPhoneDisplay(e.target.value))}
+                  onBlur={() => {
+                    field.onBlur();
+                    form.trigger("atrativoContact");
+                  }}
+                />
                 </FormControl>
                 {showOk ? (
                   <p className="text-xs text-emerald-600">✓ Celular válido para receber WhatsApp.</p>
@@ -424,12 +426,13 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
             <FormItem>
               <FormLabel>E-mail (opcional)</FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="contato@exemplo.com"
-                  className="h-12"
-                  {...field}
-                />
+              <Input
+                type="email"
+                placeholder="contato@exemplo.com"
+                className="h-12"
+                autoComplete="email"
+                {...field}
+              />
               </FormControl>
               <FormMessage />
             </FormItem>
