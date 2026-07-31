@@ -30,7 +30,7 @@ export function PromotorAutocomplete({
   value,
   onChange,
   onSelect,
-  placeholder = "Nome do promotor/divulgador",
+  placeholder = "Nome do divulgador",
   disabled,
   selected,
 }: Props) {
