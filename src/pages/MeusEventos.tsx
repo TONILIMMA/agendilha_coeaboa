@@ -34,6 +34,10 @@ interface Row {
   image_url: string | null;
   slug: string | null;
   created_at: string;
+  end_time: string | null;
+  location: string | null;
+  description: string | null;
+  user_id: string;
 }
 
 function StatusBadge({ status }: { status: string }) {
