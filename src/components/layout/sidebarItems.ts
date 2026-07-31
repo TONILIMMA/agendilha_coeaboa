@@ -148,6 +148,13 @@ export const sidebarConfig: SidebarSection[] = [
         roles: ["admin", "master"]
       },
       {
+        id: "atrativos_admin",
+        label: "Atrativos (gestão)",
+        path: ROUTES.ADMIN_ATRATIVOS,
+        icon: Users,
+        roles: ["admin", "master"]
+      },
+      {
         id: "estabelecimentos_admin",
         label: "Estabelecimentos",
         path: ROUTES.ADMIN_ESTABELECIMENTOS,
