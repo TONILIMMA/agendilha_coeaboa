@@ -18,6 +18,7 @@ import {
   formatPhoneDisplay,
   buildWhatsappUrl,
 } from "@/lib/whatsapp";
+import { UserDetailsDialog } from "./UserDetailsDialog";
 import type { UserWithRole } from "./types";
 
 function formatPhone(phone: string | null): string {
@@ -84,6 +85,7 @@ export function UserCard(props: UserCardProps) {
   } = props;
 
   const [expanded, setExpanded] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const isSelf = u.id === currentUserId;
   const canEditRoles = isMaster && !isSelf;
   // Admin/Master já tem todos os privilégios — não precisa (nem mostra) tipo Divulgador.
@@ -107,9 +109,9 @@ export function UserCard(props: UserCardProps) {
         {/* Cabeçalho compacto — clique alterna expansão */}
         <button
           type="button"
-          onClick={() => setExpanded((v) => !v)}
+          onClick={() => setDetailsOpen(true)}
           className="w-full text-left p-4 sm:p-5 flex items-center gap-4"
-          aria-expanded={expanded}
+          aria-haspopup="dialog"
         >
           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
             <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
@@ -137,10 +139,22 @@ export function UserCard(props: UserCardProps) {
               </span>
             </div>
           </div>
-          <div className="shrink-0 text-muted-foreground">
-            {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-          </div>
         </button>
+        <div className="px-4 sm:px-5 pb-3 -mt-2 flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs text-muted-foreground"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+          >
+            {expanded ? (
+              <><ChevronUp className="h-4 w-4 mr-1" /> Fechar gerenciamento</>
+            ) : (
+              <><ChevronDown className="h-4 w-4 mr-1" /> Gerenciar</>
+            )}
+          </Button>
+        </div>
 
         {/* Ficha expandida — visível somente para admin/master (a página já protege o acesso) */}
         {expanded && (
@@ -359,6 +373,7 @@ export function UserCard(props: UserCardProps) {
           </div>
         )}
       </CardContent>
+      <UserDetailsDialog user={u} open={detailsOpen} onOpenChange={setDetailsOpen} />
     </Card>
   );
 }
