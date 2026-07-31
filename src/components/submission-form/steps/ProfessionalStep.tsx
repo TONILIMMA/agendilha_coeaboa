@@ -37,7 +37,13 @@ export function ProfessionalStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem>
             <FormLabel>Nome da Empresa ou Produtor</FormLabel>
             <FormControl>
-              <Input placeholder="Ex: Agência de Eventos LTDA" className="h-12" {...field} />
+              <Input
+                placeholder="Ex: Agência de Eventos LTDA"
+                className="h-12"
+                {...field}
+                name="organization"
+                autoComplete="organization"
+              />
             </FormControl>
             <FormDescription className="text-[10px]">
               O promotor responsável será vinculado a este nome.
@@ -57,7 +63,14 @@ export function ProfessionalStep({ form }: { form: UseFormReturn<any> }) {
               E-mail (opcional)
             </FormLabel>
             <FormControl>
-              <Input placeholder="seu@email.com" className="h-12" type="email" {...field} />
+              <Input
+                placeholder="seu@email.com"
+                className="h-12"
+                type="email"
+                {...field}
+                name="email"
+                autoComplete="email"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -73,7 +86,13 @@ export function ProfessionalStep({ form }: { form: UseFormReturn<any> }) {
             <FormItem>
               <FormLabel>Rua</FormLabel>
               <FormControl>
-                <Input placeholder="Logradouro" className="h-12" {...field} />
+                <Input
+                  placeholder="Logradouro"
+                  className="h-12"
+                  {...field}
+                  name="address-line1"
+                  autoComplete="address-line1"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -88,7 +107,13 @@ export function ProfessionalStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem className="sm:w-1/3">
             <FormLabel>Número</FormLabel>
             <FormControl>
-              <Input placeholder="123" className="h-12" {...field} />
+              <Input
+                placeholder="123"
+                className="h-12"
+                {...field}
+                name="address-line2"
+                autoComplete="address-line2"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
