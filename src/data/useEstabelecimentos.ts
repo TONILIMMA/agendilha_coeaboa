@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { qk } from "./queryKeys";
+import { emitEntityChanged } from "@/lib/entityEvents";
 
 export interface EstabelecimentoRow {
   id: string;
