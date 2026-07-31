@@ -131,6 +131,7 @@ export default function CadastroArtista() {
             value={responsavel}
             onChange={setResponsavel}
             placeholder="Quem responde pela atração"
+            autoComplete="name"
             required
             error={errors.responsavel}
           />
@@ -150,6 +151,7 @@ export default function CadastroArtista() {
             onChange={(v) => setWhatsapp(maskPhone(v))}
             placeholder="(21) 99999-9999"
             inputMode="tel"
+            autoComplete="tel"
             maxLength={15}
             required
             error={errors.whatsapp}
@@ -165,6 +167,7 @@ export default function CadastroArtista() {
             value={endereco}
             onChange={setEndereco}
             placeholder="Rua, número, complemento"
+            autoComplete="street-address"
             required
             error={errors.endereco}
           />
