@@ -13,6 +13,8 @@ interface Options extends FieldSuggestionSource {
   term: string;
   enabled?: boolean;
   limit?: number;
+  /** Muda para invalidar o cache (ex.: registro editado/aprovado/excluído). */
+  refreshKey?: unknown;
 }
 
 /**
@@ -20,7 +22,14 @@ interface Options extends FieldSuggestionSource {
  * Silencioso por natureza: se a RLS bloquear a leitura, devolve lista vazia
  * e o campo continua funcionando como input normal.
  */
-export function useFieldSuggestions({ from, column, term, enabled = true, limit = 8 }: Options) {
+export function useFieldSuggestions({
+  from,
+  column,
+  term,
+  enabled = true,
+  limit = 8,
+  refreshKey,
+}: Options) {
   const fetchPage = useCallback(
     async (q: string, start: number, end: number, signal: AbortSignal) => {
       let query = supabase
@@ -45,6 +54,7 @@ export function useFieldSuggestions({ from, column, term, enabled = true, limit 
     debounceMs: 200,
     minChars: 0,
     enabled,
+    refreshKey,
   });
 
   const suggestions = useMemo(() => {
