@@ -40,6 +40,8 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
   const [resyncing, setResyncing] = useState(false);
   const [confirmUnlink, setConfirmUnlink] = useState(false);
   const [novoAtrativo, setNovoAtrativo] = useState(false);
+  const [novoAtrativoOpen, setNovoAtrativoOpen] = useState(false);
+  const [novoAtrativoNome, setNovoAtrativoNome] = useState("");
 
   const watched = form.watch(["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory"]);
   const issues = checkAtrativoAutofill({
@@ -596,6 +598,16 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
       <AutofillIssues
         issues={issues}
         okMessage="Atrativo conferido — WhatsApp, e-mail e categoria estão ok."
+      />
+
+      <NovoAtrativoDialog
+        open={novoAtrativoOpen}
+        onOpenChange={setNovoAtrativoOpen}
+        initialName={novoAtrativoNome}
+        onCreated={(a) => {
+          linkSource(a.id, "atrativo", a);
+          setSuggestions([]);
+        }}
       />
     </div>
   );
