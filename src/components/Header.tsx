@@ -139,6 +139,18 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
    const { theme, toggleTheme } = useTheme();
   const { profile } = useProfile();
   const perms = useAppPermissions();
+  const { isDivulgador } = useDivulgadorStatus();
+  // Só Divulgador (ou admin) cria evento — o resto vai pedir acesso.
+  const irParaDivulgar = () => {
+    if (!user) return navigate("/auth?redirect=/enviar-evento");
+    if (!isDivulgador) {
+      toast.info("Acesso só pra Divulgador", {
+        description: "Peça acesso em Meus eventos que a equipe libera rapidinho.",
+      });
+      return navigate("/meus-eventos");
+    }
+    navigate("/enviar-evento");
+  };
   const { status, name: badgeName } = useUserBadge();
   const isMaster = status === "master";
   const navigate = useNavigate();
@@ -198,8 +210,8 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                        size="sm"
                        aria-label="Divulgar evento — cadastro de divulgador"
                        onClick={() => {
-                         if (user) {
-                           navigate("/enviar-evento");
+                         if (true) {
+                           irParaDivulgar();
                          } else {
                            navigate("/auth?redirect=/enviar-evento");
                          }
@@ -281,8 +293,8 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                   size="sm" 
                   variant="outline"
                   onClick={() => {
-                    if (user) {
-                      navigate("/enviar-evento");
+                    if (true) {
+                      irParaDivulgar();
                     } else {
                       navigate("/auth?redirect=/enviar-evento");
                     }
@@ -405,7 +417,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                {(isAdmin || perms.isCollaborator) && (
                  <Button 
                    size="sm" 
-                   onClick={() => navigate("/enviar-evento")} 
+                   onClick={irParaDivulgar} 
                    className="hidden sm:inline-flex rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight shadow-none text-xs sm:text-sm px-4 sm:px-5 h-9"
                  >
                    <Megaphone className="h-4 w-4 sm:mr-1.5" />
@@ -517,7 +529,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                 {(isAdmin || perms.isCollaborator) && (
                   <Button
                     size="sm"
-                    onClick={() => navigate("/enviar-evento")}
+                    onClick={irParaDivulgar}
                     className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight shadow-none text-xs px-3.5 h-9"
                   >
                     <Megaphone className="h-3.5 w-3.5 mr-1" />

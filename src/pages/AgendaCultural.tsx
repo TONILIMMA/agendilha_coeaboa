@@ -72,6 +72,7 @@ function AgendaCulturalInner() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { profile } = useProfile();
+  const { isDivulgador } = useDivulgadorStatus();
   const { favorites, isFavorite } = useFavorites();
 
   const {
@@ -351,7 +352,13 @@ function AgendaCulturalInner() {
               <Button
                 className="rounded-full shadow-lg sm:shadow-xl bg-primary text-primary-foreground font-black px-6 sm:px-12 h-14 sm:h-16 text-sm sm:text-base transition-all uppercase tracking-widest outline-none hover:scale-[1.02] active:scale-95 w-full sm:flex-1"
                 onClick={() =>
-                  navigate(user ? "/enviar-evento" : "/auth?redirect=/enviar-evento")
+                  navigate(
+                    !user
+                      ? "/auth?redirect=/enviar-evento"
+                      : isDivulgador
+                      ? "/enviar-evento"
+                      : "/meus-eventos"
+                  )
                 }
               >
                 <Megaphone className="h-5 w-5 mr-2.5" /> Divulgar Evento
@@ -679,7 +686,12 @@ function AgendaCulturalInner() {
                   <Button
                     variant="default"
                     onClick={() => {
-                      if (user) {
+                      if (user && !isDivulgador) {
+                        toast.info("Acesso só pra Divulgador", {
+                          description: "Peça acesso em Meus eventos que a equipe libera rapidinho.",
+                        });
+                        navigate("/meus-eventos");
+                      } else if (user) {
                         navigate("/enviar-evento");
                       } else {
                         toast.info("Acesse sua conta primeiro", {
