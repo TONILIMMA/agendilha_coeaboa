@@ -34,6 +34,26 @@ function formatPhone(phone: string | null): string {
   return formatPhoneDisplay(phone);
 }
 
+/** Agrupa o usuário numa "gaveta" só: Admin, Divulgador, Artista, Estabelecimento ou Público. */
+export function userGroup(u: any): string {
+  if (u.status === "admin" || u.status === "master") return "admin";
+  if (u.status === "artist" || u.user_type === "artist") return "artist";
+  if (u.user_type === "estabelecimento") return "estabelecimento";
+  if (u.status === "collaborator" || u.user_type === "divulgador" || u.user_type === "promotor")
+    return "divulgador";
+  return "usuario";
+}
+
+const GROUP_LABELS: Record<string, string> = {
+  admin: "Administradores",
+  divulgador: "Divulgadores",
+  artist: "Músicos / Artistas",
+  estabelecimento: "Estabelecimentos",
+  usuario: "Usuários públicos",
+};
+
+const GROUP_ORDER = ["admin", "divulgador", "artist", "estabelecimento", "usuario"];
+
 export default function AdminUsers() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const [users, setUsers] = useState<UserWithRole[]>([]);
@@ -73,8 +93,8 @@ export default function AdminUsers() {
       // Filtro de Busca (Nome ou Email)
       if (filterSearch && !u.responsible_name?.toLowerCase().includes(filterSearch.toLowerCase()) && !u.email?.toLowerCase().includes(filterSearch.toLowerCase())) return false;
 
-      // Filtro de Tipo
-      if (filterType !== "all" && u.user_type !== filterType) return false;
+      // Filtro de Tipo (grupo): admins ficam separados dos demais
+      if (filterType !== "all" && userGroup(u) !== filterType) return false;
 
       // Filtro de Status
       if (filterStatus !== "all" && u.status !== filterStatus) return false;
@@ -148,6 +168,15 @@ export default function AdminUsers() {
   }, [filteredUsers, currentPage]);
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+  // Separa em blocos pra não misturar admin com divulgador/público
+  const groupedUsers = useMemo(() => {
+    return GROUP_ORDER.map((g) => ({
+      key: g,
+      label: GROUP_LABELS[g],
+      users: paginatedUsers.filter((u) => userGroup(u) === g),
+    })).filter((g) => g.users.length > 0);
+  }, [paginatedUsers]);
 
   const exportToPDF = useCallback(async () => {
     toast.info("Preparando PDF...");
@@ -466,8 +495,19 @@ export default function AdminUsers() {
         />
       ) : (
         <div className="space-y-6">
+          {groupedUsers.map((group) => (
+          <section key={group.key} className="space-y-3">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                {group.label}
+              </h2>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-foreground/70">
+                {group.users.length}
+              </span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
           <div className="grid grid-cols-1 gap-4">
-            {paginatedUsers.map((u) => (
+            {group.users.map((u) => (
               <UserCard
                 key={u.id}
                 u={u}
@@ -497,6 +537,8 @@ export default function AdminUsers() {
               />
             ))}
           </div>
+          </section>
+          ))}
           
           {/* Paginação */}
           {totalPages > 1 && (
