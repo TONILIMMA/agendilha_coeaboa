@@ -362,7 +362,7 @@ export default function ProfileSettings() {
       )}
 
       {/* Promoter / Divulgador Specific */}
-      {(userType === 'promoter' || userType === 'divulgador') && (
+      {(userType === 'promoter' || userType === 'promotor' || userType === 'divulgador') && (
         <>
         <Card>
           <CardHeader>

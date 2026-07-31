@@ -39,7 +39,7 @@ export function userGroup(u: any): string {
   if (u.status === "admin" || u.status === "master") return "admin";
   if (u.status === "artist" || u.user_type === "artist") return "artist";
   if (u.user_type === "estabelecimento") return "estabelecimento";
-  if (u.status === "collaborator" || u.user_type === "divulgador" || u.user_type === "promotor")
+  if (u.status === "collaborator" || u.user_type === "divulgador" || u.user_type === "promotor" || u.user_type === "promoter")
     return "divulgador";
   return "usuario";
 }
