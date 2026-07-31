@@ -62,7 +62,7 @@ export default function CadastroPromotor() {
         whatsapp,
         password,
         nome.trim(),
-        { address_neighborhood: bairro },
+        { profile: { address_neighborhood: bairro } },
         "promotor",
       );
       if (error) throw error;
