@@ -227,7 +227,7 @@ export default function Ranking() {
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-display font-semibold text-foreground">
-                Ranking de Promotores
+                Ranking de Divulgadores
               </h1>
               <p className="text-sm text-muted-foreground">
                 Filtre por período e categoria, ordene e exporte
