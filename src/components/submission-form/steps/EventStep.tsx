@@ -166,7 +166,13 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem>
             <FormLabel>Nome do evento</FormLabel>
             <FormControl>
-              <Input placeholder="Ex: Festival de Inverno" className="h-12" {...field} />
+              <SuggestInput
+                placeholder="Ex: Festival de Inverno"
+                className="h-12"
+                suggestFrom="public_submissions"
+                suggestColumn="event_title"
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
