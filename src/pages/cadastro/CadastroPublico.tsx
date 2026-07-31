@@ -105,6 +105,7 @@ export default function CadastroPublico() {
             value={nome}
             onChange={setNome}
             placeholder="Como você quer ser chamado"
+            autoComplete="name"
             required
             error={errors.nome}
           />
@@ -115,6 +116,7 @@ export default function CadastroPublico() {
             onChange={(v) => setWhatsapp(maskPhone(v))}
             placeholder="(21) 99999-9999"
             inputMode="tel"
+            autoComplete="tel"
             maxLength={15}
             required
             error={errors.whatsapp}
