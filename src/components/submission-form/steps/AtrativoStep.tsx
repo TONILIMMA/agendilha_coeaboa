@@ -4,8 +4,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { Music, Search, Info, Lock, Link2, RefreshCw, Unlink } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { onEntityCreated } from "@/lib/entityEvents";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 import { EventPreview } from "../EventPreview";
 import { AutofillIssues } from "../AutofillIssues";
@@ -160,6 +161,17 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
   const searchSeq = useRef(0);
   const searchAbort = useRef<AbortController | null>(null);
   const searchCache = useRef(new Map<string, any[]>());
+
+  // Se um atrativo for criado, editado, aprovado ou excluído em outra tela,
+  // limpa o cache local para as sugestões virem fresquinhas do banco.
+  useEffect(
+    () =>
+      onEntityCreated("atrativo", () => {
+        searchCache.current.clear();
+        setSuggestions([]);
+      }),
+    [],
+  );
 
   /** Debounce + cache + cancelamento: evita disparar consulta a cada tecla. */
   const searchAtrativo = (query: string) => {

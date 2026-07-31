@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { qk } from "./queryKeys";
+import { emitEntityChanged } from "@/lib/entityEvents";
 
 export interface EstabelecimentoRow {
   id: string;
@@ -80,6 +81,7 @@ export function useUpsertEstabelecimento() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.estabelecimentos.all });
+      emitEntityChanged("estabelecimento");
     },
   });
 }
@@ -93,6 +95,7 @@ export function useDeleteEstabelecimento() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.estabelecimentos.all });
+      emitEntityChanged("estabelecimento");
     },
   });
 }
