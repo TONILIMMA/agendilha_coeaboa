@@ -136,6 +136,8 @@ export default function Auth() {
               </Label>
               <Input
                 id="phone"
+                name="tel"
+                autoComplete="tel"
                 type="tel"
                 value={phone}
                 onChange={handlePhoneChange}
@@ -149,6 +151,8 @@ export default function Auth() {
               <Label htmlFor="password">Senha</Label>
               <PasswordInput
                 id="password"
+                name="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

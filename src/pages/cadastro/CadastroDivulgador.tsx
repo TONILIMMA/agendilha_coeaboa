@@ -105,6 +105,7 @@ export default function CadastroDivulgador() {
             value={nome}
             onChange={setNome}
             placeholder="Seu nome completo"
+            autoComplete="name"
             required
             error={errors.nome}
           />
@@ -115,6 +116,7 @@ export default function CadastroDivulgador() {
             onChange={(v) => setWhatsapp(maskPhone(v))}
             placeholder="(21) 99999-9999"
             inputMode="tel"
+            autoComplete="tel"
             maxLength={15}
             required
             error={errors.whatsapp}
@@ -141,6 +143,7 @@ export default function CadastroDivulgador() {
             value={endereco}
             onChange={setEndereco}
             placeholder="Rua, número, complemento"
+            autoComplete="street-address"
             required
             error={errors.endereco}
           />
