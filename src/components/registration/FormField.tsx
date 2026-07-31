@@ -14,6 +14,8 @@ interface Base {
   hint?: string;
   inputMode?: "text" | "numeric" | "tel" | "email" | "url";
   maxLength?: number;
+  autoComplete?: string;
+  type?: string;
 }
 
 export function FormField({
@@ -27,6 +29,8 @@ export function FormField({
   hint,
   inputMode,
   maxLength,
+  autoComplete,
+  type,
 }: Base) {
   return (
     <div className="space-y-2">
@@ -36,6 +40,9 @@ export function FormField({
       </Label>
       <Input
         id={id}
+        name={autoComplete ?? id}
+        autoComplete={autoComplete}
+        type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
