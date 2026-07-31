@@ -26,6 +26,7 @@ import {
   EstabelecimentoAutocomplete,
   EstabelecimentoSuggestion,
 } from "@/components/estabelecimentos/EstabelecimentoAutocomplete";
+import { NovoEstabelecimentoDialog } from "@/components/estabelecimentos/NovoEstabelecimentoDialog";
 import { ROUTES } from "@/routes/config";
 import {
   useMyAtrativos,
@@ -253,6 +254,9 @@ export default function PromotorAtrativos() {
     }
   };
 
+  const [novoLocalOpen, setNovoLocalOpen] = useState(false);
+  const [novoLocalNome, setNovoLocalNome] = useState("");
+
   const remove = async (id: string) => {
     if (!confirm("Remover este atrativo?")) return;
     try {
@@ -373,7 +377,8 @@ export default function PromotorAtrativos() {
             onSelect={handleSelectEstab}
             onCreateNew={(nome) => {
               setForm((f) => ({ ...f, estabelecimento_nome: nome, estabelecimento_id: null }));
-              toast.info(`"${nome}" será cadastrado como novo local ao salvar.`);
+              setNovoLocalNome(nome);
+              setNovoLocalOpen(true);
             }}
             placeholder="Vincule a um estabelecimento"
           />
