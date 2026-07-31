@@ -14,6 +14,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { formatBrazilianDate } from "@/lib/date-utils";
+import { SolicitarDivulgadorCard } from "@/components/divulgador/SolicitarDivulgadorCard";
+import { useDivulgadorStatus } from "@/hooks/useDivulgadorStatus";
 import { LoadingState } from "@/components/ui/LoadingState";
 
 type StatusKey = "todos" | "pendente" | "aprovado" | "rejeitado";
@@ -73,6 +75,7 @@ function StatusBadge({ status }: { status: string }) {
 export default function MeusEventos() {
   const { user } = useAuth();
   const [tab, setTab] = useState<StatusKey>("todos");
+  const { isDivulgador } = useDivulgadorStatus();
 
   const { data: rows = [], isLoading: loading } = useSubmissions<Row>(
     {
@@ -117,16 +120,20 @@ export default function MeusEventos() {
               Acompanhe o status de tudo que você enviou para análise.
             </p>
           </div>
-          <Button
-            asChild
-            className="rounded-full h-11 bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight shadow-none px-5"
-          >
-            <Link to="/enviar-evento">
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Divulgar evento
-            </Link>
-          </Button>
+          {isDivulgador && (
+            <Button
+              asChild
+              className="rounded-full h-11 bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight shadow-none px-5"
+            >
+              <Link to="/enviar-evento">
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Divulgar evento
+              </Link>
+            </Button>
+          )}
         </header>
+
+        <SolicitarDivulgadorCard />
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as StatusKey)}>
           <TabsList className="bg-foreground/[0.04] rounded-full p-1">
@@ -150,13 +157,19 @@ export default function MeusEventos() {
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center space-y-3 border border-dashed border-foreground/15 rounded-2xl">
             <p className="text-foreground/65 text-sm">Nada por aqui ainda.</p>
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-full border-foreground/15 hover:bg-foreground/5"
-            >
-              <Link to="/enviar-evento">Divulgar meu primeiro evento</Link>
-            </Button>
+            {isDivulgador ? (
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-full border-foreground/15 hover:bg-foreground/5"
+              >
+                <Link to="/enviar-evento">Divulgar meu primeiro evento</Link>
+              </Button>
+            ) : (
+              <p className="text-xs text-foreground/55">
+                Pra criar ou editar eventos você precisa de acesso de Divulgador — peça acima.
+              </p>
+            )}
           </div>
         ) : (
           <ul className="space-y-3">

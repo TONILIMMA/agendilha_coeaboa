@@ -6,6 +6,9 @@ import * as useAppPermissionsModule from "@/hooks/useAppPermissions";
 import * as routeConfig from "@/routes/config";
 
 // Mock hooks
+vi.mock('@/hooks/useDivulgadorStatus', () => ({
+  useDivulgadorStatus: () => ({ loading: false, isAdmin: false, isDivulgador: false, profile: null, request: null, refresh: vi.fn() }),
+}));
 vi.mock("@/hooks/useUserBadge", () => ({
   useUserBadge: () => ({ name: "Test User", initials: "TU", loaded: true }),
 }));

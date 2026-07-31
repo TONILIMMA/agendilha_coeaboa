@@ -690,6 +690,51 @@ export type Database = {
         }
         Relationships: []
       }
+      divulgador_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          id: string
+          motivo: string | null
+          nome: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          tipo_divulgador: string | null
+          updated_at: string
+          user_id: string
+          whatsapp: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          motivo?: string | null
+          nome?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          tipo_divulgador?: string | null
+          updated_at?: string
+          user_id: string
+          whatsapp?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          motivo?: string | null
+          nome?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          tipo_divulgador?: string | null
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       divulgadores: {
         Row: {
           contato_id: string
