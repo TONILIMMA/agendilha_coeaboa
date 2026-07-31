@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useDivulgadorStatus } from "@/hooks/useDivulgadorStatus";
 
 import { 
   CalendarDays, 
