@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppPermissions as usePermissions } from "@/hooks/usePermissions";
 import { Navigate } from "react-router-dom";
