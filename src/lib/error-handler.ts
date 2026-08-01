@@ -134,6 +134,9 @@ export function handleError(
   const classified = classifyError(error, opts.fallback);
   const description = opts.description ?? classified.description;
 
+  // Cancelamentos (usuário fechou o share sheet, request abortado) nunca viram ruído.
+  if (isAbortError(error)) return { ...classified, description };
+
   logger.error(opts.context ? `[${opts.context}]` : "App Error:", {
     message: classified.message,
     code: classified.code,

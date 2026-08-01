@@ -6,6 +6,7 @@ import { DivulgadorRequestsPanel } from "@/components/admin/DivulgadorRequestsPa
 import { Button } from "@/components/ui/button";
 import { Users, Download, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
 import { buildTempPasswordMessage, formatPhoneDisplay } from "@/lib/whatsapp";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
@@ -184,8 +185,7 @@ export default function AdminUsers() {
       await exportUsersToPdf(filteredUsers);
       toast.success("PDF gerado com sucesso!");
     } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      toast.error("Erro ao carregar gerador de PDF");
+      handleError(error, { context: "AdminUsers.exportPdf", fallback: "Não deu pra gerar o PDF. Tenta de novo." });
     }
   }, [filteredUsers]);
 

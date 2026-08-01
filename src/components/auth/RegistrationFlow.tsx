@@ -14,6 +14,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 import { 
   User, 
   Megaphone, 
@@ -101,7 +102,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         setType(savedType || null);
         toast.info("Retomando cadastro de onde você parou.");
       } catch (e) {
-        console.error("Error loading draft", e);
+        logger.warn("[RegistrationFlow] rascunho inválido, ignorando", e);
       }
     }
   }, []);

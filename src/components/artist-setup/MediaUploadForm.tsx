@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   compressImage,
@@ -181,10 +182,7 @@ export function MediaUploadForm({ artistId, onMediaUploaded }: MediaUploadFormPr
       qc.invalidateQueries({ queryKey: ["artist", artistId] });
       onMediaUploaded?.();
     } catch (error: any) {
-      console.error(error);
-      toast.error("Não deu pra enviar", {
-        description: error?.message || "Tenta de novo em instantes.",
-      });
+      handleError(error, { context: "MediaUploadForm.upload", fallback: "Não deu pra enviar. Tenta de novo em instantes." });
     } finally {
       setUploading(false);
     }

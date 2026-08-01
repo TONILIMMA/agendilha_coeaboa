@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { toPng, toJpeg } from "html-to-image";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
 import { 
   Download, RotateCcw, 
   Type, Palette, Layout, Globe, MessageCircle, Share2, 
@@ -151,8 +152,7 @@ export function AIFlyerGenerator({ initialData, onFlyerGenerated }: AIFlyerGener
       onFlyerGenerated(urls);
       toast.success("Versões otimizadas prontas!");
     } catch (err) {
-      console.error("Export error:", err);
-      toast.error("Erro ao gerar versões.");
+      handleError(err, { context: "AIFlyerGenerator.export", fallback: "Não deu pra gerar as versões. Tenta de novo." });
     } finally {
       setIsGenerating(false);
     }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { handleError } from "@/lib/error-handler";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -81,7 +82,7 @@ export function useUserBadge(): UserBadge {
           }
         }
       } catch (err) {
-        console.error("Error in useUserBadge:", err);
+        handleError(err, { context: "useUserBadge", silent: true });
       } finally {
         if (!cancelled) setStatusLoaded(true);
       }

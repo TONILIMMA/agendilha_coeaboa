@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
+import { logger } from "@/lib/logger";
 import { supabase } from "@/integrations/supabase/client";
 
 const SESSION_KEY = "admin_pin_token";
@@ -106,7 +108,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       setCheckingStatus(false);
 
       if (error) {
-        console.error("Error checking admin pin status:", error);
+        logger.error("[AdminPinGate.status] falha ao consultar PIN", error);
         return;
       }
 
@@ -157,8 +159,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       writeToken(user.id, result.session_token);
       setUnlocked(true);
     } catch (error) {
-      console.error("Error verifying PIN:", error);
-      toast.error("Erro ao verificar PIN");
+      handleError(error, { context: "AdminPinGate.verify", fallback: "Não deu pra conferir o PIN. Tenta de novo." });
     } finally {
       setBusy(false);
     }
@@ -199,8 +200,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       toast.success("PIN configurado. Guarde bem esse número.");
       setUnlocked(true);
     } catch (error) {
-      console.error("Error setting up PIN:", error);
-      toast.error("Erro ao configurar PIN");
+      handleError(error, { context: "AdminPinGate.setup", fallback: "Não deu pra configurar o PIN. Tenta de novo." });
     } finally {
       setBusy(false);
     }
@@ -247,8 +247,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       setConfirmPin("");
       setUnlocked(true);
     } catch (error) {
-      console.error("Error updating PIN:", error);
-      toast.error("Erro ao atualizar PIN");
+      handleError(error, { context: "AdminPinGate.update", fallback: "Não deu pra atualizar o PIN. Tenta de novo." });
     } finally {
       setBusy(false);
     }
@@ -285,8 +284,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       setMode("verify");
       toast.success("PIN redefinido. Agora entre com o novo PIN.");
     } catch (error) {
-      console.error("Error resetting PIN:", error);
-      toast.error("Erro ao redefinir PIN");
+      handleError(error, { context: "AdminPinGate.reset", fallback: "Não deu pra redefinir o PIN. Tenta de novo." });
     } finally {
       setBusy(false);
     }

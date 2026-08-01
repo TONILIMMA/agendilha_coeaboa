@@ -18,6 +18,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
 import { ProfileStatus } from "@/components/artist-setup/ProfileStatus";
 import { BasicInfoForm } from "@/components/artist-setup/BasicInfoForm";
 import { PresentationForm } from "@/components/artist-setup/PresentationForm";
@@ -80,7 +81,7 @@ export default function ArtistSetup() {
         });
       }
     } catch (err) {
-      console.error(err);
+      handleError(err, { context: "ArtistSetup.load", silent: true });
     } finally {
       setLoading(false);
     }

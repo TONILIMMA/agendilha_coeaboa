@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { handleError } from "@/lib/error-handler";
+import { logger } from "@/lib/logger";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -222,7 +223,7 @@ export default function SubmissionForm() {
           }
         }
       } catch (e) {
-        console.error("Error syncing draft with profile", e);
+        logger.warn("[SubmissionForm] não deu pra sincronizar o rascunho com o perfil", e);
       }
     }
   }, [loaded, profile, form]);
@@ -265,7 +266,7 @@ export default function SubmissionForm() {
         if (savedAt) setDraftSavedAt(new Date(savedAt));
         toast.info("Rascunho do evento recuperado.");
       } catch (e) {
-        console.error("Error loading event draft", e);
+        logger.warn("[SubmissionForm] rascunho inválido, começando do zero", e);
       }
     }
     draftLoadedRef.current = true;
@@ -287,7 +288,7 @@ export default function SubmissionForm() {
           }));
           setDraftSavedAt(now);
         } catch (e) {
-          console.error("Error saving event draft", e);
+          logger.warn("[SubmissionForm] não deu pra salvar o rascunho", e);
         }
       }, 600);
     });
@@ -561,8 +562,7 @@ export default function SubmissionForm() {
       localStorage.removeItem(DRAFT_KEY);
       navigate(`/evento-enviado/${result.id}`, { replace: true });
     } catch (error) {
-      console.error("[SubmissionForm.onSubmit] failed", error);
-      handleError(error);
+      handleError(error, { context: "SubmissionForm.onSubmit", fallback: "Não deu pra enviar o evento. Tenta de novo." });
     } finally {
       setSubmitting(false);
     }
