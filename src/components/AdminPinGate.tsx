@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { logger } from "@/lib/logger";
 import { supabase } from "@/integrations/supabase/client";
+import { validatePin } from "@/lib/pin";
 
 const SESSION_KEY = "admin_pin_token";
 const TTL_MS = 30 * 60 * 1000; // 30 min (espelho do backend)
@@ -41,14 +42,8 @@ const removeToken = () => sessionStorage.removeItem(SESSION_KEY);
 
 type Mode = "verify" | "setup" | "change" | "forgot";
 
-const WEAK_PINS = ["0000", "1111", "1234"];
-
-const validateNewPin = (newPin: string, confirmPin: string): string | null => {
-  if (!/^\d{4}$/.test(newPin)) return "O PIN deve ter 4 dígitos";
-  if (WEAK_PINS.includes(newPin)) return "Escolha um PIN menos previsível";
-  if (newPin !== confirmPin) return "Os PINs não coincidem";
-  return null;
-};
+const validateNewPin = (newPin: string, confirmPin: string): string | null =>
+  validatePin(newPin, confirmPin);
 
 /**
  * Gate de PIN para áreas sensíveis do Painel Master/Admin.
