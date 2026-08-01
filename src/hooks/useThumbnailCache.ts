@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { logger } from "@/lib/logger";
 import { get, set, del, keys } from "idb-keyval";
 
 const DB_STORE_NAME = "thumb_cache_v1";
@@ -26,7 +27,7 @@ async function buildThumbnail(url: string): Promise<string | null> {
         // We use JPEG for better compression of photos
         resolve(canvas.toDataURL("image/jpeg", 0.82));
       } catch (err) {
-        console.error("Thumbnail generation failed:", err);
+        logger.warn("[useThumbnailCache] falha ao gerar thumbnail", err);
         resolve(null);
       }
     };
@@ -44,7 +45,7 @@ async function manageCacheLimit() {
       await Promise.all(keysToRemove.map(k => del(k)));
     }
   } catch (err) {
-    console.error("Failed to manage IDB cache limit:", err);
+    logger.warn("[useThumbnailCache] falha ao limpar cache local", err);
   }
 }
 
@@ -93,7 +94,7 @@ export function useThumbnailCache(eventId: string, url?: string | null): string 
         setThumb(data);
         await manageCacheLimit();
       } catch (err) {
-        console.error("Failed to save to IDB:", err);
+        logger.warn("[useThumbnailCache] falha ao salvar no cache local", err);
       }
     }
 
