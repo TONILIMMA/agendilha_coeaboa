@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { toPng } from "html-to-image";
 import JSZip from "jszip";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
 
 export default function Carrossel() {
   const [events, setEvents] = useState<FlyerEvent[]>([]);
@@ -90,8 +91,7 @@ export default function Carrossel() {
       URL.revokeObjectURL(url);
       toast.success(`${nodes.length} cards exportados!`);
     } catch (e) {
-      console.error(e);
-      toast.error("Não foi possível gerar o .zip");
+      handleError(e, { context: "Carrossel.exportZip", fallback: "Não deu pra gerar o .zip. Tenta de novo." });
     } finally {
       setZipping(false);
     }
