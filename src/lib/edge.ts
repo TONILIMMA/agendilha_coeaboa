@@ -39,13 +39,14 @@ export async function callEdge<TResp = unknown>(
   });
 
   const text = await res.text();
-  let data: any = null;
+  let data: unknown = null;
   if (text) {
     try { data = JSON.parse(text); } catch { data = { raw: text }; }
   }
 
   if (!res.ok) {
-    const message = data?.error || data?.message || `Erro ${res.status} ao chamar ${name}`;
+    const payload = (data ?? {}) as { error?: string; message?: string };
+    const message = payload.error || payload.message || `Erro ${res.status} ao chamar ${name}`;
     throw new EdgeFunctionError(message, res.status);
   }
 

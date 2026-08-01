@@ -2,6 +2,12 @@ import { useCallback, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { AuditLogEntry } from "./types";
 
+interface AuditRow {
+  action: string;
+  created_at: string;
+  user_id: string;
+}
+
 export function useAuditLogs() {
   const [auditLogs, setAuditLogs] = useState<Record<string, AuditLogEntry[]>>({});
   // Guarda quais eventos já foram buscados sem entrar no closure do callback,
@@ -15,18 +21,19 @@ export function useAuditLogs() {
       .from("event_audit_log")
       .select("action, created_at, user_id")
       .eq("event_id", eventId)
-      .order("created_at", { ascending: false }) as any;
+      .order("created_at", { ascending: false })
+      .returns<AuditRow[]>();
     if (data && data.length > 0) {
-      const userIds = [...new Set(data.map((d: any) => d.user_id))];
+      const userIds = [...new Set(data.map((d) => d.user_id))];
       const { data: profiles } = await supabase
         .from("profiles")
         .select("user_id, responsible_name")
-        .in("user_id", userIds as string[]);
+        .in("user_id", userIds);
       const nameMap: Record<string, string> = {};
-      (profiles || []).forEach((p: any) => { nameMap[p.user_id] = p.responsible_name || "Usuário"; });
+      (profiles ?? []).forEach((p) => { nameMap[p.user_id] = p.responsible_name || "Usuário"; });
       setAuditLogs(prev => ({
         ...prev,
-        [eventId]: data.map((d: any) => ({
+        [eventId]: data.map((d) => ({
           action: d.action,
           created_at: d.created_at,
           user_name: nameMap[d.user_id] || "Usuário",

@@ -6,7 +6,7 @@ import { DivulgadorRequestsPanel } from "@/components/admin/DivulgadorRequestsPa
 import { Button } from "@/components/ui/button";
 import { Users, Download, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { handleError } from "@/lib/error-handler";
+import { handleError, getErrorMessage } from "@/lib/error-handler";
 import { buildTempPasswordMessage, formatPhoneDisplay } from "@/lib/whatsapp";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
@@ -36,7 +36,7 @@ function formatPhone(phone: string | null): string {
 }
 
 /** Agrupa o usuário numa "gaveta" só: Admin, Divulgador, Artista, Estabelecimento ou Público. */
-export function userGroup(u: any): string {
+export function userGroup(u: Pick<UserWithRole, "status" | "user_type">): string {
   if (u.status === "admin" || u.status === "master") return "admin";
   if (u.status === "artist" || u.user_type === "artist") return "artist";
   if (u.user_type === "estabelecimento") return "estabelecimento";
@@ -219,8 +219,8 @@ export default function AdminUsers() {
       if (error) throw error;
       toast.success("Tipo de usuário atualizado");
       await fetchUsers();
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao atualizar tipo");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao atualizar tipo"));
     }
     setUpdatingType(null);
   }
@@ -268,8 +268,8 @@ export default function AdminUsers() {
       toast.success("Dados atualizados");
       cancelEdit();
       await fetchUsers();
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao atualizar nome");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao atualizar nome"));
     }
     setSavingEdit(false);
   }
@@ -279,8 +279,8 @@ export default function AdminUsers() {
     try {
       const data = await callEdge<UserWithRole[]>("list-users");
       setUsers(data);
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao carregar usuários");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao carregar usuários"));
     }
     setLoading(false);
   }
@@ -319,8 +319,8 @@ export default function AdminUsers() {
         toast.success(`${targetUser.responsible_name || targetUser.email} agora é admin`);
       }
       await fetchUsers();
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao alterar papel");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao alterar papel"));
     }
     setToggling(null);
   }
@@ -362,8 +362,8 @@ export default function AdminUsers() {
         toast.success(`${targetUser.responsible_name || targetUser.email} agora é Admin Master`);
       }
       await fetchUsers();
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao alterar Master");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao alterar Master"));
     }
     setTogglingMaster(null);
   }
@@ -378,8 +378,8 @@ export default function AdminUsers() {
       await callEdge("delete-user", { user_id: targetUser.id });
       toast.success(`Usuário ${targetUser.responsible_name || "removido"} excluído com sucesso`);
       await fetchUsers();
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao excluir usuário");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao excluir usuário"));
     }
     setDeleting(null);
   }
@@ -411,8 +411,8 @@ export default function AdminUsers() {
         message,
       });
       toast.success("Senha temporária gerada");
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao resetar senha");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao resetar senha"));
     }
     setResetting(null);
   }

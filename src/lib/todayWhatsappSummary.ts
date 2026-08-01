@@ -1,4 +1,20 @@
-import type { Submission } from "@/components/events-admin/types";
+/**
+ * Formato mínimo que os resumos precisam de um evento. Estrutural de propósito:
+ * serve tanto para `Submission` quanto para linhas cruas do backend.
+ */
+export interface SummaryEvent {
+  status?: string | null;
+  date?: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
+  event_title?: string | null;
+  atrativo_name?: string | null;
+  location?: string | null;
+  estabelecimento_name?: string | null;
+  address_street?: string | null;
+  address_number?: string | null;
+  address_neighborhood?: string | null;
+}
 
 function todayISO(): string {
   const d = new Date();
@@ -13,7 +29,7 @@ function formatTime(t?: string | null): string {
   return `${h}h`;
 }
 
-function shortAddress(s: any): string {
+function shortAddress(s: SummaryEvent): string {
   const parts = [s.address_street, s.address_number].filter(Boolean).join(", ");
   const bairro = s.address_neighborhood;
   return [parts, bairro].filter(Boolean).join(" - ");
@@ -35,7 +51,7 @@ function formatDayLabel(iso: string): { weekday: string; date: string } {
   return { weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1), date };
 }
 
-function formatEventBlock(s: any): string {
+function formatEventBlock(s: SummaryEvent): string {
   const nome = s.atrativo_name || s.event_title;
   const local = s.location || s.estabelecimento_name || "";
   const bairro = s.address_neighborhood || "";
@@ -57,7 +73,7 @@ function formatEventBlock(s: any): string {
  *   👉 <LOCAL> – <ENDEREÇO>
  *   🕒 <HORÁRIO>
  */
-export function buildTodayWhatsAppSummary(submissions: any[]): {
+export function buildTodayWhatsAppSummary(submissions: SummaryEvent[]): {
   text: string;
   count: number;
 } {
@@ -98,7 +114,7 @@ export function openWhatsAppWithText(text: string) {
 /**
  * Monta o resumo da semana (hoje até +6 dias) agrupado por dia.
  */
-export function buildWeekWhatsAppSummary(submissions: any[]): {
+export function buildWeekWhatsAppSummary(submissions: SummaryEvent[]): {
   text: string;
   count: number;
 } {
@@ -115,11 +131,11 @@ export function buildWeekWhatsAppSummary(submissions: any[]): {
 
   if (items.length === 0) return { text: "", count: 0 };
 
-  const byDay = new Map<string, any[]>();
+  const byDay = new Map<string, SummaryEvent[]>();
   for (const s of items) {
-    const arr = byDay.get(s.date) || [];
+    const arr = byDay.get(s.date!) || [];
     arr.push(s);
-    byDay.set(s.date, arr);
+    byDay.set(s.date!, arr);
   }
 
   const header =

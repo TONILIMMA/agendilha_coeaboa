@@ -44,14 +44,14 @@ export function useDivulgadorStatus() {
           .maybeSingle(),
       ]);
 
-      const userType = ((profileRes.data as any)?.user_type ?? "").toLowerCase();
-      const isAdmin = !!rolesRes.data?.some((r: any) => r.role === "admin" || r.role === "master");
+      const userType = ((profileRes.data as { user_type?: string | null } | null)?.user_type ?? "").toLowerCase();
+      const isAdmin = !!rolesRes.data?.some((r: { role: string }) => r.role === "admin" || r.role === "master");
       const isDivulgador = isAdmin || userType === "divulgador" || userType === "promotor";
 
       return {
         isAdmin,
         isDivulgador,
-        profile: profileRes.data as any,
+        profile: profileRes.data ?? null,
         request: (requestRes.data as DivulgadorRequest | null) ?? null,
       };
     },

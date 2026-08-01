@@ -17,18 +17,28 @@ export interface SubmissionsFilters {
   limit?: number;
 }
 
-function applyFilters(query: any, f: SubmissionsFilters) {
-  if (f.eq) for (const [k, v] of Object.entries(f.eq)) query = query.eq(k, v as any);
-  if (f.neq) for (const [k, v] of Object.entries(f.neq)) query = query.neq(k, v as any);
-  if (f.in) for (const [k, v] of Object.entries(f.in)) query = query.in(k, v as any);
+/** Encadeia filtros num query builder do PostgREST sem depender dos genéricos internos. */
+type FilterableQuery = {
+  eq: (column: string, value: unknown) => FilterableQuery;
+  neq: (column: string, value: unknown) => FilterableQuery;
+  in: (column: string, values: readonly unknown[]) => FilterableQuery;
+  order: (column: string, opts: { ascending: boolean }) => FilterableQuery;
+  limit: (count: number) => FilterableQuery;
+};
+
+function applyFilters<Q>(builder: Q, f: SubmissionsFilters): Q {
+  let query = builder as unknown as FilterableQuery;
+  if (f.eq) for (const [k, v] of Object.entries(f.eq)) query = query.eq(k, v);
+  if (f.neq) for (const [k, v] of Object.entries(f.neq)) query = query.neq(k, v);
+  if (f.in) for (const [k, v] of Object.entries(f.in)) query = query.in(k, v);
   const order = f.orderBy ?? { column: "created_at", ascending: false };
   query = query.order(order.column, { ascending: !!order.ascending });
   if (f.limit) query = query.limit(f.limit);
-  return query;
+  return query as unknown as Q;
 }
 
 /** Lista submissions com filtros declarativos e cache compartilhado. */
-export function useSubmissions<T = any>(
+export function useSubmissions<T = unknown>(
   filters: SubmissionsFilters = {},
   options: { enabled?: boolean; staleTime?: number } = {}
 ) {
@@ -68,7 +78,7 @@ export function useSubmissionsCount(
 }
 
 /** Busca uma submission por id. */
-export function useSubmission<T = any>(
+export function useSubmission<T = unknown>(
   id: string | null | undefined,
   select = "*"
 ) {
@@ -107,7 +117,7 @@ export function useUpdateSubmission() {
     }) => {
       const { error } = await supabase
         .from("submissions")
-        .update(patch as any)
+        .update(patch as never)
         .eq("id", id);
       if (error) throw error;
     },

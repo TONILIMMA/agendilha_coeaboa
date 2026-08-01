@@ -33,4 +33,11 @@ export default tseslint.config(
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
   },
+  // Camadas base já 100% tipadas: qualquer `any` novo aqui quebra o lint.
+  {
+    files: ["src/data/**/*.{ts,tsx}", "src/lib/**/*.{ts,tsx}", "src/hooks/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "error",
+    },
+  },
 );

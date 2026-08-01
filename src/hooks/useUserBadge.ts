@@ -6,6 +6,13 @@ import { useProfile } from "@/hooks/useProfile";
 
   export type UserStatus = "master" | "admin" | "collaborator" | "artist" | "user" | null;
 
+/** Campos que gravamos em user_metadata no cadastro/login. */
+interface UserMetadata {
+  full_name?: string;
+  name?: string;
+  phone?: string;
+}
+
 export interface UserBadge {
   name: string;
   initials: string;
@@ -72,7 +79,8 @@ export function useUserBadge(): UserBadge {
         }
 
         // Auto-populate profile.responsible_name from user_metadata
-        const metaName = (user.user_metadata as any)?.full_name || (user.user_metadata as any)?.name || "";
+        const meta = user.user_metadata as UserMetadata | undefined;
+        const metaName = meta?.full_name || meta?.name || "";
         if (metaName && profileLoaded) {
           if (profile && !profile.responsible_name) {
             await supabase
@@ -96,13 +104,9 @@ export function useUserBadge(): UserBadge {
   // Priority: profile name → company → collaborator name → user metadata → email/phone
   const emailLocal = user?.email?.split("@")[0] || "";
   const isPhonePlaceholder = user?.email?.endsWith("@phone.agendilha.app");
-  const metaName =
-    (user?.user_metadata as any)?.full_name ||
-    (user?.user_metadata as any)?.name ||
-    "";
-  const fallback = isPhonePlaceholder
-    ? ((user?.user_metadata as any)?.phone || emailLocal)
-    : emailLocal;
+  const meta = user?.user_metadata as UserMetadata | undefined;
+  const metaName = meta?.full_name || meta?.name || "";
+  const fallback = isPhonePlaceholder ? meta?.phone || emailLocal : emailLocal;
   const name =
     profile.responsible_name ||
     profile.company_name ||
