@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { handleError } from "@/lib/error-handler";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
@@ -75,7 +76,7 @@ export default function AdminAuditLogs() {
         actor_name: (log.actor as any)?.responsible_name || 'Sistema/Removido'
       })));
     } catch (error) {
-      console.error("Error fetching logs:", error);
+      handleError(error, { context: "AdminAuditLogs.fetch", fallback: "Não deu pra carregar o histórico. Tenta de novo." });
     } finally {
       setLoading(false);
     }
