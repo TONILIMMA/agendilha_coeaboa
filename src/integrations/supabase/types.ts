@@ -995,6 +995,7 @@ export type Database = {
           is_flagged: boolean | null
           rating: number
           status: string | null
+          user_id: string | null
           user_name: string | null
         }
         Insert: {
@@ -1005,6 +1006,7 @@ export type Database = {
           is_flagged?: boolean | null
           rating: number
           status?: string | null
+          user_id?: string | null
           user_name?: string | null
         }
         Update: {
@@ -1015,6 +1017,7 @@ export type Database = {
           is_flagged?: boolean | null
           rating?: number
           status?: string | null
+          user_id?: string | null
           user_name?: string | null
         }
         Relationships: [
@@ -2438,6 +2441,7 @@ export type Database = {
       is_admin_or_master: { Args: { p_user_id: string }; Returns: boolean }
       is_master: { Args: { _user_id: string }; Returns: boolean }
       is_promotor: { Args: { _user_id: string }; Returns: boolean }
+      owns_artist_media_path: { Args: { _name: string }; Returns: boolean }
       report_event: {
         Args: {
           report_description?: string

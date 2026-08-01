@@ -5,6 +5,8 @@ import { Star, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { useEventReviews, useCreateEventReview } from "@/data/useEventReviews";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface EventReviewsProps {
@@ -16,12 +18,16 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
   const { data: reviews = [], isLoading: loading } = useEventReviews(eventId);
   const createReview = useCreateEventReview(eventId);
   const submitting = createReview.isPending;
+  const { user } = useAuth();
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState("");
-  const [userName, setUserName] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!user) {
+      toast.error("Entra na tua conta pra avaliar o rolê.");
+      return;
+    }
     if (!newComment.trim()) {
       toast.error("Escreve um comentário rapidinho pra gente publicar.");
       return;
@@ -31,11 +37,9 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
       await createReview.mutateAsync({
         rating: newRating,
         comment: newComment.trim(),
-        user_name: userName.trim() || "Anônimo",
       });
       toast.success("Avaliação publicada. Valeu!");
       setNewComment("");
-      setUserName("");
       setNewRating(5);
     } catch (err) {
       handleError(err, { context: "EventReviews.submit", fallback: "Não deu pra enviar tua avaliação. Tenta de novo." });
@@ -92,6 +96,16 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
         )}
       </div>
 
+      {!user ? (
+        <div className="bg-card border border-border/60 p-6 rounded-3xl shadow-sm text-center space-y-3">
+          <p className="text-sm font-medium text-foreground">
+            Pra avaliar esse rolê é só entrar na tua conta — assim a gente sabe quem falou.
+          </p>
+          <Button asChild className="rounded-full h-11 px-6 font-black uppercase tracking-widest gradient-sunset text-white">
+            <Link to="/auth">Entrar pra avaliar</Link>
+          </Button>
+        </div>
+      ) : (
       <form onSubmit={handleSubmit} className="bg-card border border-border/60 p-6 rounded-3xl shadow-sm space-y-4">
         <div className="space-y-2">
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Sua nota:</p>
@@ -115,12 +129,6 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
         </div>
 
         <div className="space-y-2">
-          <input
-            placeholder="Seu nome (opcional)"
-            className="w-full bg-muted/50 border-none rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-          />
           <Textarea
             placeholder="O que você achou deste evento?"
             className="min-h-[100px] bg-muted/50 border-none rounded-2xl resize-none focus-visible:ring-2 focus-visible:ring-primary/20 p-4"
@@ -137,6 +145,7 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
           {submitting ? "Enviando..." : "Publicar Avaliação"}
         </Button>
       </form>
+      )}
     </div>
   );
 }
