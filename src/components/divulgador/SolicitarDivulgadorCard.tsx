@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Megaphone, Clock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDivulgadorStatus } from "@/hooks/useDivulgadorStatus";
+import { useCreateDivulgadorRequest } from "@/data/useDivulgadorRequest";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +24,8 @@ export function SolicitarDivulgadorCard({ compact = false }: { compact?: boolean
   const { user } = useAuth();
   const { loading, isDivulgador, profile, request, refresh } = useDivulgadorStatus();
   const [open, setOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const createRequest = useCreateDivulgadorRequest();
+  const saving = createRequest.isPending;
   const [nome, setNome] = useState("");
   const [whats, setWhats] = useState("");
   const [tipo, setTipo] = useState("");
@@ -46,19 +47,17 @@ export function SolicitarDivulgadorCard({ compact = false }: { compact?: boolean
     if (!validateBrazilianMobile(whats)) return toast.error("Confere o WhatsApp — precisa de DDD e número.");
     if (motivo.trim().length < 10) return toast.error("Conta rapidinho o que você quer divulgar.");
 
-    setSaving(true);
-    const { error } = await supabase.from("divulgador_requests").insert({
-      user_id: user.id,
-      nome: nome.trim(),
-      whatsapp: whats.replace(/\D/g, ""),
-      tipo_divulgador: tipo || null,
-      motivo: motivo.trim(),
-    });
-    setSaving(false);
-
-    if (error) {
+    try {
+      await createRequest.mutateAsync({
+        userId: user.id,
+        nome: nome.trim(),
+        whatsapp: whats.replace(/\D/g, ""),
+        tipo_divulgador: tipo || null,
+        motivo: motivo.trim(),
+      });
+    } catch (error: any) {
       toast.error(
-        error.code === "23505"
+        error?.code === "23505"
           ? "Você já tem um pedido em análise. Segura aí que a gente responde."
           : "Não rolou enviar agora. Tenta de novo em instantes."
       );

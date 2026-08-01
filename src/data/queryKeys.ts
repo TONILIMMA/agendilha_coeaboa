@@ -47,4 +47,28 @@ export const qk = {
     all: ["collaborators"] as const,
     list: () => [...qk.collaborators.all, "list"] as const,
   },
+  reviews: {
+    all: ["event-reviews"] as const,
+    byEvent: (eventId: string | null | undefined) =>
+      [...qk.reviews.all, "byEvent", eventId ?? "none"] as const,
+  },
+  userDetails: {
+    all: ["user-details"] as const,
+    byId: (userId: string | null | undefined) =>
+      [...qk.userDetails.all, "byId", userId ?? "none"] as const,
+  },
+  profileOptions: {
+    all: ["profile-options"] as const,
+    list: () => [...qk.profileOptions.all, "list"] as const,
+  },
+  artistMedia: {
+    all: ["artist-media"] as const,
+    byArtist: (artistId: string | null | undefined) =>
+      [...qk.artistMedia.all, "byArtist", artistId ?? "none"] as const,
+  },
+  divulgador: {
+    all: ["divulgador"] as const,
+    status: (userId: string | null | undefined) =>
+      [...qk.divulgador.all, "status", userId ?? "anon"] as const,
+  },
 } as const;

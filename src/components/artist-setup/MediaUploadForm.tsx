@@ -11,10 +11,15 @@ import {
   Play,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useArtistMedia,
+  useUploadArtistMedia,
+  useDeleteArtistMedia,
+  useReorderArtistMedia,
+  type ArtistMediaRow,
+} from "@/data/useArtistMedia";
 import {
   compressImage,
   inspectVideo,
@@ -27,41 +32,24 @@ interface MediaUploadFormProps {
   onMediaUploaded?: () => void;
 }
 
-interface MediaRow {
-  id: string;
-  url: string;
-  media_type: string | null;
-  display_order: number;
-  thumbnail_url: string | null;
-}
+type MediaRow = ArtistMediaRow;
 
 const MAX_IMAGE_MB = 15;
 const MAX_VIDEO_MB = 40;
 const MAX_VIDEO_SEC = 60;
 
 export function MediaUploadForm({ artistId, onMediaUploaded }: MediaUploadFormProps) {
-  const [uploading, setUploading] = useState(false);
   const [previews, setPreviews] = useState<CompressedFile[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [reordering, setReordering] = useState<string | null>(null);
   const [items, setItems] = useState<MediaRow[]>([]);
   const dragIndex = useRef<number | null>(null);
-  const qc = useQueryClient();
 
-  const { data: existing = [], refetch } = useQuery({
-    queryKey: ["artist-media-manage", artistId],
-    enabled: !!artistId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("artist_media")
-        .select("id, url, media_type, display_order, thumbnail_url")
-        .eq("artist_id", artistId!)
-        .order("display_order", { ascending: true })
-        .order("created_at", { ascending: true });
-      if (error) throw error;
-      return (data || []) as MediaRow[];
-    },
-  });
+  const { data: existing = [] } = useArtistMedia(artistId);
+  const upload = useUploadArtistMedia(artistId);
+  const removeMedia = useDeleteArtistMedia(artistId);
+  const reorderMedia = useReorderArtistMedia(artistId);
+  const uploading = upload.isPending;
 
   useEffect(() => {
     setItems(existing);
@@ -147,77 +135,39 @@ export function MediaUploadForm({ artistId, onMediaUploaded }: MediaUploadFormPr
 
   const uploadMedia = async () => {
     if (!artistId || previews.length === 0) return;
-    setUploading(true);
     try {
       const baseOrder = items.length;
-      for (let i = 0; i < previews.length; i++) {
-        const item = previews[i];
-        const ext = item.file.name.split(".").pop() || (item.type === "image" ? "jpg" : "mp4");
-        const filePath = `${artistId}/${crypto.randomUUID()}.${ext}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("artist-media")
-          .upload(filePath, item.file, {
-            contentType: item.file.type || undefined,
-            upsert: false,
-          });
-        if (uploadError) throw uploadError;
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("artist-media").getPublicUrl(filePath);
-
-        const { error: insertErr } = await supabase.from("artist_media").insert({
-          artist_id: artistId,
-          url: publicUrl,
-          media_type: item.type,
-          display_order: baseOrder + i,
-        });
-        if (insertErr) throw insertErr;
-      }
+      await upload.mutateAsync(
+        previews.map((item, i) => ({
+          file: item.file,
+          type: item.type,
+          displayOrder: baseOrder + i,
+        })),
+      );
       toast.success("Mídias enviadas!");
       previews.forEach((p) => URL.revokeObjectURL(p.preview));
       setPreviews([]);
-      await refetch();
-      qc.invalidateQueries({ queryKey: ["artist", artistId] });
       onMediaUploaded?.();
     } catch (error: any) {
       handleError(error, { context: "MediaUploadForm.upload", fallback: "Não deu pra enviar. Tenta de novo em instantes." });
-    } finally {
-      setUploading(false);
     }
   };
 
   const removeExisting = async (media: MediaRow) => {
     if (!confirm("Remover essa mídia da galeria?")) return;
     try {
-      // tenta apagar do storage também
-      const match = media.url.match(/artist-media\/(.+)$/);
-      if (match?.[1]) {
-        await supabase.storage.from("artist-media").remove([match[1]]);
-      }
-      const { error } = await supabase.from("artist_media").delete().eq("id", media.id);
-      if (error) throw error;
+      await removeMedia.mutateAsync(media);
       toast.success("Mídia removida.");
-      await refetch();
-      qc.invalidateQueries({ queryKey: ["artist", artistId] });
     } catch (e: any) {
-      toast.error("Não deu pra remover", { description: e?.message });
+      handleError(e, { context: "MediaUploadForm.remove", fallback: "Não deu pra remover essa mídia." });
     }
   };
 
   const persistOrder = async (list: MediaRow[]) => {
     try {
-      // Atualiza um por um (poucos itens; simples e seguro com RLS)
-      await Promise.all(
-        list.map((m, idx) =>
-          supabase.from("artist_media").update({ display_order: idx }).eq("id", m.id)
-        )
-      );
-      qc.invalidateQueries({ queryKey: ["artist", artistId] });
+      await reorderMedia.mutateAsync(list);
     } catch (e: any) {
-      toast.error("Não deu pra salvar a ordem", { description: e?.message });
-      refetch();
+      handleError(e, { context: "MediaUploadForm.reorder", fallback: "Não deu pra salvar a ordem. Tenta de novo." });
     }
   };
 

@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppPermissions as usePermissions } from "@/hooks/usePermissions";
 import { Navigate } from "react-router-dom";
@@ -26,6 +25,7 @@ import {
   type Collaborator,
 } from "@/data/useCollaborators";
 import { handleError } from "@/lib/error-handler";
+import { useProfileOptions } from "@/data/useUserDetails";
 
 const emptyForm = {
   name: "",
@@ -51,22 +51,7 @@ export default function AdminCollaborators() {
   const [form, setForm] = useState(emptyForm);
   const saving = upsert.isPending;
 
-  const [availableUsers, setAvailableUsers] = useState<{ id: string; phone: string; name: string }[]>([]);
-
-  async function fetchUsers() {
-    const { data } = await supabase.from("profiles").select("user_id, responsible_name, phone");
-    if (data) {
-      setAvailableUsers(data.map(u => ({
-        id: u.user_id,
-        phone: u.phone || "",
-        name: u.responsible_name || "Sem nome",
-      })));
-    }
-  }
-
-  useEffect(() => {
-    if (hasAccess) fetchUsers();
-  }, [hasAccess]);
+  const { data: availableUsers = [] } = useProfileOptions(hasAccess);
 
   function openNewDialog() {
     setEditingId(null);

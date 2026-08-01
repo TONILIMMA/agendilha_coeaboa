@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { qk } from "@/data/queryKeys";
 
 export type DivulgadorRequestStatus = "pendente" | "aprovado" | "recusado";
 
@@ -27,7 +28,7 @@ export function useDivulgadorStatus() {
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["divulgador-status", userId],
+    queryKey: qk.divulgador.status(userId),
     enabled: !!userId,
     staleTime: 60_000,
     queryFn: async () => {
@@ -62,6 +63,6 @@ export function useDivulgadorStatus() {
     isDivulgador: data?.isDivulgador ?? false,
     profile: data?.profile ?? null,
     request: data?.request ?? null,
-    refresh: () => qc.invalidateQueries({ queryKey: ["divulgador-status", userId] }),
+    refresh: () => qc.invalidateQueries({ queryKey: qk.divulgador.status(userId) }),
   };
 }

@@ -6,3 +6,7 @@ export * from "./useSubmissions";
 export * from "./useEstabelecimentos";
 export * from "./useAtrativos";
 export * from "./useCollaborators";
+export * from "./useEventReviews";
+export * from "./useUserDetails";
+export * from "./useArtistMedia";
+export * from "./useDivulgadorRequest";
