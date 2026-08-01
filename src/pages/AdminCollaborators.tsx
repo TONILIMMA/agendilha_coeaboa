@@ -25,6 +25,7 @@ import {
   type Collaborator,
 } from "@/data/useCollaborators";
 import { handleError } from "@/lib/error-handler";
+import { useProfileOptions } from "@/data/useUserDetails";
 
 const emptyForm = {
   name: "",

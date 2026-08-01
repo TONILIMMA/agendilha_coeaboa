@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -9,7 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { useUserDetails, useSaveUserPermissions } from "@/data/useUserDetails";
+import { handleError } from "@/lib/error-handler";
 import { formatPhoneDisplay } from "@/lib/whatsapp";
 import { formatBrazilianDate } from "@/lib/date-utils";
 import {
@@ -46,36 +46,13 @@ const TYPE_LABELS: Record<string, string> = {
 export function UserDetailsDialog({ user, open, onOpenChange, canManage = true }: Props) {
   const userId = user?.id;
 
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ["user-details", userId],
-    enabled: open && !!userId,
-    queryFn: async () => {
-      const [events, roles, collab] = await Promise.all([
-        supabase
-          .from("submissions")
-          .select("id, event_title, date, status")
-          .eq("user_id", userId!)
-          .order("date", { ascending: false })
-          .limit(30),
-        supabase.from("user_roles").select("role").eq("user_id", userId!),
-        supabase
-          .from("collaborators")
-          .select("can_submit, can_approve, can_edit, can_delete, is_active, role_title")
-          .eq("user_id", userId!)
-          .maybeSingle(),
-      ]);
-      return {
-        events: events.data ?? [],
-        roles: (roles.data ?? []).map((r: any) => String(r.role)),
-        collab: collab.data as any,
-      };
-    },
-  });
+  const { data, isLoading } = useUserDetails(userId, open);
+  const savePermissions = useSaveUserPermissions();
 
   const [perms, setPerms] = useState<Record<PermKey, boolean>>({
     can_submit: false, can_approve: false, can_edit: false, can_delete: false,
   });
-  const [saving, setSaving] = useState(false);
+  const saving = savePermissions.isPending;
 
   useEffect(() => {
     const c = data?.collab;
@@ -93,26 +70,20 @@ export function UserDetailsDialog({ user, open, onOpenChange, canManage = true }
 
   async function savePerms() {
     if (!userId) return;
-    setSaving(true);
-    const { error } = await supabase
-      .from("collaborators")
-      .upsert(
-        {
-          user_id: userId,
-          name: user?.responsible_name ?? null,
-          email: user?.email ?? null,
-          is_active: true,
-          ...perms,
-        } as any,
-        { onConflict: "user_id" }
-      );
-    setSaving(false);
-    if (error) {
-      toast.error("Não rolou salvar as permissões", { description: error.message });
-      return;
+    try {
+      await savePermissions.mutateAsync({
+        userId,
+        name: user?.responsible_name ?? null,
+        email: user?.email ?? null,
+        ...perms,
+      });
+      toast.success("Permissões atualizadas");
+    } catch (e) {
+      handleError(e, {
+        context: "UserDetailsDialog.savePerms",
+        fallback: "Não rolou salvar as permissões. Tenta de novo.",
+      });
     }
-    toast.success("Permissões atualizadas");
-    refetch();
   }
 
   if (!user) return null;
