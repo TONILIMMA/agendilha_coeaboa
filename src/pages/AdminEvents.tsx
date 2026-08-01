@@ -142,49 +142,6 @@ function AdminEventsInner() {
     setDeleteConfirmId(null);
   }
 
-  async function handleStatusChange(id: string, newStatus: string) {
-    const updateData: any = { 
-      status: newStatus,
-      additional_details: `Status alterado por ${user?.email} para ${newStatus}`
-    };
-
-    if (newStatus === 'aprovado') {
-      updateData.approved_at = new Date().toISOString();
-      updateData.approved_by = user?.id;
-      updateData.rejected_at = null;
-      updateData.rejected_by = null;
-    } else if (newStatus === 'rejeitado') {
-      updateData.rejected_at = new Date().toISOString();
-      updateData.rejected_by = user?.id;
-    }
-
-    // Antes de aprovar/publicar, garante os campos mínimos.
-    if (newStatus === 'aprovado' || newStatus === 'publicado') {
-      const sub = submissions.find((s) => s.id === id);
-      const missing = missingPublishFields(sub);
-      if (missing.length) {
-        const action = newStatus === 'publicado' ? 'publicar' : 'aprovar';
-        setPublishBlock({ eventTitle: sub?.event_title, action, missing });
-        toast.error(`Não dá pra ${action}: falta ${missing.join(', ')}.`);
-        return;
-      }
-    }
-
-    const { error } = await supabase.from("submissions").update(updateData).eq("id", id);
-
-    if (error) {
-      handleError(error, "Erro ao atualizar status");
-    } else {
-      toast.success(`Status atualizado para ${newStatus}`);
-      if (newStatus === 'aprovado') {
-        const sub = submissions.find((s) => s.id === id);
-        // Só oferece flyer genérico quando o promotor NÃO mandou arte própria.
-        if (sub && shouldOfferGenericFlyer(sub)) setFlyerOffer(sub);
-      }
-      fetchAll(); // Refresh to get generated slugs/copies
-    }
-  }
-
   function openReview(sub: Submission, kind: "approved" | "rejected") {
     const template = templates[kind];
     if (!template) {
