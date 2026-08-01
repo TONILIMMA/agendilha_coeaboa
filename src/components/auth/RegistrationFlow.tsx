@@ -78,7 +78,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
     musicalInterests: [] as string[],
     eventTypeInterests: [] as string[],
     // Promoter specific
-    promoterType: "divulgador" as "divulgador",
+    promoterType: "divulgador" as const,
     socialInstagram: "",
     socialFacebook: "",
     coverageArea: [] as string[],

@@ -127,14 +127,21 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
 
   useEffect(() => {
     const updateCount = () => {
-      const saved = localStorage.getItem("agendilha_favorites");
-      if (saved) {
-        setFavoritesCount(JSON.parse(saved).length);
+      try {
+        const saved = localStorage.getItem("agendilha_favorites");
+        const parsed = saved ? JSON.parse(saved) : [];
+        setFavoritesCount(Array.isArray(parsed) ? parsed.length : 0);
+      } catch {
+        setFavoritesCount(0);
       }
     };
     updateCount();
     window.addEventListener("storage", updateCount);
-    return () => window.removeEventListener("storage", updateCount);
+    window.addEventListener("agendilha:favorites", updateCount);
+    return () => {
+      window.removeEventListener("storage", updateCount);
+      window.removeEventListener("agendilha:favorites", updateCount);
+    };
   }, []);
    const { user, signOut, isAdmin } = useAuth();
    const { theme, toggleTheme } = useTheme();
@@ -210,13 +217,7 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                      <Button
                        size="sm"
                        aria-label="Divulgar evento — cadastro de divulgador"
-                       onClick={() => {
-                         if (true) {
-                           irParaDivulgar();
-                         } else {
-                           navigate("/auth?redirect=/enviar-evento");
-                         }
-                       }}
+                       onClick={irParaDivulgar}
                        className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold tracking-tight px-5 h-10 shadow-none transition-transform active:scale-95"
                      >
                        Divulgar evento
@@ -289,17 +290,11 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
 
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <UpdateAppButton compact />
-              {(isAdmin || perms.isCollaborator) && (
+              {(isAdmin || isDivulgador || perms.isCollaborator) && (
                 <Button 
                   size="sm" 
                   variant="outline"
-                  onClick={() => {
-                    if (true) {
-                      irParaDivulgar();
-                    } else {
-                      navigate("/auth?redirect=/enviar-evento");
-                    }
-                  }}
+                  onClick={irParaDivulgar}
                   className="hidden sm:inline-flex rounded-full text-xs font-semibold tracking-tight border border-foreground/15 text-foreground hover:bg-foreground/5 bg-transparent shadow-none px-5 h-9 sm:h-10 active:scale-95"
                 >
                   Divulgar evento

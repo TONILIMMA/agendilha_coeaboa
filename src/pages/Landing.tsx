@@ -143,8 +143,13 @@ export default function Landing() {
      }
    }, [loadMoreInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
   const [favorites, setFavorites] = useState<string[]>(() => {
-    const saved = localStorage.getItem("agendilha_favorites");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem("agendilha_favorites");
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   });
   const [subscriberPhone, setSubscriberPhone] = useState("");
   const [subscriberName, setSubscriberName] = useState("");
@@ -158,7 +163,12 @@ export default function Landing() {
     setFavorites(prev => {
       const isFav = prev.includes(id);
       const next = isFav ? prev.filter(f => f !== id) : [...prev, id];
-      localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+      try {
+        localStorage.setItem("agendilha_favorites", JSON.stringify(next));
+        window.dispatchEvent(new Event("agendilha:favorites"));
+      } catch {
+        // storage cheio ou bloqueado: segue só com o estado em memória
+      }
       return next;
     });
   };

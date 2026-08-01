@@ -1,5 +1,6 @@
 import { render, screen, cleanup } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SidebarMenu } from "../SidebarMenu";
 import { BrowserRouter } from "react-router-dom";
 import * as useAppPermissionsModule from "@/hooks/useAppPermissions";
@@ -43,10 +44,15 @@ vi.mock("@/routes/config", () => ({
 }));
 
 const renderSidebar = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   return render(
-    <BrowserRouter>
-      <SidebarMenu />
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <SidebarMenu />
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 };
 
@@ -82,7 +88,8 @@ describe("SidebarMenu", () => {
     
     // Explorar items
     expect(screen.getByText("Eventos")).toBeDefined();
-    expect(screen.getByText("Artistas Locais")).toBeDefined();
+    // "Atrativos" é só de Divulgador/Admin — usuário comum não vê
+    expect(screen.queryByText("Atrativos")).toBeNull();
     
     // Admin items should NOT be visible
     expect(screen.queryByText("Painel Master")).toBeNull();

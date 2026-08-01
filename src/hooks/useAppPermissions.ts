@@ -51,6 +51,8 @@ export type PermissionName =
   | 'roles.manage'
   | 'audit_logs.read';
 
+const PROMOTER_ALIASES = ["promoter", "promotor", "divulgador"];
+
 /**
  * Pura: dado o resultado das 3 queries (roles, colaborador, profile),
  * devolve o conjunto final de roles e permissões. Extraído para testes.
@@ -77,10 +79,14 @@ export function computePermissions(input: {
     });
   }
 
-  if (input.profileRole && !roleNames.includes(input.profileRole)) {
-    roleNames.push(input.profileRole);
+  // Normaliza os apelidos legados ("promotor"/"divulgador") para "promoter",
+  // senão quem é Divulgador ficava sem permissão de criar evento.
+  const profileRole = (input.profileRole ?? "").toLowerCase();
+  const normalizedRole = PROMOTER_ALIASES.includes(profileRole) ? "promoter" : profileRole;
+  if (normalizedRole && !roleNames.includes(normalizedRole)) {
+    roleNames.push(normalizedRole);
   }
-  if (input.profileRole === "promoter") {
+  if (normalizedRole === "promoter") {
     permissions.add("events.create");
   }
 
@@ -107,16 +113,23 @@ export function useAppPermissions() {
           .select("can_submit, can_approve, can_edit, can_delete, is_active")
           .eq("user_id", userId!)
           .maybeSingle(),
-        supabase.from("profiles").select("role").eq("user_id", userId!).maybeSingle(),
+        supabase.from("profiles").select("role, user_type").eq("user_id", userId!).maybeSingle(),
       ]);
 
       if (rolesResponse.error) handleError(rolesResponse.error, "Erro ao carregar permissões");
 
       const roleNames: string[] = rolesResponse.data?.map((r) => r.role).filter(Boolean) || [];
+      const profileData = profileResponse.data as { role?: string | null; user_type?: string | null } | null;
+      // `role` é a fonte principal; `user_type` cobre perfis antigos sem `role`.
+      const profileRole =
+        profileData?.role ??
+        (PROMOTER_ALIASES.includes((profileData?.user_type ?? "").toLowerCase())
+          ? "promoter"
+          : null);
       return computePermissions({
         roleNames,
         collaborator: collaboratorResponse.data as CollaboratorPermissions | null,
-        profileRole: profileResponse.data?.role ?? null,
+        profileRole,
       });
     },
   });

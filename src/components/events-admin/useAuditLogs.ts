@@ -1,16 +1,16 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { AuditLogEntry } from "./types";
 
 export function useAuditLogs() {
   const [auditLogs, setAuditLogs] = useState<Record<string, AuditLogEntry[]>>({});
+  // Guarda quais eventos já foram buscados sem entrar no closure do callback,
+  // evitando refetch em loop e re-renders desnecessários.
+  const fetchedRef = useRef<Set<string>>(new Set());
 
   const fetchAuditLog = useCallback(async (eventId: string) => {
-    setAuditLogs(prev => {
-      if (prev[eventId]) return prev;
-      return prev;
-    });
-    if (auditLogs[eventId]) return;
+    if (fetchedRef.current.has(eventId)) return;
+    fetchedRef.current.add(eventId);
     const { data } = await supabase
       .from("event_audit_log")
       .select("action, created_at, user_id")
@@ -35,7 +35,7 @@ export function useAuditLogs() {
     } else {
       setAuditLogs(prev => ({ ...prev, [eventId]: [] }));
     }
-  }, [auditLogs]);
+  }, []);
 
   return { auditLogs, fetchAuditLog };
 }

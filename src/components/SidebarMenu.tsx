@@ -29,7 +29,7 @@ export function SidebarMenu({ onClose }: Props) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { name, initials, loaded: badgeLoaded } = useUserBadge();
-  const { isMaster, isAdmin, isPromoter, loading: permsLoading } = useAppPermissions();
+  const { isMaster, isAdmin, isPromoter } = useAppPermissions();
   const { savedCount } = useSubmissions();
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
   const { data: pendingCount = 0 } = useSubmissionsCount(
@@ -53,11 +53,6 @@ export function SidebarMenu({ onClose }: Props) {
     promoter: "Divulgador",
     admin: "Administrador",
     master: "Admin Master"
-  };
-
-  const isItemActive = (item: SidebarItem) => {
-    if (item.exact) return pathname === item.path;
-    return fullPath === item.path || pathname.startsWith(item.path);
   };
 
   const filterItemsByRoleAndRoute = (items: SidebarItem[]) => {
