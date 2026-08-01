@@ -5,6 +5,8 @@ import { Star, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { useEventReviews, useCreateEventReview } from "@/data/useEventReviews";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface EventReviewsProps {
@@ -16,12 +18,16 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
   const { data: reviews = [], isLoading: loading } = useEventReviews(eventId);
   const createReview = useCreateEventReview(eventId);
   const submitting = createReview.isPending;
+  const { user } = useAuth();
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState("");
-  const [userName, setUserName] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!user) {
+      toast.error("Entra na tua conta pra avaliar o rolê.");
+      return;
+    }
     if (!newComment.trim()) {
       toast.error("Escreve um comentário rapidinho pra gente publicar.");
       return;
@@ -31,11 +37,9 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
       await createReview.mutateAsync({
         rating: newRating,
         comment: newComment.trim(),
-        user_name: userName.trim() || "Anônimo",
       });
       toast.success("Avaliação publicada. Valeu!");
       setNewComment("");
-      setUserName("");
       setNewRating(5);
     } catch (err) {
       handleError(err, { context: "EventReviews.submit", fallback: "Não deu pra enviar tua avaliação. Tenta de novo." });
