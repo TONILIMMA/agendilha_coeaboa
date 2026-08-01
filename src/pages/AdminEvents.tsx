@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   CalendarDays, Loader2, MessageCircle, Trash2,
-  FileDown, MapPin, Clock, Building2,
-  CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp, ShieldAlert,
+  FileDown, MapPin, Clock,
+  CheckCircle, XCircle, ChevronDown, ShieldAlert,
   Phone, Mail, Globe, Star,
   RotateCcw, Edit, ExternalLink, Eye, History, Megaphone
 } from "lucide-react";
@@ -64,7 +64,6 @@ function AdminEventsInner() {
   const { user, loading: authLoading } = useAuth();
   const { hasPermission, loading: permsLoading } = useAppPermissions();
   const canRead = hasPermission('events.read');
-  const isAdmin = canRead;
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
