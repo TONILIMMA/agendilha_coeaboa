@@ -42,139 +42,23 @@ import { PublishBlockDialog, type PublishBlockInfo } from "@/components/events-a
 import { ChangeRequestsPanel } from "@/components/events-admin/ChangeRequestsPanel";
 
 
-interface Submission {
-  id: string;
-  created_at: string;
-  user_id: string;
-  company_name: string | null;
-  responsible_name: string | null;
-  email: string | null;
-  phone: string | null;
-  event_title: string;
-  date: string | null;
-  start_time: string | null;
-  end_time: string | null;
-  location: string | null;
-  address_street: string | null;
-  address_number: string | null;
-  address_neighborhood: string | null;
-  address_city: string | null;
-  address_state: string | null;
-  address_zip: string | null;
-  description: string | null;
-  video_link: string | null;
-  category: string | null;
-  promotion_type: string | null;
-  target_audience: string | null;
-  promotion_rules: string | null;
-  contact_social: string | null;
-  additional_details: string | null;
-  status: string;
-  is_highlight?: boolean;
-  views_count?: number;
-  shares_count?: number;
-  age_rating?: string;
-  is_suitable_for_minors?: boolean;
-  report_count?: number;
-  moderation_status?: string;
-  slug?: string;
-  short_copy?: string;
-  long_copy?: string;
-  approved_at?: string;
-  published_at?: string;
-  image_url?: string | null;
-}
+import {
+  type AdminSubmission as Submission,
+  categoryLabels,
+  statusConfig,
+  formatSubmissionDate,
+  formatEventDate,
+  buildWhatsAppMessage,
+  buildApprovalMessage,
+  buildRejectionMessage,
+  buildTemplateVars,
+  computeKpis,
+  filterSubmissions,
+} from "@/components/events-admin/adminEventsHelpers";
+import { AdminEventsToolbar } from "@/components/events-admin/AdminEventsToolbar";
+import { AdminEventsKpis } from "@/components/events-admin/AdminEventsKpis";
+import { AdminEventsFilters } from "@/components/events-admin/AdminEventsFilters";
 
- const categoryLabels: Record<string, string> = {
-   musica: "Música / Show",
-   gastronomia: "Gastronomia",
-   cultura: "Cultura / Arte",
-   esporte: "Esporte",
-   promocoes: "Promoções / Ofertas",
-   outros: "Outros",
- };
- 
-     const statusConfig: Record<string, { label: string; color: string; icon: any; bg: string; border: string }> = {
-       pendente:  { label: "Pendente",  color: "text-amber-700",   bg: "bg-amber-100",   border: "border-amber-200",   icon: Clock3 },
-       aprovado:  { label: "Aprovado",  color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
-       rejeitado: { label: "Rejeitado", color: "text-rose-700",    bg: "bg-rose-100",    border: "border-rose-200",    icon: XCircle },
-     };
- 
- function formatSubmissionDate(iso: string) {
-   if (!iso) return "—";
-   const date = new Date(iso);
-   return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }) + 
-          " às " + 
-          date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
- }
- 
- function formatEventDate(dateStr: string | null) {
-   if (!dateStr) return "—";
-   // Handle both ISO and DD/MM/YYYY formats
-   if (dateStr.includes("-")) {
-     const [y, m, d] = dateStr.split("-");
-     return `${d}/${m}/${y}`;
-   }
-   return dateStr;
- }
- 
-  function buildWhatsAppMessage(sub: Submission): string {
-    if (sub.short_copy) return encodeURIComponent(sub.short_copy);
-    const date = formatEventDate(sub.date);
-    const url = sub.slug ? `${window.location.origin}/evento/${sub.slug}` : `${window.location.origin}/agenda`;
-    const msg = `🗓️ *${sub.event_title}*\n⏰ ${date} às ${sub.start_time || "--:--"}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: ${url}`;
-    return encodeURIComponent(msg);
-  }
-
-function buildApprovalMessage(sub: Submission): string {
-  const name = (sub.responsible_name || "").trim().split(" ")[0];
-  const greeting = name ? `Olá, ${name}! 👋` : "Olá! 👋";
-  const url = sub.slug
-    ? `${window.location.origin}/evento/${sub.slug}`
-    : `${window.location.origin}/agenda`;
-  return (
-    `${greeting}\n\n` +
-    `✅ *Seu evento foi aprovado pela curadoria do AgendIlha!*\n\n` +
-    `🎉 *${sub.event_title}*\n` +
-    `📅 ${formatEventDate(sub.date)}${sub.start_time ? ` às ${sub.start_time}` : ""}\n` +
-    (sub.location ? `📍 ${sub.location}\n` : "") +
-    `\nJá está publicado na Agenda Cultural:\n${url}\n\n` +
-    `Acompanhe seus envios em: ${window.location.origin}/meus-eventos`
-  );
-}
-
-function buildRejectionMessage(sub: Submission, reason?: string | null): string {
-  const name = (sub.responsible_name || "").trim().split(" ")[0];
-  const greeting = name ? `Olá, ${name}.` : "Olá.";
-  const reasonLine = reason?.trim()
-    ? `\n📝 *Observação da curadoria:* ${reason.trim()}\n`
-    : "";
-  return (
-    `${greeting}\n\n` +
-    `Sobre o evento *${sub.event_title}* enviado ao AgendIlha:\n\n` +
-    `❌ Infelizmente ele *não foi aprovado* pela curadoria neste momento.${reasonLine}\n` +
-    `Você pode revisar e reenviar a qualquer momento em:\n` +
-    `${window.location.origin}/meus-eventos\n\n` +
-    `Qualquer dúvida, é só responder por aqui. Obrigado!`
-  );
-}
-
-function buildTemplateVars(sub: Submission, reason?: string | null): Record<string, string> {
-  const name = (sub.responsible_name || "").trim().split(" ")[0] || "";
-  const url = sub.slug
-    ? `${window.location.origin}/evento/${sub.slug}`
-    : `${window.location.origin}/agenda`;
-  return {
-    nome: name,
-    titulo: sub.event_title || "",
-    data: formatEventDate(sub.date),
-    hora: sub.start_time || "--:--",
-    local: sub.location || "",
-    url,
-    motivo: (reason || "").trim(),
-    meus_eventos_url: `${window.location.origin}/meus-eventos`,
-  };
-}
 
 export default function AdminEvents() {
   return (
@@ -452,30 +336,13 @@ function AdminEventsInner() {
 
   }
 
-  const kpis = useMemo(() => {
-    return {
-      total: submissions.length,
-      pending: submissions.filter(s => s.status === 'pendente').length,
-      approved: submissions.filter(s => s.status === 'aprovado').length,
-      rejected: submissions.filter(s => s.status === 'rejeitado').length,
-    };
-  }, [submissions]);
+  const kpis = useMemo(() => computeKpis(submissions), [submissions]);
 
-   const filtered = useMemo(() => {
-     let list = [...submissions];
-     if (statusFilter !== "all") list = list.filter(s => s.status === statusFilter);
-     if (categoryFilter !== "all") list = list.filter(s => s.category === categoryFilter);
-     if (search.trim()) {
-       const q = search.toLowerCase();
-       list = list.filter(s => 
-         s.event_title.toLowerCase().includes(q) ||
-         (s.company_name || "").toLowerCase().includes(q) ||
-         (s.location || "").toLowerCase().includes(q) ||
-         (s.responsible_name || "").toLowerCase().includes(q)
-       );
-     }
-     return list;
-   }, [submissions, statusFilter, categoryFilter, search]);
+  const filtered = useMemo(
+    () => filterSubmissions(submissions, { statusFilter, categoryFilter, search }),
+    [submissions, statusFilter, categoryFilter, search],
+  );
+
 
   if (authLoading || permsLoading) return <LoadingState fullPage message="Verificando permissões..." />;
   if (!user || !hasPermission('events.read')) return <Navigate to="/" replace />;
@@ -483,205 +350,32 @@ function AdminEventsInner() {
   return (
     <PageContainer maxWidth="7xl">
          <PublishBlockDialog info={publishBlock} onClose={() => setPublishBlock(null)} />
-         {/* Header Area */}
-         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-10">
-           <div className="space-y-1">
-             <div className="flex items-center gap-2 text-primary">
-               <LayoutDashboard className="h-4 w-4" />
-               <span className="text-[10px] font-black uppercase tracking-[0.2em]">Backoffice</span>
-             </div>
-              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-foreground uppercase">Gestão de Eventos</h1>
-              <p className="text-muted-foreground text-xs sm:text-sm">Controle operacional e curadoria da agenda hiperlocal.</p>
-           </div>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-               <Button variant="outline" size="sm" className="h-9 sm:h-10 font-bold border-border bg-background hover:bg-muted text-[10px] sm:text-xs px-3 sm:px-4" onClick={() => fetchAll()}><RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Atualizar</Button>
-               <Button variant="outline" size="sm" className="h-9 sm:h-10 font-bold border-border bg-background hover:bg-muted text-[10px] sm:text-xs px-3 sm:px-4" onClick={() => exportBulkEventsPdf(filtered)}><FileDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Exportar PDF</Button>
-               <Button
-                 variant="outline"
-                 size="sm"
-                 className="h-9 sm:h-10 font-bold border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] sm:text-xs px-3 sm:px-4"
-                 title="Gera o texto dos rolês de hoje e abre o WhatsApp — você escolhe pra quem mandar."
-                 onClick={() => {
-                   const { text, count } = buildTodayWhatsAppSummary(submissions);
-                   if (count === 0) {
-                     toast.info("Hoje não temos eventos cadastrados.", {
-                       description: "Ajuste a data ou cadastre um novo evento antes de gerar o resumo.",
-                     });
-                     return;
-                   }
-                   openWhatsAppWithText(text);
-                   toast.success(`Resumo pronto com ${count} rolê${count > 1 ? "s" : ""} de hoje!`, {
-                     description: "É só escolher os grupos ou contatos e mandar.",
-                   });
-                 }}
-               >
-                 <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-                 <span className="hidden sm:inline">Resumo de hoje no WhatsApp</span>
-                 <span className="sm:hidden">Resumo hoje</span>
-               </Button>
-               <Button
-                 variant="outline"
-                 size="sm"
-                 className="h-9 sm:h-10 font-bold border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] sm:text-xs px-3 sm:px-4"
-                 title="Gera o texto dos rolês dos próximos 7 dias e abre o WhatsApp — você escolhe pra quem mandar."
-                 onClick={() => {
-                   const { text, count } = buildWeekWhatsAppSummary(submissions);
-                   if (count === 0) {
-                     toast.info("Ainda não temos eventos cadastrados para esta semana.", {
-                       description: "Cadastre alguns eventos antes de gerar o resumo.",
-                     });
-                     return;
-                   }
-                   openWhatsAppWithText(text);
-                   toast.success(`Resumo da semana pronto com ${count} rolê${count > 1 ? "s" : ""}!`, {
-                     description: "É só escolher os grupos ou contatos e mandar.",
-                   });
-                 }}
-               >
-                 <CalendarDays className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-                 <span className="hidden sm:inline">Resumo da semana no WhatsApp</span>
-                 <span className="sm:hidden">Resumo semana</span>
-               </Button>
-                <Button 
-                  size="sm"
-                  className="h-9 sm:h-10 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 text-[10px] sm:text-xs px-3 sm:px-4"
-                 onClick={() => {
-                    const approved = submissions.filter(s => s.status === 'aprovado');
-                   if (approved.length === 0) return toast.warning("Sem eventos para divulgar.");
-                   window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
-                 }}
-               >
-                <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> <span className="hidden sm:inline">Divulgação WhatsApp</span><span className="sm:hidden">WhatsApp</span>
-              </Button>
-            </div>
-         </div>
+         <AdminEventsToolbar
+           submissions={submissions}
+           filtered={filtered}
+           onRefresh={() => fetchAll()}
+           onExportPdf={(list) => exportBulkEventsPdf(list)}
+         />
 
-         {/* KPIs */}
-         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
-           {/* Pendentes — destaque âmbar com alerta quando > 0 */}
-           <Card
-             onClick={() => setStatusFilter('pendente')}
-             className={cn(
-               "cursor-pointer border-2 transition-all shadow-sm hover:shadow-md",
-               kpis.pending > 0
-                 ? "bg-amber-50 border-amber-400 ring-2 ring-amber-200 animate-pulse"
-                 : "bg-white border-transparent"
-             )}
-           >
-             <CardContent className="p-3 sm:p-4 flex items-start justify-between gap-2">
-               <div>
-                 <p className="text-[10px] font-black uppercase text-amber-700 tracking-wider flex items-center gap-1.5">
-                   {kpis.pending > 0 && <AlertCircle className="h-3.5 w-3.5" />} Pendentes
-                 </p>
-                 <p className="text-2xl sm:text-3xl font-black text-amber-600 mt-1">{kpis.pending}</p>
-                 {kpis.pending > 0 && (
-                   <p className="text-[10px] text-amber-700/80 font-bold mt-1">Aguardando curadoria</p>
-                 )}
-               </div>
-               <Clock3 className="h-5 w-5 text-amber-500 mt-1" />
-             </CardContent>
-           </Card>
-           <Card onClick={() => setStatusFilter('aprovado')} className="cursor-pointer bg-white border-none shadow-sm hover:shadow-md transition-all">
-             <CardContent className="p-3 sm:p-4">
-               <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">Aprovados</p>
-               <p className="text-2xl sm:text-3xl font-black text-emerald-600 mt-1">{kpis.approved}</p>
-             </CardContent>
-           </Card>
-           <Card onClick={() => setStatusFilter('rejeitado')} className="cursor-pointer bg-white border-none shadow-sm hover:shadow-md transition-all">
-             <CardContent className="p-3 sm:p-4">
-               <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">Rejeitados</p>
-               <p className="text-2xl sm:text-3xl font-black text-rose-600 mt-1">{kpis.rejected}</p>
-             </CardContent>
-           </Card>
-           <Card onClick={() => setStatusFilter('all')} className="cursor-pointer bg-white border-none shadow-sm hover:shadow-md transition-all">
-             <CardContent className="p-3 sm:p-4">
-               <p className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-wider">Total</p>
-               <p className="text-2xl sm:text-3xl font-black text-slate-600 mt-1">{kpis.total}</p>
-             </CardContent>
-           </Card>
-         </div>
+
+         <AdminEventsKpis kpis={kpis} onSelectStatus={setStatusFilter} />
+
 
          <ChangeRequestsPanel
            focusId={typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("change_request") : null}
          />
 
-         {/* Filtros rápidos */}
-         <div className="mb-4 flex flex-wrap items-center gap-2">
-           <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mr-1">Filtro rápido:</span>
-           {[
-             { key: 'all',       label: 'Todos',     count: kpis.total },
-             { key: 'pendente',  label: 'Pendente',  count: kpis.pending,  cls: 'border-amber-300 data-[active=true]:bg-amber-500 data-[active=true]:text-white data-[active=true]:border-amber-500' },
-             { key: 'aprovado',  label: 'Aprovado',  count: kpis.approved, cls: 'border-emerald-300 data-[active=true]:bg-emerald-500 data-[active=true]:text-white data-[active=true]:border-emerald-500' },
-             { key: 'rejeitado', label: 'Rejeitado', count: kpis.rejected, cls: 'border-rose-300 data-[active=true]:bg-rose-500 data-[active=true]:text-white data-[active=true]:border-rose-500' },
-           ].map((chip) => (
-             <button
-               key={chip.key}
-               data-active={statusFilter === chip.key}
-               onClick={() => setStatusFilter(chip.key)}
-               className={cn(
-                 "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition-all",
-                 "bg-white text-foreground hover:bg-muted",
-                 "data-[active=true]:shadow-sm",
-                 chip.cls || "data-[active=true]:bg-foreground data-[active=true]:text-background data-[active=true]:border-foreground"
-               )}
-             >
-               {chip.label}
-               <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-black/5 text-[10px] font-black">
-                 {chip.count}
-               </span>
-             </button>
-           ))}
-         </div>
+         <AdminEventsFilters
+           kpis={kpis}
+           search={search}
+           statusFilter={statusFilter}
+           categoryFilter={categoryFilter}
+           onSearchChange={setSearch}
+           onStatusChange={setStatusFilter}
+           onCategoryChange={setCategoryFilter}
+           onClear={() => { setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); toast.info("Filtros limpos"); }}
+         />
 
-         {/* Filters */}
-         <div className="mb-8 grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-card border border-border p-2 rounded-2xl shadow-sm">
-           <div className="md:col-span-5 relative">
-             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-             <Input 
-               placeholder="Buscar por título, empresa, local ou responsável..." 
-               className="pl-10 h-11 bg-muted/30 border-none focus-visible:ring-1 focus-visible:ring-primary/20" 
-               value={search} 
-               onChange={e => setSearch(e.target.value)} 
-             />
-           </div>
-           <div className="md:col-span-3">
-             <Select value={statusFilter} onValueChange={setStatusFilter}>
-               <SelectTrigger className="h-11 bg-muted/30 border-none"><SelectValue placeholder="Status" /></SelectTrigger>
-               <SelectContent>
-                 <SelectItem value="all">Todos os Status</SelectItem>
-                 {Object.entries(statusConfig).map(([key, cfg]) => (
-                   <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
-                 ))}
-               </SelectContent>
-             </Select>
-           </div>
-           <div className="md:col-span-3">
-             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-               <SelectTrigger className="h-11 bg-muted/30 border-none"><SelectValue placeholder="Categoria" /></SelectTrigger>
-               <SelectContent>
-                 <SelectItem value="all">Todas as Categorias</SelectItem>
-                 {Object.entries(categoryLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-               </SelectContent>
-             </Select>
-           </div>
-           <div className="md:col-span-1 flex justify-center">
-             <TooltipProvider>
-               <Tooltip>
-                 <TooltipTrigger asChild>
-                   <Button 
-                     variant="ghost" 
-                     size="icon" 
-                     className="h-11 w-11 rounded-xl hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                     onClick={() => { setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); toast.info("Filtros limpos"); }}
-                   >
-                     <SlidersHorizontal className="h-4 w-4" />
-                   </Button>
-                 </TooltipTrigger>
-                 <TooltipContent>Limpar Filtros</TooltipContent>
-               </Tooltip>
-             </TooltipProvider>
-           </div>
-         </div>
 
         {/* Main List */}
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
