@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { Navigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { handleError } from "@/lib/error-handler";
 import { toast } from "sonner";
-import { LogIn, UserPlus, Loader2, Phone, MapPin, Sparkles } from "lucide-react";
+import { LogIn, UserPlus, Loader2, Phone, MapPin, Sparkles, Lock, KeyRound } from "lucide-react";
 import {
   Select,
   SelectContent,
