@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Share2, Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
 import { formatBrazilianDate } from "@/lib/date-utils";
 import { getEventFallbackImage, normalizeText } from "@/lib/event-utils";
 
@@ -207,8 +208,7 @@ export function EventWhatsAppCardExport({ event }: { event: FlyerEvent }) {
       a.click();
       toast.success("Card baixado!");
     } catch (e) {
-      console.error(e);
-      toast.error("Não foi possível gerar o card");
+      handleError(e, { context: "EventWhatsAppCard.download", fallback: "Não deu pra gerar o card. Tenta de novo." });
     } finally {
       setBusy(null);
     }
@@ -234,10 +234,7 @@ export function EventWhatsAppCardExport({ event }: { event: FlyerEvent }) {
         toast.success("Card salvo — envie no seu WhatsApp");
       }
     } catch (e: any) {
-      if (e?.name !== "AbortError") {
-        console.error(e);
-        toast.error("Não foi possível compartilhar");
-      }
+      handleError(e, { context: "EventWhatsAppCard.share", fallback: "Não deu pra compartilhar. Tenta de novo." });
     } finally {
       setBusy(null);
     }
