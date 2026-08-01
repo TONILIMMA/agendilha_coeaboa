@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Star, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
 import { cn } from "@/lib/utils";
 
 interface Review {
@@ -43,7 +44,7 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
       if (error) throw error;
       setReviews(data || []);
     } catch (err) {
-      console.error("Error fetching reviews:", err);
+      handleError(err, { context: "EventReviews.fetch", silent: true });
     } finally {
       setLoading(false);
     }
@@ -75,8 +76,7 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
       setNewRating(5);
       fetchReviews();
     } catch (err) {
-      console.error("Error submitting review:", err);
-      toast.error("Erro ao enviar avaliação.");
+      handleError(err, { context: "EventReviews.submit", fallback: "Não deu pra enviar tua avaliação. Tenta de novo." });
     } finally {
       setSubmitting(false);
     }
