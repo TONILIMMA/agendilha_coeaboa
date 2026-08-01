@@ -1,7 +1,8 @@
 import { ChangePasswordSection } from "@/components/ChangePasswordSection";
+import { RecoveryPinSection } from "@/components/auth/RecoveryPinSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Card, CardContent } from "@/components/ui/card";
-import { KeyRound } from "lucide-react";
+import { KeyRound, ShieldCheck } from "lucide-react";
 
 export default function Settings() {
   return (
@@ -25,6 +26,23 @@ export default function Settings() {
             </div>
           </div>
           <ChangePasswordSection />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-5 sm:p-6 space-y-5">
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <h2 className="font-display font-bold text-base">PIN de recuperação</h2>
+              <p className="text-xs text-muted-foreground">
+                4 números que liberam a redefinição da sua senha na hora.
+              </p>
+            </div>
+          </div>
+          <RecoveryPinSection />
         </CardContent>
       </Card>
     </div>

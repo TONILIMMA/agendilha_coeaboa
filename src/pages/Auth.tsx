@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { Navigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { handleError } from "@/lib/error-handler";
 import { toast } from "sonner";
-import { LogIn, UserPlus, Loader2, Phone, MapPin, Sparkles } from "lucide-react";
+import { LogIn, UserPlus, Loader2, Phone, MapPin, Sparkles, Lock, KeyRound } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -160,14 +160,6 @@ export default function Auth() {
                 placeholder="Mínimo 6 caracteres"
               />
             </div>
-            <div className="text-right">
-              <a
-                href="/forgot-password"
-                className="text-[11px] font-bold text-primary hover:text-primary/80 transition-colors flex items-center justify-end gap-1"
-              >
-                Recuperar acesso pelo WhatsApp
-              </a>
-            </div>
             <Button
               type="submit"
               disabled={submitting}
@@ -180,6 +172,23 @@ export default function Auth() {
               )}
               Entrar
             </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button asChild type="button" variant="outline" className="w-full font-display font-semibold text-[11px] sm:text-xs">
+                <Link to="/forgot-password?tab=senha">
+                  <Lock className="mr-1.5 h-3.5 w-3.5" />
+                  Esqueci minha senha
+                </Link>
+              </Button>
+              <Button asChild type="button" variant="outline" className="w-full font-display font-semibold text-[11px] sm:text-xs">
+                <Link to="/forgot-password?tab=pin">
+                  <KeyRound className="mr-1.5 h-3.5 w-3.5" />
+                  Esqueci meu PIN
+                </Link>
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground text-center">
+              Redefinição na hora, sem depender de administrador.
+            </p>
           </form>
         ) : (
           <RegistrationFlow onComplete={() => setMode("login")} />

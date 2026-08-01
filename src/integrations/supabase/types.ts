@@ -1166,6 +1166,27 @@ export type Database = {
         }
         Relationships: []
       }
+      pin_reset_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          success: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          success?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          success?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       places: {
         Row: {
           address: string | null
@@ -1834,6 +1855,30 @@ export type Database = {
           },
         ]
       }
+      user_pins: {
+        Row: {
+          created_at: string
+          last_changed_at: string
+          pin_hash: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          last_changed_at?: string
+          pin_hash: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          last_changed_at?: string
+          pin_hash?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2499,6 +2544,10 @@ export type Database = {
           tipos: string[]
         }[]
       }
+      set_user_pin: {
+        Args: { current_password: string; new_pin: string }
+        Returns: undefined
+      }
       setup_admin_pin: {
         Args: { new_pin: string }
         Returns: {
@@ -2510,9 +2559,14 @@ export type Database = {
         Args: { current_pin: string; new_pin: string }
         Returns: undefined
       }
+      user_pin_status: { Args: never; Returns: boolean }
       verify_admin_pin: { Args: { input_pin: string }; Returns: boolean }
       verify_admin_pin_session: {
         Args: { input_token: string }
+        Returns: boolean
+      }
+      verify_user_pin_for_reset: {
+        Args: { p_pin: string; p_user_id: string }
         Returns: boolean
       }
     }
