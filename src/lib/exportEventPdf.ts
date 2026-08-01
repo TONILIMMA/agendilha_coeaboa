@@ -1,5 +1,26 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import type jsPDF from "jspdf";
+
+/**
+ * jsPDF e jspdf-autotable pesam ~400kB. Carregamos só na hora de gerar o PDF
+ * pra não travar o primeiro carregamento das telas que só oferecem o botão.
+ */
+type JsPdfCtor = typeof import("jspdf").default;
+type AutoTableFn = typeof import("jspdf-autotable").default;
+
+let jsPDFCtor: JsPdfCtor | null = null;
+let autoTable: AutoTableFn | null = null;
+
+async function loadPdfLibs(): Promise<{ jsPDFCtor: JsPdfCtor; autoTable: AutoTableFn }> {
+  if (!jsPDFCtor || !autoTable) {
+    const [pdfMod, tableMod] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
+    jsPDFCtor = pdfMod.default;
+    autoTable = tableMod.default;
+  }
+  return { jsPDFCtor, autoTable };
+}
 
 export interface EventPdfData {
   event_title?: string | null;
