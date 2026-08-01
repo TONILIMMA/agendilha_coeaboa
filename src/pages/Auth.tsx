@@ -160,14 +160,6 @@ export default function Auth() {
                 placeholder="Mínimo 6 caracteres"
               />
             </div>
-            <div className="text-right">
-              <a
-                href="/forgot-password"
-                className="text-[11px] font-bold text-primary hover:text-primary/80 transition-colors flex items-center justify-end gap-1"
-              >
-                Recuperar acesso pelo WhatsApp
-              </a>
-            </div>
             <Button
               type="submit"
               disabled={submitting}
@@ -180,6 +172,23 @@ export default function Auth() {
               )}
               Entrar
             </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button asChild type="button" variant="outline" className="w-full font-display font-semibold text-[11px] sm:text-xs">
+                <Link to="/forgot-password?tab=senha">
+                  <Lock className="mr-1.5 h-3.5 w-3.5" />
+                  Esqueci minha senha
+                </Link>
+              </Button>
+              <Button asChild type="button" variant="outline" className="w-full font-display font-semibold text-[11px] sm:text-xs">
+                <Link to="/forgot-password?tab=pin">
+                  <KeyRound className="mr-1.5 h-3.5 w-3.5" />
+                  Esqueci meu PIN
+                </Link>
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground text-center">
+              Redefinição na hora, sem depender de administrador.
+            </p>
           </form>
         ) : (
           <RegistrationFlow onComplete={() => setMode("login")} />
