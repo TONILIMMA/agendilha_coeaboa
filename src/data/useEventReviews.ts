@@ -30,12 +30,18 @@ export function useEventReviews(eventId: string | null | undefined) {
 export function useCreateEventReview(eventId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { rating: number; comment: string; user_name: string }) => {
+    // user_id e user_name são preenchidos no banco a partir da conta logada —
+    // ninguém assina avaliação com o nome de outra pessoa.
+    mutationFn: async (input: { rating: number; comment: string }) => {
+      const { data: authData } = await supabase.auth.getUser();
+      const uid = authData.user?.id;
+      if (!uid) throw new Error("Entra na tua conta pra avaliar o rolê.");
+
       const { error } = await supabase.from("event_reviews").insert({
         event_id: eventId,
+        user_id: uid,
         rating: input.rating,
         comment: input.comment,
-        user_name: input.user_name,
       });
       if (error) throw error;
     },
