@@ -1,5 +1,8 @@
 project_id = "xwuyzqahfoyhdbmtspwf"
 
+[functions.pin-reset-password]
+verify_jwt = false
+
 [functions.request-password-reset]
 verify_jwt = false
 
