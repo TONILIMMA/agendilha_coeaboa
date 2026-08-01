@@ -96,6 +96,16 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
         )}
       </div>
 
+      {!user ? (
+        <div className="bg-card border border-border/60 p-6 rounded-3xl shadow-sm text-center space-y-3">
+          <p className="text-sm font-medium text-foreground">
+            Pra avaliar esse rolê é só entrar na tua conta — assim a gente sabe quem falou.
+          </p>
+          <Button asChild className="rounded-full h-11 px-6 font-black uppercase tracking-widest gradient-sunset text-white">
+            <Link to="/auth">Entrar pra avaliar</Link>
+          </Button>
+        </div>
+      ) : (
       <form onSubmit={handleSubmit} className="bg-card border border-border/60 p-6 rounded-3xl shadow-sm space-y-4">
         <div className="space-y-2">
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Sua nota:</p>
@@ -119,12 +129,6 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
         </div>
 
         <div className="space-y-2">
-          <input
-            placeholder="Seu nome (opcional)"
-            className="w-full bg-muted/50 border-none rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-          />
           <Textarea
             placeholder="O que você achou deste evento?"
             className="min-h-[100px] bg-muted/50 border-none rounded-2xl resize-none focus-visible:ring-2 focus-visible:ring-primary/20 p-4"
@@ -141,6 +145,7 @@ export default function EventReviews({ eventId, eventTitle }: EventReviewsProps)
           {submitting ? "Enviando..." : "Publicar Avaliação"}
         </Button>
       </form>
+      )}
     </div>
   );
 }
