@@ -87,7 +87,7 @@ export default function AdminArtists() {
                   <div className="flex-1 flex items-center gap-4">
                     <div className="h-14 w-14 rounded-full bg-muted overflow-hidden flex-shrink-0 border-2 border-border shadow-sm">
                       {artist.avatar_url ? (
-                        <img src={artist.avatar_url} alt={artist.name} className="h-full w-full object-cover" />
+                        <img loading="lazy" decoding="async" src={artist.avatar_url} alt={artist.name} className="h-full w-full object-cover" />
                       ) : (
                         <div className="h-full w-full flex items-center justify-center">
                           <User className="h-6 w-6 text-muted-foreground" />

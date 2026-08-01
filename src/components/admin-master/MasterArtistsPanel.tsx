@@ -280,7 +280,7 @@ function ArtistDetailSheet({
               <div className="flex items-center gap-3">
                 <div className="h-12 w-12 rounded-full bg-primary/10 overflow-hidden flex items-center justify-center border border-border">
                   {artist.avatar_url ? (
-                    <img src={artist.avatar_url} alt={artist.name} className="h-full w-full object-cover" />
+                    <img loading="lazy" decoding="async" src={artist.avatar_url} alt={artist.name} className="h-full w-full object-cover" />
                   ) : (
                     <UserIcon className="h-5 w-5 text-primary" />
                   )}

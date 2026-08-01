@@ -501,7 +501,7 @@ function AgendaCulturalInner() {
                       className="relative min-w-[200px] sm:min-w-[240px] aspect-[9/16] rounded-3xl overflow-hidden bg-muted snap-start shadow-xl group cursor-pointer"
                       onClick={() => navigate(`/artista/${video.artist.id}`)}
                     >
-                      <img src={video.thumbnail_url} className="w-full h-full object-cover" alt="" />
+                      <img loading="lazy" decoding="async" src={video.thumbnail_url} className="w-full h-full object-cover" alt="" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4 text-white">
                         <p className="font-bold text-sm">{video.artist.name}</p>

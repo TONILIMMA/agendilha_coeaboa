@@ -199,7 +199,7 @@ export function PhotoGallery({
             key={u + i}
             className="relative aspect-square rounded-lg overflow-hidden ring-1 ring-border bg-muted group"
           >
-            <img src={u} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" src={u} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
 
             {i === 0 && (
               <span className="absolute top-1 left-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 flex items-center gap-0.5">

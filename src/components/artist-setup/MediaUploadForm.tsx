@@ -344,7 +344,7 @@ export function MediaUploadForm({ artistId, onMediaUploaded }: MediaUploadFormPr
                     </div>
                   </>
                 ) : (
-                  <img src={m.url} className="w-full h-full object-cover" alt="" />
+                  <img loading="lazy" decoding="async" src={m.url} className="w-full h-full object-cover" alt="" />
                 )}
                 <div className="absolute top-1 left-1 bg-black/60 text-white rounded-full p-1 opacity-70 group-hover:opacity-100">
                   <GripVertical className="h-3 w-3" />
