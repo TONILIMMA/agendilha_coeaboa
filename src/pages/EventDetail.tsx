@@ -16,6 +16,8 @@ import {
 import { exportEventToPdf } from "@/lib/exportEventPdf";
 import { PrintPreviewDialog, PrintPreviewSheet } from "@/components/pdf/PrintPreviewDialog";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
+import { logger } from "@/lib/logger";
 import { formatBrazilianDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import { getEventFallbackImage } from "@/lib/event-utils";
@@ -74,13 +76,13 @@ export default function EventDetail() {
         .maybeSingle();
 
       if (error || !data) {
-        console.error("Error fetching event:", error);
+        if (error) handleError(error, { context: "EventDetail.fetch", silent: true });
         setError(true);
       } else {
         setEvent(data as unknown as Event);
         // Increment views
         supabase.rpc('increment_views', { event_id: data.id }).then(({ error }) => {
-          if (error) console.error("Error incrementing views:", error);
+          if (error) logger.warn("[EventDetail] não deu pra contar a visualização", error);
         });
         // Try to resolve linked estabelecimento by name (location text)
         if (data.location) {
