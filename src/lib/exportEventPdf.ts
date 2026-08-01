@@ -137,7 +137,7 @@ function drawCover(doc: jsPDF, cover: PdfCover) {
   doc.addPage();
 }
 
-export function exportEventToPdf(
+export async function exportEventToPdf(
   event: EventPdfData,
   opts?: { filename?: string; cover?: PdfCover | null } | string,
 ) {
@@ -145,7 +145,8 @@ export function exportEventToPdf(
   const options = typeof opts === "string" ? { filename: opts } : (opts || {});
   const filename = options.filename;
 
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const { jsPDFCtor: JsPDF, autoTable } = await loadPdfLibs();
+  const doc = new JsPDF({ unit: "mm", format: "a4" });
   if (options.cover) drawCover(doc, options.cover);
   drawHeader(doc, event.event_title || "Evento sem título", "Ficha do evento");
 
@@ -188,8 +189,9 @@ export function exportEventToPdf(
   doc.save(filename || `evento-${(event.event_title || "agendilha").toLowerCase().replace(/\s+/g, "-")}.pdf`);
 }
 
-export function exportAtrativoToPdf(a: AtrativoPdfData, filename?: string) {
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
+export async function exportAtrativoToPdf(a: AtrativoPdfData, filename?: string) {
+  const { jsPDFCtor: JsPDF, autoTable } = await loadPdfLibs();
+  const doc = new JsPDF({ unit: "mm", format: "a4" });
   drawHeader(doc, a.name || "Atrativo sem nome", "Ficha do atrativo");
 
   const rows: [string, string][] = [
@@ -227,7 +229,13 @@ export function exportAtrativoToPdf(a: AtrativoPdfData, filename?: string) {
  * Renderiza uma folha (sem save) para um atrativo específico dentro de um doc
  * já aberto. Usado pelo PDF consolidado.
  */
-function renderAtrativoPage(doc: jsPDF, a: AtrativoPdfData, index: number, total: number) {
+function renderAtrativoPage(
+  doc: jsPDF,
+  autoTable: AutoTableFn,
+  a: AtrativoPdfData,
+  index: number,
+  total: number,
+) {
   drawHeader(doc, a.name || "Atrativo sem nome", `Ficha ${index + 1} de ${total} — Atrativos AgendIlha`);
 
   const rows: [string, string][] = [
@@ -261,17 +269,18 @@ function renderAtrativoPage(doc: jsPDF, a: AtrativoPdfData, index: number, total
 /**
  * PDF único com vários atrativos — uma ficha por página.
  */
-export function exportAtrativosConsolidatedPdf(
+export async function exportAtrativosConsolidatedPdf(
   atrativos: AtrativoPdfData[],
   opts?: { filename?: string; cover?: PdfCover | null } | string,
 ) {
   if (!atrativos.length) return;
   const options = typeof opts === "string" ? { filename: opts } : (opts || {});
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const { jsPDFCtor: JsPDF, autoTable } = await loadPdfLibs();
+  const doc = new JsPDF({ unit: "mm", format: "a4" });
   if (options.cover) drawCover(doc, options.cover);
   atrativos.forEach((a, i) => {
     if (i > 0) doc.addPage();
-    renderAtrativoPage(doc, a, i, atrativos.length);
+    renderAtrativoPage(doc, autoTable, a, i, atrativos.length);
   });
   drawFooter(doc);
   doc.save(options.filename || `atrativos-agendilha-${new Date().toISOString().slice(0, 10)}.pdf`);
