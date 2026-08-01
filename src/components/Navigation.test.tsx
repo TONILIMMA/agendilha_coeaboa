@@ -99,8 +99,9 @@ describe('Admin/Master Route Protection Integration', () => {
     await waitFor(() => {
       expect(screen.getByTestId('admin-events')).toBeInTheDocument();
     });
-    // Sidebar should be present (implied by AdminLayout rendering)
-    expect(screen.getByText('Administração')).toBeInTheDocument();
+    // Sidebar should be present (implied by AdminLayout rendering).
+    // A seção admin hoje se chama "Operação" no sidebarConfig.
+    expect(screen.getByText('Operação')).toBeInTheDocument();
   });
 
   it('blocks admin user from /admin/master', async () => {
@@ -121,6 +122,6 @@ describe('Admin/Master Route Protection Integration', () => {
     await waitFor(() => {
       expect(screen.getByTestId('admin-master')).toBeInTheDocument();
     });
-    expect(screen.getByText('Master')).toBeInTheDocument();
+    expect(screen.getByText('Painel Master')).toBeInTheDocument();
   });
 });
