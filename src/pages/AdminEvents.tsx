@@ -4,11 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -16,11 +11,11 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  CalendarDays, Loader2, MessageCircle, Trash2, Search,
-  FileDown, SlidersHorizontal, MapPin, Clock, Building2,
-  CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp, AlertCircle, ShieldAlert,
-  Phone, Mail, Globe, Info, Send, Star, TrendingUp, BarChart3,
-  RotateCcw, LayoutDashboard, Edit, ExternalLink, Eye, History, Megaphone, Copy, Share2
+  CalendarDays, Loader2, MessageCircle, Trash2,
+  FileDown, MapPin, Clock, Building2,
+  CheckCircle, XCircle, Clock3, ChevronDown, ChevronUp, ShieldAlert,
+  Phone, Mail, Globe, Star,
+  RotateCcw, Edit, ExternalLink, Eye, History, Megaphone
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -30,11 +25,10 @@ import { handleError } from "@/lib/error-handler";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { PageContainer } from "@/components/ui/PageContainer";
-import { buildWhatsappUrl, validateBrazilianMobile, formatPhoneDisplay, renderTemplate } from "@/lib/whatsapp";
+import { buildWhatsappUrl, validateBrazilianMobile, renderTemplate } from "@/lib/whatsapp";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { buildTodayWhatsAppSummary, buildWeekWhatsAppSummary, openWhatsAppWithText } from "@/lib/todayWhatsappSummary";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 import { missingPublishFields, shouldOfferGenericFlyer } from "@/lib/publishValidation";
@@ -49,8 +43,6 @@ import {
   formatSubmissionDate,
   formatEventDate,
   buildWhatsAppMessage,
-  buildApprovalMessage,
-  buildRejectionMessage,
   buildTemplateVars,
   computeKpis,
   filterSubmissions,
