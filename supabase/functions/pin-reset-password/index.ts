@@ -43,10 +43,12 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Resolve o usuário pelo e-mail sintético do telefone.
-    const { data: list, error: listError } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-    if (listError) throw listError;
-    const target = list.users.find((u) => u.email?.toLowerCase() === email);
+    // Resolve o usuário pelo e-mail sintético do telefone (índice, sem varrer a lista).
+    const { data: targetId, error: resolveError } = await admin.rpc("resolve_user_id_by_email", {
+      p_email: email,
+    });
+    if (resolveError) throw resolveError;
+    const target = targetId ? { id: targetId as string } : null;
 
     // Resposta genérica: não revela se o número existe.
     const genericFail = json(

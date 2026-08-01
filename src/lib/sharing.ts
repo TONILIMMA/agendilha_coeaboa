@@ -29,7 +29,7 @@ export const getShareUrl = (eventId?: string) => {
 // e redireciona o usuário real para /evento/:slug na SPA.
 export const getEventOgShareUrl = (slug: string) => {
   const projectRef =
-    (import.meta as any).env?.VITE_SUPABASE_PROJECT_ID || "xwuyzqahfoyhdbmtspwf";
+    import.meta.env?.VITE_SUPABASE_PROJECT_ID || "xwuyzqahfoyhdbmtspwf";
   return `https://${projectRef}.supabase.co/functions/v1/evento-og?slug=${encodeURIComponent(slug)}`;
 };
 

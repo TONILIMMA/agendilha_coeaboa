@@ -14,6 +14,11 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { useAuth } from "@/contexts/AuthContext";
 
+/** Série temporal vinda do RPC de estatísticas. */
+interface SeriesPoint { date: string; count: number }
+/** Par rótulo/valor vindo do RPC de estatísticas. */
+interface NamedCount { name: string; value: number }
+
 export function MasterPanel() {
   const { user } = useAuth();
   const [filters, setFilters] = useState({
@@ -62,15 +67,15 @@ export function MasterPanel() {
             { name: 'Aprovado', value: kpis.approvedEvents ?? 0 },
             { name: 'Cancelado', value: kpis.cancelledEvents ?? 0 },
           ],
-          eventsByPeriod: (charts.eventsByPeriod || []).map((p: any) => ({
+          eventsByPeriod: (charts.eventsByPeriod || []).map((p: SeriesPoint) => ({
             name: new Date(p.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
             value: p.count
           })),
-          newUsersEvolution: (charts.newUsersEvolution || []).map((p: any) => ({
+          newUsersEvolution: (charts.newUsersEvolution || []).map((p: SeriesPoint) => ({
             name: new Date(p.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
             value: p.count
           })),
-          neighborhoodComparison: eventsByNeighborhood.map((n: any) => ({
+          neighborhoodComparison: eventsByNeighborhood.map((n: NamedCount) => ({
             name: n.name,
             events: n.value,
             favorites: 0
@@ -79,7 +84,7 @@ export function MasterPanel() {
         rankings: {
           topEvents: rankings.topEvents || [],
           topEventsByViews: rankings.topEvents || [],
-          topNeighborhoods: eventsByNeighborhood.map((n: any) => ({ name: n.name, count: n.value })),
+          topNeighborhoods: eventsByNeighborhood.map((n: NamedCount) => ({ name: n.name, count: n.value })),
           topPlaces: rankings.topPlaces || [],
           topArtists: rankings.topArtists || [],
           topPromoters: rankings.topPromoters || []
@@ -94,7 +99,7 @@ export function MasterPanel() {
           newUsersInPeriod: kpis.totalUsers ?? 0
         },
         health: stats?.system_health,
-        allNeighborhoods: eventsByNeighborhood.map((n: any) => n.name)
+        allNeighborhoods: eventsByNeighborhood.map((n: NamedCount) => n.name)
       };
     },
     refetchInterval: 5 * 60 * 1000, 

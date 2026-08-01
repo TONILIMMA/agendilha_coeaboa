@@ -28,7 +28,7 @@ export function usePromotorProfile(targetUserId?: string) {
       return;
     }
     setLoading(true);
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from("promotor_profiles")
       .select("id, user_id, promotor_nome, promotor_whatsapp, tipo_promotor")
       .eq("user_id", userId)
@@ -58,7 +58,7 @@ export async function upsertPromotorProfile(input: {
     tipo_promotor: input.tipo_promotor || null,
   };
   if (!payload.promotor_nome) return { error: null };
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("promotor_profiles")
     .upsert(payload, { onConflict: "user_id" });
   return { error };

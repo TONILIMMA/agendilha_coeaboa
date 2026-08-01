@@ -22,6 +22,11 @@ async function loadPdfLibs(): Promise<{ jsPDFCtor: JsPdfCtor; autoTable: AutoTab
   return { jsPDFCtor, autoTable };
 }
 
+/** jspdf-autotable anexa `lastAutoTable` ao doc em runtime — tipamos o acesso. */
+function lastTableY(doc: jsPDF): number {
+  return (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? 0;
+}
+
 export interface EventPdfData {
   event_title?: string | null;
   date?: string | null;
@@ -176,7 +181,7 @@ export async function exportEventToPdf(
   });
 
   if (event.description) {
-    const y = (doc as any).lastAutoTable.finalY + 10;
+    const y = lastTableY(doc) + 10;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.text("Descrição", 14, y);
@@ -212,7 +217,7 @@ export async function exportAtrativoToPdf(a: AtrativoPdfData, filename?: string)
   });
 
   if (a.description) {
-    const y = (doc as any).lastAutoTable.finalY + 10;
+    const y = lastTableY(doc) + 10;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.text("Sobre", 14, y);
@@ -256,7 +261,7 @@ function renderAtrativoPage(
   });
 
   if (a.description) {
-    const y = (doc as any).lastAutoTable.finalY + 10;
+    const y = lastTableY(doc) + 10;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.text("Sobre", 14, y);

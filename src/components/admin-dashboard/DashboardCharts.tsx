@@ -35,17 +35,24 @@ const ChartCard = ({ title, children }: ChartCardProps) => (
   </Card>
 );
 
+/** Ponto genérico de gráfico: rótulo + valor(es) numéricos. */
+export interface ChartPoint {
+  name?: string;
+  value?: number;
+  [key: string]: string | number | undefined;
+}
+
 interface DashboardChartsProps {
   data: {
-    usersByType: any[];
-    eventsByNeighborhood: any[];
-    eventsByPeriod: any[];
-    placesByFavorites: any[];
-    artistsByFavorites: any[];
-    eventsByCategory: any[];
-    eventStatusFunnel: any[];
-    newUsersEvolution: any[];
-    neighborhoodComparison: any[];
+    usersByType: ChartPoint[];
+    eventsByNeighborhood: ChartPoint[];
+    eventsByPeriod: ChartPoint[];
+    placesByFavorites: ChartPoint[];
+    artistsByFavorites: ChartPoint[];
+    eventsByCategory: ChartPoint[];
+    eventStatusFunnel: ChartPoint[];
+    newUsersEvolution: ChartPoint[];
+    neighborhoodComparison: ChartPoint[];
   };
 }
 

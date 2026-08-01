@@ -148,7 +148,7 @@ export function MediaUploadForm({ artistId, onMediaUploaded }: MediaUploadFormPr
       previews.forEach((p) => URL.revokeObjectURL(p.preview));
       setPreviews([]);
       onMediaUploaded?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       handleError(error, { context: "MediaUploadForm.upload", fallback: "Não deu pra enviar. Tenta de novo em instantes." });
     }
   };
@@ -158,7 +158,7 @@ export function MediaUploadForm({ artistId, onMediaUploaded }: MediaUploadFormPr
     try {
       await removeMedia.mutateAsync(media);
       toast.success("Mídia removida.");
-    } catch (e: any) {
+    } catch (e: unknown) {
       handleError(e, { context: "MediaUploadForm.remove", fallback: "Não deu pra remover essa mídia." });
     }
   };
@@ -166,7 +166,7 @@ export function MediaUploadForm({ artistId, onMediaUploaded }: MediaUploadFormPr
   const persistOrder = async (list: MediaRow[]) => {
     try {
       await reorderMedia.mutateAsync(list);
-    } catch (e: any) {
+    } catch (e: unknown) {
       handleError(e, { context: "MediaUploadForm.reorder", fallback: "Não deu pra salvar a ordem. Tenta de novo." });
     }
   };

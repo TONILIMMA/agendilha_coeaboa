@@ -2503,6 +2503,7 @@ export type Database = {
         Args: { current_password: string; new_pin: string }
         Returns: undefined
       }
+      resolve_user_id_by_email: { Args: { p_email: string }; Returns: string }
       revoke_admin_pin_session: {
         Args: { input_token: string }
         Returns: undefined
