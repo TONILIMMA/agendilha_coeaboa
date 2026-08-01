@@ -108,7 +108,7 @@
                      </div>
                    </button>
                  ) : (
-                   <img src={item.url} className="w-full h-full object-cover" alt="Mídia do artista" />
+                   <img loading="lazy" decoding="async" src={item.url} className="w-full h-full object-cover" alt="Mídia do artista" />
                  )}
                  <Badge className="absolute top-2 right-2 bg-black/50 backdrop-blur-md border-white/20 capitalize">
                    {item.media_type}

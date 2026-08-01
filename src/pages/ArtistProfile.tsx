@@ -212,7 +212,7 @@ export default function ArtistProfile() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {images.map((img: any) => (
                     <div key={img.id} className="aspect-square rounded-xl overflow-hidden border border-border shadow-sm hover:scale-105 transition-transform">
-                      <img src={img.url} className="w-full h-full object-cover" alt="Artist media" />
+                      <img loading="lazy" decoding="async" src={img.url} className="w-full h-full object-cover" alt="Artist media" />
                     </div>
                   ))}
                 </div>
@@ -227,7 +227,7 @@ export default function ArtistProfile() {
                 <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar">
                   {videos.map((video: any) => (
                     <div key={video.id} className="relative min-w-[160px] aspect-[9/16] rounded-xl overflow-hidden bg-muted snap-start shadow-md group">
-                      <img src={video.thumbnail_url || video.url} className="w-full h-full object-cover" alt="Video thumbnail" />
+                      <img loading="lazy" decoding="async" src={video.thumbnail_url || video.url} className="w-full h-full object-cover" alt="Video thumbnail" />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
                         <Play className="h-8 w-8 text-white drop-shadow-lg" />
                       </div>
