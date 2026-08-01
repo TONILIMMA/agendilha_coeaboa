@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
 
 interface ReportButtonProps {
   eventId: string;
@@ -49,8 +50,7 @@ export function ReportButton({ eventId, eventTitle }: ReportButtonProps) {
       });
       setOpen(false);
     } catch (err) {
-      console.error("Error reporting event:", err);
-      toast.error("Erro ao enviar denúncia. Tente novamente.");
+      handleError(err, { context: "ReportButton.submit", fallback: "Não deu pra enviar a denúncia. Tenta de novo." });
     } finally {
       setLoading(false);
     }
