@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Sparkles, Pencil, Trash2, Loader2, FileDown, FileStack, Eye } from "lucide-react";
+import { Plus, Sparkles, Pencil, Trash2, Loader2, FileDown, FileStack } from "lucide-react";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { exportAtrativoToPdf, exportAtrativosConsolidatedPdf } from "@/lib/exportEventPdf";
