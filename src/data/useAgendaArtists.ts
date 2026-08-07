@@ -22,7 +22,7 @@ export function useAgendaArtists() {
     },
   });
 
-  const artists = data ?? [];
+  const artists = useMemo(() => data ?? [], [data]);
 
   const shortVideos = useMemo<AgendaShortVideo[]>(() => {
     const videos: AgendaShortVideo[] = [];
