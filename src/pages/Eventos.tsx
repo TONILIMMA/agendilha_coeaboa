@@ -45,7 +45,7 @@ export default function Eventos() {
 
   const { auditLogs, fetchAuditLog } = useAuditLogs();
   const actions = useEventActions({
-import"@/contexts/AuthContext";?.id,
+    userId: user?.id,
     submissions,
     setSubmissions,
     onCollapse: () => setExpandedId(null),
