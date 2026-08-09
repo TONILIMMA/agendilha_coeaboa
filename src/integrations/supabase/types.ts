@@ -2418,6 +2418,7 @@ export type Database = {
           requires_change: boolean
         }[]
       }
+      can_create_events: { Args: { _user_id: string }; Returns: boolean }
       cleanup_admin_pin_sessions: { Args: never; Returns: undefined }
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       contains_bad_words: { Args: { text_to_check: string }; Returns: boolean }
