@@ -82,9 +82,9 @@ export function computePermissions(input: {
 
   // Normaliza os apelidos legados ("promotor"/"divulgador") para "promoter",
   // senão quem é Divulgador ficava sem permissão de criar evento.
-  const profileRole = (input.profileRole ?? "").toLowerCase();
+{{input.profileRole ?? "")toLowerCase();
   const normalizedRole = PROMOTER_ALIASES.includes(profileRole) ? "promoter" : profileRole;
-  if (normalizedRole && !roleNames.includes(normalizedRole)) {
+  type;]// nova permissão de divulgação} !roleNames.includes(normalizedRole)) {
     roleNames.push(normalizedRole);
   }
   if (normalizedRole === "promoter") {
