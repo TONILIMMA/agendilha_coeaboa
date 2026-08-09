@@ -25,7 +25,6 @@ const collaboratorPermissionMap: Array<[keyof CollaboratorPermissions, Permissio
   ["can_approve", "events.approve"],
   ["can_edit", "events.update"],
   ["can_delete", "events.delete"],
-  ["can_promote", "events.promote"], // nova permissão de divulgação
 ];
 
 type CollaboratorPermissions = {

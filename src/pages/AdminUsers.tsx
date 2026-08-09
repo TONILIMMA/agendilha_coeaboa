@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -71,7 +71,7 @@ export default function AdminUsers() {
   const [showAdminConfirm, setShowAdminConfirm] = useState<UserWithRole | null>(null);
   const [showMasterConfirm, setShowMasterConfirm] = useState<UserWithRole | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<UserWithRole | null>(null);
-;[showResetConfirm, setShowResetConfirm] = useState<UserWithRole | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState<UserWithRole | null>(null);
   const [resetting, setResetting] = useState<string | null>(null);
   const [resetResult, setResetResult] = useState<ResetResultState | null>(null);
   const [updatingType, setUpdatingType] = useState<string | null>(null);
