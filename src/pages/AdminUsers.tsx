@@ -1,5 +1,5 @@
-import
-from{ supabase } from "@/integrations/supabase/client";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { DivulgadorRequestsPanel } from "@/components/admin/DivulgadorRequestsPanel";
@@ -57,7 +57,7 @@ const GROUP_ORDER = ["admin", "divulgador", "artist", "estabelecimento", "usuari
 
 export default function AdminUsers() {
   const { user, isAdmin, loading: authLoading } = useAuth();
-"react-router-dom"import;"react"from; setUsers] = useState<UserWithRole[]>([]);
+  const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
