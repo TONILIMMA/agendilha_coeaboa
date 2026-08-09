@@ -45,7 +45,7 @@ export default function Eventos() {
 
   const { auditLogs, fetchAuditLog } = useAuditLogs();
   const actions = useEventActions({
-    userId: user?.id,
+import"@/contexts/AuthContext";?.id,
     submissions,
     setSubmissions,
     onCollapse: () => setExpandedId(null),
@@ -433,9 +433,9 @@ export default function Eventos() {
               <p className="text-xs text-muted-foreground">Eventos na lixeira são excluídos definitivamente após 30 dias.</p>
             </div>
             {renderList(filteredTrash, { showTrashActions: true })}
-          </TabsContent>
-        )}
-      </Tabs>
-    </div>
-  );
+<//
+//
+/
+    div  //
+  )
 }

@@ -4,27 +4,28 @@ import { useAuth } from "@/contexts/AuthContext";
 import { handleError } from "@/lib/error-handler";
 
 const ADMIN_PERMISSIONS: PermissionName[] = [
-  'events.create',
-  'events.read',
-  'events.update',
-  'events.approve',
-  'events.cancel',
-  'events.delete',
-  'users.read',
-  'users.update',
-  'users.promote',
-  'users.demote',
-  'admins.invite',
-  'admins.remove',
-  'roles.manage',
-  'audit_logs.read',
+  "events.create",
+  "events.read",
+  "events.update",
+  "events.approve",
+  "events.cancel",
+  "events.delete",
+  "users.read",
+  "users.update",
+  "users.promote",
+  "users.demote",
+  "admins.invite",
+  "admins.remove",
+  "roles.manage",
+  "audit_logs.read",
 ];
 
 const collaboratorPermissionMap: Array<[keyof CollaboratorPermissions, PermissionName]> = [
-  ['can_submit', 'events.create'],
-  ['can_approve', 'events.approve'],
-  ['can_edit', 'events.update'],
-  ['can_delete', 'events.delete'],
+  ["can_submit", "events.create"],
+  ["can_approve", "events.approve"],
+  ["can_edit", "events.update"],
+  ["can_delete", "events.delete"],
+  ["can_promote", "events.promote"], // nova permissão de divulgação
 ];
 
 type CollaboratorPermissions = {
@@ -35,21 +36,21 @@ type CollaboratorPermissions = {
   is_active: boolean;
 };
 
-export type PermissionName = 
-  | 'events.create'
-  | 'events.read'
-  | 'events.update'
-  | 'events.approve'
-  | 'events.cancel'
-  | 'events.delete'
-  | 'users.read'
-  | 'users.update'
-  | 'users.promote'
-  | 'users.demote'
-  | 'admins.invite'
-  | 'admins.remove'
-  | 'roles.manage'
-  | 'audit_logs.read';
+export type PermissionName =
+  | "events.create"
+  | "events.read"
+  | "events.update"
+  | "events.approve"
+  | "events.cancel"
+  | "events.delete"
+  | "users.read"
+  | "users.update"
+  | "users.promote"
+  | "users.demote"
+  | "admins.invite"
+  | "admins.remove"
+  | "roles.manage"
+  | "audit_logs.read";
 
 const PROMOTER_ALIASES = ["promoter", "promotor", "divulgador"];
 
@@ -123,9 +124,7 @@ export function useAppPermissions() {
       // `role` é a fonte principal; `user_type` cobre perfis antigos sem `role`.
       const profileRole =
         profileData?.role ??
-        (PROMOTER_ALIASES.includes((profileData?.user_type ?? "").toLowerCase())
-          ? "promoter"
-          : null);
+        (PROMOTER_ALIASES.includes((profileData?.user_type ?? "").toLowerCase()) ? "promoter" : null);
       return computePermissions({
         roleNames,
         collaborator: collaboratorResponse.data as CollaboratorPermissions | null,
@@ -160,10 +159,10 @@ export function useAppPermissions() {
     isPromoter,
     isCollaborator,
     // Explicit capability mappings from legacy usePermissions
-    canSubmit: isPromoter || isCollaborator || hasPermission('events.create'),
-    canApprove: isAdmin || hasPermission('events.approve'),
-    canEdit: isAdmin || isPromoter || hasPermission('events.update'),
-    canDelete: isAdmin || hasPermission('events.delete'),
-    loaded: !loading
+    canSubmit: isPromoter || isCollaborator || hasPermission("events.create"),
+    canApprove: isAdmin || hasPermission("events.approve"),
+    canEdit: isAdmin || isPromoter || hasPermission("events.update"),
+    canDelete: isAdmin || hasPermission("events.delete"),
+    loaded: !loading,
   };
 }

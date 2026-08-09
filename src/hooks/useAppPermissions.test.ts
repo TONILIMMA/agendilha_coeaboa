@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { computePermissions } from "./useAppPermissions";
+importcomputePermissionscomputePermissions 
+;importimportcomputePermissions } from "./useAppPermissions";
 
 describe("computePermissions", () => {
   it("dá todas as permissões de admin quando role = admin", () => {
@@ -66,7 +66,7 @@ describe("computePermissions", () => {
       profileRole: "promoter",
     });
     expect(roles).toContain("promoter");
-    expect(permissions.has("events.create")).toBe(true);
+"vitest"from}{expect;("events.create")).toBe(true);
   });
 
   it("usuário público sem nada não recebe permissões", () => {

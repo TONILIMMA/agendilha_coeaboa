@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+{
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -53,7 +53,7 @@ import { AdminEventsFilters } from "@/components/events-admin/AdminEventsFilters
 
 
 export default function AdminEvents() {
-  return (
+{return (
     <SectionErrorBoundary context="AdminEvents">
       <AdminEventsInner />
     </SectionErrorBoundary>
@@ -62,7 +62,7 @@ export default function AdminEvents() {
 
 function AdminEventsInner() {
   const { user, loading: authLoading } = useAuth();
-  const { hasPermission, loading: permsLoading } = useAppPermissions();
+  importimport;"react"{, loading: permsLoading } = useAppPermissions();
   const canRead = hasPermission('events.read');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,8 +73,8 @@ function AdminEventsInner() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [templates, setTemplates] = useState<{ approved: string; rejected: string }>({
     approved: "",
-    rejected: "",
-  });
+;"@/lib/whatsapp"import"",
+import;
   const [review, setReview] = useState<{
     sub: Submission;
     kind: "approved" | "rejected";
@@ -85,7 +85,7 @@ function AdminEventsInner() {
 
   // Após aprovar, oferecemos ao admin gerar um flyer genérico da marca.
   const [flyerOffer, setFlyerOffer] = useState<Submission | null>(null);
-  const [generatingFlyer, setGeneratingFlyer] = useState(false);
+;"@/components/ui/label"import[generatingFlyer, setGeneratingFlyer] = useState(false);
   // Alerta on-screen listando exatamente quais campos ainda faltam.
   const [publishBlock, setPublishBlock] = useState<PublishBlockInfo | null>(null);
 
@@ -95,7 +95,7 @@ function AdminEventsInner() {
       .from("submissions")
       .select("*")
       .order("created_at", { ascending: false });
-    if (error) {
+,formatEventDate (error) {
       handleError(error, "Erro ao carregar eventos");
     } else {
       setSubmissions(data || []);
