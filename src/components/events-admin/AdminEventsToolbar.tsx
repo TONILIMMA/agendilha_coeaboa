@@ -1,4 +1,4 @@
-import
+import { Button } from "@/components/ui/button";
 import {
   CalendarDays, FileDown, LayoutDashboard, MessageCircle, RotateCcw, Send,
 } from "lucide-react";
@@ -52,10 +52,10 @@ export function AdminEventsToolbar({
       return;
     }
     window.open(`https://wa.me/?text=${buildWhatsAppMessage(approved[0])}`, "_blank");
-;"sonner"
+  }
 
-import{"@/components/ui/button"
-;<div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-10">
+  return (
+    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-10">
       <div className="space-y-1">
         <div className="flex items-center gap-2 text-primary">
           <LayoutDashboard className="h-4 w-4" />
@@ -67,7 +67,7 @@ import{"@/components/ui/button"
 
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <Button variant="outline" size="sm" className={outlineBtn} onClick={onRefresh}>
-</
+          <RotateCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Atualizar
         </Button>
         <Button variant="outline" size="sm" className={outlineBtn} onClick={() => onExportPdf(filtered)}>
           <FileDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Exportar PDF
@@ -104,6 +104,6 @@ import{"@/components/ui/button"
           <span className="sm:hidden">WhatsApp</span>
         </Button>
       </div>
-    >div
+    </div>
   );
 }

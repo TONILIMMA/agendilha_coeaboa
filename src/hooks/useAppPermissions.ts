@@ -25,7 +25,6 @@ const collaboratorPermissionMap: Array<[keyof CollaboratorPermissions, Permissio
   ["can_approve", "events.approve"],
   ["can_edit", "events.update"],
   ["can_delete", "events.delete"],
-  ["can_promote", "events.promote"], // nova permissão de divulgação
 ];
 
 type CollaboratorPermissions = {
@@ -82,9 +81,9 @@ export function computePermissions(input: {
 
   // Normaliza os apelidos legados ("promotor"/"divulgador") para "promoter",
   // senão quem é Divulgador ficava sem permissão de criar evento.
-{{input.profileRole ?? "")toLowerCase();
+  const profileRole = (input.profileRole ?? "").toLowerCase();
   const normalizedRole = PROMOTER_ALIASES.includes(profileRole) ? "promoter" : profileRole;
-  type;]// nova permissão de divulgação} !roleNames.includes(normalizedRole)) {
+  if (normalizedRole && !roleNames.includes(normalizedRole)) {
     roleNames.push(normalizedRole);
   }
   if (normalizedRole === "promoter") {
