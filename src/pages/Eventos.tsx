@@ -433,9 +433,9 @@ export default function Eventos() {
               <p className="text-xs text-muted-foreground">Eventos na lixeira são excluídos definitivamente após 30 dias.</p>
             </div>
             {renderList(filteredTrash, { showTrashActions: true })}
-<//
-//
-/
-    div  //
-  )
+          </TabsContent>
+        )}
+      </Tabs>
+    </div>
+  );
 }
