@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles, CheckCircle2 } from "lucide-react";
@@ -11,9 +12,14 @@ const STORAGE_KEY = "agendilha_last_seen_version";
  */
 export function UpdateAnnouncement() {
   const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
   const current = UPDATES.find((u) => u.version === APP_VERSION) ?? UPDATES[0];
 
+  // Nas telas de entrar/cadastrar o modal só atrapalha quem tá tentando criar conta.
+  const blockedRoute = /^\/(auth|forgot-password|cadastro)/.test(pathname);
+
   useEffect(() => {
+    if (blockedRoute) return;
     try {
       const last = localStorage.getItem(STORAGE_KEY);
       if (last !== APP_VERSION) {
@@ -24,7 +30,7 @@ export function UpdateAnnouncement() {
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [blockedRoute]);
 
   const dismiss = () => {
     try {
@@ -35,7 +41,7 @@ export function UpdateAnnouncement() {
     setOpen(false);
   };
 
-  if (!current) return null;
+  if (!current || blockedRoute) return null;
 
   return (
     <Dialog open={open} onOpenChange={(v) => (v ? setOpen(true) : dismiss())}>
