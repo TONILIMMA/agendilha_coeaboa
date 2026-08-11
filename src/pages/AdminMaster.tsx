@@ -27,6 +27,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { MasterPanel } from "@/components/admin-dashboard/AdminDashboard";
 import { MasterArtistsPanel } from "@/components/admin-master/MasterArtistsPanel";
 import { MasterRegistrationsPanel } from "@/components/admin-master/MasterRegistrationsPanel";
+import { AccessDiagnostics } from "@/components/admin-master/AccessDiagnostics";
 import { useAdminMasterStats } from "@/data";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,6 +97,7 @@ export default function AdminMaster() {
         </TabsContent>
 
         <TabsContent value="management" className="space-y-8 focus-visible:outline-none">
+          <AccessDiagnostics />
           {loading ? (
             <LoadingState message="Calculando métricas de acesso..." />
           ) : (
