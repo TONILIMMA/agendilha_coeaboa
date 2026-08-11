@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { normalizePhone } from "../_shared/temp-password.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,11 +31,15 @@ Deno.serve(async (req) => {
       return json({ error: "A nova senha precisa de no mínimo 8 caracteres." }, 400);
     }
 
-    const digits = phone.replace(/\D/g, "");
-    if (digits.length < 10) {
+    let digits = phone.replace(/\D/g, "");
+    if (digits.startsWith("00")) digits = digits.slice(2);
+    if (digits.length > 11 && digits.startsWith("55")) digits = digits.slice(2);
+    if (digits.length !== 10 && digits.length !== 11) {
       return json({ error: "Número de WhatsApp inválido." }, 400);
     }
-    const email = `${normalizePhone(digits)}@phone.agendilha.app`;
+    const email = `55${digits}@phone.agendilha.app`;
+    // Formato antigo: números que começavam com "55" viravam e-mail sem o país.
+    const legacyEmail = digits.startsWith("55") ? `${digits}@phone.agendilha.app` : null;
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -44,10 +47,15 @@ Deno.serve(async (req) => {
     );
 
     // Resolve o usuário pelo e-mail sintético do telefone (índice, sem varrer a lista).
-    const { data: targetId, error: resolveError } = await admin.rpc("resolve_user_id_by_email", {
+    let { data: targetId, error: resolveError } = await admin.rpc("resolve_user_id_by_email", {
       p_email: email,
     });
     if (resolveError) throw resolveError;
+    if (!targetId && legacyEmail) {
+      const legacy = await admin.rpc("resolve_user_id_by_email", { p_email: legacyEmail });
+      if (legacy.error) throw legacy.error;
+      targetId = legacy.data;
+    }
     const target = targetId ? { id: targetId as string } : null;
 
     // Resposta genérica: não revela se o número existe.

@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
+import { toAuthEmail, toLegacyAuthEmail, toE164Digits, validateWhatsappForAccount } from "@/lib/phone";
+import { logger } from "@/lib/logger";
 
 export type SignUpAdditionalData = {
   profile?: Record<string, unknown>;
@@ -20,6 +22,7 @@ interface AuthContextType {
     name?: string,
     additionalData?: SignUpAdditionalData,
     role?: string,
+    pin?: string,
   ) => Promise<{ error: Error | null }>;
   signIn: (phone: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -101,23 +104,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user?.id) await checkMustChangePassword(user.id);
   }
 
-  const formatPhoneToEmail = (phone: string): string => {
-    const digits = phone.replace(/\D/g, "");
-    const fullNumber = digits.startsWith("55") ? digits : `55${digits}`;
-    return `${fullNumber}@phone.agendilha.app`;
-  };
+  /**
+   * Garante que a pessoa tenha linha em `profiles`. O trigger de signup cria,
+   * mas contas antigas (ou signup interrompido) podem ter ficado sem — e sem
+   * perfil o app trava em vários gates.
+   */
+  async function ensureProfile(userId: string) {
+    const { data } = await supabase.from("profiles").select("user_id").eq("user_id", userId).maybeSingle();
+    if (data) return;
+    const { error } = await supabase.from("profiles").insert({ user_id: userId });
+    if (error) logger.warn("[Auth] não deu pra criar o perfil que faltava", error);
+  }
 
   const signUp = async (
     phone: string,
     password: string,
     name?: string,
     additionalData: SignUpAdditionalData = {},
-    role: string = 'public',
+    role: string = 'publico',
+    pin?: string,
   ) => {
     const cleanName = name?.trim();
-    const digits = phone.replace(/\D/g, "");
-    const fullPhone = digits.startsWith("55") ? `+${digits}` : `+55${digits}`;
-    const fakeEmail = formatPhoneToEmail(phone);
+
+    const phoneProblem = validateWhatsappForAccount(phone);
+    if (phoneProblem) return { error: new Error(phoneProblem) };
+
+    const fullPhone = `+${toE164Digits(phone)}`;
+    const fakeEmail = toAuthEmail(phone)!;
 
     const { data, error } = await supabase.auth.signUp({
       email: fakeEmail,
@@ -131,15 +144,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    if (error || !data.user || !cleanName) {
-      return { error: error as Error | null };
+    if (error) {
+      const raw = (error.message || "").toLowerCase();
+      if (raw.includes("already registered") || raw.includes("already exists") || raw.includes("user_already")) {
+        return {
+          error: new Error(
+            "Esse WhatsApp já tem conta no AgendIlha. Entra pelo login ou usa “Esqueci minha senha”.",
+          ),
+        };
+      }
+      return { error: error as Error };
     }
+    if (!data.user) return { error: new Error("Não deu pra criar a conta agora. Tenta de novo em instantes.") };
+
+    await ensureProfile(data.user.id);
+
+    // PIN de recuperação: sem ele a pessoa não consegue redefinir a senha sozinha depois.
+    if (pin && /^\d{4}$/.test(pin)) {
+      const { error: pinError } = await supabase.rpc("set_user_pin", { new_pin: pin, current_password: password });
+      if (pinError) logger.warn("[Auth] não deu pra salvar o PIN no cadastro", pinError);
+    }
+
+    if (!cleanName) return { error: null };
 
     // Prepare profile data
     const profilePayload = {
       responsible_name: cleanName,
       phone: fullPhone,
-      role: role === 'artist' ? 'public' : role, // Use 'public' for artists in roles table if needed, but 'artist' in user_type
+      role: role === 'divulgador' ? 'divulgador' : 'public',
       user_type: role,
       onboarding_completed: true,
       ...additionalData.profile
@@ -155,7 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (profileError) return { error: profileError as Error };
 
     // If it's an artist, also create artist_profile
-    if (role === 'artist' && additionalData.artist) {
+    if ((role === 'artista' || role === 'artist') && additionalData.artist) {
       const { error: artistError } = await supabase
         .from("artist_profiles")
         .upsert({
@@ -171,9 +203,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (phone: string, password: string) => {
-    const fakeEmail = formatPhoneToEmail(phone);
-    const { error } = await supabase.auth.signInWithPassword({ email: fakeEmail, password });
-    return { error: error as Error | null };
+    const email = toAuthEmail(phone);
+    if (!email) {
+      return { error: new Error("Informe o WhatsApp com DDD. Ex: (21) 98765-4321") };
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && data.user) {
+      await ensureProfile(data.user.id);
+      return { error: null };
+    }
+
+    // Contas criadas antes da correção de normalização usam outro e-mail sintético.
+    const legacyEmail = toLegacyAuthEmail(phone);
+    if (legacyEmail && legacyEmail !== email) {
+      const legacy = await supabase.auth.signInWithPassword({ email: legacyEmail, password });
+      if (!legacy.error && legacy.data.user) {
+        await ensureProfile(legacy.data.user.id);
+        return { error: null };
+      }
+    }
+
+    const raw = (error?.message || "").toLowerCase();
+    if (raw.includes("invalid login")) {
+      return {
+        error: new Error("WhatsApp ou senha não batem. Se esqueceu a senha, usa “Esqueci minha senha”."),
+      };
+    }
+    return { error: (error as Error) ?? new Error("Não deu pra entrar agora. Tenta de novo.") };
   };
 
   const signOut = async () => {
