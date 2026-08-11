@@ -19,6 +19,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { RegistrationFlow } from "@/components/auth/RegistrationFlow";
+import { maskBrPhone, validateWhatsappForAccount } from "@/lib/phone";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Auth() {
   const { user, loading } = useAuth();
@@ -46,58 +48,37 @@ export default function Auth() {
 
   if (user) return <Navigate to={redirect} replace />;
 
-  function formatPhoneDisplay(value: string) {
-    let digits = value.replace(/\D/g, "");
-    
-    // If it starts with 55 and has more than 11 digits, it's likely the prefix
-    if (digits.startsWith("55") && digits.length > 11) {
-      digits = digits.slice(2);
-    }
-
-
-    if (digits.length <= 2) return digits;
-    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-    if (digits.length <= 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
-  }
-
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    const digits = value.replace(/\D/g, "");
-    
-    // Accept up to 13 digits (allowing +55) but format normally
-    if (digits.length <= 13) {
-      setPhone(formatPhoneDisplay(digits));
-    }
-  }
-
-  function isValidPhone(value: string) {
-    const digits = value.replace(/\D/g, "");
-    // Accepts 10 or 11 digits (if prefix is removed) or up to 13 with +55
-    return (digits.length >= 10 && digits.length <= 11) || (digits.startsWith("55") && digits.length >= 12 && digits.length <= 13);
+    setPhone(maskBrPhone(e.target.value));
   }
 
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!isValidPhone(phone)) {
-      toast.error("Número inválido", {
-        description: "Por favor, insira um número de WhatsApp válido. Exemplo: (21) 98765-4321",
-      });
+    const phoneProblem = validateWhatsappForAccount(phone);
+    if (phoneProblem) {
+      toast.error("Número inválido", { description: phoneProblem });
       return;
     }
 
     setSubmitting(true);
 
-    // Standardize phone for backend
-    const cleanPhone = phone.replace(/\D/g, "");
-    
     try {
-      const { error } = await signIn(cleanPhone, password);
+      const { error } = await signIn(phone, password);
 
       if (error) {
-        handleError(error, "Erro ao entrar");
+        toast.error("Não deu pra entrar", { description: error.message });
+        return;
+      }
+
+      // Sem PIN a pessoa fica sem recuperação self-service depois. Avisa na hora.
+      const { data: hasPin } = await supabase.rpc("user_pin_status");
+      if (hasPin === false) {
+        toast.info("Cadastra teu PIN de 4 números", {
+          description: "É com ele que você redefine a senha sozinho depois. Vai em Configurações da conta.",
+          duration: 8000,
+        });
       }
     } catch (err) {
       handleError(err, "Erro no processo de autenticação");
