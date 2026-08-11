@@ -162,10 +162,43 @@ export function NovoEstabelecimentoDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {duplicado && (
+          <div
+            role="alert"
+            data-testid="estabelecimento-duplicate-alert"
+            className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 space-y-2"
+          >
+            <p>
+              Já tem um <strong>{duplicado.nome}</strong> cadastrado
+              {duplicado.bairro ? ` no ${duplicado.bairro}` : ""}. Quer usar esse mesmo?
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" size="sm" onClick={usarExistente}>
+                Usar o cadastro existente
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => setDuplicado(null)}
+              >
+                Mudar o nome
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label className="text-sm font-semibold">Nome do local*</Label>
-            <Input value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="organization" />
+            <Input
+              value={nome}
+              onChange={(e) => {
+                setNome(e.target.value);
+                setDuplicado(null);
+              }}
+              autoComplete="organization"
+            />
           </div>
 
           <div className="space-y-1.5">
