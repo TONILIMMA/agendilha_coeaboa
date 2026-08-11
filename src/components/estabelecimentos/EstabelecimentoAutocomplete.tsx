@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Plus, AlertTriangle } from "lucide-react";
+import { Search, MapPin, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { onEntityCreated } from "@/lib/entityEvents";
 import { useAutocompleteSearch } from "@/hooks/useAutocompleteSearch";
@@ -39,7 +39,6 @@ export function EstabelecimentoAutocomplete({
   onSelect,
   placeholder = "Comece a digitar o nome do lugar. Se não aparecer, cadastre um novo.",
   className,
-  selected,
   onCreateNew,
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -82,7 +81,24 @@ export function EstabelecimentoAutocomplete({
   const exactMatch = suggestions.some(
     (s) => s.nome.trim().toLowerCase() === value.trim().toLowerCase()
   );
-  const duplicateWarning = !selected && exactMatch && value.trim().length >= 2;
+
+  // Seleção = carregar dados. Buscamos o registro completo antes de preencher o
+  // formulário; nenhuma validação de duplicidade acontece aqui.
+  const selecionar = async (s: EstabelecimentoSuggestion) => {
+    onChange(s.nome);
+    onSelect(s);
+    setOpen(false);
+    try {
+      const { data } = await supabase
+        .from("estabelecimentos_public")
+        .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato")
+        .eq("id", s.id)
+        .maybeSingle();
+      if (data?.id) onSelect(data as EstabelecimentoSuggestion);
+    } catch {
+      /* mantém os dados da sugestão */
+    }
+  };
 
   return (
     <div className={`relative ${className ?? ""}`}>
@@ -116,9 +132,7 @@ export function EstabelecimentoAutocomplete({
               className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm flex items-start gap-2"
               onMouseDown={(e) => {
                 e.preventDefault();
-                onChange(s.nome);
-                onSelect(s);
-                setOpen(false);
+                void selecionar(s);
               }}
             >
               <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
@@ -163,16 +177,6 @@ export function EstabelecimentoAutocomplete({
               Cadastrar novo estabelecimento: &quot;{value.trim()}&quot;
             </button>
           )}
-        </div>
-      )}
-      {duplicateWarning && (
-        <div
-          role="alert"
-          className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 flex items-start gap-2"
-          data-testid="estabelecimento-duplicate-alert"
-        >
-          <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-          <span>Esse estabelecimento já existe — selecione da lista pra reaproveitar o cadastro.</span>
         </div>
       )}
     </div>
