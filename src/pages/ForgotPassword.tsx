@@ -10,16 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { handleError } from "@/lib/error-handler";
 import { onlyPinDigits, validatePin } from "@/lib/pin";
+import { maskBrPhone, toAuthEmail, toLegacyAuthEmail, validateWhatsappForAccount } from "@/lib/phone";
 import { cn } from "@/lib/utils";
-
-const formatPhone = (value: string) => {
-  let d = value.replace(/\D/g, "");
-  if (d.startsWith("55") && d.length > 11) d = d.slice(2);
-  d = d.slice(0, 11);
-  if (d.length <= 2) return d;
-  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
-  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
-};
 
 const phoneDigits = (value: string) => value.replace(/\D/g, "");
 const primaryBtn = "w-full gradient-sunset text-primary-foreground font-display font-semibold";
@@ -49,8 +41,9 @@ export default function ForgotPassword() {
 
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
-    if (phoneDigits(phone).length < 10) {
-      toast.error("Informe o WhatsApp com DDD. Ex: (21) 98765-4321");
+    const phoneProblem = validateWhatsappForAccount(phone);
+    if (phoneProblem) {
+      toast.error(phoneProblem);
       return;
     }
     if (!/^\d{4}$/.test(pin)) {
@@ -89,8 +82,9 @@ export default function ForgotPassword() {
 
   async function handleResetPin(e: React.FormEvent) {
     e.preventDefault();
-    if (phoneDigits(phone).length < 10) {
-      toast.error("Informe o WhatsApp com DDD. Ex: (21) 98765-4321");
+    const phoneProblem = validateWhatsappForAccount(phone);
+    if (phoneProblem) {
+      toast.error(phoneProblem);
       return;
     }
     const problem = validatePin(newPin, confirmPin);
@@ -105,10 +99,15 @@ export default function ForgotPassword() {
 
     setBusy(true);
     try {
-      const digits = phoneDigits(phone);
-      const email = `${digits.startsWith("55") ? digits : `55${digits}`}@phone.agendilha.app`;
+      const email = toAuthEmail(phone)!;
+      let { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      // Contas antigas usam outro e-mail sintético — tenta o formato legado.
+      const legacy = toLegacyAuthEmail(phone);
+      if (signInError && legacy && legacy !== email) {
+        signInError = (await supabase.auth.signInWithPassword({ email: legacy, password })).error;
+      }
+
       if (signInError) {
         toast.error("Número ou senha incorretos.", { description: "Confira os dados e tente de novo." });
         return;
@@ -148,7 +147,7 @@ export default function ForgotPassword() {
             inputMode="tel"
             autoComplete="tel"
             value={phone}
-            onChange={(e) => setPhone(formatPhone(e.target.value))}
+            onChange={(e) => setPhone(maskBrPhone(e.target.value))}
             placeholder="(21) 98765-4321"
             className="h-11 bg-muted/30"
           />
@@ -200,7 +199,9 @@ export default function ForgotPassword() {
                 Redefinir senha
               </Button>
               <p className="text-[10px] text-muted-foreground text-center">
-                Não cadastrou PIN ainda? Entre com sua senha e cadastre em Configurações da conta.
+                Nunca cadastrou PIN? Então essa via não funciona ainda: entre com a senha atual e
+                cadastre o PIN em Configurações da conta. Sem senha e sem PIN, chama a curadoria no
+                WhatsApp pra liberar seu acesso.
               </p>
             </form>
           </TabsContent>
