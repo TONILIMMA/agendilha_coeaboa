@@ -63,6 +63,9 @@ export function NovoEstabelecimentoDialog({
   const [cep, setCep] = useState("");
   const [contato, setContato] = useState("");
   const [saving, setSaving] = useState(false);
+  // Duplicidade só é checada no submit. Aqui guardamos o registro existente
+  // pra oferecer "usar o que já existe" em vez de travar o cadastro.
+  const [duplicado, setDuplicado] = useState<EstabelecimentoSuggestion | null>(null);
 
   // Sempre que o modal abre, reaproveita o que já foi digitado lá fora.
   useEffect(() => {
@@ -70,6 +73,7 @@ export function NovoEstabelecimentoDialog({
     setNome(initialName);
     setEndereco(initialEndereco);
     setBairro(initialBairro);
+    setDuplicado(null);
   }, [open, initialName, initialEndereco, initialBairro]);
 
   const buscarCep = async (raw: string) => {
@@ -86,6 +90,14 @@ export function NovoEstabelecimentoDialog({
     }
   };
 
+  const usarExistente = () => {
+    if (!duplicado) return;
+    toast.success(`Usando o cadastro de "${duplicado.nome}" que já existe.`);
+    onCreated(duplicado);
+    onOpenChange(false);
+    setDuplicado(null);
+  };
+
   const salvar = async () => {
     if (nome.trim().length < 2) {
       toast.error("Diz o nome do lugar pra gente.");
@@ -93,6 +105,19 @@ export function NovoEstabelecimentoDialog({
     }
     setSaving(true);
     try {
+      // Validação de duplicidade no submit, pelo identificador único (nome).
+      const { data: existente } = await supabase
+        .from("estabelecimentos_public")
+        .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato")
+        .ilike("nome", nome.trim())
+        .limit(1)
+        .maybeSingle();
+      if (existente?.id) {
+        setDuplicado(existente as EstabelecimentoSuggestion);
+        setSaving(false);
+        return;
+      }
+
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData.user?.id ?? null;
       const { data, error } = await supabase
@@ -115,6 +140,7 @@ export function NovoEstabelecimentoDialog({
       toast.success(`"${data.nome}" cadastrado e já vinculado.`);
       onCreated(data as EstabelecimentoSuggestion);
       onOpenChange(false);
+      setDuplicado(null);
       setTipo("");
       setNumero("");
       setCep("");
