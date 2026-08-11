@@ -31,6 +31,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { maskBrPhone, validateWhatsappForAccount } from "@/lib/phone";
+import { onlyPinDigits, validatePin } from "@/lib/pin";
 
 const NEIGHBORHOODS = [
   "Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia",
@@ -74,6 +76,8 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
     phone: "",
     email: "",
     password: "",
+    pin: "",
+    pinConfirm: "",
     // User specific
     homeLocation: "",
     musicalInterests: [] as string[],
@@ -133,7 +137,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
 
       if (type === "public") {
         additionalData.profile = {
-          user_type: "usuario",
+          user_type: "publico",
           home_location: formData.homeLocation,
           musical_preferences: formData.musicalInterests,
           event_type_preferences: formData.eventTypeInterests,
@@ -151,7 +155,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         };
       } else if (type === "artist") {
         additionalData.profile = {
-          user_type: "artist",
+          user_type: "artista",
           email: formData.email,
         };
         additionalData.artist = {
@@ -169,7 +173,8 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         formData.password,
         formData.name,
         additionalData,
-        type === "public" ? "usuario" : (type === "promoter" ? "divulgador" : "artist")
+        type === "public" ? "publico" : (type === "promoter" ? "divulgador" : "artista"),
+        formData.pin,
       );
 
       if (error) {
@@ -178,11 +183,22 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
         toast.success("Conta criada com sucesso!");
         setStep(5); // Success step (moved from 4 to 5 because of summary)
       }
-    } catch (err: any) {
-      toast.error("Erro inesperado", { description: err.message });
+    } catch (err) {
+      toast.error("Erro inesperado", {
+        description: err instanceof Error ? err.message : "Tenta de novo em instantes.",
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  /** Valida os campos da etapa 2 antes de deixar seguir. */
+  const basicInfoProblem = (): string | null => {
+    if (!formData.name.trim()) return "Diz teu nome pra gente.";
+    const phoneProblem = validateWhatsappForAccount(formData.phone);
+    if (phoneProblem) return phoneProblem;
+    if (formData.password.length < 8) return "A senha precisa de no mínimo 8 caracteres.";
+    return validatePin(formData.pin, formData.pinConfirm);
   };
 
   const renderStep = () => {
@@ -244,10 +260,15 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
                 <Input
                   id="phone"
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, phone: maskBrPhone(e.target.value) })}
                   placeholder="(21) 98765-4321"
                 />
+                <p className="text-[10px] text-muted-foreground">
+                  É o teu login no AgendIlha. Celular com DDD e 9 na frente.
+                </p>
               </div>
               {(type === "promoter" || type === "artist") && (
                 <div className="space-y-2">
@@ -267,8 +288,36 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
                   id="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
                 />
+              </div>
+              <div className="space-y-2">
+                <Label>PIN de recuperação (4 números)</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    id="pin"
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={formData.pin}
+                    onChange={(e) => setFormData({ ...formData, pin: onlyPinDigits(e.target.value) })}
+                    placeholder="••••"
+                    className="text-center text-xl tracking-[0.4em]"
+                  />
+                  <Input
+                    id="pinConfirm"
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={formData.pinConfirm}
+                    onChange={(e) => setFormData({ ...formData, pinConfirm: onlyPinDigits(e.target.value) })}
+                    placeholder="Repetir"
+                    className="text-center text-xl tracking-[0.4em]"
+                  />
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Com esse PIN você redefine a senha na hora, sem depender de ninguém. Guarda ele.
+                </p>
               </div>
             </div>
             <div className="flex gap-3 pt-4">
@@ -277,8 +326,14 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
               </Button>
               <Button 
                 className="flex-1" 
-                onClick={nextStep}
-                disabled={!formData.name || !formData.phone || formData.password.length < 6}
+                onClick={() => {
+                  const problem = basicInfoProblem();
+                  if (problem) {
+                    toast.error("Confere esse campo", { description: problem });
+                    return;
+                  }
+                  nextStep();
+                }}
               >
                 Próximo <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
