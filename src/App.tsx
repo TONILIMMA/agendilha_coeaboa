@@ -65,6 +65,7 @@ const PromotorPerfil = lazy(() => import("./pages/PromotorPerfil"));
 const TermosPage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.TermosPage })));
 const PrivacidadePage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.PrivacidadePage })));
 const ImpulsionamentoPage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.ImpulsionamentoPage })));
+const StatusDivulgador = lazy(() => import("./pages/divulgador/StatusDivulgador"));
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
