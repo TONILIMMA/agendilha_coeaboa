@@ -16,8 +16,6 @@ import { handleError } from "@/lib/error-handler";
 import { logger } from "@/lib/logger";
 import { ROUTES } from "@/routes/config";
 import { PromotorRoute } from "@/components/auth/PromotorRoute";
-import { UpdateAnnouncement } from "@/components/system/UpdateAnnouncement";
-import { InstallBanner } from "@/components/system/InstallBanner";
 
 // Critical (above-the-fold) — keep eager
 import Landing from "./pages/Landing";
@@ -263,8 +261,6 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <AppRoutes />
-            <UpdateAnnouncement />
-            <InstallBanner />
           </AuthProvider>
         </BrowserRouter>
       </AppErrorBoundary>
