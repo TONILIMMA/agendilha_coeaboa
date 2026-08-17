@@ -94,7 +94,7 @@ export const sidebarConfig: SidebarSection[] = [
       { 
         id: "my_submissions", 
         label: "Meus Envios", 
-        path: "/envios", // This one isn't in ROUTES yet, testing if it gets hidden
+        path: ROUTES.MEUS_EVENTOS,
         icon: ClipboardList, 
         roles: ["promoter"] 
       },
@@ -207,6 +207,13 @@ export const sidebarConfig: SidebarSection[] = [
     title: "Conta",
     roles: ["public_guest", "public_registered", "promoter", "admin", "master"],
     items: [
+      {
+        id: "divulgador_status",
+        label: "Seja Divulgador",
+        path: ROUTES.DIVULGADOR_STATUS,
+        icon: Megaphone,
+        roles: ["public_registered"]
+      },
       { 
         id: "profile", 
         label: "Meu Perfil", 

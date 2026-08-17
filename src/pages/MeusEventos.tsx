@@ -140,7 +140,7 @@ export default function MeusEventos() {
           )}
         </header>
 
-        <SolicitarDivulgadorCard />
+        {/* Card removido daqui pois agora temos a página /divulgador/status dedicada e linkada nos botões principais */}
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as StatusKey)}>
           <TabsList className="bg-foreground/[0.04] rounded-full p-1">

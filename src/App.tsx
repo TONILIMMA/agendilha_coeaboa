@@ -65,6 +65,7 @@ const PromotorPerfil = lazy(() => import("./pages/PromotorPerfil"));
 const TermosPage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.TermosPage })));
 const PrivacidadePage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.PrivacidadePage })));
 const ImpulsionamentoPage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.ImpulsionamentoPage })));
+const StatusDivulgador = lazy(() => import("./pages/divulgador/StatusDivulgador"));
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -188,6 +189,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.EVENTOS} element={<ProtectedRoute><Eventos /></ProtectedRoute>} />
           <Route path={ROUTES.MEUS_EVENTOS} element={<ProtectedRoute><MeusEventos /></ProtectedRoute>} />
           <Route path={ROUTES.EVENTO_ENVIADO} element={<ProtectedRoute><EventoEnviado /></ProtectedRoute>} />
+          <Route path={ROUTES.DIVULGADOR_STATUS} element={<ProtectedRoute><StatusDivulgador /></ProtectedRoute>} />
         </Route>
 
         {/* Full width detail pages */}
@@ -218,6 +220,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.PROMOTOR_ATRATIVOS} element={<PromotorAtrativos />} />
           <Route path={ROUTES.PROMOTOR_PERFIL} element={<PromotorPerfil />} />
         </Route>
+
 
         {/* Master Pages - isolated from regular admin permissions */}
         <Route element={<ProtectedRoute masterOnly><AppShell showSidebar={true} maxWidth="xl"><Outlet /></AppShell></ProtectedRoute>}>
