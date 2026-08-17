@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 import { InlineError } from "@/components/errors/InlineError";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 const NEIGHBORHOODS = [
   "Bancários","Cacuia","Cidade Universitária","Cocotá","Freguesia","Galeão",
@@ -226,6 +227,11 @@ function ExplorarInner() {
       <Header />
 
       <section className="pt-24 sm:pt-32 pb-10 px-4 max-w-6xl mx-auto">
+        <SeoHead
+          title="Buscar rolê na Ilha — agenda completa | AgendIlha"
+          description="Explore a agenda completa da Ilha do Governador: filtre eventos por bairro, data e categoria e ache o rolê certo pra hoje ou pro fim de semana."
+          path="/explorar"
+        />
         <div className="text-center mb-8 sm:mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
           <div className="inline-flex items-center justify-center px-3.5 py-1 rounded-full border border-accent mb-6">
             <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.22em] text-secondary">Agenda completa</span>
@@ -240,6 +246,7 @@ function ExplorarInner() {
 
         {/* Desktop filters */}
         <div className="hidden md:block mb-8 space-y-4 rounded-3xl border border-border/60 bg-card/40 backdrop-blur-sm p-5">
+          <h2 className="sr-only">Filtrar eventos por data, bairro e categoria</h2>
           {SearchField}
           {DateChips}
           {Selects}
@@ -257,6 +264,7 @@ function ExplorarInner() {
 
         {/* Mobile filters trigger */}
         <div className="md:hidden mb-6 flex items-center gap-2">
+          <h2 className="sr-only">Buscar e filtrar eventos</h2>
           <div className="flex-1">{SearchField}</div>
           <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
             <SheetTrigger asChild>
@@ -293,6 +301,9 @@ function ExplorarInner() {
         </div>
 
         {/* Grid */}
+        <h2 className="text-xl sm:text-2xl font-bold font-display tracking-tight mb-4">
+          Eventos na Ilha do Governador
+        </h2>
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {Array.from({ length: 8 }).map((_, i) => (

@@ -219,6 +219,34 @@ export default function EventDetail() {
             <meta name="twitter:title" content={event.event_title} />
             <meta name="twitter:description" content={description} />
             <meta name="twitter:image" content={ogImage} />
+            <script type="application/ld+json">
+              {JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Event",
+                name: event.event_title,
+                startDate: event.date
+                  ? `${event.date}${event.start_time ? `T${event.start_time}` : ""}`
+                  : undefined,
+                endDate: event.date && event.end_time ? `${event.date}T${event.end_time}` : undefined,
+                description,
+                image: ogImage,
+                url: pageUrl,
+                eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+                location: {
+                  "@type": "Place",
+                  name: event.location || "Ilha do Governador",
+                  address: {
+                    "@type": "PostalAddress",
+                    streetAddress: [event.address_street, event.address_number]
+                      .filter(Boolean)
+                      .join(", ") || undefined,
+                    addressLocality: event.address_city || "Rio de Janeiro",
+                    addressRegion: "RJ",
+                    addressCountry: "BR",
+                  },
+                },
+              })}
+            </script>
           </Helmet>
         );
       })()}
