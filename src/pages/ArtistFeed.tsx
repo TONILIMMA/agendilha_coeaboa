@@ -9,6 +9,7 @@
  import { toast } from "sonner";
  import { Link } from "react-router-dom";
  import { useInView } from "react-intersection-observer";
+import { SeoHead } from "@/components/seo/SeoHead";
  
  interface MediaItem {
    id: string;
@@ -217,6 +218,11 @@
          className="h-[calc(100vh-64px)] overflow-y-scroll snap-y snap-mandatory bg-black scroll-smooth scrollbar-none"
        onScroll={handleScroll}
      >
+      <SeoHead
+        title="Atrativos da Ilha — vídeos de artistas | AgendIlha"
+        description="Assista aos vídeos dos artistas e atrativos da Ilha do Governador e descubra quem vai tocar nos próximos rolês da agenda."
+        path="/artistas"
+      />
        {mediaItems.map((item, index) => (
          <VideoItem key={item.id} item={item} isActive={index === activeIndex} />
        ))}
