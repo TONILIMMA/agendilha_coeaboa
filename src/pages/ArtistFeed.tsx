@@ -98,12 +98,13 @@
  
        {/* Interaction Sidebar */}
        <div className="absolute right-4 bottom-32 flex flex-col gap-6 z-10">
-         <Button size="icon" variant="ghost" className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20">
+         <Button size="icon" variant="ghost" aria-label="Curtir este vídeo" className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20">
            <Heart className="h-6 w-6" />
          </Button>
          <Button 
            size="icon" 
            variant="ghost" 
+           aria-label="Copiar link do perfil do artista"
            className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20"
            onClick={() => {
              navigator.clipboard.writeText(`${window.location.origin}/artista/${item.artist_id}`);
@@ -115,6 +116,7 @@
          <Button 
            size="icon" 
            variant="ghost" 
+           aria-label={isMuted ? "Ativar o som" : "Desativar o som"}
            className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20"
            onClick={() => setIsMuted(!isMuted)}
          >
