@@ -47,6 +47,7 @@ export const ROUTES = {
   TERMOS: "/termos",
   PRIVACIDADE: "/privacidade",
   IMPULSIONAMENTO: "/impulsionamento-em-breve",
+  DIVULGADOR_STATUS: "/divulgador/status",
 };
 
 export const VALID_ROUTES = Object.values(ROUTES);
