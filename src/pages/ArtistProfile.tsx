@@ -181,7 +181,7 @@ export default function ArtistProfile() {
              <Button className="rounded-full gap-2 px-6 shadow-lg shadow-primary/20">
                <Heart className="h-4 w-4" /> Seguir
              </Button>
-             <Button variant="outline" size="icon" className="rounded-full">
+            <Button variant="outline" size="icon" aria-label="Compartilhar perfil do artista" className="rounded-full">
                <Share2 className="h-4 w-4" />
              </Button>
            </div>
