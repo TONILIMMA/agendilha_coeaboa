@@ -250,7 +250,7 @@ function AgendaCulturalInner() {
         )}
       </main>
 
-      <Onboarding />
+      
       <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
       {shareData && (
         <ShareDialog

@@ -563,7 +563,7 @@ export default function Landing() {
       </footer>
 
       <Suspense fallback={null}>
-        <Onboarding />
+        
         <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
         {shareData && (
           <ShareDialog
