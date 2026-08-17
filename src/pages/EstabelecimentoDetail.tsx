@@ -10,6 +10,7 @@ import {
   ArrowLeft, Building2, MapPin, Navigation, Phone, Share2, CalendarOff,
 } from "lucide-react";
 import { toast } from "sonner";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 interface Estabelecimento {
   id: string;
@@ -133,6 +134,27 @@ export default function EstabelecimentoDetail() {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-6 sm:py-10 space-y-8 pb-24">
+      <SeoHead
+        title={`${estab.nome}${estab.bairro ? ` — ${estab.bairro}` : ""} | AgendIlha`}
+        description={`${estab.nome}${estab.tipo ? `, ${estab.tipo}` : ""}${estab.bairro ? ` no bairro ${estab.bairro}` : ""} na Ilha do Governador. Veja endereço, contato e os próximos eventos por lá.`}
+        path={`/lugar/${estab.id}`}
+        image={estab.fotos?.[0] || undefined}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          name: estab.nome,
+          telephone: estab.contato || undefined,
+          image: estab.fotos?.[0] || undefined,
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: [estab.endereco, estab.numero].filter(Boolean).join(", ") || undefined,
+            addressLocality: "Rio de Janeiro",
+            addressRegion: "RJ",
+            postalCode: estab.cep || undefined,
+            addressCountry: "BR",
+          },
+        }}
+      />
       <Button
         variant="ghost"
         size="sm"
