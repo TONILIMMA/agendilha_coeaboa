@@ -74,7 +74,7 @@ const formSchema = z.object({
   perfilEnderecoResumido: z.string().trim().max(200).optional(),
 
   category: z.string().trim().optional(),
-  eventTitle: z.string().trim().min(1, "Dá um nome pro rolê"),
+  eventTitle: z.string().trim().optional(),
   date: z.string().trim().min(1, "Selecione a data"),
   startTime: z.string().trim().min(1, "Campo obrigatório"),
   endTime: z.string().trim().optional(),
@@ -110,7 +110,7 @@ const formSchema = z.object({
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "CEP precisa ter 8 dígitos" });
     }
   }),
-  localTipo: z.string().trim().min(1, "Selecione o tipo de local (bar, praça, restaurante...)"),
+  localTipo: z.string().trim().optional(),
 
   description: z.string().trim().max(500).optional(),
   contactSocial: z.string().trim().max(300).optional(),
@@ -179,7 +179,7 @@ export default function SubmissionForm() {
       duvidasSource: "promotor",
       duvidasWhatsapp: "",
       responsavelNome: "",
-      usarMeuWhatsapp: true,
+      usarMeuWhatsapp: false,
     },
     mode: "onChange",
   });

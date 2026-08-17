@@ -56,10 +56,10 @@ export function MediaStep({ form, imageSource, setImageSource, eventImage, setEv
         >
           <Sparkles className="h-6 w-6 text-yellow-500" />
           <div className="text-center">
-            <div className="font-bold">Gerar com IA</div>
+            <div className="font-bold">Gerar flyer</div>
             <div className="text-[10px] opacity-70 font-medium">Cria um flyer em segundos</div>
           </div>
-          <Badge className="absolute -top-2 -right-2 bg-yellow-500 text-black border-none animate-pulse text-[8px] sm:text-[10px]">BETA</Badge>
+          <Badge className="absolute -top-2 -right-2 bg-yellow-500 text-black border-none animate-pulse text-[8px] sm:text-[10px] hidden">BETA</Badge>
         </Button>
       </div>
 
@@ -79,7 +79,7 @@ export function MediaStep({ form, imageSource, setImageSource, eventImage, setEv
           <Suspense fallback={
             <div className="h-40 flex flex-col items-center justify-center gap-3 bg-muted/20 rounded-3xl border-2 border-dashed border-primary/20">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-sm font-bold text-primary/60 uppercase tracking-widest">Carregando Estúdio IA...</p>
+              <p className="text-sm font-bold text-primary/60 uppercase tracking-widest">Carregando Estúdio...</p>
             </div>
           }>
             <AIFlyerGenerator
@@ -103,24 +103,7 @@ export function MediaStep({ form, imageSource, setImageSource, eventImage, setEv
         </div>
       )}
 
-      {user && (
-        <div className="pt-2 border-t border-border/60 space-y-3">
-          <div>
-            <h3 className="text-sm font-bold text-primary">Fotos extras (opcional)</h3>
-            <p className="text-xs text-muted-foreground">
-              Enviou o flyer? Beleza. Se quiser, adiciona fotos do rolê pra ilustrar a página.
-            </p>
-          </div>
-          <PhotoGallery
-            urls={fotos}
-            onChange={(next) => form.setValue("fotos", next, { shouldDirty: true })}
-            kind="events"
-            ownerUserId={user.id}
-            label="Fotos do evento"
-            helper="Até 8 imagens. Aparecem na página pública do evento."
-          />
-        </div>
-      )}
+      {/* Removendo a seção Fotos extras conforme solicitado */}
 
     </div>
   );

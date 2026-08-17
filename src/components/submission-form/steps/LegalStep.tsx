@@ -190,7 +190,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
           name="responsavelNome"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome do divulgador *</FormLabel>
+              <FormLabel>Quem é responsável pelo evento? *</FormLabel>
               <FormControl>
                 <PromotorAutocomplete
                   value={field.value ?? ""}
@@ -217,29 +217,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="usarMeuWhatsapp"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start gap-3 space-y-0 rounded-md border bg-muted/30 p-3">
-              <FormControl>
-                <Checkbox
-                  checked={field.value !== false}
-                  disabled={isPublished}
-                  onCheckedChange={(v) => field.onChange(v === true)}
-                />
-              </FormControl>
-              <div className="text-sm leading-tight">
-                <FormLabel className="cursor-pointer">Usar o mesmo WhatsApp do meu cadastro</FormLabel>
-                <p className="text-xs text-muted-foreground">
-                  {basicPhone
-                    ? `Vamos usar ${formatPhoneDisplay(basicPhone)} pra receber dúvidas.`
-                    : "Preencha o WhatsApp no seu cadastro base pra reaproveitar."}
-                </p>
-              </div>
-            </FormItem>
-          )}
-        />
+      {/* Removendo a opção Usar o mesmo WhatsApp conforme solicitado */}
       </div>
 
       <FormField
@@ -259,12 +237,12 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                         autoComplete="tel"
                         placeholder="(21) 9XXXX-XXXX – WhatsApp que vai receber dúvidas"
                         value={field.value || ""}
-                        readOnly={isPublished || usarMeuWhatsapp}
-                        aria-readonly={isPublished || usarMeuWhatsapp}
+                        readOnly={isPublished}
+                        aria-readonly={isPublished}
                         aria-describedby={isPublished ? "duvidas-whatsapp-lock" : undefined}
-                        className={(isPublished || usarMeuWhatsapp) ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
+                        className={isPublished ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
                         onChange={(e) => {
-                          if (isPublished || usarMeuWhatsapp) return;
+                          if (isPublished) return;
                           field.onChange(formatPhoneDisplay(e.target.value));
                         }}
                       />
@@ -296,9 +274,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
               </Button>
             )}
             <p className="text-xs text-muted-foreground">
-              {usarMeuWhatsapp
-                ? "Usando o WhatsApp do seu cadastro. Desmarque acima pra informar outro número (produtor, sócio, gerente…)."
-                : "Digite o WhatsApp de quem vai responder às dúvidas sobre esse evento."}
+              Digite o WhatsApp de quem vai responder às dúvidas sobre esse evento.
             </p>
 
             {/* Pré-visualização do link do WhatsApp */}
