@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import { formatBrazilianDate } from "@/lib/date-utils";
 import { getEventFallbackImage } from "@/lib/event-utils";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 type ShowFilter = "todos" | "semana" | "mes";
 
@@ -108,7 +109,24 @@ export default function ArtistProfile() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      
+      <SeoHead
+        title={`${artist.name} — Atrativo na Ilha | AgendIlha`}
+        description={
+          (artist.bio as string | null)?.trim() ||
+          `Conheça ${artist.name}${artist.genre ? ` (${artist.genre})` : ""}, atrativo da Ilha do Governador, e veja os próximos shows na agenda do AgendIlha.`
+        }
+        path={`/artista/${artist.id}`}
+        type="profile"
+        image={(artist.avatar_url as string | null) || undefined}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "MusicGroup",
+          name: artist.name,
+          genre: artist.genre || undefined,
+          image: (artist.avatar_url as string | null) || undefined,
+          description: (artist.bio as string | null) || undefined,
+        }}
+      />
       {/* Hero Section */}
        <div className="relative h-[40vh] md:h-[50vh] w-full overflow-hidden">
          <div 
