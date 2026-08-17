@@ -218,7 +218,10 @@ export const AppRoutes = () => (
           <Route path={ROUTES.PROMOTOR_ESTABELECIMENTOS} element={<PromotorEstabelecimentos />} />
           <Route path={ROUTES.PROMOTOR_ATRATIVOS} element={<PromotorAtrativos />} />
           <Route path={ROUTES.PROMOTOR_PERFIL} element={<PromotorPerfil />} />
-          <Route path="/divulgador/status" element={<StatusDivulgador />} />
+        </Route>
+
+        <Route element={<AppShell maxWidth="md"><Outlet /></AppShell>}>
+          <Route path={ROUTES.DIVULGADOR_STATUS} element={<ProtectedRoute><StatusDivulgador /></ProtectedRoute>} />
         </Route>
 
         {/* Master Pages - isolated from regular admin permissions */}
