@@ -479,18 +479,24 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Categoria *</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ""}>
-              <FormControl>
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Selecione uma categoria" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FormControl>
+              <SuggestInput
+                placeholder="Busque ou selecione a categoria..."
+                className="h-12"
+                suggestFrom="atrativos_public"
+                suggestColumn="tipo_atrativo"
+                extraSuggestions={CATEGORIES.map(c => c.label)}
+                {...field}
+                onChange={(e) => {
+                  field.onChange(e);
+                  const val = e.target.value.toLowerCase();
+                  const match = CATEGORIES.find(c => c.label.toLowerCase() === val || c.value === val);
+                  if (match && match.value !== field.value) {
+                    field.onChange(match.value);
+                  }
+                }}
+              />
+            </FormControl>
             {(() => {
               const age = form.watch("ageRating") || "Livre";
               const cat = field.value;

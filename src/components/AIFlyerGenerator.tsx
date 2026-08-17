@@ -388,7 +388,7 @@ export function AIFlyerGenerator({ initialData, onFlyerGenerated }: AIFlyerGener
           <div className="bg-primary/5 p-4 rounded-2xl flex items-start gap-3 border border-primary/10">
             <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
             <p className="text-[10px] text-primary/80 font-bold leading-relaxed uppercase tracking-wider">
-              Ao finalizar, a IA criará automaticamente versões otimizadas para Story, Feed e WhatsApp.
+              Ao finalizar, serão criadas automaticamente versões otimizadas para Story, Feed e WhatsApp.
             </p>
           </div>
         </div>
