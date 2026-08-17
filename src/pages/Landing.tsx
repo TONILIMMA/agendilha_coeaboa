@@ -275,7 +275,7 @@ export default function Landing() {
                 </Button>
                 <Button
                   variant="ghost"
-                  onClick={() => navigate("/meus-eventos")}
+                  onClick={() => navigate(user ? "/divulgador/status" : "/auth?redirect=/divulgador/status")}
                   className="w-full sm:w-auto sm:px-10 h-12 sm:h-13 rounded-full font-medium text-base text-foreground border border-accent hover:bg-muted transition-all"
                 >
                   Área do Divulgador
