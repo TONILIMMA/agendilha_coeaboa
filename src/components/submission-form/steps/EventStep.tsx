@@ -172,7 +172,7 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
         name="eventTitle"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nome do evento</FormLabel>
+            <FormLabel>Nome do evento <span className="text-xs font-normal text-muted-foreground">(opcional)</span></FormLabel>
             <FormControl>
               <SuggestInput
                 placeholder="Ex: Festival de Inverno"

@@ -149,7 +149,7 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
           name="localTipo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tipo de local *</FormLabel>
+              <FormLabel>Tipo de local <span className="text-xs font-normal text-muted-foreground">(opcional)</span></FormLabel>
               <Select onValueChange={field.onChange} value={field.value || ""}>
                 <FormControl>
                   <SelectTrigger className="h-12">

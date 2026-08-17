@@ -182,7 +182,7 @@ export function AIFlyerGenerator({ initialData, onFlyerGenerated }: AIFlyerGener
           <div className="flex items-center justify-between px-2">
             <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Formato</h3>
             <Badge variant="secondary" className="bg-primary/10 text-primary border-none animate-pulse">
-              ✨ Preview IA
+              ✨ Preview flyer
             </Badge>
           </div>
           <div className="flex gap-2 bg-muted/30 p-1 rounded-full overflow-hidden">
@@ -302,7 +302,7 @@ export function AIFlyerGenerator({ initialData, onFlyerGenerated }: AIFlyerGener
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-display font-black text-xl flex items-center gap-2 mb-1">
-              <Palette className="h-5 w-5 text-primary" /> Estúdio IA
+              <Palette className="h-5 w-5 text-primary" /> Estúdio
             </h3>
             <p className="text-sm text-muted-foreground">Customize cada detalhe da sua arte.</p>
           </div>
