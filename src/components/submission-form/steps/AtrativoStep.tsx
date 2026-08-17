@@ -1,6 +1,7 @@
 import { NovoAtrativoDialog } from "@/components/atrativos/NovoAtrativoDialog";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SuggestInput } from "@/components/ui/SuggestInput";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
