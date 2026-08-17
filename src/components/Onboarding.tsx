@@ -28,9 +28,10 @@ export function Onboarding() {
   const [selectedNeighborhood, setSelectedNeighborhood] = useState("");
 
   useEffect(() => {
-    if (loaded && !profile.onboarding_completed && profile.role === 'public') {
-      setOpen(true);
-    }
+    // Pop-up automático desativado conforme requisito de experiência.
+    // if (loaded && !profile.onboarding_completed && profile.role === 'public') {
+    //   setOpen(true);
+    // }
   }, [loaded, profile.onboarding_completed, profile.role]);
 
   const handleFinish = async () => {
