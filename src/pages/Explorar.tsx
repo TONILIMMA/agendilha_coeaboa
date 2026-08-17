@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 import { InlineError } from "@/components/errors/InlineError";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 const NEIGHBORHOODS = [
   "Bancários","Cacuia","Cidade Universitária","Cocotá","Freguesia","Galeão",
