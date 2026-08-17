@@ -207,6 +207,7 @@ export const sidebarConfig: SidebarSection[] = [
     title: "Conta",
     roles: ["public_guest", "public_registered", "promoter", "admin", "master"],
     items: [
+      {
         id: "divulgador_status",
         label: "Seja Divulgador",
         path: ROUTES.DIVULGADOR_STATUS,
