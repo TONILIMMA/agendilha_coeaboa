@@ -20,7 +20,9 @@ import {
   ChevronRight,
   Loader2,
   Compass,
-  Megaphone
+  Megaphone,
+  MessageCircle,
+  Map as MapIcon
 } from "lucide-react";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
