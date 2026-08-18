@@ -1,38 +1,44 @@
-# Plano de Refatoração e Otimização do Sistema
+# Plano de Refatoração e Otimização - AgendIlha (Coé a Boa?)
 
-Este plano visa melhorar a escalabilidade, performance e manutenibilidade do AgendIlha, focando na unificação de camadas de dados e otimização de renderização mobile-first.
+Este plano detalha as próximas etapas para consolidar o sistema, focando em robustez técnica, segurança e performance mobile-first.
 
-## Etapa 1: Unificação da Camada de Dados e Cache (React Query)
-- **Problema:** Múltiplos hooks (`useAgendaData`, `useSubmissions`) com lógicas de fetch duplicadas.
-- **Ação:** Criar uma estrutura unificada de Queries e Mutations no diretório `src/data/` (ex: `events.ts`, `profiles.ts`).
-- **Benefício:** Redução de requisições redundantes e estado consistente em todo o app.
+## Etapa 1: Consolidação da Camada de Dados (Em Andamento)
+- **Ações:**
+  - Finalizar a migração de hooks legados para o padrão centralizado em `src/data/`.
+  - Implementar lógica de paginação infinita padronizada para todas as listas (Atrativos, Usuários, Eventos).
+  - Unificar o gerenciamento de estados de carregamento (Loading) e erro em um padrão visual consistente.
+- **Técnico:** Uso extensivo de `useInfiniteQuery` e chaves de cache (`queryKeys`) estruturadas.
 
-## Etapa 2: Endurecimento de Segurança e RLS
-- **Problema:** Políticas de RLS complexas podem causar gargalos ou vazamentos acidentais.
-- **Ação:** Revisar e simplificar políticas, garantindo que `user_roles` seja a única fonte de verdade para permissões administrativas. Implementar auditoria automática para alterações em status de eventos.
-- **Benefício:** Segurança robusta e performance em queries filtradas por permissão.
+## Etapa 2: Refinamento de Segurança e Auditoria
+- **Ações:**
+  - Revisão completa das políticas RLS para garantir que o PII (Dados Pessoais) esteja acessível apenas via Security Invoker Views.
+  - Implementar um log de auditoria no frontend para ações críticas de administradores (aprovações, edições de PIN).
+  - Fortalecer a validação de tipos nos Edge Functions (Auth/PIN).
+- **Técnico:** Migrações SQL para auditoria e triggers de sistema.
 
-## Etapa 3: Tipagem Estrita e Manutenibilidade
-- **Problema:** Uso excessivo de `any` em payloads de formulário e respostas do backend.
-- **Ação:** Gerar tipos TypeScript atualizados a partir do banco e aplicá-los em `SubmissionForm.tsx` e helpers administrativos.
-- **Benefício:** Detecção de bugs em tempo de compilação e melhor DX (Developer Experience).
+## Etapa 3: Performance Frontend e Imagens
+- **Ações:**
+  - Implementar otimização automática de flyers no upload (redimensionamento client-side).
+  - Virtualização de listas no Painel Master e Explorar para suportar milhares de itens sem perda de FPS.
+  - Implementar Skeleton Screens em substituição aos Spinners genéricos para melhorar o LCP percebido.
+- **Técnico:** `react-window` ou `tanstack-virtual` e `canvas` para compressão de imagem.
 
-## Etapa 4: Otimização de Performance Frontend
-- **Problema:** Componentes grandes (ex: `AdminEvents.tsx`) causando lentidão no carregamento mobile.
-- **Ação:** 
-  - Aplicar `React.memo` em cards de lista.
-  - Implementar virtualização para listas longas de eventos.
-  - Otimizar o LCP das imagens dos flyers com carregamento prioritário.
-- **Benefício:** Fluidez em dispositivos de entrada e menor consumo de dados.
+## Etapa 4: UX Administrativa Mobile-First
+- **Ações:**
+  - Substituir diálogos densos por Bottom Sheets no mobile para ações rápidas.
+  - Criar um Dashboard de Insights rápido para Master/Admin (KPIs com gráficos simples).
+  - Melhorar o fluxo de "Aprovação Silenciosa" com feedback táctil (Haptic Feedback) via PWA.
+- **Técnico:** `@vaul` (Drawer) para Shadcn e `lucide-react` para iconografia intuitiva.
 
-## Etapa 5: Refatoração de UI/UX Mobile-First
-- **Problema:** Algumas telas administrativas ainda são densas para visualização em celular.
-- **Ação:** Transformar tabelas em layouts de cards expansíveis (já iniciado em algumas partes) e otimizar modais de ação para "bottom sheets" no mobile.
-- **Benefício:** Melhor usabilidade para administradores em trânsito.
+## Etapa 5: Qualidade de Código e CI/CD
+- **Ações:**
+  - Remover códigos mortos e arquivos legados identificados na Fase 1.
+  - Implementar testes de integração E2E para o fluxo crítico de submissão e aprovação.
+  - Documentação das chaves de memória (`mem://`) para garantir consistência nas futuras iterações da IA.
+- **Técnico:** Playwright para testes e `ts-morph` para análise de código morto.
 
 ---
 
 ## Detalhes Técnicos
-- **Stack:** React 18 + Vite + Shadcn UI + Supabase.
-- **Monitoramento:** Utilizar `QueryCache` global para logging de erros e performance.
-- **Testes:** Priorizar verificação de fluxos críticos (Auth/Submissão) via Playwright após as mudanças estruturais.
+- **Prioridade:** Estabilidade da Camada de Dados > Segurança > Performance > UX.
+- **Voz:** Manter o tom "Insulano" em todas as mensagens de erro e feedbacks do sistema.
