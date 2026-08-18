@@ -393,6 +393,10 @@ export default function SubmissionForm() {
       const clean = (v?: string | null) => {
         if (v == null) return null;
         const s = String(v).trim();
+        return s === "" ? null : s;
+      };
+
+      const eventTitle = values.eventTitle?.trim() || null;
         if (!s) return null;
         if (/^não informado$/i.test(s)) return null;
         return s;

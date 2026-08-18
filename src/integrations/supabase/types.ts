@@ -1514,7 +1514,7 @@ export type Database = {
           email: string | null
           end_time: string | null
           estabelecimento_id: string | null
-          event_title: string
+          event_title: string | null
           flyer_approved_at: string | null
           flyer_aprovado: boolean
           fotos: string[] | null
@@ -1609,7 +1609,7 @@ export type Database = {
           email?: string | null
           end_time?: string | null
           estabelecimento_id?: string | null
-          event_title: string
+          event_title?: string | null
           flyer_approved_at?: string | null
           flyer_aprovado?: boolean
           fotos?: string[] | null
@@ -1704,7 +1704,7 @@ export type Database = {
           email?: string | null
           end_time?: string | null
           estabelecimento_id?: string | null
-          event_title?: string
+          event_title?: string | null
           flyer_approved_at?: string | null
           flyer_aprovado?: boolean
           fotos?: string[] | null
