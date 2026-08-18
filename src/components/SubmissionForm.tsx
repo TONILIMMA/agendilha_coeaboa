@@ -383,7 +383,7 @@ export default function SubmissionForm() {
       case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
       case 4: return ["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory", "atrativoType", "atrativoStyle", "atrativoDescription"];
       case 5: return ["locationName", "localTipo", "addressNeighborhood", "eventAddress", "locationType", "locationContact", "locationCep"];
-      case 7: return ["legalAcceptance", "responsavelNome", "duvidasWhatsapp", "duvidasAuthorized"];
+      case 7: return ["legalAcceptance", "responsavelNome", "duvidasWhatsapp"];
       default: return [];
     }
   };
