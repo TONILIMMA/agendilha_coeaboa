@@ -213,8 +213,15 @@ function AdminEventsInner() {
     fetchAll();
   }
 
-  async function confirmGenerateFlyer(targetSub?: Submission) {
-    const sub = (targetSub && typeof targetSub !== 'object' && (targetSub as any).nativeEvent) ? flyerOffer : (targetSub as Submission || flyerOffer);
+  async function confirmGenerateFlyer(targetSub?: Submission | React.MouseEvent) {
+    let sub: Submission | null = null;
+    
+    if (targetSub && 'id' in targetSub) {
+      sub = targetSub;
+    } else {
+      sub = flyerOffer;
+    }
+
     if (!sub) return;
     
     // Nunca sobrescreve arte enviada pelo promotor.
@@ -225,14 +232,14 @@ function AdminEventsInner() {
     setGeneratingFlyer(true);
     try {
       const dataUrl = await generateFallbackFlyer({
-        title: flyerOffer.event_title || "Evento",
-        date: formatEventDate(flyerOffer.date),
-        startTime: flyerOffer.start_time,
-        location: flyerOffer.location,
-        category: (flyerOffer as any).category ?? null,
+        title: sub.event_title || "Evento",
+        date: formatEventDate(sub.date),
+        startTime: sub.start_time,
+        location: sub.location,
+        category: (sub as any).category ?? null,
       });
       const blob = await (await fetch(dataUrl)).blob();
-      const filePath = `${user?.id ?? "admin"}/fallback-${flyerOffer.id}-${Date.now()}.jpg`;
+      const filePath = `${user?.id ?? "admin"}/fallback-${sub.id}-${Date.now()}.jpg`;
       const { error: upErr } = await supabase.storage
         .from("event-flyers")
         .upload(filePath, blob, { contentType: "image/jpeg", upsert: true });
@@ -243,7 +250,7 @@ function AdminEventsInner() {
       const { error: updErr } = await supabase
         .from("submissions")
         .update({ image_url: publicUrl })
-        .eq("id", flyerOffer.id);
+        .eq("id", sub.id);
       if (updErr) throw updErr;
       console.log("Flyer padrão gerado e salvo no evento.");
       setFlyerOffer(null);
