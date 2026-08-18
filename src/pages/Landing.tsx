@@ -447,24 +447,7 @@ export default function Landing() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex-1">
-                    <label htmlFor="subscriber-neighborhood" className="block text-xs font-semibold text-foreground/70 mb-1.5 px-1">
-                      Seu bairro <span className="font-normal text-foreground/50">(opcional)</span>
-                    </label>
-                    <Select 
-                      value={subscriberNeighborhood}
-                      onValueChange={setSubscriberNeighborhood}
-                    >
-                      <SelectTrigger id="subscriber-neighborhood" className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm focus:ring-secondary/20">
-                        <SelectValue placeholder="Escolha seu bairro" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {["Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia", "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras", "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"].sort().map(n => (
-                          <SelectItem key={n} value={n}>{n}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col justify-end px-1 sm:px-4">
+                  <div className="flex flex-col justify-end px-1 sm:px-4 col-span-1 sm:col-span-2">
                     <div className="flex items-start gap-2 bg-white/40 sm:bg-transparent rounded-xl p-3 sm:p-0">
                       <input 
                         type="checkbox" 
