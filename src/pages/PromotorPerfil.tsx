@@ -63,19 +63,23 @@ export default function PromotorPerfil() {
       }
     }
     setSaving(true);
-    const { error } = await upsertPromotorProfile({
-      user_id: targetUserId,
-      promotor_nome: nome,
-      promotor_whatsapp: whats,
-      tipo_promotor: tipo || null,
-    });
-    setSaving(false);
-    if (error) {
+    try {
+      await upsertPromotorProfile({
+        user_id: targetUserId,
+        promotor_nome: nome,
+        promotor_whatsapp: whats,
+        tipo_promotor: tipo || null,
+      });
+      toast.success("Perfil de divulgador atualizado.");
+      refetch();
+    } catch (error) {
+      // O handleError já foi configurado no useMutation se necessário, 
+      // mas aqui fazemos o feedback manual do toast.
       toast.error("Não deu pra salvar seu perfil. Tenta de novo.");
-      return;
+    } finally {
+      setSaving(false);
     }
-    toast.success("Perfil de divulgador atualizado.");
-    refetch();
+
   };
 
   if (loading) return <LoadingState />;
