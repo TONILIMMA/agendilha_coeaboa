@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import { LegalStep } from "./LegalStep";
 import { useForm } from "react-hook-form";
@@ -79,6 +79,10 @@ function TestWrapper() {
 describe("LegalStep - WhatsApp para dúvidas", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it("bloqueia o campo quando não for 'outro' e preenche ao selecionar sugestão", async () => {
