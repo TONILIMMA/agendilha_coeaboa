@@ -1,4 +1,4 @@
- import { lazy, Suspense, useEffect, useRef, useState, useCallback } from "react";
+ import { lazy, Suspense, useEffect, useRef, useState, useCallback, useMemo } from "react";
  import { useInfiniteQuery } from "@tanstack/react-query";
  import { useInView } from "react-intersection-observer";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,27 +12,17 @@ const ShareDialog = lazy(() =>
 );
 import {
   Calendar,
-  Megaphone,
-  Users2,
-  FileDown,
   Sparkles,
-  ShieldCheck,
   Globe2,
-  MessageCircle,
-  ArrowRight,
-  Map as MapIcon,
   TrendingUp,
   Music,
   MapPin,
   ChevronRight,
-  Heart,
-  Share2,
-  Mail,
-  ArrowRightCircle,
   Loader2,
-  Phone,
-  CheckCircle2,
-  Compass
+  Compass,
+  Megaphone,
+  MessageCircle,
+  Map as MapIcon
 } from "lucide-react";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,7 +35,6 @@ import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import logo from "@/assets/coeaboa-logo.webp";
 import { getShareData } from "@/lib/sharing";
-import { Settings2 } from "lucide-react";
 import { newsletterSubscribeSchema } from "@/schemas/newsletter";
 
 const sitelinks = [
@@ -125,14 +114,14 @@ export default function Landing() {
      getNextPageParam: (lastPage) => lastPage.nextPage,
    });
  
-    const allEvents = eventsData?.pages.flatMap(page => page.items) || [];
-    const todayStr = new Date().toISOString().split('T')[0];
-    const todayEvents = allEvents.filter(e => e.date === todayStr).slice(0, 6);
+    const allEvents = useMemo(() => eventsData?.pages.flatMap(page => page.items) || [], [eventsData]);
+    const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+    const todayEvents = useMemo(() => allEvents.filter(e => e.date === todayStr).slice(0, 6), [allEvents, todayStr]);
     
     // Deduplicate: events in alta should not be in today if possible, or limited
-    const trendingEvents = allEvents
+    const trendingEvents = useMemo(() => allEvents
       .filter(e => !todayEvents.find(t => t.id === e.id))
-      .slice(0, 8);
+      .slice(0, 8), [allEvents, todayEvents]);
  
    useEffect(() => {
      if (loadMoreInView && hasNextPage && !isFetchingNextPage) {
