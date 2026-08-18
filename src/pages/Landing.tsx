@@ -4,9 +4,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
-const Onboarding = lazy(() =>
-  import("@/components/Onboarding").then((m) => ({ default: m.Onboarding }))
-);
 const PersonalizationDialog = lazy(() =>
   import("@/components/PersonalizationDialog").then((m) => ({ default: m.PersonalizationDialog }))
 );
