@@ -833,50 +833,6 @@ function AdminEventsInner() {
         </DialogContent>
       </Dialog>
 
-      {/* Oferta pós-aprovação: gerar flyer genérico da marca (só admin) */}
-      <Dialog open={!!flyerOffer} onOpenChange={(o) => !o && !generatingFlyer && setFlyerOffer(null)}>
-        <DialogContent className="max-w-md">
-          {flyerOffer && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Megaphone className="h-5 w-5 text-primary" /> Gerar flyer genérico?
-                </DialogTitle>
-                <DialogDescription className="text-sm">
-                  Cria um flyer padrão da marca <strong>Coé a Boa?</strong> pra{" "}
-                  <span className="font-bold text-foreground">{flyerOffer.event_title}</span>,
-                  usando data, local e categoria do evento.
-                  {flyerOffer.image_url ? (
-                    <span className="block mt-2 text-amber-700">
-                      ⚠️ Esse evento já tem flyer. Gerar vai substituir a imagem atual.
-                    </span>
-                  ) : (
-                    <span className="block mt-2 text-muted-foreground">
-                      Assim o espaço da imagem nunca fica vazio na agenda.
-                    </span>
-                  )}
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="gap-2">
-                <Button variant="outline" onClick={() => setFlyerOffer(null)} disabled={generatingFlyer}>
-                  Agora não
-                </Button>
-                <Button
-                  onClick={confirmGenerateFlyer}
-                  disabled={generatingFlyer}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  {generatingFlyer ? (
-                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Gerando…</>
-                  ) : (
-                    <><Megaphone className="h-4 w-4 mr-2" /> Gerar flyer</>
-                  )}
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
     </PageContainer>
   );
 }
