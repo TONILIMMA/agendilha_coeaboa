@@ -482,10 +482,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Categoria *</FormLabel>
-            <Select 
-              onValueChange={field.onChange} 
-              value={field.value}
-            >
+            <Select onValueChange={field.onChange} value={field.value}>
               <FormControl>
                 <SelectTrigger className="h-12 bg-background border-input">
                   <SelectValue placeholder="Selecione uma categoria" />
@@ -499,10 +496,6 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 ))}
               </SelectContent>
             </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
             {(() => {
               const age = form.watch("ageRating") || "Livre";
               const cat = field.value;
@@ -526,6 +519,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 </div>
               );
             })()}
+            <FormMessage />
           </FormItem>
         )}
       />
