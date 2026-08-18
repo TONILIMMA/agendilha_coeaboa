@@ -214,7 +214,7 @@ function AdminEventsInner() {
   }
 
   async function confirmGenerateFlyer(targetSub?: Submission) {
-    const sub = targetSub || flyerOffer;
+    const sub = (targetSub && typeof targetSub !== 'object' && (targetSub as any).nativeEvent) ? flyerOffer : (targetSub as Submission || flyerOffer);
     if (!sub) return;
     
     // Nunca sobrescreve arte enviada pelo promotor.
