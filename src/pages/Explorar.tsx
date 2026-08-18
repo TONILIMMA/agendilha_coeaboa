@@ -200,16 +200,7 @@ function ExplorarInner() {
   );
 
   const Selects = (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <Select value={neighborhood} onValueChange={setNeighborhood}>
-        <SelectTrigger className="h-11 rounded-xl bg-background">
-          <SelectValue placeholder="Bairros" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos os bairros</SelectItem>
-          {NEIGHBORHOODS.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}
-        </SelectContent>
-      </Select>
+    <div className="grid grid-cols-1 gap-3">
       <Select value={category} onValueChange={setCategory}>
         <SelectTrigger className="h-11 rounded-xl bg-background">
           <SelectValue placeholder="Categorias" />
@@ -229,7 +220,7 @@ function ExplorarInner() {
       <section className="pt-24 sm:pt-32 pb-10 px-4 max-w-6xl mx-auto">
         <SeoHead
           title="Buscar rolê na Ilha — agenda completa | AgendIlha"
-          description="Explore a agenda completa da Ilha do Governador: filtre eventos por bairro, data e categoria e ache o rolê certo pra hoje ou pro fim de semana."
+          description="Explore a agenda completa da Ilha do Governador: filtre eventos por data e categoria e ache o rolê certo pra hoje ou pro fim de semana."
           path="/explorar"
         />
         <div className="text-center mb-8 sm:mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
@@ -240,13 +231,13 @@ function ExplorarInner() {
             Buscar rolê <span className="text-secondary">na Ilha</span>
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto text-balance leading-relaxed">
-            Filtre por bairro, data e categoria pra encontrar o evento certo.
+            Filtre por data e categoria pra encontrar o evento certo.
           </p>
         </div>
 
         {/* Desktop filters */}
         <div className="hidden md:block mb-8 space-y-4 rounded-3xl border border-border/60 bg-card/40 backdrop-blur-sm p-5">
-          <h2 className="sr-only">Filtrar eventos por data, bairro e categoria</h2>
+          <h2 className="sr-only">Filtrar eventos por data e categoria</h2>
           {SearchField}
           {DateChips}
           {Selects}
@@ -322,7 +313,7 @@ function ExplorarInner() {
             <Sparkles className="h-10 w-10 text-primary/30 mx-auto mb-4" />
             <h3 className="text-lg font-bold mb-2">Ainda não temos eventos para este filtro.</h3>
             <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-6">
-              Tente mudar o bairro, a data ou a categoria pra ver mais opções.
+              Tente mudar a data ou a categoria pra ver mais opções.
             </p>
             <Button variant="outline" onClick={clearAll} className="rounded-full font-semibold">
               Limpar filtros

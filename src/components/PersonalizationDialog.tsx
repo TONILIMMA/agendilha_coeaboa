@@ -21,7 +21,7 @@ const genres = [
   { id: "Pop", label: "Pop" },
 ];
 
-const neighborhoods = ["Bancários", "Cacuia", "Cocotá", "Freguesia", "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras", "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"];
+const neighborhoods: string[] = [];
 
 interface PersonalizationDialogProps {
   open: boolean;
@@ -77,23 +77,6 @@ export function PersonalizationDialog({ open, onOpenChange }: PersonalizationDia
         </SheetHeader>
 
         <div className="space-y-10 py-4">
-          {/* Localização */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-widest text-secondary flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              Sua Localização
-            </h3>
-            <Select value={homeLocation} onValueChange={setHomeLocation}>
-              <SelectTrigger className="h-14 rounded-2xl border-border/50 bg-secondary/5">
-                <SelectValue placeholder="Seu bairro favorito" />
-              </SelectTrigger>
-              <SelectContent>
-                {neighborhoods.sort().map(n => (
-                  <SelectItem key={n} value={n}>{n}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
           {/* Estilos Musicais */}
           <div className="space-y-4">

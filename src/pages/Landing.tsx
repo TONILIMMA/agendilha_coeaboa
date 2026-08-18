@@ -224,12 +224,12 @@ export default function Landing() {
        // Simple IA recommendation logic
        if (profileLoaded && user) {
          const prefs = profile.musical_preferences || [];
-         const home = profile.home_location;
-         const work = profile.work_neighborhood;
+          const home = profile.home_location;
+          const work = profile.work_neighborhood;
          
          const recs = allEvents.filter(ev => {
            const matchStyle = prefs.some(p => ev.atrativo_style?.toLowerCase().includes(p.toLowerCase()));
-           const matchNeighborhood = ev.address_neighborhood === home || ev.address_neighborhood === work;
+           const matchNeighborhood = false;
            return matchStyle || matchNeighborhood;
          }).slice(0, 5);
          
@@ -484,7 +484,7 @@ export default function Landing() {
         <section className="rounded-3xl bg-secondary/5 p-8 flex flex-col sm:flex-row items-center justify-between mb-16 border border-secondary/10 gap-6">
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-2">Explore a Ilha no mapa</h3>
-            <p className="text-muted-foreground text-sm">Bares, shows e pontos culturais entre Jardim Guanabara, Cocotá, Cacuia e arredores.</p>
+            <p className="text-muted-foreground text-sm">Bares, shows e pontos culturais em toda a Ilha do Governador.</p>
           </div>
           <Button 
             variant="secondary" 
