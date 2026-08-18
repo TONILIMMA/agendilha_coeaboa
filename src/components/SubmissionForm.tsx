@@ -398,6 +398,8 @@ export default function SubmissionForm() {
         return s;
       };
 
+      const eventTitle = values.eventTitle?.trim() || null;
+
       let imageUrl = values.eventImageUrl;
       
       if (eventImage instanceof File) {
@@ -452,7 +454,7 @@ export default function SubmissionForm() {
         // responsible_name é preenchido abaixo com o nome do responsável (Fase 7).
         email: clean(values.email),
         phone: clean(values.basicPhone),
-        event_title: clean(values.eventTitle) || clean(values.atrativoName),
+        event_title: eventTitle,
         date: clean(values.date),
         start_time: clean(values.startTime),
         end_time: clean(values.endTime),
