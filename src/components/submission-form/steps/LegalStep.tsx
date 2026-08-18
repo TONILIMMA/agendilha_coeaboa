@@ -352,7 +352,26 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
             <FormControl>
               <RadioGroup
                 value={field.value || ""}
-                onValueChange={field.onChange}
+                onValueChange={(val) => {
+                  const previousVal = field.value;
+                  field.onChange(val);
+                  
+                  if (val === "outro") {
+                    // Ao selecionar “Outro”, não reutilizar automaticamente o número anterior; o campo deve ficar vazio
+                    form.setValue("duvidasWhatsapp", "", { shouldValidate: true });
+                  } else if (previousVal === "outro") {
+                    // Se o usuário trocar de “Outro” para uma pessoa cadastrada, 
+                    // substituir imediatamente o valor digitado manualmente pelo WhatsApp da pessoa selecionada.
+                    // Tentamos buscar se o responsavelNome atual corresponde a alguém que já conhecemos ou se é o próprio usuário
+                    if (responsavelNome === nickName && basicPhone) {
+                      form.setValue("duvidasWhatsapp", formatPhoneDisplay(basicPhone), { shouldValidate: true });
+                    } else {
+                      // Se não for o próprio usuário, e ele apenas trocou o tipo, 
+                      // o Autocomplete cuidará de preencher se ele selecionar alguém.
+                      // Por enquanto, apenas limpamos para forçar a seleção/definição correta ou mantemos o que estava bloqueado.
+                    }
+                  }
+                }}
                 className="grid gap-2 sm:grid-cols-2"
               >
                 {[
