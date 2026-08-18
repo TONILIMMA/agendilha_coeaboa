@@ -11,3 +11,4 @@ export * from "./useUserDetails";
 export * from "./useArtistMedia";
 export * from "./useDivulgadorRequest";
 export * from "./events";
+export * from "./profiles";
