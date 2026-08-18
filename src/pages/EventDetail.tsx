@@ -292,7 +292,7 @@ export default function EventDetail() {
               {event.category || 'Geral'}
             </Badge>
             <h1 className="font-display font-semibold tracking-[-0.02em] text-background leading-[1.05] text-2xl xs:text-3xl md:text-5xl max-w-3xl line-clamp-3">
-              {event.event_title}
+              {event.event_title || "Evento"}
             </h1>
           </div>
         </div>
