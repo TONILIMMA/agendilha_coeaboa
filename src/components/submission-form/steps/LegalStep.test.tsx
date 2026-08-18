@@ -175,7 +175,9 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
 
     // 2. Select Maria from autocomplete
     fireEvent.change(nameInput, { target: { value: "Maria" } });
-    const suggestion = await screen.findByText("Maria da Vila");
+    
+    // We need to wait for the debounce and the async Supabase call inside PromotorAutocomplete
+    const suggestion = await screen.findByText("Maria da Vila", {}, { timeout: 2000 });
     fireEvent.mouseDown(suggestion);
 
     // Component should auto-fill Maria's data
