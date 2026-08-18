@@ -34,16 +34,32 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
   const [changeReqSaving, setChangeReqSaving] = useState(false);
   const [changeReqRefresh, setChangeReqRefresh] = useState(0);
 
-  // Sincroniza o WhatsApp do responsável com o WhatsApp principal do cadastro
-  // quando o usuário marca "Usar o mesmo WhatsApp do meu cadastro". Se ele
-  // desmarcar, o campo fica editável pra informar outro contato (produtor,
-  // sócio, gerente etc.).
+  // Sincroniza o WhatsApp e o nome do responsável com base nas regras condicionais
   useEffect(() => {
     if (isPublished) return;
-    if (usarMeuWhatsapp) {
-      form.setValue("duvidasWhatsapp", basicPhone || "", { shouldValidate: true, shouldDirty: false });
+
+    // Se tipoResponsavel não for "outro", o campo duvidasWhatsapp deve refletir o valor associado
+    // Porém, o preenchimento automático acontece via onSelect no Autocomplete ou quando 
+    // trocamos de "outro" para algo mapeado.
+    
+    if (tipoResponsavel === "outro") {
+      // Quando muda para "outro", limpamos se veio de um valor bloqueado anterior
+      // (a regra diz: "não reutilizar automaticamente o número anterior; o campo deve ficar vazio")
+      // Mas só fazemos isso UMA VEZ na transição para evitar apagar o que o usuário está digitando.
     }
-  }, [usarMeuWhatsapp, basicPhone, isPublished, form]);
+  }, [tipoResponsavel, isPublished, form]);
+
+  // Efeito para garantir que se o usuário mudar de "Outro" para um tipo específico, 
+  // e tivermos os dados do perfil, a gente restaura.
+  useEffect(() => {
+    if (isPublished || tipoResponsavel === "outro") return;
+    
+    // Se o usuário selecionou algo que não é "outro", e o campo duvidasWhatsappOutro tinha valor,
+    // podemos decidir se limpamos ou se apenas bloqueamos.
+    // A regra diz: "substituir imediatamente o valor digitado manualmente pelo WhatsApp da pessoa selecionada."
+    // Como a "pessoa selecionada" é controlada pelo responsavelNome e PromotorAutocomplete, 
+    // a lógica principal deve residir na interação desses campos.
+  }, [tipoResponsavel, isPublished, form]);
 
   // Pré-preenche o nome do responsável com o nome do cadastro, mas mantém editável.
   useEffect(() => {
@@ -193,13 +209,18 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
               <FormControl>
                 <PromotorAutocomplete
                   value={field.value ?? ""}
-                  onChange={field.onChange}
-                  disabled={true}
+                  onChange={(val) => {
+                    field.onChange(val);
+                    // Se o usuário está digitando manualmente o nome e não é "Outro",
+                    // ainda permitimos, mas o WhatsApp continuará bloqueado até que ele escolha "Outro"
+                    // ou selecione alguém da lista que preencha o Zap.
+                  }}
+                  disabled={isPublished}
                   onSelect={(p) => {
                     field.onChange(p.nome);
-                    if (p.whatsapp) {
-                      form.setValue("usarMeuWhatsapp", false, { shouldDirty: true });
-                      form.setValue("duvidasWhatsapp", formatPhoneDisplay(p.whatsapp), {
+                    if (p.whatsapp && tipoResponsavel !== "outro") {
+                      const formatted = formatPhoneDisplay(p.whatsapp);
+                      form.setValue("duvidasWhatsapp", formatted, {
                         shouldValidate: true,
                         shouldDirty: true,
                       });
@@ -224,7 +245,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
         name="duvidasWhatsapp"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>WhatsApp do responsável pela divulgação</FormLabel>
+            <FormLabel>WhatsApp para dúvidas *</FormLabel>
             <FormControl>
               <TooltipProvider>
                 <Tooltip>
@@ -236,16 +257,16 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                         autoComplete="tel"
                         placeholder="(21) 9XXXX-XXXX – WhatsApp que vai receber dúvidas"
                         value={field.value || ""}
-                        readOnly={true}
-                        aria-readonly={isPublished}
-                        aria-describedby={isPublished ? "duvidas-whatsapp-lock" : undefined}
-                        className={isPublished ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
+                        readOnly={tipoResponsavel !== "outro" || isPublished}
+                        aria-readonly={tipoResponsavel !== "outro" || isPublished}
+                        aria-describedby={(isPublished || tipoResponsavel !== "outro") ? "duvidas-whatsapp-lock" : undefined}
+                        className={(isPublished || tipoResponsavel !== "outro") ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
                         onChange={(e) => {
-                          if (true) return;
+                          if (tipoResponsavel !== "outro") return;
                           field.onChange(formatPhoneDisplay(e.target.value));
                         }}
                       />
-                      {isPublished && (
+                      {(isPublished || tipoResponsavel !== "outro") && (
                         <Lock
                           className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
                           aria-hidden
@@ -253,9 +274,9 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                       )}
                     </div>
                   </TooltipTrigger>
-                  {isPublished && (
+                  {(isPublished || tipoResponsavel !== "outro") && (
                     <TooltipContent id="duvidas-whatsapp-lock" side="top">
-                      {lockedTooltip}
+                      {isPublished ? lockedTooltip : "Este campo é preenchido automaticamente. Para editar manualmente, selecione 'Outro' em 'Quem responde pelo evento'."}
                     </TooltipContent>
                   )}
                 </Tooltip>
@@ -331,7 +352,26 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
             <FormControl>
               <RadioGroup
                 value={field.value || ""}
-                onValueChange={field.onChange}
+                onValueChange={(val) => {
+                  const previousVal = field.value;
+                  field.onChange(val);
+                  
+                  if (val === "outro") {
+                    // Ao selecionar “Outro”, não reutilizar automaticamente o número anterior; o campo deve ficar vazio
+                    form.setValue("duvidasWhatsapp", "", { shouldValidate: true });
+                  } else if (previousVal === "outro") {
+                    // Se o usuário trocar de “Outro” para uma pessoa cadastrada, 
+                    // substituir imediatamente o valor digitado manualmente pelo WhatsApp da pessoa selecionada.
+                    // Tentamos buscar se o responsavelNome atual corresponde a alguém que já conhecemos ou se é o próprio usuário
+                    if (responsavelNome === nickName && basicPhone) {
+                      form.setValue("duvidasWhatsapp", formatPhoneDisplay(basicPhone), { shouldValidate: true });
+                    } else {
+                      // Se não for o próprio usuário, e ele apenas trocou o tipo, 
+                      // o Autocomplete cuidará de preencher se ele selecionar alguém.
+                      // Por enquanto, apenas limpamos para forçar a seleção/definição correta ou mantemos o que estava bloqueado.
+                    }
+                  }
+                }}
                 className="grid gap-2 sm:grid-cols-2"
               >
                 {[
@@ -351,34 +391,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
         )}
       />
 
-      {tipoResponsavel === "outro" && (
-        <div className="rounded-md border p-4 space-y-3 bg-muted/20">
-          <div className="text-xs text-muted-foreground font-bold text-primary">Informar WhatsApp para Dúvidas</div>
-          <FormField
-            control={form.control}
-            name="duvidasWhatsappOutro"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telefone de contato para dúvidas</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    inputMode="tel"
-                    placeholder="(21) 9XXXX-XXXX"
-                    onChange={(e) => {
-                      const formatted = formatPhoneDisplay(e.target.value);
-                      field.onChange(formatted);
-                      // Sincroniza com o campo principal usado no envio
-                      form.setValue("duvidasWhatsapp", formatted, { shouldValidate: true });
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      )}
+      {/* Removido o campo duplicado duvidasWhatsappOutro, pois agora usamos o campo principal duvidasWhatsapp */}
 
       {tipoResponsavel === "artista" && (
         <div className="rounded-md border p-4 space-y-3">

@@ -150,17 +150,17 @@ const formSchema = z.object({
 
   // Se "Outro" for selecionado em tipoResponsavel, o telefone deve estar no formato correto
   if (data.tipoResponsavel === "outro") {
-    const outroPhone = (data.duvidasWhatsappOutro as string || "").trim();
+    const outroPhone = (data.duvidasWhatsapp as string || "").trim();
     if (!outroPhone) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["duvidasWhatsappOutro"],
-        message: "Informe o WhatsApp para dúvidas (campo Outro)",
+        path: ["duvidasWhatsapp"],
+        message: "Informe o WhatsApp para dúvidas",
       });
     } else {
       const vOutro = validateBrazilianMobile(outroPhone);
       if (vOutro.valid === false) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["duvidasWhatsappOutro"], message: vOutro.reason });
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["duvidasWhatsapp"], message: vOutro.reason });
       }
     }
   }
@@ -383,7 +383,7 @@ export default function SubmissionForm() {
       case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
       case 4: return ["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory", "atrativoType", "atrativoStyle", "atrativoDescription"];
       case 5: return ["locationName", "localTipo", "addressNeighborhood", "eventAddress", "locationType", "locationContact", "locationCep"];
-      case 7: return ["legalAcceptance", "responsavelNome", "duvidasWhatsapp", "duvidasAuthorized"];
+      case 7: return ["legalAcceptance", "responsavelNome", "duvidasWhatsapp"];
       default: return [];
     }
   };
