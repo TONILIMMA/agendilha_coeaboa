@@ -5,11 +5,11 @@ import { qk } from "./queryKeys";
 
 export interface Estabelecimento {
   id: string;
-  name: string;
-  neighborhood: string | null;
-  address?: string | null;
-  whatsapp_phone?: string | null;
-  category?: string | null;
+  nome: string;
+  bairro: string | null;
+  endereco?: string | null;
+  responsavel_telefone?: string | null;
+  tipo?: string | null;
   created_at?: string;
 }
 
@@ -25,15 +25,15 @@ export function useEstabelecimentos(options: {
       const { data, error } = await supabase
         .from("estabelecimentos")
         .select("*")
-        .order("name");
+        .order("nome");
       if (error) throw error;
-      return data ?? [];
+      return (data as unknown as Estabelecimento[]) ?? [];
     },
     enabled: options.enabled,
     staleTime: options.staleTime ?? 60_000,
     meta: {
       onError: (error: unknown) => handleError(error, {
-        fallback: "Não conseguimos carrergar os estabelecimentos.",
+        fallback: "Não conseguimos carregar os estabelecimentos.",
         context: "useEstabelecimentos"
       })
     }
