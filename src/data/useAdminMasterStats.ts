@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { callEdge } from "@/lib/edge";
+import { handleError } from "@/lib/error-handler";
 import { qk } from "./queryKeys";
 import type { AdminUser } from "./useAdminUsers";
 
@@ -42,5 +43,11 @@ export function useAdminMasterStats(enabled = true) {
         newsletter: subsRes.count ?? 0,
       };
     },
+    meta: {
+      onError: (error: unknown) => handleError(error, {
+        fallback: "Não deu pra carregar os dados do painel Master.",
+        context: "useAdminMasterStats"
+      })
+    }
   });
 }

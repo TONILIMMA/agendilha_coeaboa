@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { handleError } from "@/lib/error-handler";
 import { qk } from "./queryKeys";
 
 export interface SubmissionsFilters {
@@ -53,6 +54,12 @@ export function useSubmissions<T = unknown>(
       if (error) throw error;
       return (data ?? []) as T[];
     },
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        silent: true, 
+        context: "useSubmissions" 
+      })
+    }
   });
 }
 
@@ -74,6 +81,12 @@ export function useSubmissionsCount(
       if (error) throw error;
       return count ?? 0;
     },
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        silent: true, 
+        context: "useSubmissionsCount" 
+      })
+    }
   });
 }
 
@@ -95,6 +108,12 @@ export function useSubmission<T = unknown>(
       if (error) throw error;
       return (data ?? null) as T | null;
     },
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        fallback: "Não deu pra carregar os detalhes do envio.",
+        context: "useSubmission" 
+      })
+    }
   });
 }
 
