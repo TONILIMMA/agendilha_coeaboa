@@ -702,6 +702,9 @@ function AdminEventsInner() {
                             {sub.status !== 'rejeitado' && (
                              <Button size="sm" variant="outline" onClick={() => openReview(sub, 'rejected')} className="text-rose-600 border-rose-200 hover:bg-rose-50"><XCircle className="h-4 w-4 mr-2" /> Rejeitar</Button>
                             )}
+                            {sub.status === 'pendente' && (
+                             <Button size="sm" variant="outline" onClick={() => openReview(sub, 'ajuste')} className="text-orange-600 border-orange-200 hover:bg-orange-50"><AlertCircle className="h-4 w-4 mr-2" /> Solicitar Ajuste</Button>
+                            )}
                             <Button size="sm" variant={sub.is_highlight ? 'secondary' : 'outline'} className={sub.is_highlight ? 'bg-amber-100 text-amber-700' : ''} onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)}><Star className={`h-4 w-4 mr-2 ${sub.is_highlight ? 'fill-amber-500' : ''}`} /> {sub.is_highlight ? 'Remover Destaque' : 'Marcar Destaque'}</Button>
                             <Button size="sm" variant="ghost" className="text-muted-foreground ml-auto"><History className="h-4 w-4 mr-2" /> Histórico</Button>
                           </div>
