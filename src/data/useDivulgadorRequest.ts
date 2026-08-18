@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { qk } from "./queryKeys";
+import { handleError } from "@/lib/error-handler";
 
 export interface DivulgadorRequestInput {
   userId: string;
@@ -32,5 +33,9 @@ export function useCreateDivulgadorRequest() {
     },
     onSuccess: (_d, vars) =>
       qc.invalidateQueries({ queryKey: qk.divulgador.status(vars.userId) }),
+    onError: (error: unknown) => handleError(error, {
+      fallback: "Não conseguimos enviar seu pedido de divulgador agora.",
+      context: "useCreateDivulgadorRequest"
+    })
   });
 }
