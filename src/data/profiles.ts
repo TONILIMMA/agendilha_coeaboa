@@ -14,32 +14,25 @@ export interface UserProfile {
 /**
  * Unified profiles hook for the new data layer.
  */
-export function useProfiles() {
-  const qc = useQueryClient();
-
-  const useProfileById = (id: string | null | undefined) => {
-    return useQuery({
-      queryKey: id ? qk.userDetails.byId(id) : ["profiles", "byId", "none"],
-      enabled: !!id,
-      queryFn: async (): Promise<UserProfile | null> => {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", id as string)
-          .maybeSingle();
-        if (error) throw error;
-        return data;
-      },
-      meta: {
-        onError: (error: unknown) => handleError(error, { 
-          silent: true, 
-          context: "useProfileById" 
-        })
-      }
-    });
-  };
-
-  return {
-    useProfileById
-  };
+export function useProfileById(id: string | null | undefined, options: { enabled?: boolean } = {}) {
+  return useQuery({
+    queryKey: id ? qk.userDetails.byId(id) : ["profiles", "byId", "none"],
+    enabled: (options.enabled ?? true) && !!id,
+    queryFn: async (): Promise<UserProfile | null> => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", id as string)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        silent: true, 
+        context: "useProfileById" 
+      })
+    }
+  });
 }
+

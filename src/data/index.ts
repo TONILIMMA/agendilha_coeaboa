@@ -1,9 +1,7 @@
 export * from "./queryKeys";
 export * from "./events";
 export * from "./profiles";
-export * from "./atrativos";
 export * from "./useAtrativos";
-export * from "./estabelecimentos";
 export * from "./useEstabelecimentos";
 export * from "./useSubmissions";
 export * from "./useAdminMasterStats";
@@ -16,3 +14,4 @@ export * from "./useUserDetails";
 export * from "./useAgendaArtists";
 export * from "./useArtistMedia";
 export * from "./useEventReviews";
+
