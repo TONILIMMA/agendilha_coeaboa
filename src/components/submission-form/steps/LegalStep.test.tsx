@@ -180,6 +180,8 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     fireEvent.change(nameInput, { target: { value: "Maria" } });
     const suggestion = await screen.findByText("Maria da Vila");
     fireEvent.mouseDown(suggestion);
+    fireEvent.click(suggestion); // Try click as well just in case
+
 
     // Maria is an 'artista', so it should auto-select Artista radio and set zap
     expect(zapInput).toHaveValue("(21) 97777-6666");
