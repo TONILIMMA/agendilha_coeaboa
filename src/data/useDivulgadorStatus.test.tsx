@@ -99,9 +99,6 @@ describe("useDivulgadorStatus", () => {
           if (table === "profiles") {
             return Promise.resolve({ data: { user_type: "divulgador" }, error: null });
           }
-          if (table === "user_roles") {
-            return Promise.resolve({ data: [], error: null });
-          }
           if (table === "collaborators") {
             return Promise.resolve({ data: null, error: null });
           }
@@ -109,6 +106,12 @@ describe("useDivulgadorStatus", () => {
             return Promise.resolve({ data: null, error: null });
           }
           return Promise.resolve({ data: null, error: null });
+        }),
+        then: vi.fn().mockImplementation((onFulfilled) => {
+          if (table === "user_roles") {
+            return Promise.resolve(onFulfilled({ data: [], error: null }));
+          }
+          return Promise.resolve(onFulfilled({ data: null, error: null }));
         }),
       };
       return queryChain;
