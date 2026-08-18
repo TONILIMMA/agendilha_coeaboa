@@ -245,7 +245,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
         name="duvidasWhatsapp"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>WhatsApp do responsável pela divulgação</FormLabel>
+            <FormLabel>WhatsApp para dúvidas *</FormLabel>
             <FormControl>
               <TooltipProvider>
                 <Tooltip>
@@ -257,16 +257,16 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                         autoComplete="tel"
                         placeholder="(21) 9XXXX-XXXX – WhatsApp que vai receber dúvidas"
                         value={field.value || ""}
-                        readOnly={true}
-                        aria-readonly={isPublished}
-                        aria-describedby={isPublished ? "duvidas-whatsapp-lock" : undefined}
-                        className={isPublished ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
+                        readOnly={tipoResponsavel !== "outro" || isPublished}
+                        aria-readonly={tipoResponsavel !== "outro" || isPublished}
+                        aria-describedby={(isPublished || tipoResponsavel !== "outro") ? "duvidas-whatsapp-lock" : undefined}
+                        className={(isPublished || tipoResponsavel !== "outro") ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
                         onChange={(e) => {
-                          if (true) return;
+                          if (tipoResponsavel !== "outro") return;
                           field.onChange(formatPhoneDisplay(e.target.value));
                         }}
                       />
-                      {isPublished && (
+                      {(isPublished || tipoResponsavel !== "outro") && (
                         <Lock
                           className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
                           aria-hidden
@@ -274,9 +274,9 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                       )}
                     </div>
                   </TooltipTrigger>
-                  {isPublished && (
+                  {(isPublished || tipoResponsavel !== "outro") && (
                     <TooltipContent id="duvidas-whatsapp-lock" side="top">
-                      {lockedTooltip}
+                      {isPublished ? lockedTooltip : "Este campo é preenchido automaticamente. Para editar manualmente, selecione 'Outro' em 'Quem responde pelo evento'."}
                     </TooltipContent>
                   )}
                 </Tooltip>
