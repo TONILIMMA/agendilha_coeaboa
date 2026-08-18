@@ -15,7 +15,8 @@ import {
   FileDown, MapPin, Clock,
   CheckCircle, XCircle, ChevronDown, ShieldAlert,
   Phone, Mail, Globe, Star,
-  RotateCcw, Edit, ExternalLink, Eye, History, Megaphone
+  RotateCcw, Edit, ExternalLink, Eye, History, Megaphone,
+  AlertCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -494,6 +495,15 @@ function AdminEventsInner() {
                                </TooltipContent>
                              </Tooltip>
                              
+                             <Tooltip>
+                               <TooltipTrigger asChild>
+                                 <Button size="icon" variant="outline" className="h-9 w-9 bg-orange-50 border-orange-200 text-orange-600 hover:bg-orange-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'ajuste')}>
+                                   <AlertCircle className="h-4 w-4" />
+                                 </Button>
+                               </TooltipTrigger>
+                               <TooltipContent>Solicitar Ajuste</TooltipContent>
+                             </Tooltip>
+
                              <Tooltip>
                                <TooltipTrigger asChild>
                                  <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'rejected')}>
