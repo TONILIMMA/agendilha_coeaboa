@@ -182,7 +182,7 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     fireEvent.mouseDown(suggestion);
 
     // Maria is an 'artista', so it should auto-select Artista radio and set zap
-    expect(zapInput).toHaveValue("(21) 97777-6666");
+    await waitFor(() => expect(zapInput).toHaveValue("(21) 97777-6666"));
     expect(zapInput).toHaveAttribute("readonly");
     
     // 3. Switch back to Outro (should clear)
