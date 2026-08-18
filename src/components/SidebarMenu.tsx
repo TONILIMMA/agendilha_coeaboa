@@ -140,7 +140,10 @@ export function SidebarMenu({ onClose }: Props) {
       </div>
 
       {/* Footer - Sair da Conta is isolated here */}
-      <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] mt-auto border-t border-sidebar-border bg-sidebar-accent/5 shrink-0">
+      <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] mt-auto border-t border-sidebar-border bg-sidebar-accent/5 shrink-0 space-y-2">
+        {/* PWA Install Entry in Menu */}
+        <PwaInstallButton />
+        
         {user ? (
           <Button 
             variant="ghost" 
@@ -288,6 +291,43 @@ function SidebarNavigationItem({
         </div>
       )}
     </div>
+  );
+}
+
+function PwaInstallButton() {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [canInstall, setCanInstall] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setCanInstall(true);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "accepted") setCanInstall(false);
+    setDeferredPrompt(null);
+  };
+
+  if (!canInstall) return null;
+
+  return (
+    <Button 
+      variant="outline" 
+      size="lg" 
+      className="w-full justify-start gap-3 rounded-xl border-primary/20 text-primary hover:bg-primary/5 transition-all duration-300 group"
+      onClick={handleInstall}
+    >
+      <Download className="h-4 w-4 shrink-0 transition-all duration-300 group-hover:scale-110" />
+      <span className="font-bold text-sm tracking-tight">Instalar AgendIlha</span>
+    </Button>
   );
 }
 
