@@ -133,13 +133,13 @@ function AdminEventsInner() {
     setDeleteConfirmId(null);
   }
 
-  function openReview(sub: Submission, kind: "approved" | "rejected") {
-    const template = templates[kind];
-    if (!template) {
+  function openReview(sub: Submission, kind: "approved" | "rejected" | "ajuste") {
+    const template = templates[kind === "ajuste" ? "rejected" : kind];
+    if (!template && kind !== "ajuste") {
       toast.error("Template do WhatsApp ainda não carregado. Tente novamente em alguns segundos.");
       return;
     }
-    const initial = renderTemplate(template, buildTemplateVars(sub, ""));
+    const initial = template ? renderTemplate(template, buildTemplateVars(sub, "")) : "";
     setReview({ sub, kind, reason: "", message: initial, submitting: false });
   }
 
@@ -173,6 +173,7 @@ function AdminEventsInner() {
             approved_by: user?.id,
             rejected_at: null,
             rejected_by: null,
+            admin_notes: reason || null,
           }
         : {
             status: "rejeitado",
