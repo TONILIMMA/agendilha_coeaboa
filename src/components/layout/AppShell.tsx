@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useLocation } from "react-router-dom";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { PwaInstallNotice } from "@/components/pwa/PwaInstallNotice";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -77,6 +78,8 @@ export function AppShell({
           <SidebarMenu onClose={() => setMobileMenuOpen(false)} />
         </SheetContent>
       </Sheet>
+
+      <PwaInstallNotice />
     </div>
   );
 }
