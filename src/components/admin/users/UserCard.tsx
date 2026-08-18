@@ -11,7 +11,7 @@ import {
 import {
   Loader2, User, Phone, MapPin, Music, Pencil, Check, X, Trash2,
   KeyRound, ChevronDown, ChevronUp, MessageSquare, Mail, Calendar,
-  ShieldCheck, Crown,
+  ShieldCheck, Crown, ExternalLink,
 } from "lucide-react";
 import {
   isValidBrazilianMobile,
@@ -370,6 +370,15 @@ export function UserCard(props: UserCardProps) {
                 Excluir usuário
               </Button>
             </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2 text-primary border-primary/20 hover:bg-primary/5"
+              onClick={() => window.open(`/divulgador/${u.id}`, "_blank")}
+            >
+              <ExternalLink className="h-4 w-4" />
+              Ver Perfil Público
+            </Button>
           </div>
         )}
       </CardContent>
