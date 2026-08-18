@@ -1,7 +1,8 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { qk } from "@/data/queryKeys";
+import { handleError } from "@/lib/error-handler";
 
 export type DivulgadorRequestStatus = "pendente" | "aprovado" | "recusado";
 
@@ -19,18 +20,15 @@ export interface DivulgadorRequest {
 }
 
 /**
- * Diz se a pessoa logada já pode divulgar eventos (divulgador, admin/master
- * ou colaborador com permissão de envio) e qual o status do pedido dela
- * pra virar Divulgador.
- *
- * Espelha exatamente a regra `public.can_create_events` do banco.
+ * Diz se a pessoa logada já pode divulgar eventos e qual o status do pedido.
+ * Centralizado na camada de dados com cache compartilhado.
  */
-export function useDivulgadorStatus() {
+export function useDivulgadorStatus(targetUserId?: string | null) {
   const { user } = useAuth();
-  const userId = user?.id ?? null;
+  const userId = targetUserId ?? user?.id ?? null;
   const qc = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const query = useQuery({
     queryKey: qk.divulgador.status(userId),
     enabled: !!userId,
     staleTime: 60_000,
@@ -53,6 +51,9 @@ export function useDivulgadorStatus() {
           .maybeSingle(),
       ]);
 
+      if (profileRes.error) throw profileRes.error;
+      if (rolesRes.error) throw rolesRes.error;
+
       const userType = ((profileRes.data as { user_type?: string | null } | null)?.user_type ?? "").toLowerCase();
       const isAdmin = !!rolesRes.data?.some((r: { role: string }) => r.role === "admin" || r.role === "master");
       const canSubmitAsCollaborator =
@@ -68,15 +69,19 @@ export function useDivulgadorStatus() {
         request: (requestRes.data as DivulgadorRequest | null) ?? null,
       };
     },
+    meta: {
+      onError: (error: unknown) => handleError(error, { silent: true, context: "useDivulgadorStatus" })
+    }
   });
 
   return {
-    loading: !!userId && isLoading && !data,
-    isAdmin: data?.isAdmin ?? false,
-    isDivulgador: data?.isDivulgador ?? false,
-    isCollaborator: data?.isCollaborator ?? false,
-    profile: data?.profile ?? null,
-    request: data?.request ?? null,
+    ...query,
+    loading: !!userId && query.isLoading && !query.data,
+    isAdmin: query.data?.isAdmin ?? false,
+    isDivulgador: query.data?.isDivulgador ?? false,
+    isCollaborator: query.data?.isCollaborator ?? false,
+    profile: query.data?.profile ?? null,
+    request: query.data?.request ?? null,
     refresh: () => qc.invalidateQueries({ queryKey: qk.divulgador.status(userId) }),
   };
 }

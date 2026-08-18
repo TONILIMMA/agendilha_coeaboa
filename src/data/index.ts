@@ -10,8 +10,10 @@ export * from "./useAdminUsers";
 export * from "./useCollaborators";
 export * from "./useDivulgadorRequest";
 export * from "./usePromotorProfile";
+export * from "./useDivulgadorStatus";
 export * from "./useUserDetails";
 export * from "./useAgendaArtists";
 export * from "./useArtistMedia";
 export * from "./useEventReviews";
+
 

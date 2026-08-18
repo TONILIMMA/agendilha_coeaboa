@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDivulgadorStatus } from "@/hooks/useDivulgadorStatus";
+import { useDivulgadorStatus } from "@/data/useDivulgadorStatus";
 import { SolicitarDivulgadorCard } from "@/components/divulgador/SolicitarDivulgadorCard";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { Button } from "@/components/ui/button";
