@@ -172,12 +172,18 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     fireEvent.change(nameInput, { target: { value: "Maria" } });
     const suggestion = await screen.findByText("Maria da Vila", {}, { timeout: 2000 });
     
-    // Simulate selection which sets Maria's zap and type
+    // Simulate selection
     fireEvent.mouseDown(suggestion);
+    fireEvent.click(suggestion);
 
     // Should substitute manual value
-    await waitFor(() => expect(zapInput).toHaveValue("(21) 97777-6666"), { timeout: 2000 });
+    await waitFor(() => {
+      expect(zapInput).toHaveValue("(21) 97777-6666");
+      expect(screen.getByLabelText(/Artista/i)).toBeChecked();
+    }, { timeout: 2000 });
+    
     expect(zapInput).toHaveAttribute("readonly");
+
     
     // 3. Switch back to Outro (should clear)
     fireEvent.click(radioOutro);
