@@ -5,6 +5,7 @@ import {
   User,
   ChevronDown,
   ChevronRight,
+  Download,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserBadge } from "@/hooks/useUserBadge";
