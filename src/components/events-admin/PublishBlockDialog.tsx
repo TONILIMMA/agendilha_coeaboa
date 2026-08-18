@@ -9,10 +9,10 @@ export type PublishBlockAction = "aprovar" | "publicar" | "agendar" | "marcar co
 export interface PublishBlockInfo {
   eventTitle?: string | null;
   action: PublishBlockAction;
-  missing: string[]; // labels: "título", "data", "horário", "local"
+  missing: string[]; // labels: "data", "horário", "local"
 }
 
-const ALL_FIELDS = ["título", "data", "horário", "local"] as const;
+const ALL_FIELDS = ["data", "horário", "local"] as const;
 
 export function PublishBlockDialog({
   info,
