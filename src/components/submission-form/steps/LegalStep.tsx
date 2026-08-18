@@ -391,34 +391,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
         )}
       />
 
-      {tipoResponsavel === "outro" && (
-        <div className="rounded-md border p-4 space-y-3 bg-muted/20">
-          <div className="text-xs text-muted-foreground font-bold text-primary">Informar WhatsApp para Dúvidas</div>
-          <FormField
-            control={form.control}
-            name="duvidasWhatsappOutro"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Telefone de contato para dúvidas</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    inputMode="tel"
-                    placeholder="(21) 9XXXX-XXXX"
-                    onChange={(e) => {
-                      const formatted = formatPhoneDisplay(e.target.value);
-                      field.onChange(formatted);
-                      // Sincroniza com o campo principal usado no envio
-                      form.setValue("duvidasWhatsapp", formatted, { shouldValidate: true });
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      )}
+      {/* Removido o campo duplicado duvidasWhatsappOutro, pois agora usamos o campo principal duvidasWhatsapp */}
 
       {tipoResponsavel === "artista" && (
         <div className="rounded-md border p-4 space-y-3">
