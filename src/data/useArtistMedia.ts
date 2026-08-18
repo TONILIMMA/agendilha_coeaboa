@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { handleError } from "@/lib/error-handler";
 import { qk } from "./queryKeys";
 
 export interface ArtistMediaRow {
@@ -24,6 +25,9 @@ export function useArtistMedia(artistId: string | null | undefined) {
       if (error) throw error;
       return (data ?? []) as ArtistMediaRow[];
     },
+    meta: {
+      onError: (error: unknown) => handleError(error, { silent: true, context: "useArtistMedia" })
+    }
   });
 }
 

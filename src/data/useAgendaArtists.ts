@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { handleError } from "@/lib/error-handler";
 import type {
   AgendaArtist,
   AgendaShortVideo,
@@ -20,6 +21,12 @@ export function useAgendaArtists() {
       if (error) throw error;
       return (data ?? []) as unknown as AgendaArtist[];
     },
+    meta: {
+      onError: (error: unknown) => handleError(error, {
+        fallback: "Não deu pra carregar os artistas agora.",
+        context: "useAgendaArtists"
+      })
+    }
   });
 
   const artists = useMemo(() => data ?? [], [data]);
