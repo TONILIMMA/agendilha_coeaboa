@@ -180,6 +180,8 @@ function AgendaCulturalInner() {
               }
               showFavoritesOnly={filters.showFavoritesOnly}
               onToggleFavorites={() => filters.setShowFavoritesOnly(!filters.showFavoritesOnly)}
+              categoryFilter={filters.categoryFilter}
+              onCategoryChange={filters.setCategoryFilter}
             />
 
             {loading ? (
