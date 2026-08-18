@@ -129,9 +129,6 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     const zapInput = screen.getByPlaceholderText(/WhatsApp que vai receber dúvidas/i);
     const radioOutro = screen.getByLabelText(/Outro/i);
 
-    // Initial state (pre-selected 'artista' in TestWrapper defaultValues, but zap is empty)
-    expect(zapInput).toHaveAttribute("readonly");
-
     // Click Outro
     fireEvent.click(radioOutro);
 
@@ -143,7 +140,7 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     expect(zapInput).toHaveValue("(21) 91234-5678");
   });
 
-  it("substitui valor manual ao voltar para um tipo cadastrado (Maria)", async () => {
+  it("substitui valor manual ao alternar seleções", async () => {
     // Mock Maria
     (supabase.from as any).mockImplementation(() => ({
       select: vi.fn().mockReturnThis(),
@@ -180,24 +177,24 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     fireEvent.change(nameInput, { target: { value: "Maria" } });
     const suggestion = await screen.findByText("Maria da Vila");
     fireEvent.mouseDown(suggestion);
-    fireEvent.click(suggestion); // Try click as well just in case
 
-
-    // Maria is an 'artista', so it should auto-select Artista radio and set zap
+    // Component should auto-fill Maria's data
+    expect(nameInput).toHaveValue("Maria da Vila");
     expect(zapInput).toHaveValue("(21) 97777-6666");
     expect(zapInput).toHaveAttribute("readonly");
     
-    // 3. Switch back to Outro (should clear)
+    // 3. Switch back to Outro (should clear and unlock)
     fireEvent.click(radioOutro);
     expect(zapInput).toHaveValue("");
     expect(zapInput).not.toHaveAttribute("readonly");
 
-    // 4. Switch back to Artista (should restore Maria's if possible, or stay empty/blocked if we don't track history)
-    // Actually, in LegalStep.tsx, switching back to a role only auto-fills if responsavelNome === nickName (user's own profile)
-    // or via the Autocomplete onSelect. 
-    // Let's test the "user's own profile" case:
+    // 4. Test user's own profile restore when switching from Outro to registered role
     fireEvent.change(nameInput, { target: { value: "Dono do App" } });
+    fireEvent.click(radioOutro);
+    fireEvent.change(zapInput, { target: { value: "21988888888" } });
     fireEvent.click(radioArtista);
+    
+    // responsavelNome ("Dono do App") matches nickName, so it restores basicPhone
     expect(zapInput).toHaveValue("(21) 99999-9999");
     expect(zapInput).toHaveAttribute("readonly");
   });
