@@ -35,6 +35,7 @@ export function useEvents(options: {
           is_suitable_for_minors, 
           description, 
           views_count,
+          is_highlight,
           status,
           moderation_status,
           slug
