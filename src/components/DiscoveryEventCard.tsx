@@ -117,7 +117,7 @@ export const DiscoveryEventCard = memo(({
 
             <img
               src={finalImage}
-              alt={event.event_title}
+              alt={event.event_title || "Evento"}
               loading={isLarge ? "eager" : "lazy"}
               decoding="async"
               onLoad={() => setIsLoaded(true)}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +28,7 @@ interface PersonalizationDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function PersonalizationDialog({ open, onOpenChange }: PersonalizationDialogProps) {
+export const PersonalizationDialog = memo(function PersonalizationDialog({ open, onOpenChange }: PersonalizationDialogProps) {
   const { profile, saveProfile } = useProfile();
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [homeLocation, setHomeLocation] = useState("");
@@ -154,4 +154,4 @@ export function PersonalizationDialog({ open, onOpenChange }: PersonalizationDia
       </SheetContent>
     </Sheet>
   );
-}
+});
