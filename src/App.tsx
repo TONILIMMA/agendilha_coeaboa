@@ -85,9 +85,13 @@ const queryClient = new QueryClient({
   }),
   mutationCache: new MutationCache({
     onError: (error, _vars, _ctx, mutation) => {
-      // Se a mutation tem onError próprio, não duplica a mensagem.
+      // Se a mutation tem onError próprio que já trata o erro (ex: retorna true no handler), não duplica.
+      // Aqui apenas garantimos que erros não tratados cheguem ao usuário.
       if (mutation.options.onError) return;
-      handleError(error, { fallback: "Não deu pra completar a ação. Tenta de novo." });
+      handleError(error, { 
+        fallback: "Não deu pra completar a ação. Tenta de novo.",
+        context: `mutation:${mutation.options.mutationKey?.[0] ?? "unknown"}`
+      });
     },
   }),
   defaultOptions: {
