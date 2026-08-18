@@ -11,7 +11,6 @@ import { useAgendaData } from "@/hooks/useAgendaData";
 import { useAgendaFilters } from "@/hooks/useAgendaFilters";
 import { useAgendaArtists } from "@/data/useAgendaArtists";
 
-import { Onboarding } from "@/components/Onboarding";
 import { PersonalizationDialog } from "@/components/PersonalizationDialog";
 import { ShareDialog } from "@/components/ShareDialog";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
