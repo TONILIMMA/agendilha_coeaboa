@@ -5,7 +5,6 @@ import type { AgendaEvent } from "@/components/agenda/types";
 
 export interface AgendaProfileHints {
   home_location?: string | null;
-  work_neighborhood?: string | null;
   address_neighborhood?: string | null;
   musical_preferences?: string[] | null;
 }
@@ -32,7 +31,7 @@ export function useAgendaFilters(params: {
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
+  
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">(() =>
     localStorage.getItem(SORT_STORAGE_KEY) === "desc" ? "desc" : "asc",
@@ -50,13 +49,6 @@ export function useAgendaFilters(params: {
     if (category) setCategoryFilter(category);
   }, []);
 
-  const neighborhoods = useMemo(() => {
-    const set = new Set<string>();
-    events.forEach((e) => {
-      if (e.address_neighborhood) set.add(e.address_neighborhood);
-    });
-    return Array.from(set).sort();
-  }, [events]);
 
   const upcomingEvents = useMemo(() => {
     const today = new Date();
@@ -74,28 +66,19 @@ export function useAgendaFilters(params: {
         ev.event_title.toLowerCase().includes(term) ||
         (ev.description || "").toLowerCase().includes(term);
       const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
-      const matchNeigh =
-        neighborhoodFilter === "all" || ev.address_neighborhood === neighborhoodFilter;
       const matchFav = !showFavoritesOnly || isFavorite(ev.id);
-      return matchSearch && matchCat && matchNeigh && matchFav;
+      return matchSearch && matchCat && matchFav;
     });
   }, [
     upcomingEvents,
     search,
     categoryFilter,
-    neighborhoodFilter,
     showFavoritesOnly,
     favorites,
     isFavorite,
   ]);
 
-  const nearYouEvents = useMemo(() => {
-    const userNeighborhood = profile?.home_location || profile?.address_neighborhood;
-    if (!userNeighborhood) return [];
-    return upcomingEvents
-      .filter((ev) => ev.address_neighborhood === userNeighborhood)
-      .slice(0, 4);
-  }, [upcomingEvents, profile]);
+  const nearYouEvents: AgendaEvent[] = [];
 
   const recommendedEvents = useMemo(() => {
     const prefs = profile?.musical_preferences || [];
@@ -151,12 +134,12 @@ export function useAgendaFilters(params: {
   );
 
   const hasActiveFilters =
-    !!search || categoryFilter !== "all" || neighborhoodFilter !== "all";
+    !!search || categoryFilter !== "all";
 
   const clearFilters = () => {
     setSearch("");
     setCategoryFilter("all");
-    setNeighborhoodFilter("all");
+    
   };
 
   return {
@@ -164,13 +147,11 @@ export function useAgendaFilters(params: {
     setSearch,
     categoryFilter,
     setCategoryFilter,
-    neighborhoodFilter,
-    setNeighborhoodFilter,
     showFavoritesOnly,
     setShowFavoritesOnly,
     sortOrder,
     setSortOrder,
-    neighborhoods,
+    
     upcomingEvents,
     filteredEvents,
     nearYouEvents,
