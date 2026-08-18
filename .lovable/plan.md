@@ -1,38 +1,38 @@
-# Performance Optimization Plan - AgendIlha
+# Plano de Refatoração e Otimização do Sistema
 
-Audit and optimization of system performance across database, network, and frontend layers.
+Este plano visa melhorar a escalabilidade, performance e manutenibilidade do AgendIlha, focando na unificação de camadas de dados e otimização de renderização mobile-first.
 
-## Technical Details
+## Etapa 1: Unificação da Camada de Dados e Cache (React Query)
+- **Problema:** Múltiplos hooks (`useAgendaData`, `useSubmissions`) com lógicas de fetch duplicadas.
+- **Ação:** Criar uma estrutura unificada de Queries e Mutations no diretório `src/data/` (ex: `events.ts`, `profiles.ts`).
+- **Benefício:** Redução de requisições redundantes e estado consistente em todo o app.
 
-### 1. Database & Network (Supabase)
-- **View Materialization**: Evaluate if `public_submissions` (security_invoker) can benefit from a materialized view for the main feed, given the high read volume vs low update frequency.
-- **Select Narrowing**: Refactor `useAgendaData.ts` to fetch only required columns (currently uses `*`) to reduce payload size.
-- **RPC Batching**: Combine `increment_views` and other telemetry into a single debounced call to reduce network overhead during user sessions.
+## Etapa 2: Endurecimento de Segurança e RLS
+- **Problema:** Políticas de RLS complexas podem causar gargalos ou vazamentos acidentais.
+- **Ação:** Revisar e simplificar políticas, garantindo que `user_roles` seja a única fonte de verdade para permissões administrativas. Implementar auditoria automática para alterações em status de eventos.
+- **Benefício:** Segurança robusta e performance em queries filtradas por permissão.
 
-### 2. Frontend (React & Vite)
-- **Image Optimization**:
-    - Force `loading="eager"` and `fetchpriority="high"` for the first 2-3 images in the hero/today sections.
-    - Implement `srcset` support for `DiscoveryEventCard` to serve smaller images on mobile.
-- **Bundle Splitting**:
-    - Move `PersonalizationDialog` and `ShareDialog` to a separate vendor chunk.
-    - Audit `lucide-react` imports in `Landing.tsx` to ensure tree-shaking is effective (verify if icon sub-imports are used).
-- **Code Refactoring**:
-    - Memoize expensive calculations in `Landing.tsx` (like `trendingEvents` and `todayEvents` derived from the main list).
-    - Implement a virtualized list for the main agenda feed if it exceeds 50+ items.
+## Etapa 3: Tipagem Estrita e Manutenibilidade
+- **Problema:** Uso excessivo de `any` em payloads de formulário e respostas do backend.
+- **Ação:** Gerar tipos TypeScript atualizados a partir do banco e aplicá-los em `SubmissionForm.tsx` e helpers administrativos.
+- **Benefício:** Detecção de bugs em tempo de compilação e melhor DX (Developer Experience).
 
-### 3. Assets & Rendering
-- **Font Optimization**: Add `font-display: swap` to all Google Font imports and consider preloading the `Outfit` font for the H1 header.
-- **Lazy Loading**: Ensure all non-visible sections (Ecossistema, Diferenciais, Contato) use `loading="lazy"` or `IntersectionObserver` to defer rendering.
+## Etapa 4: Otimização de Performance Frontend
+- **Problema:** Componentes grandes (ex: `AdminEvents.tsx`) causando lentidão no carregamento mobile.
+- **Ação:** 
+  - Aplicar `React.memo` em cards de lista.
+  - Implementar virtualização para listas longas de eventos.
+  - Otimizar o LCP das imagens dos flyers com carregamento prioritário.
+- **Benefício:** Fluidez em dispositivos de entrada e menor consumo de dados.
 
-## Proposed Changes
-
-### Database
-- **Submissions View**: Ensure indexes on `status` and `date` are optimized for the `public_submissions` view.
-
-### Code
-- **src/hooks/useAgendaData.ts**: Narrow query selection.
-- **src/components/DiscoveryEventCard.tsx**: Improve image loading priority and memoization.
-- **src/pages/Landing.tsx**: Optimize event filtering logic to prevent unnecessary re-renders.
+## Etapa 5: Refatoração de UI/UX Mobile-First
+- **Problema:** Algumas telas administrativas ainda são densas para visualização em celular.
+- **Ação:** Transformar tabelas em layouts de cards expansíveis (já iniciado em algumas partes) e otimizar modais de ação para "bottom sheets" no mobile.
+- **Benefício:** Melhor usabilidade para administradores em trânsito.
 
 ---
-*Note: This optimization focuses on Core Web Vitals (LCP/CLS) and reducing mobile data consumption.*
+
+## Detalhes Técnicos
+- **Stack:** React 18 + Vite + Shadcn UI + Supabase.
+- **Monitoramento:** Utilizar `QueryCache` global para logging de erros e performance.
+- **Testes:** Priorizar verificação de fluxos críticos (Auth/Submissão) via Playwright após as mudanças estruturais.
