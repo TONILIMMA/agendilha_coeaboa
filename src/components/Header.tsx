@@ -21,7 +21,8 @@ import {
   Trophy, 
   Megaphone, 
   Sun, 
-  Moon 
+  Moon,
+  ExternalLink
 } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
  import logoCoeABoa from "@/assets/coeaboa-logo.webp";
@@ -480,6 +481,13 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                     <DropdownMenuItem onClick={() => navigate("/ranking")} className="cursor-pointer">
                       <Trophy className="h-4 w-4 mr-2 text-secondary" />
                       Ranking
+                    </DropdownMenuItem>
+                  )}
+                  
+                  {user && (
+                    <DropdownMenuItem onClick={() => navigate(`/divulgador/${user.id}`)} className="cursor-pointer">
+                      <ExternalLink className="h-4 w-4 mr-2 text-primary" />
+                      Meu Perfil Público
                     </DropdownMenuItem>
                   )}
 
