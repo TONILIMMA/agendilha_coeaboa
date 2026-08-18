@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { toAuthEmail, toLegacyAuthEmail, toE164Digits, validateWhatsappForAccount } from "@/lib/phone";
+import { handleError } from "@/lib/error-handler";
 import { logger } from "@/lib/logger";
 
 export type SignUpAdditionalData = {
@@ -83,20 +84,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function checkAdmin(userId: string) {
-    const { data: roles } = await supabase
+    const { data: roles, error } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', userId);
+
+    if (error) {
+      handleError(error, { 
+        silent: true, 
+        context: "AuthContext:checkAdmin" 
+      });
+    }
 
     setIsAdmin(!!roles?.some(({ role }) => role === 'admin' || role === 'master'));
   }
 
   async function checkMustChangePassword(userId: string) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("must_change_password")
       .eq("user_id", userId)
       .maybeSingle();
+
+    if (error) {
+      handleError(error, { 
+        silent: true, 
+        context: "AuthContext:checkMustChangePassword" 
+      });
+    }
     setMustChangePassword(!!data?.must_change_password);
   }
 
@@ -110,10 +125,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * perfil o app trava em vários gates.
    */
   async function ensureProfile(userId: string) {
-    const { data } = await supabase.from("profiles").select("user_id").eq("user_id", userId).maybeSingle();
+    const { data, error: readError } = await supabase.from("profiles").select("user_id").eq("user_id", userId).maybeSingle();
+    if (readError) {
+      handleError(readError, { silent: true, context: "AuthContext:ensureProfile:read" });
+    }
     if (data) return;
     const { error } = await supabase.from("profiles").insert({ user_id: userId });
-    if (error) logger.warn("[Auth] não deu pra criar o perfil que faltava", error);
+    if (error) handleError(error, { silent: true, context: "AuthContext:ensureProfile:insert" });
   }
 
   const signUp = async (
