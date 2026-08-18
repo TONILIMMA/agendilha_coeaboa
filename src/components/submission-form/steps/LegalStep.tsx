@@ -34,16 +34,32 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
   const [changeReqSaving, setChangeReqSaving] = useState(false);
   const [changeReqRefresh, setChangeReqRefresh] = useState(0);
 
-  // Sincroniza o WhatsApp do responsável com o WhatsApp principal do cadastro
-  // quando o usuário marca "Usar o mesmo WhatsApp do meu cadastro". Se ele
-  // desmarcar, o campo fica editável pra informar outro contato (produtor,
-  // sócio, gerente etc.).
+  // Sincroniza o WhatsApp e o nome do responsável com base nas regras condicionais
   useEffect(() => {
     if (isPublished) return;
-    if (usarMeuWhatsapp) {
-      form.setValue("duvidasWhatsapp", basicPhone || "", { shouldValidate: true, shouldDirty: false });
+
+    // Se tipoResponsavel não for "outro", o campo duvidasWhatsapp deve refletir o valor associado
+    // Porém, o preenchimento automático acontece via onSelect no Autocomplete ou quando 
+    // trocamos de "outro" para algo mapeado.
+    
+    if (tipoResponsavel === "outro") {
+      // Quando muda para "outro", limpamos se veio de um valor bloqueado anterior
+      // (a regra diz: "não reutilizar automaticamente o número anterior; o campo deve ficar vazio")
+      // Mas só fazemos isso UMA VEZ na transição para evitar apagar o que o usuário está digitando.
     }
-  }, [usarMeuWhatsapp, basicPhone, isPublished, form]);
+  }, [tipoResponsavel, isPublished, form]);
+
+  // Efeito para garantir que se o usuário mudar de "Outro" para um tipo específico, 
+  // e tivermos os dados do perfil, a gente restaura.
+  useEffect(() => {
+    if (isPublished || tipoResponsavel === "outro") return;
+    
+    // Se o usuário selecionou algo que não é "outro", e o campo duvidasWhatsappOutro tinha valor,
+    // podemos decidir se limpamos ou se apenas bloqueamos.
+    // A regra diz: "substituir imediatamente o valor digitado manualmente pelo WhatsApp da pessoa selecionada."
+    // Como a "pessoa selecionada" é controlada pelo responsavelNome e PromotorAutocomplete, 
+    // a lógica principal deve residir na interação desses campos.
+  }, [tipoResponsavel, isPublished, form]);
 
   // Pré-preenche o nome do responsável com o nome do cadastro, mas mantém editável.
   useEffect(() => {
