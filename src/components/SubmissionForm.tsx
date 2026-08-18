@@ -72,6 +72,7 @@ const formSchema = z.object({
   perfilNomeEstabelecimento: z.string().trim().max(120).optional(),
   perfilCategoriaLocal: z.string().trim().max(80).optional(),
   perfilEnderecoResumido: z.string().trim().max(200).optional(),
+  duvidasWhatsappOutro: z.string().trim().optional(),
 
   category: z.string().trim().optional(),
   eventTitle: z.string().trim().optional(),
@@ -123,14 +124,6 @@ const formSchema = z.object({
   addressState: z.string().optional(),
   ageRating: z.enum(["Livre", "10+", "12+", "14+", "16+", "18+"]).default("Livre"),
   isSuitableForMinors: z.boolean().default(true),
-}).refine((data) => {
-  if (data.locationType === "commercial" && !data.locationContact) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Contato do responsável é obrigatório para estabelecimentos comerciais",
-  path: ["locationContact"],
 }).superRefine((data, ctx) => {
   // WhatsApp do responsável por dúvidas: sempre exigimos número válido; para atrativo/estabelecimento é obrigatório.
   const phone = (data.duvidasWhatsapp || "").trim();
@@ -145,6 +138,23 @@ const formSchema = z.object({
   const v = validateBrazilianMobile(phone);
   if (v.valid === false) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["duvidasWhatsapp"], message: v.reason });
+  }
+
+  // Se "Outro" for selecionado em tipoResponsavel, o telefone deve estar no formato correto
+  if (data.tipoResponsavel === "outro") {
+    const outroPhone = (data.duvidasWhatsappOutro as string || "").trim();
+    if (!outroPhone) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["duvidasWhatsappOutro"],
+        message: "Informe o WhatsApp para dúvidas (campo Outro)",
+      });
+    } else {
+      const vOutro = validateBrazilianMobile(outroPhone);
+      if (vOutro.valid === false) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["duvidasWhatsappOutro"], message: vOutro.reason });
+      }
+    }
   }
 });
 
@@ -180,6 +190,7 @@ export default function SubmissionForm() {
       duvidasWhatsapp: "",
       responsavelNome: "",
       usarMeuWhatsapp: false,
+      duvidasWhatsappOutro: "",
     },
     mode: "onChange",
   });

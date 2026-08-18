@@ -175,12 +175,11 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
       */}
       <div className="rounded-md border p-4 space-y-4">
         <div className="flex items-start gap-2 text-primary font-bold text-sm">
-          <User className="h-4 w-4 mt-0.5" />
+          <Lock className="h-4 w-4 mt-0.5" />
           <div>
-            <div>Divulgador</div>
+            <div>Responsável pela divulgação</div>
             <p className="text-xs font-normal text-muted-foreground mt-1">
-              Você é o divulgador desse evento. Confere se os dados abaixo estão certos —
-              esse WhatsApp vai receber as dúvidas do público. Se o divulgador for outra pessoa, ajuste aqui.
+              Os dados de divulgação foram vinculados automaticamente ao seu perfil.
             </p>
           </div>
         </div>
@@ -190,12 +189,12 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
           name="responsavelNome"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Quem é responsável pelo evento? *</FormLabel>
+              <FormLabel>Responsável pela divulgação *</FormLabel>
               <FormControl>
                 <PromotorAutocomplete
                   value={field.value ?? ""}
                   onChange={field.onChange}
-                  disabled={isPublished}
+                  disabled={true}
                   onSelect={(p) => {
                     field.onChange(p.nome);
                     if (p.whatsapp) {
@@ -225,7 +224,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
         name="duvidasWhatsapp"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>WhatsApp do responsável pelo evento</FormLabel>
+            <FormLabel>WhatsApp do responsável pela divulgação</FormLabel>
             <FormControl>
               <TooltipProvider>
                 <Tooltip>
@@ -237,12 +236,12 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                         autoComplete="tel"
                         placeholder="(21) 9XXXX-XXXX – WhatsApp que vai receber dúvidas"
                         value={field.value || ""}
-                        readOnly={isPublished}
+                        readOnly={true}
                         aria-readonly={isPublished}
                         aria-describedby={isPublished ? "duvidas-whatsapp-lock" : undefined}
                         className={isPublished ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
                         onChange={(e) => {
-                          if (isPublished) return;
+                          if (true) return;
                           field.onChange(formatPhoneDisplay(e.target.value));
                         }}
                       />
@@ -324,10 +323,10 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
           <FormItem className="rounded-md border p-4 space-y-3">
             <FormLabel className="flex items-center gap-2 text-primary font-bold">
               <MessageCircle className="h-4 w-4" />
-              Como você quer se identificar? <span className="text-[10px] font-normal text-muted-foreground">(opcional)</span>
+              Quem responde pelo evento? <span className="text-[10px] font-normal text-muted-foreground">(opcional)</span>
             </FormLabel>
             <p className="text-xs text-muted-foreground">
-              Ajuda a gente a caracterizar seu perfil e reaproveitar em próximas divulgações.
+              A opção selecionada define quem receberá as dúvidas do público.
             </p>
             <FormControl>
               <RadioGroup
@@ -351,6 +350,35 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
           </FormItem>
         )}
       />
+
+      {tipoResponsavel === "outro" && (
+        <div className="rounded-md border p-4 space-y-3 bg-muted/20">
+          <div className="text-xs text-muted-foreground font-bold text-primary">Informar WhatsApp para Dúvidas</div>
+          <FormField
+            control={form.control}
+            name="duvidasWhatsappOutro"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Telefone de contato para dúvidas</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    inputMode="tel"
+                    placeholder="(21) 9XXXX-XXXX"
+                    onChange={(e) => {
+                      const formatted = formatPhoneDisplay(e.target.value);
+                      field.onChange(formatted);
+                      // Sincroniza com o campo principal usado no envio
+                      form.setValue("duvidasWhatsapp", formatted, { shouldValidate: true });
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      )}
 
       {tipoResponsavel === "artista" && (
         <div className="rounded-md border p-4 space-y-3">
