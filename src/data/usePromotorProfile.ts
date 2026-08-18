@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { handleError } from "@/lib/error-handler";
 
 export interface PromotorProfile {
   id?: string;
@@ -28,11 +29,18 @@ export function usePromotorProfile(targetUserId?: string) {
       return;
     }
     setLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("promotor_profiles")
       .select("id, user_id, promotor_nome, promotor_whatsapp, tipo_promotor")
       .eq("user_id", userId)
       .maybeSingle();
+    
+    if (error) {
+      handleError(error, { 
+        silent: true, 
+        context: "usePromotorProfile" 
+      });
+    }
     setProfile((data as PromotorProfile) ?? null);
     setLoading(false);
   }, [userId]);
