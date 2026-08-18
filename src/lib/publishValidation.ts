@@ -9,7 +9,6 @@ export interface PublishableEvent {
 }
 
 export const PUBLISH_FIELD_LABELS: Record<string, string> = {
-  event_title: "título",
   date: "data",
   start_time: "horário",
   location: "local",
@@ -19,7 +18,6 @@ export function missingPublishFields(sub: PublishableEvent | null | undefined): 
   if (!sub) return ["dados do evento"];
   const missing: string[] = [];
   const has = (v: unknown) => typeof v === "string" && v.trim().length > 0;
-  if (!has(sub.event_title)) missing.push(PUBLISH_FIELD_LABELS.event_title);
   if (!has(sub.date)) missing.push(PUBLISH_FIELD_LABELS.date);
   if (!has(sub.start_time)) missing.push(PUBLISH_FIELD_LABELS.start_time);
   if (!has(sub.location)) missing.push(PUBLISH_FIELD_LABELS.location);

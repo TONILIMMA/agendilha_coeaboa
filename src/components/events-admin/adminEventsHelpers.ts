@@ -14,7 +14,7 @@ export interface AdminSubmission {
   responsible_name: string | null;
   email: string | null;
   phone: string | null;
-  event_title: string;
+  event_title: string | null;
   date: string | null;
   start_time: string | null;
   end_time: string | null;
@@ -93,7 +93,7 @@ export function buildWhatsAppMessage(sub: AdminSubmission): string {
   if (sub.short_copy) return encodeURIComponent(sub.short_copy);
   const date = formatEventDate(sub.date);
   const url = sub.slug ? `${window.location.origin}/evento/${sub.slug}` : `${window.location.origin}/agenda`;
-  const msg = `🗓️ *${sub.event_title}*\n⏰ ${date} às ${sub.start_time || "--:--"}\n📍 ${sub.location}\n\n🌴 Veja mais no AgendIlha: ${url}`;
+  const msg = `🗓️ *${sub.event_title || "Evento"}*\n⏰ ${date} às ${sub.start_time || "--:--"}\n📍 ${sub.location || "Local não informado"}\n\n🌴 Veja mais no AgendIlha: ${url}`;
   return encodeURIComponent(msg);
 }
 
@@ -106,7 +106,7 @@ export function buildApprovalMessage(sub: AdminSubmission): string {
   return (
     `${greeting}\n\n` +
     `✅ *Seu evento foi aprovado pela curadoria do AgendIlha!*\n\n` +
-    `🎉 *${sub.event_title}*\n` +
+    `🎉 *${sub.event_title || "Evento"}*\n` +
     `📅 ${formatEventDate(sub.date)}${sub.start_time ? ` às ${sub.start_time}` : ""}\n` +
     (sub.location ? `📍 ${sub.location}\n` : "") +
     `\nJá está publicado na Agenda Cultural:\n${url}\n\n` +
@@ -122,7 +122,7 @@ export function buildRejectionMessage(sub: AdminSubmission, reason?: string | nu
     : "";
   return (
     `${greeting}\n\n` +
-    `Sobre o evento *${sub.event_title}* enviado ao AgendIlha:\n\n` +
+    `Sobre o evento *${sub.event_title || "Evento"}* enviado ao AgendIlha:\n\n` +
     `❌ Infelizmente ele *não foi aprovado* pela curadoria neste momento.${reasonLine}\n` +
     `Você pode revisar e reenviar a qualquer momento em:\n` +
     `${window.location.origin}/meus-eventos\n\n` +
@@ -176,7 +176,7 @@ export function filterSubmissions(
   if (q) {
     list = list.filter(
       (s) =>
-        s.event_title.toLowerCase().includes(q) ||
+        (s.event_title || "").toLowerCase().includes(q) ||
         (s.company_name || "").toLowerCase().includes(q) ||
         (s.location || "").toLowerCase().includes(q) ||
         (s.responsible_name || "").toLowerCase().includes(q),
