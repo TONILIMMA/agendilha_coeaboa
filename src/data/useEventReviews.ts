@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { handleError } from "@/lib/error-handler";
 import { qk } from "./queryKeys";
 
 export interface EventReview {
@@ -24,6 +25,9 @@ export function useEventReviews(eventId: string | null | undefined) {
       if (error) throw error;
       return (data ?? []) as EventReview[];
     },
+    meta: {
+      onError: (error: unknown) => handleError(error, { silent: true, context: "useEventReviews" })
+    }
   });
 }
 

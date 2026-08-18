@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { handleError } from "@/lib/error-handler";
 import { qk } from "./queryKeys";
 
 export interface UserDetailsEvent {
@@ -52,6 +53,12 @@ export function useUserDetails(userId: string | null | undefined, enabled = true
         collab: (collab.data as UserDetailsCollab | null) ?? null,
       };
     },
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        fallback: "Não deu pra carregar os detalhes do usuário.",
+        context: "useUserDetails" 
+      })
+    }
   });
 }
 
@@ -101,6 +108,9 @@ export function useProfileOptions(enabled = true) {
     queryKey: qk.profileOptions.list(),
     enabled,
     staleTime: 5 * 60_000,
+    meta: {
+      onError: (error: unknown) => handleError(error, { silent: true, context: "useProfileOptions" })
+    },
     queryFn: async (): Promise<ProfileOption[]> => {
       const { data, error } = await supabase
         .from("profiles")

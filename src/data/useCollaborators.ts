@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
+import { handleError } from "@/lib/error-handler";
 import { qk } from "./queryKeys";
 
 export interface Collaborator {
@@ -29,6 +30,12 @@ export function useCollaborators(enabled = true) {
       if (error) throw error;
       return (data ?? []) as unknown as Collaborator[];
     },
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        fallback: "Não deu pra carregar os colaboradores.",
+        context: "useCollaborators" 
+      })
+    }
   });
 }
 

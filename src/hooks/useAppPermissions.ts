@@ -116,7 +116,24 @@ export function useAppPermissions() {
         supabase.from("profiles").select("role, user_type").eq("user_id", userId!).maybeSingle(),
       ]);
 
-      if (rolesResponse.error) handleError(rolesResponse.error, "Erro ao carregar permissões");
+      if (rolesResponse.error) {
+        handleError(rolesResponse.error, { 
+          silent: true, 
+          context: "useAppPermissions:roles" 
+        });
+      }
+      if (collaboratorResponse.error) {
+        handleError(collaboratorResponse.error, { 
+          silent: true, 
+          context: "useAppPermissions:collab" 
+        });
+      }
+      if (profileResponse.error) {
+        handleError(profileResponse.error, { 
+          silent: true, 
+          context: "useAppPermissions:profile" 
+        });
+      }
 
       const roleNames: string[] = rolesResponse.data?.map((r) => r.role).filter(Boolean) || [];
       const profileData = profileResponse.data as { role?: string | null; user_type?: string | null } | null;

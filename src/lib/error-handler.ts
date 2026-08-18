@@ -109,12 +109,23 @@ export function classifyError(
         return { message: "O cadastro tá pausado por enquanto.", severity: "info" };
       case "Email rate limit exceeded":
         return { message: "Muitas tentativas. Espera um pouco e tenta de novo.", severity: "warning" };
+      case "Invalid OTP":
+        return { message: "Código inválido. Confere o WhatsApp e tenta de novo.", severity: "warning" };
+      case "Token has expired":
+        return { message: "O código expirou. Pede um novo, por favor.", severity: "warning" };
       default:
         return { message: error.message || fallback, severity: "error" };
     }
   }
 
   if (error instanceof Error) {
+    if (error.name === "ZodError") {
+      return { 
+        message: "Alguns dados não estão no formato correto.", 
+        description: "Confere os campos destacados no formulário.",
+        severity: "warning" 
+      };
+    }
     return { message: error.message || fallback, severity: "error" };
   }
 

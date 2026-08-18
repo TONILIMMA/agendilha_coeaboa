@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { callEdge } from "@/lib/edge";
+import { handleError } from "@/lib/error-handler";
 import { qk } from "./queryKeys";
 
 export interface AdminUser {
@@ -18,6 +19,12 @@ export function useAdminUsers(enabled = true) {
     queryFn: () => callEdge<AdminUser[]>("list-users"),
     enabled,
     staleTime: 30_000,
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        fallback: "Não deu pra listar os usuários agora.",
+        context: "useAdminUsers" 
+      })
+    }
   });
 }
 

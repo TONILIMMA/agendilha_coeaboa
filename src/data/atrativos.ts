@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { handleError } from "@/lib/error-handler";
 import { qk } from "./queryKeys";
 
 export interface Atrativo {
@@ -31,6 +32,12 @@ export function useAtrativosData(options: {
     },
     enabled: options.enabled,
     staleTime: options.staleTime ?? 60_000,
+    meta: {
+      onError: (error: unknown) => handleError(error, {
+        fallback: "Não conseguimos carregar os atrativos agora.",
+        context: "useAtrativosData"
+      })
+    }
   });
 
   return {

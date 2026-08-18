@@ -71,14 +71,20 @@ export function useEvents(options: {
 
   const trackView = useCallback(async (id: string) => {
     try {
-      await supabase.rpc("increment_views", { event_id: id });
-    } catch { /* silent */ }
+      const { error } = await supabase.rpc("increment_views", { event_id: id });
+      if (error) throw error;
+    } catch (error) {
+      handleError(error, { silent: true, context: "trackView" });
+    }
   }, []);
 
   const trackShare = useCallback(async (id: string) => {
     try {
-      await supabase.rpc("increment_shares", { event_id: id });
-    } catch { /* silent */ }
+      const { error } = await supabase.rpc("increment_shares", { event_id: id });
+      if (error) throw error;
+    } catch (error) {
+      handleError(error, { silent: true, context: "trackShare" });
+    }
   }, []);
 
   return {

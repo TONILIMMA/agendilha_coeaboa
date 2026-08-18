@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { handleError } from "@/lib/error-handler";
 import { qk } from "./queryKeys";
 
 export interface UserProfile {
@@ -28,6 +29,12 @@ export function useProfiles() {
           .maybeSingle();
         if (error) throw error;
         return data;
+      },
+      meta: {
+        onError: (error: unknown) => handleError(error, { 
+          silent: true, 
+          context: "useProfileById" 
+        })
       }
     });
   };

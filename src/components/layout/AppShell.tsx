@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import { SidebarMenu } from "@/components/SidebarMenu";
+import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppPermissions } from "@/hooks/usePermissions";
@@ -65,7 +66,9 @@ export function AppShell({
           "flex-1 w-full mx-auto p-4 md:p-8 overflow-x-hidden",
           maxWidthClasses[maxWidth]
         )}>
-          {children}
+          <AppErrorBoundary context="AppShellContent">
+            {children}
+          </AppErrorBoundary>
         </main>
 
         {/* Footer */}
