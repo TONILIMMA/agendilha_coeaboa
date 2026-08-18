@@ -35,7 +35,9 @@ const CATEGORIES = [
   { value: "esporte", label: "Esporte" },
   { value: "turismo", label: "Turismo" },
   { value: "outros", label: "Outros" },
-];
+] as const;
+
+type AtrativoCategory = typeof CATEGORIES[number]["value"];
 
 export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -480,24 +482,27 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Categoria *</FormLabel>
-            <FormControl>
-              <SuggestInput
-                placeholder="Busque ou selecione a categoria..."
-                className="h-12"
-                suggestFrom="atrativos_public"
-                suggestColumn="tipo_atrativo"
-                extraSuggestions={CATEGORIES.map(c => c.label)}
-                {...field}
-                onChange={(e) => {
-                  field.onChange(e);
-                  const val = e.target.value.toLowerCase();
-                  const match = CATEGORIES.find(c => c.label.toLowerCase() === val || c.value === val);
-                  if (match && match.value !== field.value) {
-                    field.onChange(match.value);
-                  }
-                }}
-              />
-            </FormControl>
+            <Select 
+              onValueChange={field.onChange} 
+              value={field.value}
+            >
+              <FormControl>
+                <SelectTrigger className="h-12 bg-background border-input">
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {CATEGORIES.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
             {(() => {
               const age = form.watch("ageRating") || "Livre";
               const cat = field.value;
@@ -518,19 +523,9 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                   >
                     Classificação: {age}
                   </span>
-                  {age === "Livre" ? (
-                    <span className="text-muted-foreground">
-                      Continua Livre pra todo público. Ajuste na Etapa 3 se precisar.
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground">
-                      Você mudou a classificação na Etapa 3. Volte se quiser deixar Livre.
-                    </span>
-                  )}
                 </div>
               );
             })()}
-            <FormMessage />
           </FormItem>
         )}
       />
