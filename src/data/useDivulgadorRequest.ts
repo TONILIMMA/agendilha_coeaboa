@@ -8,6 +8,8 @@ export interface DivulgadorRequestInput {
   whatsapp: string;
   tipo_divulgador: string | null;
   motivo: string;
+  neighborhood?: string | null;
+  social_profile?: string | null;
 }
 
 /** Cria o pedido pra virar Divulgador. */
@@ -21,6 +23,8 @@ export function useCreateDivulgadorRequest() {
         whatsapp: input.whatsapp,
         tipo_divulgador: input.tipo_divulgador,
         motivo: input.motivo,
+        neighborhood: input.neighborhood,
+        social_profile: input.social_profile,
       });
       if (error) throw error;
     },
