@@ -139,6 +139,9 @@ describe("useDivulgadorStatus", () => {
       order: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
       maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+      then: vi.fn().mockImplementation((onFulfilled) => 
+        Promise.resolve(onFulfilled({ data: [], error: null }))
+      ),
     }));
 
     const { result } = renderHook(() => useDivulgadorStatus(), { wrapper: testWrapper });
