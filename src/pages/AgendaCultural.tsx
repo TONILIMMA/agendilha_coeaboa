@@ -130,9 +130,7 @@ function AgendaCulturalInner() {
         <AgendaLoginBanner
           isLoggedIn={!!user}
           hasProfile={!!profile}
-          neighborhood={profileNeighborhood}
           onSignUp={() => navigate("/auth")}
-          onFilterNeighborhood={filters.setNeighborhoodFilter}
         />
 
         {/* Abas */}
@@ -165,7 +163,6 @@ function AgendaCulturalInner() {
           <AgendaArtistsTab
             artists={artists}
             shortVideos={shortVideos}
-            neighborhoodFilter={filters.neighborhoodFilter}
           />
         )}
 
