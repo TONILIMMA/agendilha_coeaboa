@@ -156,7 +156,12 @@ const formSchema = z.object({
       }
     }
   }
-});
+  },
+  {
+    message: "Contato do responsável é obrigatório para estabelecimentos comerciais",
+    path: ["locationContact"],
+  }
+);
 
 type FormData = z.infer<typeof formSchema>;
 
