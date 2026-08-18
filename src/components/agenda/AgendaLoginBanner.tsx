@@ -3,19 +3,15 @@ import { Button } from "@/components/ui/button";
 
 interface AgendaLoginBannerProps {
   isLoggedIn: boolean;
-  neighborhood?: string | null;
   hasProfile: boolean;
   onSignUp: () => void;
-  onFilterNeighborhood: (neighborhood: string) => void;
 }
 
 /** Faixa acima das abas: convida visitante a se cadastrar ou mostra o bairro do usuário. */
 export function AgendaLoginBanner({
   isLoggedIn,
-  neighborhood,
   hasProfile,
   onSignUp,
-  onFilterNeighborhood,
 }: AgendaLoginBannerProps) {
   if (!isLoggedIn) {
     return (
