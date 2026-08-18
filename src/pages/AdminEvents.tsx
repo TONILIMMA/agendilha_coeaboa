@@ -84,10 +84,8 @@ function AdminEventsInner() {
     submitting: boolean;
   } | null>(null);
 
-  // Após aprovar, oferecemos ao admin gerar um flyer genérico da marca.
   const [flyerOffer, setFlyerOffer] = useState<Submission | null>(null);
   const [generatingFlyer, setGeneratingFlyer] = useState(false);
-  // Alerta on-screen listando exatamente quais campos ainda faltam.
   const [publishBlock, setPublishBlock] = useState<PublishBlockInfo | null>(null);
 
   async function fetchAll() {
@@ -193,7 +191,10 @@ function AdminEventsInner() {
     toast.success(kind === "approved" ? "Evento aprovado." : "Evento rejeitado.");
 
     if (kind === "approved") {
-      if (shouldOfferGenericFlyer(sub)) setFlyerOffer(sub);
+      if (!sub.image_url) {
+        // Gera flyer em segundo plano se não houver
+        confirmGenerateFlyer(sub);
+      }
     }
 
     const phoneCheck = validateBrazilianMobile(sub.phone || "");
@@ -212,25 +213,33 @@ function AdminEventsInner() {
     fetchAll();
   }
 
-  async function confirmGenerateFlyer() {
-    if (!flyerOffer) return;
-    // Guarda dupla: nunca sobrescreve arte enviada pelo promotor.
-    if (flyerOffer.image_url) {
-      toast.info("Esse evento já tem flyer do divulgador. Mantendo a arte original.");
+  async function confirmGenerateFlyer(targetSub?: Submission | React.MouseEvent) {
+    let sub: Submission | null = null;
+    
+    if (targetSub && 'id' in targetSub) {
+      sub = targetSub;
+    } else {
+      sub = flyerOffer;
+    }
+
+    if (!sub) return;
+    
+    // Nunca sobrescreve arte enviada pelo promotor.
+    if (sub.image_url) {
       setFlyerOffer(null);
       return;
     }
     setGeneratingFlyer(true);
     try {
       const dataUrl = await generateFallbackFlyer({
-        title: flyerOffer.event_title || "Evento",
-        date: formatEventDate(flyerOffer.date),
-        startTime: flyerOffer.start_time,
-        location: flyerOffer.location,
-        category: (flyerOffer as any).category ?? null,
+        title: sub.event_title || "Evento",
+        date: formatEventDate(sub.date),
+        startTime: sub.start_time,
+        location: sub.location,
+        category: (sub as any).category ?? null,
       });
       const blob = await (await fetch(dataUrl)).blob();
-      const filePath = `${user?.id ?? "admin"}/fallback-${flyerOffer.id}-${Date.now()}.jpg`;
+      const filePath = `${user?.id ?? "admin"}/fallback-${sub.id}-${Date.now()}.jpg`;
       const { error: upErr } = await supabase.storage
         .from("event-flyers")
         .upload(filePath, blob, { contentType: "image/jpeg", upsert: true });
@@ -241,9 +250,9 @@ function AdminEventsInner() {
       const { error: updErr } = await supabase
         .from("submissions")
         .update({ image_url: publicUrl })
-        .eq("id", flyerOffer.id);
+        .eq("id", sub.id);
       if (updErr) throw updErr;
-      toast.success("Flyer genérico gerado e salvo no evento.");
+      console.log("Flyer padrão gerado e salvo no evento.");
       setFlyerOffer(null);
       fetchAll();
     } catch (e) {
@@ -351,19 +360,31 @@ function AdminEventsInner() {
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                     {/* Informações Principais */}
                      <div className="col-span-3 space-y-2">
-                       <div className="flex items-start gap-3">
-                         {sub.image_url ? (
-                           <img
-                             src={sub.image_url}
-                             alt={sub.event_title}
-                             loading="lazy"
-                             className="h-14 w-14 rounded-lg object-cover ring-1 ring-border shrink-0"
-                           />
-                         ) : (
-                           <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                             <CalendarDays className="h-5 w-5 text-muted-foreground/40" />
-                           </div>
-                         )}
+                        <div className="flex items-start gap-3 relative group/flyer">
+                          {sub.image_url ? (
+                            <div className="relative">
+                              <img
+                                src={sub.image_url}
+                                alt={sub.event_title}
+                                loading="lazy"
+                                className="h-14 w-14 rounded-lg object-cover ring-1 ring-border shrink-0"
+                              />
+                              <a
+                                href={sub.image_url}
+                                download={`flyer-${sub.event_title}.jpg`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 group-hover/flyer:opacity-100 transition-opacity shadow-sm"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <FileDown className="h-3 w-3" />
+                              </a>
+                            </div>
+                          ) : (
+                            <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                              <CalendarDays className="h-5 w-5 text-muted-foreground/40" />
+                            </div>
+                          )}
                          <div className="min-w-0 flex-1">
                            <div className="flex items-start gap-1.5">
                              {sub.is_highlight && <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 shrink-0 mt-1" />}
@@ -812,50 +833,6 @@ function AdminEventsInner() {
         </DialogContent>
       </Dialog>
 
-      {/* Oferta pós-aprovação: gerar flyer genérico da marca (só admin) */}
-      <Dialog open={!!flyerOffer} onOpenChange={(o) => !o && !generatingFlyer && setFlyerOffer(null)}>
-        <DialogContent className="max-w-md">
-          {flyerOffer && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Megaphone className="h-5 w-5 text-primary" /> Gerar flyer genérico?
-                </DialogTitle>
-                <DialogDescription className="text-sm">
-                  Cria um flyer padrão da marca <strong>Coé a Boa?</strong> pra{" "}
-                  <span className="font-bold text-foreground">{flyerOffer.event_title}</span>,
-                  usando data, local e categoria do evento.
-                  {flyerOffer.image_url ? (
-                    <span className="block mt-2 text-amber-700">
-                      ⚠️ Esse evento já tem flyer. Gerar vai substituir a imagem atual.
-                    </span>
-                  ) : (
-                    <span className="block mt-2 text-muted-foreground">
-                      Assim o espaço da imagem nunca fica vazio na agenda.
-                    </span>
-                  )}
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="gap-2">
-                <Button variant="outline" onClick={() => setFlyerOffer(null)} disabled={generatingFlyer}>
-                  Agora não
-                </Button>
-                <Button
-                  onClick={confirmGenerateFlyer}
-                  disabled={generatingFlyer}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  {generatingFlyer ? (
-                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Gerando…</>
-                  ) : (
-                    <><Megaphone className="h-4 w-4 mr-2" /> Gerar flyer</>
-                  )}
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
     </PageContainer>
   );
 }
