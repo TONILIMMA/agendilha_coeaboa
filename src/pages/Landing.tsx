@@ -445,7 +445,8 @@ export default function Landing() {
                     />
                   </div>
                 </div>
-                  <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="flex flex-col justify-end px-1 sm:px-4">
                     <div className="flex items-start gap-2 bg-white/40 sm:bg-transparent rounded-xl p-3 sm:p-0">
                       <input 
                         type="checkbox" 
