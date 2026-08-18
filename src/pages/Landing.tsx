@@ -95,14 +95,15 @@ export default function Landing() {
      isFetchingNextPage,
      isLoading: eventsLoading 
    } = useInfiniteQuery({
-     queryKey: ["all-events"],
-     queryFn: async ({ pageParam = 0 }) => {
-       const { data, error } = await supabase
-          .from("public_submissions")
-         .select("id, event_title, date, start_time, end_time, location, address_street, address_neighborhood, category, image_url, is_highlight, atrativo_style, description, age_rating, is_suitable_for_minors")
-         .eq('status', 'aprovado')
-         .order('date', { ascending: true })
-         .range(pageParam, pageParam + 9);
+    queryKey: qk.agenda.events(),
+    queryFn: async ({ pageParam = 0 }) => {
+      const { data, error } = await supabase
+         .from("public_submissions")
+        .select("id, event_title, date, start_time, end_time, location, address_street, address_neighborhood, category, image_url, is_highlight, atrativo_style, description, age_rating, is_suitable_for_minors, views_count")
+        .eq('status', 'aprovado')
+        .order('is_highlight', { ascending: false })
+        .order('date', { ascending: true })
+        .range(pageParam, pageParam + 9);
        
        if (error) throw error;
        return {
