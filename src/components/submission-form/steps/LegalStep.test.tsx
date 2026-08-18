@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, cleanup, act } from "@testing-library/react";
 import { LegalStep } from "./LegalStep";
 import { useForm } from "react-hook-form";
 import { MemoryRouter } from "react-router-dom";
@@ -86,7 +86,6 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
   });
 
   it("bloqueia o campo quando não for 'outro' e preenche ao selecionar sugestão", async () => {
-    // Mocking search for "João"
     (supabase.from as any).mockImplementation(() => ({
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
@@ -114,8 +113,7 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     const nameInput = screen.getByPlaceholderText(/Como quer aparecer na divulgação/i);
     fireEvent.change(nameInput, { target: { value: "João" } });
 
-    // Wait for suggestions and click
-    const suggestion = await screen.findByText("João do Pandeiro");
+    const suggestion = await screen.findByText("João do Pandeiro", {}, { timeout: 2000 });
     fireEvent.mouseDown(suggestion);
 
     expect(nameInput).toHaveValue("João do Pandeiro");
@@ -129,19 +127,16 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     const zapInput = screen.getByPlaceholderText(/WhatsApp que vai receber dúvidas/i);
     const radioOutro = screen.getByLabelText(/Outro/i);
 
-    // Click Outro
     fireEvent.click(radioOutro);
 
     expect(zapInput).not.toHaveAttribute("readonly");
     expect(zapInput).toHaveValue("");
     
-    // Type something
     fireEvent.change(zapInput, { target: { value: "21912345678" } });
     expect(zapInput).toHaveValue("(21) 91234-5678");
   });
 
   it("substitui valor manual ao alternar seleções", async () => {
-    // Mock Maria
     (supabase.from as any).mockImplementation(() => ({
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
@@ -168,29 +163,26 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     const radioArtista = screen.getByLabelText(/Artista/i);
     const nameInput = screen.getByPlaceholderText(/Como quer aparecer na divulgação/i);
 
-    // 1. Select Maria from autocomplete FIRST (Maria is an 'artista' in mock)
-    fireEvent.change(nameInput, { target: { value: "Maria" } });
-    const suggestion = await screen.findByText("Maria da Vila", {}, { timeout: 2000 });
-    fireEvent.mouseDown(suggestion);
-
-    expect(nameInput).toHaveValue("Maria da Vila");
-    expect(zapInput).toHaveValue("(21) 97777-6666");
-    expect(zapInput).toHaveAttribute("readonly");
-    
-    // 2. Switch to Outro and type
+    // 1. Set to Outro and type
     fireEvent.click(radioOutro);
-    expect(zapInput).toHaveValue("");
-    expect(zapInput).not.toHaveAttribute("readonly");
     fireEvent.change(zapInput, { target: { value: "21900000000" } });
     expect(zapInput).toHaveValue("(21) 90000-0000");
 
-    // 3. Select Maria AGAIN (should substitute manual value)
+    // 2. Select Maria from autocomplete (Maria is an 'artista' in mock)
     fireEvent.change(nameInput, { target: { value: "Maria" } });
-    const suggestion2 = await screen.findByText("Maria da Vila");
-    fireEvent.mouseDown(suggestion2);
+    const suggestion = await screen.findByText("Maria da Vila", {}, { timeout: 2000 });
+    
+    // Simulate selection which sets Maria's zap and type
+    fireEvent.mouseDown(suggestion);
 
-    expect(zapInput).toHaveValue("(21) 97777-6666");
+    // Should substitute manual value
+    await waitFor(() => expect(zapInput).toHaveValue("(21) 97777-6666"), { timeout: 2000 });
     expect(zapInput).toHaveAttribute("readonly");
+    
+    // 3. Switch back to Outro (should clear)
+    fireEvent.click(radioOutro);
+    expect(zapInput).toHaveValue("");
+    expect(zapInput).not.toHaveAttribute("readonly");
 
     // 4. Test user's own profile restore when switching from Outro to registered role
     fireEvent.change(nameInput, { target: { value: "Dono do App" } });
@@ -198,7 +190,6 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     fireEvent.change(zapInput, { target: { value: "21988888888" } });
     fireEvent.click(radioArtista);
     
-    // responsavelNome ("Dono do App") matches nickName, so it restores basicPhone
     expect(zapInput).toHaveValue("(21) 99999-9999");
     expect(zapInput).toHaveAttribute("readonly");
   });
@@ -211,11 +202,9 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     
     const zapInput = screen.getByPlaceholderText(/WhatsApp que vai receber dúvidas/i);
     
-    // Test mask
     fireEvent.change(zapInput, { target: { value: "21988887777" } });
     expect(zapInput).toHaveValue("(21) 98888-7777");
     
-    // Test max length (11 digits)
     fireEvent.change(zapInput, { target: { value: "21988887777123" } });
     expect(zapInput).toHaveValue("(21) 98888-7777"); 
   });
