@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
-import { useDivulgadorStatus } from "@/hooks/useDivulgadorStatus";
+import { useDivulgadorStatus } from "@/data/useDivulgadorStatus";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAgendaData } from "@/hooks/useAgendaData";
 import { useAgendaFilters } from "@/hooks/useAgendaFilters";

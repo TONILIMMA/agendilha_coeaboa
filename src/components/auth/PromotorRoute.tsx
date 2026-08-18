@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDivulgadorStatus } from "@/hooks/useDivulgadorStatus";
+import { useDivulgadorStatus } from "@/data/useDivulgadorStatus";
 import { ROUTES } from "@/routes/config";
 
 /**

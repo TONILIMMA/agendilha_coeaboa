@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { User, Save } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
-import { usePromotorProfile, upsertPromotorProfile } from "@/data/usePromotorProfile";
+import { usePromotorProfile, useUpsertPromotorProfile } from "@/data/usePromotorProfile";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 
 const TIPOS = [
@@ -34,7 +34,8 @@ export default function PromotorPerfil() {
   const isEditingOther = !!params.get("user") && params.get("user") !== user?.id;
   const canEdit = !isEditingOther || isAdmin || isMaster;
 
-  const { profile, loading, refetch } = usePromotorProfile(targetUserId);
+  const { data: profile, isLoading: loading, refetch } = usePromotorProfile(targetUserId);
+  const { mutateAsync: upsertPromotorProfile } = useUpsertPromotorProfile();
   const [nome, setNome] = useState("");
   const [whats, setWhats] = useState("");
   const [tipo, setTipo] = useState<string>("");
@@ -62,19 +63,23 @@ export default function PromotorPerfil() {
       }
     }
     setSaving(true);
-    const { error } = await upsertPromotorProfile({
-      user_id: targetUserId,
-      promotor_nome: nome,
-      promotor_whatsapp: whats,
-      tipo_promotor: tipo || null,
-    });
-    setSaving(false);
-    if (error) {
+    try {
+      await upsertPromotorProfile({
+        user_id: targetUserId,
+        promotor_nome: nome,
+        promotor_whatsapp: whats,
+        tipo_promotor: tipo || null,
+      });
+      toast.success("Perfil de divulgador atualizado.");
+      refetch();
+    } catch (error) {
+      // O handleError já foi configurado no useMutation se necessário, 
+      // mas aqui fazemos o feedback manual do toast.
       toast.error("Não deu pra salvar seu perfil. Tenta de novo.");
-      return;
+    } finally {
+      setSaving(false);
     }
-    toast.success("Perfil de divulgador atualizado.");
-    refetch();
+
   };
 
   if (loading) return <LoadingState />;
