@@ -124,6 +124,14 @@ const formSchema = z.object({
   addressState: z.string().optional(),
   ageRating: z.enum(["Livre", "10+", "12+", "14+", "16+", "18+"]).default("Livre"),
   isSuitableForMinors: z.boolean().default(true),
+}).refine((data) => {
+  if (data.locationType === "commercial" && !data.locationContact) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Contato do responsável é obrigatório para estabelecimentos comerciais",
+  path: ["locationContact"],
 }).superRefine((data, ctx) => {
   // WhatsApp do responsável por dúvidas: sempre exigimos número válido; para atrativo/estabelecimento é obrigatório.
   const phone = (data.duvidasWhatsapp || "").trim();
@@ -184,7 +192,7 @@ export default function SubmissionForm() {
       category: "", eventTitle: "", date: "", startTime: "",
       ageRating: "Livre", isSuitableForMinors: true,
       atrativoName: "", atrativoType: "", atrativoContact: "", atrativoEmail: "", atrativoCategory: undefined as any,
-      locationName: "", eventAddress: "", locationType: "commercial", locationCep: "",
+      locationName: "", eventAddress: "", locationType: "commercial" as const, locationCep: "",
       fotos: [],
       duvidasSource: "promotor",
       duvidasWhatsapp: "",
