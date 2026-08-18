@@ -168,27 +168,29 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     const radioArtista = screen.getByLabelText(/Artista/i);
     const nameInput = screen.getByPlaceholderText(/Como quer aparecer na divulgação/i);
 
-    // 1. Go to Outro and type
-    fireEvent.click(radioOutro);
-    fireEvent.change(zapInput, { target: { value: "21900000000" } });
-    expect(zapInput).toHaveValue("(21) 90000-0000");
-
-    // 2. Select Maria from autocomplete
+    // 1. Select Maria from autocomplete FIRST (Maria is an 'artista' in mock)
     fireEvent.change(nameInput, { target: { value: "Maria" } });
-    
-    // We need to wait for the debounce and the async Supabase call inside PromotorAutocomplete
     const suggestion = await screen.findByText("Maria da Vila", {}, { timeout: 2000 });
     fireEvent.mouseDown(suggestion);
 
-    // Component should auto-fill Maria's data
     expect(nameInput).toHaveValue("Maria da Vila");
     expect(zapInput).toHaveValue("(21) 97777-6666");
     expect(zapInput).toHaveAttribute("readonly");
     
-    // 3. Switch back to Outro (should clear and unlock)
+    // 2. Switch to Outro and type
     fireEvent.click(radioOutro);
     expect(zapInput).toHaveValue("");
     expect(zapInput).not.toHaveAttribute("readonly");
+    fireEvent.change(zapInput, { target: { value: "21900000000" } });
+    expect(zapInput).toHaveValue("(21) 90000-0000");
+
+    // 3. Select Maria AGAIN (should substitute manual value)
+    fireEvent.change(nameInput, { target: { value: "Maria" } });
+    const suggestion2 = await screen.findByText("Maria da Vila");
+    fireEvent.mouseDown(suggestion2);
+
+    expect(zapInput).toHaveValue("(21) 97777-6666");
+    expect(zapInput).toHaveAttribute("readonly");
 
     // 4. Test user's own profile restore when switching from Outro to registered role
     fireEvent.change(nameInput, { target: { value: "Dono do App" } });
