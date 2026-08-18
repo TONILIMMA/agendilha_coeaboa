@@ -160,7 +160,11 @@ const formSchema = z.object({
     } else {
       const vOutro = validateBrazilianMobile(outroPhone);
       if (vOutro.valid === false) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["duvidasWhatsapp"], message: vOutro.reason });
+        ctx.addIssue({ 
+          code: z.ZodIssueCode.custom, 
+          path: ["duvidasWhatsapp"], 
+          message: "WhatsApp inválido. Use (DD) 9XXXX-XXXX" 
+        });
       }
     }
   }
