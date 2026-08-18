@@ -445,8 +445,6 @@ export default function Landing() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="flex-1">
                   <div className="flex flex-col justify-end px-1 sm:px-4 col-span-1 sm:col-span-2">
                     <div className="flex items-start gap-2 bg-white/40 sm:bg-transparent rounded-xl p-3 sm:p-0">
                       <input 
