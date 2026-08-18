@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
+import { qk } from "@/data/queryKeys";
 import { Button } from "@/components/ui/button";
  import { handleError } from "@/lib/error-handler";
  import { toast } from "sonner";
