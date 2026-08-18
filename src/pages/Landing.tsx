@@ -394,8 +394,8 @@ export default function Landing() {
               <h3 className="text-lg font-bold text-foreground/80 mb-2">Ainda não temos sugestões personalizadas</h3>
               <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-6">
                 {!user 
-                  ? "Crie uma conta e selecione seus bairros e estilos favoritos para que nossa IA recomende os melhores eventos para você."
-                  : "Complete seu perfil com seus estilos musicais e locais favoritos para receber recomendações exclusivas."}
+                  ? "Crie uma conta e selecione seus estilos favoritos para que nossa IA recomende os melhores eventos para você."
+                  : "Complete seu perfil com seus estilos musicais favoritos para receber recomendações exclusivas."}
               </p>
               {!user ? (
                 <Button onClick={() => navigate("/auth")} variant="outline" className="rounded-full font-bold">
