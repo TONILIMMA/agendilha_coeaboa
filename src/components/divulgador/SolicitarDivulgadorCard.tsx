@@ -29,6 +29,8 @@ export function SolicitarDivulgadorCard({ compact = false }: { compact?: boolean
   const [nome, setNome] = useState("");
   const [whats, setWhats] = useState("");
   const [tipo, setTipo] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [redeSocial, setRedeSocial] = useState("");
   const [motivo, setMotivo] = useState("");
 
   useEffect(() => {
@@ -54,6 +56,8 @@ export function SolicitarDivulgadorCard({ compact = false }: { compact?: boolean
         whatsapp: whats.replace(/\D/g, ""),
         tipo_divulgador: tipo || null,
         motivo: motivo.trim(),
+        neighborhood: bairro || null,
+        social_profile: redeSocial || null,
       });
     } catch (error: any) {
       toast.error(
@@ -141,6 +145,24 @@ export function SolicitarDivulgadorCard({ compact = false }: { compact?: boolean
                   {TIPOS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="div-bairro">Bairro de atuação</Label>
+              <Input 
+                id="div-bairro" 
+                value={bairro} 
+                onChange={(e) => setBairro(e.target.value)} 
+                placeholder="Ex: Jardim Guanabara, Ribeira..." 
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="div-rede">Perfil / Redes Sociais</Label>
+              <Input 
+                id="div-rede" 
+                value={redeSocial} 
+                onChange={(e) => setRedeSocial(e.target.value)} 
+                placeholder="@seu_perfil ou link" 
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="div-motivo">O que você quer divulgar? *</Label>

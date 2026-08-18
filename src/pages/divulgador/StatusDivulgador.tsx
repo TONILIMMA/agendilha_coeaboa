@@ -11,7 +11,8 @@ import {
   XCircle, 
   ArrowLeft,
   LayoutDashboard,
-  Calendar
+  Calendar,
+  ExternalLink
 } from "lucide-react";
 import { formatBrazilianDate } from "@/lib/date-utils";
 
@@ -50,6 +51,14 @@ export default function StatusDivulgador() {
           >
             <Calendar className="h-4 w-4 mr-2" />
             Divulgar novo evento
+          </Button>
+          <Button 
+            variant="ghost"
+            className="rounded-full h-12 font-bold text-primary"
+            onClick={() => navigate(`/divulgador/${user?.id}`)}
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Ver meu perfil público
           </Button>
         </div>
       </div>

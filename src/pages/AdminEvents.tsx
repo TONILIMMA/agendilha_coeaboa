@@ -15,7 +15,8 @@ import {
   FileDown, MapPin, Clock,
   CheckCircle, XCircle, ChevronDown, ShieldAlert,
   Phone, Mail, Globe, Star,
-  RotateCcw, Edit, ExternalLink, Eye, History, Megaphone
+  RotateCcw, Edit, ExternalLink, Eye, History, Megaphone,
+  AlertCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -77,7 +78,7 @@ function AdminEventsInner() {
   });
   const [review, setReview] = useState<{
     sub: Submission;
-    kind: "approved" | "rejected";
+    kind: "approved" | "rejected" | "ajuste";
     reason: string;
     message: string;
     submitting: boolean;
@@ -133,13 +134,13 @@ function AdminEventsInner() {
     setDeleteConfirmId(null);
   }
 
-  function openReview(sub: Submission, kind: "approved" | "rejected") {
-    const template = templates[kind];
-    if (!template) {
+  function openReview(sub: Submission, kind: "approved" | "rejected" | "ajuste") {
+    const template = templates[kind === "ajuste" ? "rejected" : kind];
+    if (!template && kind !== "ajuste") {
       toast.error("Template do WhatsApp ainda não carregado. Tente novamente em alguns segundos.");
       return;
     }
-    const initial = renderTemplate(template, buildTemplateVars(sub, ""));
+    const initial = template ? renderTemplate(template, buildTemplateVars(sub, "")) : "";
     setReview({ sub, kind, reason: "", message: initial, submitting: false });
   }
 
@@ -173,6 +174,7 @@ function AdminEventsInner() {
             approved_by: user?.id,
             rejected_at: null,
             rejected_by: null,
+            admin_notes: reason || null,
           }
         : {
             status: "rejeitado",
@@ -495,6 +497,15 @@ function AdminEventsInner() {
                              
                              <Tooltip>
                                <TooltipTrigger asChild>
+                                 <Button size="icon" variant="outline" className="h-9 w-9 bg-orange-50 border-orange-200 text-orange-600 hover:bg-orange-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'ajuste')}>
+                                   <AlertCircle className="h-4 w-4" />
+                                 </Button>
+                               </TooltipTrigger>
+                               <TooltipContent>Solicitar Ajuste</TooltipContent>
+                             </Tooltip>
+
+                             <Tooltip>
+                               <TooltipTrigger asChild>
                                  <Button size="icon" variant="outline" className="h-9 w-9 bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" onClick={() => openReview(sub, 'rejected')}>
                                    <XCircle className="h-4 w-4" />
                                  </Button>
@@ -691,6 +702,9 @@ function AdminEventsInner() {
                             {sub.status !== 'rejeitado' && (
                              <Button size="sm" variant="outline" onClick={() => openReview(sub, 'rejected')} className="text-rose-600 border-rose-200 hover:bg-rose-50"><XCircle className="h-4 w-4 mr-2" /> Rejeitar</Button>
                             )}
+                            {sub.status === 'pendente' && (
+                             <Button size="sm" variant="outline" onClick={() => openReview(sub, 'ajuste')} className="text-orange-600 border-orange-200 hover:bg-orange-50"><AlertCircle className="h-4 w-4 mr-2" /> Solicitar Ajuste</Button>
+                            )}
                             <Button size="sm" variant={sub.is_highlight ? 'secondary' : 'outline'} className={sub.is_highlight ? 'bg-amber-100 text-amber-700' : ''} onClick={() => toggleHighlight(sub.id, !!sub.is_highlight)}><Star className={`h-4 w-4 mr-2 ${sub.is_highlight ? 'fill-amber-500' : ''}`} /> {sub.is_highlight ? 'Remover Destaque' : 'Marcar Destaque'}</Button>
                             <Button size="sm" variant="ghost" className="text-muted-foreground ml-auto"><History className="h-4 w-4 mr-2" /> Histórico</Button>
                           </div>
@@ -719,12 +733,15 @@ function AdminEventsInner() {
           {review && (() => {
             const phoneCheck = validateBrazilianMobile(review.sub.phone || "");
             const isApprove = review.kind === "approved";
+            const isAjuste = review.kind === "ajuste";
             return (
               <>
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
                     {isApprove ? (
                       <><CheckCircle className="h-5 w-5 text-emerald-600" /> Aprovar evento</>
+                    ) : isAjuste ? (
+                      <><History className="h-5 w-5 text-amber-600" /> Solicitar ajuste</>
                     ) : (
                       <><XCircle className="h-5 w-5 text-rose-600" /> Rejeitar evento</>
                     )}
@@ -746,12 +763,14 @@ function AdminEventsInner() {
 
                   {!isApprove && (
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase tracking-wide">Motivo da rejeição (opcional)</Label>
+                      <Label className="text-xs font-bold uppercase tracking-wide">
+                        {isAjuste ? "O que precisa ajustar?" : "Motivo da rejeição (opcional)"}
+                      </Label>
                       <Textarea
                         rows={2}
                         value={review.reason}
                         onChange={(e) => updateReviewReason(e.target.value.slice(0, 400))}
-                        placeholder="Ex.: Faltam dados de localização e horário de término."
+                        placeholder={isAjuste ? "Ex: A data está incorreta ou falta a descrição." : "Ex.: Faltam dados de localização."}
                       />
                       <p className="text-[10px] text-muted-foreground">Será incluído como observação interna e na mensagem do WhatsApp.</p>
                     </div>
@@ -781,10 +800,10 @@ function AdminEventsInner() {
                   <Button
                     onClick={confirmReview}
                     disabled={review.submitting}
-                    className={isApprove ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700"}
+                    className={isApprove ? "bg-emerald-600 hover:bg-emerald-700" : isAjuste ? "bg-amber-600 hover:bg-amber-700" : "bg-rose-600 hover:bg-rose-700"}
                   >
-                    {review.submitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : (isApprove ? <CheckCircle className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2" />)}
-                    {isApprove ? "Aprovar e enviar WhatsApp" : "Rejeitar e enviar WhatsApp"}
+                    {review.submitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : (isApprove ? <CheckCircle className="h-4 w-4 mr-2" /> : isAjuste ? <History className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2" />)}
+                    {isApprove ? "Aprovar e enviar WhatsApp" : isAjuste ? "Solicitar ajuste" : "Rejeitar e enviar WhatsApp"}
                   </Button>
                 </DialogFooter>
               </>

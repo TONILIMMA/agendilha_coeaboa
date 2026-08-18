@@ -1,5 +1,5 @@
 import {
-  CheckCircle, XCircle, Clock3, type LucideIcon,
+  CheckCircle, XCircle, Clock3, AlertCircle, type LucideIcon,
 } from "lucide-react";
 
 /**
@@ -66,6 +66,7 @@ export const statusConfig: Record<
   pendente:  { label: "Pendente",  color: "text-amber-700",   bg: "bg-amber-100",   border: "border-amber-200",   icon: Clock3 },
   aprovado:  { label: "Aprovado",  color: "text-emerald-700", bg: "bg-emerald-100", border: "border-emerald-200", icon: CheckCircle },
   rejeitado: { label: "Rejeitado", color: "text-rose-700",    bg: "bg-rose-100",    border: "border-rose-200",    icon: XCircle },
+  ajuste:    { label: "Ajuste",     color: "text-orange-700", bg: "bg-orange-100", border: "border-orange-200", icon: AlertCircle },
 };
 
 export function formatSubmissionDate(iso: string) {
@@ -151,6 +152,7 @@ export interface AdminEventsKpiData {
   pending: number;
   approved: number;
   rejected: number;
+  ajuste: number;
 }
 
 export function computeKpis(submissions: AdminSubmission[]): AdminEventsKpiData {
@@ -159,6 +161,7 @@ export function computeKpis(submissions: AdminSubmission[]): AdminEventsKpiData 
     pending: submissions.filter((s) => s.status === "pendente").length,
     approved: submissions.filter((s) => s.status === "aprovado").length,
     rejected: submissions.filter((s) => s.status === "rejeitado").length,
+    ajuste: submissions.filter((s) => s.status === "ajuste").length,
   };
 }
 
