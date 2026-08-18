@@ -84,7 +84,7 @@ function ExplorarInner() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("public_submissions")
-        .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, description, age_rating")
+        .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, description, age_rating, sale_price, is_suitable_for_minors")
         .eq("status", "aprovado")
         .order("date", { ascending: true });
       if (error) throw error;
