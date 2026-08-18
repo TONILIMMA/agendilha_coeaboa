@@ -209,13 +209,18 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
               <FormControl>
                 <PromotorAutocomplete
                   value={field.value ?? ""}
-                  onChange={field.onChange}
-                  disabled={true}
+                  onChange={(val) => {
+                    field.onChange(val);
+                    // Se o usuário está digitando manualmente o nome e não é "Outro",
+                    // ainda permitimos, mas o WhatsApp continuará bloqueado até que ele escolha "Outro"
+                    // ou selecione alguém da lista que preencha o Zap.
+                  }}
+                  disabled={isPublished}
                   onSelect={(p) => {
                     field.onChange(p.nome);
-                    if (p.whatsapp) {
-                      form.setValue("usarMeuWhatsapp", false, { shouldDirty: true });
-                      form.setValue("duvidasWhatsapp", formatPhoneDisplay(p.whatsapp), {
+                    if (p.whatsapp && tipoResponsavel !== "outro") {
+                      const formatted = formatPhoneDisplay(p.whatsapp);
+                      form.setValue("duvidasWhatsapp", formatted, {
                         shouldValidate: true,
                         shouldDirty: true,
                       });
