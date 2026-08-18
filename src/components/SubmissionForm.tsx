@@ -23,7 +23,7 @@ import {
 import { validateBrazilianMobile } from "@/lib/whatsapp";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { emitEntityCreated } from "@/lib/entityEvents";
-import { usePromotorProfile, upsertPromotorProfile } from "@/data/usePromotorProfile";
+import { usePromotorProfile, useUpsertPromotorProfile } from "@/data/usePromotorProfile";
 
 const formSchema = z.object({
   imageSource: z.enum(["upload", "ai"]).optional(),
@@ -180,7 +180,8 @@ export default function SubmissionForm() {
   const { user } = useAuth();
   const { isCollaborator, isPromoter } = usePermissions();
   const { profile, loaded } = useProfile();
-  const { profile: promotorProfile, loading: promotorLoading } = usePromotorProfile();
+  const { data: promotorProfile, isLoading: promotorLoading } = usePromotorProfile(user?.id);
+  const { mutateAsync: upsertPromotorProfile } = useUpsertPromotorProfile();
   const [currentStep, setCurrentStep] = useState(1);
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const draftLoadedRef = useRef(false);
