@@ -7,7 +7,7 @@ interface AgendaLoginBannerProps {
   onSignUp: () => void;
 }
 
-/** Faixa acima das abas: convida visitante a se cadastrar ou mostra o bairro do usuário. */
+/** Faixa acima das abas: convida visitante a se cadastrar ou mostra destaques personalizados. */
 export function AgendaLoginBanner({
   isLoggedIn,
   hasProfile,
