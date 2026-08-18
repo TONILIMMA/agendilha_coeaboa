@@ -37,7 +37,7 @@ const CATEGORIES: { id: string; label: string }[] = [
   { id: "outros", label: "Outros" },
 ];
 
-type DatePreset = "all" | "today" | "tomorrow" | "weekend" | "next7" | "custom";
+type DatePreset = "all" | "today" | "tomorrow" | "weekend" | "next7" | "custom" | "free" | "kids";
 
 function presetMatches(eventDate: string | null, preset: DatePreset, customDate?: Date): boolean {
   if (preset === "all") return true;
@@ -95,7 +95,9 @@ function ExplorarInner() {
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
     const list = events.filter(ev => {
-      if (!presetMatches(ev.date, datePreset, customDate)) return false;
+      if (datePreset !== "free" && datePreset !== "kids" && !presetMatches(ev.date, datePreset as any, customDate)) return false;
+      if (datePreset === "free" && !["0", "gratuito", "grátis", "free"].includes(ev.sale_price?.toLowerCase().trim() || "")) return false;
+      if (datePreset === "kids" && !ev.is_suitable_for_minors && ev.age_rating !== "Livre") return false;
       if (neighborhood !== "all" && ev.address_neighborhood !== neighborhood) return false;
       if (category !== "all" && ev.category !== category) return false;
       if (q) {
@@ -154,9 +156,11 @@ function ExplorarInner() {
       {[
         { id: "all", label: "Todos" },
         { id: "today", label: "Hoje" },
-        { id: "next7", label: "Próximos dias" },
-        { id: "weekend", label: "Este fim de semana" },
         { id: "tomorrow", label: "Amanhã" },
+        { id: "weekend", label: "Fim de semana" },
+        { id: "next7", label: "Próximos 7 dias" },
+        { id: "free", label: "Gratuitos" },
+        { id: "kids", label: "Para Crianças" },
       ].map(c => (
         <button
           key={c.id}
