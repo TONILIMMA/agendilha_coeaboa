@@ -84,10 +84,8 @@ function AdminEventsInner() {
     submitting: boolean;
   } | null>(null);
 
-  // Após aprovar, oferecemos ao admin gerar um flyer genérico da marca.
   const [flyerOffer, setFlyerOffer] = useState<Submission | null>(null);
   const [generatingFlyer, setGeneratingFlyer] = useState(false);
-  // Alerta on-screen listando exatamente quais campos ainda faltam.
   const [publishBlock, setPublishBlock] = useState<PublishBlockInfo | null>(null);
 
   async function fetchAll() {
@@ -193,7 +191,10 @@ function AdminEventsInner() {
     toast.success(kind === "approved" ? "Evento aprovado." : "Evento rejeitado.");
 
     if (kind === "approved") {
-      if (shouldOfferGenericFlyer(sub)) setFlyerOffer(sub);
+      if (!sub.image_url) {
+        // Gera flyer em segundo plano se não houver
+        confirmGenerateFlyer(sub);
+      }
     }
 
     const phoneCheck = validateBrazilianMobile(sub.phone || "");
@@ -212,11 +213,12 @@ function AdminEventsInner() {
     fetchAll();
   }
 
-  async function confirmGenerateFlyer() {
-    if (!flyerOffer) return;
-    // Guarda dupla: nunca sobrescreve arte enviada pelo promotor.
-    if (flyerOffer.image_url) {
-      toast.info("Esse evento já tem flyer do divulgador. Mantendo a arte original.");
+  async function confirmGenerateFlyer(targetSub?: Submission) {
+    const sub = targetSub || flyerOffer;
+    if (!sub) return;
+    
+    // Nunca sobrescreve arte enviada pelo promotor.
+    if (sub.image_url) {
       setFlyerOffer(null);
       return;
     }
@@ -243,7 +245,7 @@ function AdminEventsInner() {
         .update({ image_url: publicUrl })
         .eq("id", flyerOffer.id);
       if (updErr) throw updErr;
-      toast.success("Flyer genérico gerado e salvo no evento.");
+      console.log("Flyer padrão gerado e salvo no evento.");
       setFlyerOffer(null);
       fetchAll();
     } catch (e) {
@@ -351,19 +353,31 @@ function AdminEventsInner() {
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                     {/* Informações Principais */}
                      <div className="col-span-3 space-y-2">
-                       <div className="flex items-start gap-3">
-                         {sub.image_url ? (
-                           <img
-                             src={sub.image_url}
-                             alt={sub.event_title}
-                             loading="lazy"
-                             className="h-14 w-14 rounded-lg object-cover ring-1 ring-border shrink-0"
-                           />
-                         ) : (
-                           <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                             <CalendarDays className="h-5 w-5 text-muted-foreground/40" />
-                           </div>
-                         )}
+                        <div className="flex items-start gap-3 relative group/flyer">
+                          {sub.image_url ? (
+                            <div className="relative">
+                              <img
+                                src={sub.image_url}
+                                alt={sub.event_title}
+                                loading="lazy"
+                                className="h-14 w-14 rounded-lg object-cover ring-1 ring-border shrink-0"
+                              />
+                              <a
+                                href={sub.image_url}
+                                download={`flyer-${sub.event_title}.jpg`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 group-hover/flyer:opacity-100 transition-opacity shadow-sm"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <FileDown className="h-3 w-3" />
+                              </a>
+                            </div>
+                          ) : (
+                            <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                              <CalendarDays className="h-5 w-5 text-muted-foreground/40" />
+                            </div>
+                          )}
                          <div className="min-w-0 flex-1">
                            <div className="flex items-start gap-1.5">
                              {sub.is_highlight && <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 shrink-0 mt-1" />}

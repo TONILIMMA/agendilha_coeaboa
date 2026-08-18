@@ -54,12 +54,11 @@ export function MediaStep({ form, imageSource, setImageSource, eventImage, setEv
           className="h-20 sm:h-24 flex flex-col gap-2 relative transition-all"
           onClick={() => setImageSource("ai")}
         >
-          <Sparkles className="h-6 w-6 text-yellow-500" />
+          <ImageIcon className="h-6 w-6 text-primary" />
           <div className="text-center">
-            <div className="font-bold">Gerar flyer</div>
-            <div className="text-[10px] opacity-70 font-medium">Cria um flyer em segundos</div>
+            <div className="font-bold">Gerar flyer padrão</div>
+            <div className="text-[10px] opacity-70 font-medium">Cria a arte oficial do evento</div>
           </div>
-          <Badge className="absolute -top-2 -right-2 bg-yellow-500 text-black border-none animate-pulse text-[8px] sm:text-[10px] hidden">BETA</Badge>
         </Button>
       </div>
 
@@ -79,7 +78,7 @@ export function MediaStep({ form, imageSource, setImageSource, eventImage, setEv
           <Suspense fallback={
             <div className="h-40 flex flex-col items-center justify-center gap-3 bg-muted/20 rounded-3xl border-2 border-dashed border-primary/20">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-sm font-bold text-primary/60 uppercase tracking-widest">Carregando Estúdio...</p>
+              <p className="text-sm font-bold text-primary/60 uppercase tracking-widest">Carregando...</p>
             </div>
           }>
             <AIFlyerGenerator
