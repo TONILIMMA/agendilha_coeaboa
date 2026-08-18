@@ -66,6 +66,7 @@ const TermosPage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ def
 const PrivacidadePage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.PrivacidadePage })));
 const ImpulsionamentoPage = lazy(() => import("./pages/PlaceholderInfo").then(m => ({ default: m.ImpulsionamentoPage })));
 const StatusDivulgador = lazy(() => import("./pages/divulgador/StatusDivulgador"));
+const PublicProfile = lazy(() => import("./pages/divulgador/PublicProfile"));
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -190,6 +191,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.MEUS_EVENTOS} element={<ProtectedRoute><MeusEventos /></ProtectedRoute>} />
           <Route path={ROUTES.EVENTO_ENVIADO} element={<ProtectedRoute><EventoEnviado /></ProtectedRoute>} />
           <Route path={ROUTES.DIVULGADOR_STATUS} element={<ProtectedRoute><StatusDivulgador /></ProtectedRoute>} />
+          <Route path="/divulgador/:userId" element={<PublicProfile />} />
         </Route>
 
         {/* Full width detail pages */}
