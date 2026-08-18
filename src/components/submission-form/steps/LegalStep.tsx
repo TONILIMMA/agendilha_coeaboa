@@ -263,7 +263,11 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                         className={(isPublished || tipoResponsavel !== "outro") ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
                         onChange={(e) => {
                           if (tipoResponsavel !== "outro") return;
-                          field.onChange(formatPhoneDisplay(e.target.value));
+                          // Máscara de telefone em tempo real
+                          const rawValue = e.target.value.replace(/\D/g, "");
+                          if (rawValue.length <= 11) {
+                            field.onChange(formatPhoneDisplay(e.target.value));
+                          }
                         }}
                       />
                       {(isPublished || tipoResponsavel !== "outro") && (
