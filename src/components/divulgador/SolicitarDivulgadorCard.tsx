@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Megaphone, Clock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDivulgadorStatus } from "@/hooks/useDivulgadorStatus";
+import { useDivulgadorStatus } from "@/data/useDivulgadorStatus";
 import { useCreateDivulgadorRequest } from "@/data/useDivulgadorRequest";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

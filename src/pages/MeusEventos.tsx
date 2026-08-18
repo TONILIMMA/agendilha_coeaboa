@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { formatBrazilianDate } from "@/lib/date-utils";
 import { SolicitarDivulgadorCard } from "@/components/divulgador/SolicitarDivulgadorCard";
-import { useDivulgadorStatus } from "@/hooks/useDivulgadorStatus";
+import { useDivulgadorStatus } from "@/data/useDivulgadorStatus";
 import { LoadingState } from "@/components/ui/LoadingState";
 
 type StatusKey = "todos" | "pendente" | "aprovado" | "rejeitado";
