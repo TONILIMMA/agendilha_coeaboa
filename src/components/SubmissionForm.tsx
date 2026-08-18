@@ -75,7 +75,7 @@ const formSchema = z.object({
   duvidasWhatsappOutro: z.string().trim().optional(),
 
   category: z.string().trim().optional(),
-  eventTitle: z.string().trim().optional(),
+  eventTitle: z.string().trim().optional().or(z.literal("")).or(z.null()),
   date: z.string().trim().min(1, "Selecione a data"),
   startTime: z.string().trim().min(1, "Campo obrigatório"),
   endTime: z.string().trim().optional(),
@@ -398,7 +398,7 @@ export default function SubmissionForm() {
         return s;
       };
 
-      const eventTitle = values.eventTitle?.trim() || null;
+      const eventTitle = values.eventTitle ? values.eventTitle.trim() : null;
 
       let imageUrl = values.eventImageUrl;
       
