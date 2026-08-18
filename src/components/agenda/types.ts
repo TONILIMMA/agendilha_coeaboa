@@ -1,6 +1,6 @@
 export interface AgendaEvent {
   id: string;
-  event_title: string;
+  event_title: string | null;
   date: string | null;
   start_time: string | null;
   end_time: string | null;
