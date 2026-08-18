@@ -19,11 +19,7 @@ import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 import { InlineError } from "@/components/errors/InlineError";
 import { SeoHead } from "@/components/seo/SeoHead";
 
-const NEIGHBORHOODS = [
-  "Bancários","Cacuia","Cidade Universitária","Cocotá","Freguesia","Galeão",
-  "Jardim Carioca","Jardim Guanabara","Moneró","Pitangueiras","Portuguesa",
-  "Praia da Bandeira","Ribeira","Tauá","Zumbi",
-].sort();
+const NEIGHBORHOODS: string[] = [];
 
 const CATEGORIES: { id: string; label: string }[] = [
   { id: "musica", label: "Música / Shows" },
