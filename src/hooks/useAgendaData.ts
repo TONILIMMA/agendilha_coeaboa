@@ -20,7 +20,7 @@ export function useAgendaData() {
     queryFn: async (): Promise<AgendaEvent[]> => {
       const { data, error } = await supabase
         .from("public_submissions")
-        .select("*")
+        .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, age_rating, is_suitable_for_minors")
         .eq("status", "aprovado")
         .neq("moderation_status", "blocked");
       if (error) throw error;
