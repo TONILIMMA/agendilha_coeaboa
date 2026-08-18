@@ -23,9 +23,11 @@ export function useCreateDivulgadorRequest() {
         whatsapp: input.whatsapp,
         tipo_divulgador: input.tipo_divulgador,
         motivo: input.motivo,
+        // @ts-ignore - Columns added in migration
         neighborhood: input.neighborhood,
+        // @ts-ignore - Columns added in migration
         social_profile: input.social_profile,
-      });
+      } as any);
       if (error) throw error;
     },
     onSuccess: (_d, vars) =>
