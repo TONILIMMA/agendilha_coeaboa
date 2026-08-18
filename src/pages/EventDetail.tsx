@@ -11,7 +11,8 @@ import {
   CalendarDays, MapPin, Clock, Share2, ArrowLeft, 
   Tag, Info, ExternalLink, MessageCircle, Heart,
   Building2, ChevronRight, LayoutDashboard, Globe,
-  Navigation, Send, Ticket, Baby, Users, FileDown
+  Navigation, Send, Ticket, Baby, Users, FileDown,
+  Calendar, CheckCircle, Accessibility
 } from "lucide-react";
 import { exportEventToPdf } from "@/lib/exportEventPdf";
 import { PrintPreviewDialog, PrintPreviewSheet } from "@/components/pdf/PrintPreviewDialog";
@@ -53,6 +54,11 @@ interface Event {
   promotion_rules?: string | null;
   duvidas_source?: string | null;
   duvidas_phone?: string | null;
+  updated_at?: string;
+  // Metadata fields
+  has_accessibility_ramps?: boolean;
+  has_libras?: boolean;
+  has_accessible_bathroom?: boolean;
 }
 
 export default function EventDetail() {
@@ -184,6 +190,16 @@ export default function EventDetail() {
     const phone = duvidasPhone.startsWith("55") ? duvidasPhone : `55${duvidasPhone}`;
     const msg = `Oi! Vi o rolê *${event.event_title}* no AgendIlha e queria tirar uma dúvida.`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+  };
+
+  const handleAddToCalendar = () => {
+    if (!event || !event.date) return;
+    const start = event.date.replace(/-/g, "");
+    const startTime = event.start_time ? event.start_time.replace(/:/g, "") : "000000";
+    const endTime = event.end_time ? event.end_time.replace(/:/g, "") : "235959";
+    
+    const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.event_title)}&dates=${start}T${startTime}/${start}T${endTime}&details=${encodeURIComponent(event.description || "")}&location=${encodeURIComponent(event.location || "")}`;
+    window.open(googleUrl, "_blank");
   };
 
   const priceLabel = (() => {
@@ -388,15 +404,45 @@ export default function EventDetail() {
                     )}
                   </div>
                 </div>
+                {(event.has_accessibility_ramps || event.has_libras || event.has_accessible_bathroom) && (
+                  <div className="rounded-2xl ring-1 ring-foreground/[0.08] p-4 flex items-start gap-3">
+                    <Accessibility className="h-4 w-4 mt-0.5 text-foreground/60" strokeWidth={2} />
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground/55">Acessibilidade</p>
+                      <p className="text-sm font-medium mt-0.5">
+                        {[
+                          event.has_accessibility_ramps && "Rampas",
+                          event.has_libras && "Libras",
+                          event.has_accessible_bathroom && "Banheiro acessível"
+                        ].filter(Boolean).join(", ")}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <Button
-                variant="outline"
-                className="mt-4 w-full sm:w-auto h-11 rounded-full border-foreground/15 font-semibold tracking-tight"
-                onClick={() => window.open(mapsUrl, "_blank")}
-              >
-                <Navigation className="h-4 w-4 mr-2" strokeWidth={2} /> Como chegar
-              </Button>
+              <div className="flex flex-wrap gap-2 mt-6">
+                <Button
+                  variant="outline"
+                  className="h-11 rounded-full border-foreground/15 font-semibold tracking-tight"
+                  onClick={() => window.open(mapsUrl, "_blank")}
+                >
+                  <Navigation className="h-4 w-4 mr-2" strokeWidth={2} /> Como chegar
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-11 rounded-full border-foreground/15 font-semibold tracking-tight"
+                  onClick={handleAddToCalendar}
+                >
+                  <Calendar className="h-4 w-4 mr-2" strokeWidth={2} /> Salvar na agenda
+                </Button>
+              </div>
+
+              {event.updated_at && (
+                <p className="text-[9px] uppercase tracking-[0.2em] text-foreground/30 mt-8">
+                  Atualizado em {formatBrazilianDate(event.updated_at)}
+                </p>
+              )}
             </section>
           </article>
 
