@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import { LegalStep } from "./LegalStep";
 import { useForm } from "react-hook-form";
+import { MemoryRouter } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
@@ -65,11 +66,13 @@ function TestWrapper() {
   });
 
   return (
-    <TooltipProvider>
-      <Form {...form}>
-        <LegalStep form={form} />
-      </Form>
-    </TooltipProvider>
+    <MemoryRouter>
+      <TooltipProvider>
+        <Form {...form}>
+          <LegalStep form={form} />
+        </Form>
+      </TooltipProvider>
+    </MemoryRouter>
   );
 }
 
