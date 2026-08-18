@@ -110,7 +110,7 @@ export function useProfileOptions(enabled = true) {
     staleTime: 5 * 60_000,
     meta: {
       onError: (error: unknown) => handleError(error, { silent: true, context: "useProfileOptions" })
-    }
+    },
     queryFn: async (): Promise<ProfileOption[]> => {
       const { data, error } = await supabase
         .from("profiles")
