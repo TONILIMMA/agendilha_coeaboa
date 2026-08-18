@@ -388,7 +388,7 @@ function AdminEventsInner() {
                          <div className="min-w-0 flex-1">
                            <div className="flex items-start gap-1.5">
                              {sub.is_highlight && <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 shrink-0 mt-1" />}
-                             <h3 className="font-black text-base text-foreground leading-tight tracking-tight line-clamp-2">{sub.event_title}</h3>
+                             <h3 className="font-black text-base text-foreground leading-tight tracking-tight line-clamp-2">{sub.event_title || "Evento"}</h3>
                            </div>
                            <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 truncate">
                              por {sub.company_name || sub.responsible_name || "—"}

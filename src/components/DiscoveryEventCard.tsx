@@ -215,7 +215,7 @@ export const DiscoveryEventCard = memo(({
                  isLarge ? "text-[22px] xs:text-2xl" : "text-base xs:text-lg",
                  isCompact && "text-sm xs:text-base mb-1"
                )}>
-                 {event.event_title}
+                 {event.event_title || "Evento"}
                </h3>
                <div className="flex items-center gap-1.5 text-[11px] xs:text-sm font-normal text-background/70">
                  <MapPin className="h-3 w-3 xs:h-3.5 xs:w-3.5 shrink-0" strokeWidth={2} />

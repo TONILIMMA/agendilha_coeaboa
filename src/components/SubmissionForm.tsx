@@ -398,7 +398,7 @@ export default function SubmissionForm() {
         return s;
       };
 
-      const eventTitle = values.eventTitle ? values.eventTitle.trim() : null;
+      const eventTitle = values.eventTitle?.trim() || null;
 
       let imageUrl = values.eventImageUrl;
       
