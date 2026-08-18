@@ -60,13 +60,6 @@ describe("useDivulgadorStatus", () => {
           if (table === "profiles") {
             return Promise.resolve({ data: { user_type: "user" }, error: null });
           }
-          if (table === "user_roles") {
-            // Simulated return for many roles (maybeSingle is used in some places, but useDivulgadorStatus uses .eq)
-            // Wait, useDivulgadorStatus uses .eq("user_id", userId!) for user_roles
-            // And then it DOES NOT use maybeSingle() on user_roles.
-            // Let's re-read useDivulgadorStatus.ts
-            return Promise.resolve({ data: [{ role: "admin" }], error: null });
-          }
           if (table === "collaborators") {
             return Promise.resolve({ data: null, error: null });
           }
@@ -74,6 +67,13 @@ describe("useDivulgadorStatus", () => {
             return Promise.resolve({ data: null, error: null });
           }
           return Promise.resolve({ data: null, error: null });
+        }),
+        // Add support for the non-maybeSingle call
+        then: vi.fn().mockImplementation((onFulfilled) => {
+          if (table === "user_roles") {
+            return Promise.resolve(onFulfilled({ data: [{ role: "admin" }], error: null }));
+          }
+          return Promise.resolve(onFulfilled({ data: null, error: null }));
         }),
       };
       return queryChain;
