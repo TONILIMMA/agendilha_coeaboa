@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
   import { MessageCircle, Globe, Copy, Share2, Send } from "lucide-react";
@@ -12,7 +13,7 @@ interface ShareDialogProps {
   onShare?: (platform: string) => void;
 }
 
-export function ShareDialog({ open, onOpenChange, title, text, url, onShare }: ShareDialogProps) {
+export const ShareDialog = memo(function ShareDialog({ open, onOpenChange, title, text, url, onShare }: ShareDialogProps) {
   const fullText = `${text}\n${url}`;
 
   const handleShare = (platform: string) => {
@@ -98,4 +99,4 @@ export function ShareDialog({ open, onOpenChange, title, text, url, onShare }: S
       </DialogContent>
     </Dialog>
   );
-}
+});
