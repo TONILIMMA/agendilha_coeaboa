@@ -150,12 +150,12 @@ const formSchema = z.object({
 
   // Se "Outro" for selecionado em tipoResponsavel, o telefone deve estar no formato correto
   if (data.tipoResponsavel === "outro") {
-    const outroPhone = (data.duvidasWhatsappOutro as string || "").trim();
+    const outroPhone = (data.duvidasWhatsapp as string || "").trim();
     if (!outroPhone) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["duvidasWhatsappOutro"],
-        message: "Informe o WhatsApp para dúvidas (campo Outro)",
+        path: ["duvidasWhatsapp"],
+        message: "Informe o WhatsApp para dúvidas",
       });
     } else {
       const vOutro = validateBrazilianMobile(outroPhone);
