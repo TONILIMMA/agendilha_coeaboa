@@ -11,7 +11,6 @@ import { useAgendaData } from "@/hooks/useAgendaData";
 import { useAgendaFilters } from "@/hooks/useAgendaFilters";
 import { useAgendaArtists } from "@/data/useAgendaArtists";
 
-import { Onboarding } from "@/components/Onboarding";
 import { PersonalizationDialog } from "@/components/PersonalizationDialog";
 import { ShareDialog } from "@/components/ShareDialog";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
@@ -131,9 +130,7 @@ function AgendaCulturalInner() {
         <AgendaLoginBanner
           isLoggedIn={!!user}
           hasProfile={!!profile}
-          neighborhood={profileNeighborhood}
           onSignUp={() => navigate("/auth")}
-          onFilterNeighborhood={filters.setNeighborhoodFilter}
         />
 
         {/* Abas */}
@@ -166,7 +163,6 @@ function AgendaCulturalInner() {
           <AgendaArtistsTab
             artists={artists}
             shortVideos={shortVideos}
-            neighborhoodFilter={filters.neighborhoodFilter}
           />
         )}
 
@@ -183,9 +179,6 @@ function AgendaCulturalInner() {
               onToggleFavorites={() => filters.setShowFavoritesOnly(!filters.showFavoritesOnly)}
               categoryFilter={filters.categoryFilter}
               onCategoryChange={filters.setCategoryFilter}
-              neighborhoodFilter={filters.neighborhoodFilter}
-              onNeighborhoodChange={filters.setNeighborhoodFilter}
-              neighborhoods={filters.neighborhoods}
             />
 
             {loading ? (

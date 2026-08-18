@@ -28,14 +28,12 @@ export interface AgendaShortVideo extends AgendaArtistMedia {
 interface AgendaArtistsTabProps {
   artists: AgendaArtist[];
   shortVideos: AgendaShortVideo[];
-  neighborhoodFilter: string;
 }
 
 /** Aba "Artistas": carrossel de vídeos curtos + grid de artistas. */
 export function AgendaArtistsTab({
   artists,
   shortVideos,
-  neighborhoodFilter,
 }: AgendaArtistsTabProps) {
   const navigate = useNavigate();
 
@@ -83,7 +81,6 @@ export function AgendaArtistsTab({
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {artists
-            .filter((a) => neighborhoodFilter === "all" || a.neighborhood === neighborhoodFilter)
             .map((artist) => (
               <ArtistCard key={artist.id} artist={artist} />
             ))}

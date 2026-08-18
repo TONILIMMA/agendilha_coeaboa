@@ -20,9 +20,6 @@ interface AgendaFiltersProps {
   onToggleFavorites: () => void;
   categoryFilter: string;
   onCategoryChange: (value: string) => void;
-  neighborhoodFilter: string;
-  onNeighborhoodChange: (value: string) => void;
-  neighborhoods: string[];
 }
 
 /** Barra de busca, ordenação e filtros da lista de eventos. */
@@ -35,9 +32,6 @@ export function AgendaFilters({
   onToggleFavorites,
   categoryFilter,
   onCategoryChange,
-  neighborhoodFilter,
-  onNeighborhoodChange,
-  neighborhoods,
 }: AgendaFiltersProps) {
   return (
     <div className="mb-12 space-y-4 sm:space-y-6">
@@ -93,7 +87,7 @@ export function AgendaFilters({
               {showFavoritesOnly ? "Mostrando Favoritos" : "Meus Favoritos"}
             </Button>
 
-            <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4 flex-1 w-full">
+            <div className="flex-1 w-full">
               <Select value={categoryFilter} onValueChange={onCategoryChange}>
                 <SelectTrigger className="h-12 sm:h-13 border-2 border-primary/10 bg-card hover:bg-primary/5 transition-colors focus:ring-2 focus:ring-primary/20 rounded-xl sm:rounded-2xl font-semibold text-sm">
                   <SelectValue placeholder="Categorias" />
@@ -105,21 +99,6 @@ export function AgendaFilters({
                   {Object.entries(categoryLabels).map(([k, v]) => (
                     <SelectItem key={k} value={k}>
                       {v}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={neighborhoodFilter} onValueChange={onNeighborhoodChange}>
-                <SelectTrigger className="h-12 sm:h-13 border-2 border-primary/10 bg-card hover:bg-primary/5 transition-colors focus:ring-2 focus:ring-primary/20 rounded-xl sm:rounded-2xl font-semibold text-sm">
-                  <SelectValue placeholder="Bairros" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl border-border/50">
-                  <SelectItem value="all" className="font-semibold">
-                    Todos os bairros
-                  </SelectItem>
-                  {neighborhoods.map((n) => (
-                    <SelectItem key={n} value={n}>
-                      {n}
                     </SelectItem>
                   ))}
                 </SelectContent>

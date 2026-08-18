@@ -4,9 +4,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
-const Onboarding = lazy(() =>
-  import("@/components/Onboarding").then((m) => ({ default: m.Onboarding }))
-);
 const PersonalizationDialog = lazy(() =>
   import("@/components/PersonalizationDialog").then((m) => ({ default: m.PersonalizationDialog }))
 );
@@ -227,12 +224,12 @@ export default function Landing() {
        // Simple IA recommendation logic
        if (profileLoaded && user) {
          const prefs = profile.musical_preferences || [];
-         const home = profile.home_location;
-         const work = profile.work_neighborhood;
+          const home = profile.home_location;
+          const work = profile.work_neighborhood;
          
          const recs = allEvents.filter(ev => {
            const matchStyle = prefs.some(p => ev.atrativo_style?.toLowerCase().includes(p.toLowerCase()));
-           const matchNeighborhood = ev.address_neighborhood === home || ev.address_neighborhood === work;
+           const matchNeighborhood = false;
            return matchStyle || matchNeighborhood;
          }).slice(0, 5);
          
@@ -397,8 +394,8 @@ export default function Landing() {
               <h3 className="text-lg font-bold text-foreground/80 mb-2">Ainda não temos sugestões personalizadas</h3>
               <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-6">
                 {!user 
-                  ? "Crie uma conta e selecione seus bairros e estilos favoritos para que nossa IA recomende os melhores eventos para você."
-                  : "Complete seu perfil com seus estilos musicais e locais favoritos para receber recomendações exclusivas."}
+                  ? "Crie uma conta e selecione seus estilos favoritos para que nossa IA recomende os melhores eventos para você."
+                  : "Complete seu perfil com seus estilos musicais favoritos para receber recomendações exclusivas."}
               </p>
               {!user ? (
                 <Button onClick={() => navigate("/auth")} variant="outline" className="rounded-full font-bold">
@@ -448,25 +445,7 @@ export default function Landing() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="flex-1">
-                    <label htmlFor="subscriber-neighborhood" className="block text-xs font-semibold text-foreground/70 mb-1.5 px-1">
-                      Seu bairro <span className="font-normal text-foreground/50">(opcional)</span>
-                    </label>
-                    <Select 
-                      value={subscriberNeighborhood}
-                      onValueChange={setSubscriberNeighborhood}
-                    >
-                      <SelectTrigger id="subscriber-neighborhood" className="h-14 px-6 rounded-2xl border-none bg-white/50 backdrop-blur-sm focus:ring-secondary/20">
-                        <SelectValue placeholder="Escolha seu bairro" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {["Bancários", "Cacuia", "Cidade Universitária", "Cocotá", "Freguesia", "Galeão", "Jardim Carioca", "Jardim Guanabara", "Moneró", "Pitangueiras", "Portuguesa", "Praia da Bandeira", "Ribeira", "Tauá", "Zumbi"].sort().map(n => (
-                          <SelectItem key={n} value={n}>{n}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="grid grid-cols-1 gap-3">
                   <div className="flex flex-col justify-end px-1 sm:px-4">
                     <div className="flex items-start gap-2 bg-white/40 sm:bg-transparent rounded-xl p-3 sm:p-0">
                       <input 
@@ -505,7 +484,7 @@ export default function Landing() {
         <section className="rounded-3xl bg-secondary/5 p-8 flex flex-col sm:flex-row items-center justify-between mb-16 border border-secondary/10 gap-6">
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-2">Explore a Ilha no mapa</h3>
-            <p className="text-muted-foreground text-sm">Bares, shows e pontos culturais entre Jardim Guanabara, Cocotá, Cacuia e arredores.</p>
+            <p className="text-muted-foreground text-sm">Bares, shows e pontos culturais em toda a Ilha do Governador.</p>
           </div>
           <Button 
             variant="secondary" 

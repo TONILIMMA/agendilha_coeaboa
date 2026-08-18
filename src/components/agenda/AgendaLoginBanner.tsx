@@ -3,19 +3,15 @@ import { Button } from "@/components/ui/button";
 
 interface AgendaLoginBannerProps {
   isLoggedIn: boolean;
-  neighborhood?: string | null;
   hasProfile: boolean;
   onSignUp: () => void;
-  onFilterNeighborhood: (neighborhood: string) => void;
 }
 
-/** Faixa acima das abas: convida visitante a se cadastrar ou mostra o bairro do usuário. */
+/** Faixa acima das abas: convida visitante a se cadastrar ou mostra destaques personalizados. */
 export function AgendaLoginBanner({
   isLoggedIn,
-  neighborhood,
   hasProfile,
   onSignUp,
-  onFilterNeighborhood,
 }: AgendaLoginBannerProps) {
   if (!isLoggedIn) {
     return (
@@ -32,7 +28,7 @@ export function AgendaLoginBanner({
               Personalize sua experiência ✨
             </h3>
             <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-lg">
-              Cadastre-se pra receber dicas do seu bairro e do seu som. É rapidinho e de graça!
+              Cadastre-se pra receber dicas do seu som. É rapidinho e de graça!
             </p>
           </div>
           <Button
@@ -56,23 +52,12 @@ export function AgendaLoginBanner({
         </div>
         <div className="flex-1 text-center md:text-left">
           <h3 className="text-xl font-black font-display text-primary leading-tight mb-1">
-            Destaques no seu bairro 🌴
+            Destaques para você 🌴
           </h3>
           <p className="text-muted-foreground text-sm font-medium">
-            {neighborhood
-              ? `Filtrando automaticamente eventos próximos a ${neighborhood}.`
-              : "Coloque seu bairro no perfil que a gente separa o que rola perto de você."}
+            Confira o que a equipe do AgendIlha preparou para você.
           </p>
         </div>
-        {neighborhood && (
-          <Button
-            variant="outline"
-            onClick={() => onFilterNeighborhood(neighborhood)}
-            className="rounded-full border-2 border-primary/20 text-primary font-bold px-6 hover:bg-primary/5"
-          >
-            Ver todos no bairro
-          </Button>
-        )}
       </div>
     </div>
   );
