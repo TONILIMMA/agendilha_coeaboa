@@ -160,7 +160,7 @@ const formSchema = z.object({
     } else {
       const vOutro = validateBrazilianMobile(outroPhone);
       if (vOutro.valid === false) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["duvidasWhatsappOutro"], message: vOutro.reason });
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["duvidasWhatsapp"], message: vOutro.reason });
       }
     }
   }
