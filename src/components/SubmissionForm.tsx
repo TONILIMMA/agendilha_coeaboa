@@ -90,7 +90,7 @@ const formSchema = z.object({
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
     }
   }),
-  atrativoEmail: z.string().trim().email("E-mail inválido").optional().or(z.literal("")),
+  atrativoEmail: z.string().trim().email("E-mail inválido").optional().or(z.literal("")).or(z.null()),
   atrativoCategory: z.enum(["musica", "gastronomia", "cultura", "esporte", "turismo", "outros"], {
     errorMap: () => ({ message: "Selecione uma categoria (inclui Turismo)" }),
   }),

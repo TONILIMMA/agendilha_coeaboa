@@ -252,7 +252,7 @@ function AdminEventsInner() {
         .update({ image_url: publicUrl })
         .eq("id", sub.id);
       if (updErr) throw updErr;
-      console.log("Flyer padrão gerado e salvo no evento.");
+      
       setFlyerOffer(null);
       fetchAll();
     } catch (e) {
