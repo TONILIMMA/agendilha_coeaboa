@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { qk } from "./queryKeys";
 import { emitEntityChanged } from "@/lib/entityEvents";
+import { handleError } from "@/lib/error-handler";
 
 export interface AtrativoRow {
   id: string;
@@ -32,6 +33,12 @@ export function useMyAtrativos(userId: string | null | undefined) {
   return useQuery({
     queryKey: qk.atrativos.mine(userId),
     enabled: !!userId,
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        silent: true, 
+        context: "useMyAtrativos" 
+      })
+    },
     queryFn: async (): Promise<AtrativoRow[]> => {
       const { data, error } = await supabase
         .from("atrativos")
@@ -49,6 +56,12 @@ export function useAllAtrativos(enabled: boolean) {
   return useQuery({
     queryKey: [...qk.atrativos.all, "list"],
     enabled,
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        fallback: "Não deu pra carregar a lista de atrativos.",
+        context: "useAllAtrativos" 
+      })
+    },
     queryFn: async (): Promise<AtrativoRow[]> => {
       const { data, error } = await supabase
         .from("atrativos")

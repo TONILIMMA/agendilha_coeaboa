@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { qk } from "./queryKeys";
 import { emitEntityChanged } from "@/lib/entityEvents";
+import { handleError } from "@/lib/error-handler";
 
 export interface EstabelecimentoRow {
   id: string;
@@ -29,6 +30,12 @@ export function useMyEstabelecimentos(userId: string | null | undefined) {
   return useQuery({
     queryKey: qk.estabelecimentos.mine(userId),
     enabled: !!userId,
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        silent: true, 
+        context: "useMyEstabelecimentos" 
+      })
+    },
     queryFn: async (): Promise<EstabelecimentoRow[]> => {
       const { data, error } = await supabase
         .from("estabelecimentos")
@@ -48,6 +55,12 @@ export function useAllEstabelecimentos(enabled = true) {
   return useQuery({
     queryKey: [...qk.estabelecimentos.all, "admin-all"],
     enabled,
+    meta: {
+      onError: (error: unknown) => handleError(error, { 
+        fallback: "Não deu pra carregar a lista de estabelecimentos.",
+        context: "useAllEstabelecimentos" 
+      })
+    },
     queryFn: async () => {
       const { data, error } = await supabase
         .from("estabelecimentos")
