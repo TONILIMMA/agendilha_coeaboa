@@ -334,7 +334,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                     o público vai cair aqui:
                   </p>
                   <div className="rounded bg-background border p-2 font-mono text-[11px] break-all">
-                    {phoneValidation.display} · +{phoneValidation.e164}
+                    {phoneValidation.display}
                   </div>
                   <a
                     href={previewUrl}
@@ -386,13 +386,12 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                   } else if (previousVal === "outro") {
                     // Se o usuário trocar de “Outro” para uma pessoa cadastrada, 
                     // substituir imediatamente o valor digitado manualmente pelo WhatsApp da pessoa selecionada.
-                    // Tentamos buscar se o responsavelNome atual corresponde a alguém que já conhecemos ou se é o próprio usuário
                     if (responsavelNome === nickName && basicPhone) {
                       form.setValue("duvidasWhatsapp", formatPhoneDisplay(basicPhone), { shouldValidate: true });
                     } else {
-                      // Se não for o próprio usuário, e ele apenas trocou o tipo, 
-                      // o Autocomplete cuidará de preencher se ele selecionar alguém.
-                      // Por enquanto, apenas limpamos para forçar a seleção/definição correta ou mantemos o que estava bloqueado.
+                      // Se não for o próprio usuário, e ele apenas trocou o tipo,
+                      // limpamos para forçar a definição correta via Autocomplete ou manter bloqueado vazio.
+                      form.setValue("duvidasWhatsapp", "", { shouldValidate: true });
                     }
                   }
                 }}
