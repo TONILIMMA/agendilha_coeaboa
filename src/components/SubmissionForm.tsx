@@ -158,12 +158,13 @@ const formSchema = z.object({
         message: "Informe o WhatsApp para dúvidas",
       });
     } else {
-      const vOutro = validateBrazilianMobile(outroPhone);
+      // Validação não-estrita para o modo "Outro"
+      const vOutro = validateBrazilianMobile(outroPhone, false);
       if (vOutro.valid === false) {
         ctx.addIssue({ 
           code: z.ZodIssueCode.custom, 
           path: ["duvidasWhatsapp"], 
-          message: "WhatsApp inválido. Use (DD) 9XXXX-XXXX" 
+          message: vOutro.reason
         });
       }
     }

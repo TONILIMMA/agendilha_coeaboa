@@ -218,12 +218,20 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                   disabled={isPublished}
                   onSelect={(p) => {
                     field.onChange(p.nome);
-                    if (p.whatsapp && tipoResponsavel !== "outro") {
-                      const formatted = formatPhoneDisplay(p.whatsapp);
-                      form.setValue("duvidasWhatsapp", formatted, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      });
+                    if (tipoResponsavel !== "outro") {
+                      if (p.whatsapp) {
+                        const formatted = formatPhoneDisplay(p.whatsapp);
+                        form.setValue("duvidasWhatsapp", formatted, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      } else {
+                        // Fallback quando o responsável não tem WhatsApp cadastrado
+                        form.setValue("duvidasWhatsapp", "", { shouldValidate: true });
+                        toast.info(`${p.nome} não tem um WhatsApp cadastrado. O campo ficará vazio.`, {
+                          description: "Selecione 'Outro' se quiser informar o número manualmente."
+                        });
+                      }
                     }
                     if (p.tipo) {
                       form.setValue("tipoResponsavel", p.tipo, { shouldDirty: true });
@@ -263,10 +271,18 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                         className={(isPublished || tipoResponsavel !== "outro") ? "pr-9 bg-muted/60 cursor-not-allowed" : undefined}
                         onChange={(e) => {
                           if (tipoResponsavel !== "outro") return;
-                          // Máscara de telefone em tempo real
-                          const rawValue = e.target.value.replace(/\D/g, "");
-                          if (rawValue.length <= 11) {
-                            field.onChange(formatPhoneDisplay(e.target.value));
+                          
+                          // No modo outro, removemos a obrigatoriedade do +55 e a máscara rígida se necessário,
+                          // mas mantemos a formatação amigável se forem números.
+                          const val = e.target.value;
+                          const digits = val.replace(/\D/g, "");
+                          
+                          // Se forem apenas dígitos e tiver menos de 11, aplicamos a máscara padrão.
+                          // Caso contrário, deixamos o usuário digitar livremente (sanitização no Zod/Validate).
+                          if (digits.length <= 11) {
+                            field.onChange(formatPhoneDisplay(val));
+                          } else {
+                            field.onChange(val);
                           }
                         }}
                       />

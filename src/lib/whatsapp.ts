@@ -39,32 +39,58 @@ export type PhoneValidation =
   | { valid: true; e164: string; display: string }
   | { valid: false; reason: string };
 
-export function validateBrazilianMobile(phone: string | null | undefined): PhoneValidation {
+/**
+ * Brazilian mobile validation.
+ * @param phone The phone number to validate.
+ * @param strict If true, requires exactly 11 digits (DDD+9+8). If false, accepts any numeric string (min 10 digits).
+ */
+export function validateBrazilianMobile(
+  phone: string | null | undefined, 
+  strict: boolean = true
+): PhoneValidation {
   let d = onlyDigits(phone ?? "");
   if (!d) return { valid: false, reason: "Telefone não informado." };
-  // Strip 00 / + leading
+  
+  // Strip international prefix if present to analyze local number
   if (d.startsWith("0055")) d = d.slice(4);
-  if (d.startsWith("55") && d.length === 13) d = d.slice(2);
-  if (d.length === 10) {
+  else if (d.startsWith("55") && (d.length === 13 || d.length === 12)) d = d.slice(2);
+
+  if (d.length === 10 && strict) {
     return { valid: false, reason: "Número fixo não recebe WhatsApp — informe um celular com 11 dígitos (DDD + 9 + 8 dígitos)." };
   }
-  if (d.length !== 11) {
-    return { valid: false, reason: `Telefone com ${d.length} dígitos — esperado 11 (DDD + 9 + 8 dígitos).` };
+
+  if (strict) {
+    if (d.length !== 11) {
+      return { valid: false, reason: `Telefone com ${d.length} dígitos — esperado 11 (DDD + 9 + 8 dígitos).` };
+    }
+    const ddd = parseInt(d.slice(0, 2), 10);
+    if (!VALID_BR_DDDS.has(ddd)) {
+      return { valid: false, reason: `DDD ${d.slice(0, 2)} não é válido no Brasil.` };
+    }
+    if (d[2] !== "9") {
+      return { valid: false, reason: "Celular brasileiro deve começar com 9 após o DDD." };
+    }
+  } else {
+    // Non-strict: just check minimum length
+    if (d.length < 10) {
+      return { valid: false, reason: "Telefone muito curto. Informe DDD + Número." };
+    }
   }
-  const ddd = parseInt(d.slice(0, 2), 10);
-  if (!VALID_BR_DDDS.has(ddd)) {
-    return { valid: false, reason: `DDD ${d.slice(0, 2)} não é válido no Brasil.` };
-  }
-  if (d[2] !== "9") {
-    return { valid: false, reason: "Celular brasileiro deve começar com 9 após o DDD." };
-  }
+
   if (/^(\d)\1+$/.test(d)) {
     return { valid: false, reason: "Telefone com todos os dígitos iguais — inválido." };
   }
+
+  const formatted = d.length === 11 
+    ? `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7, 11)}`
+    : d.length === 10 
+      ? `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6, 10)}`
+      : d;
+
   return {
     valid: true,
     e164: `55${d}`,
-    display: `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7, 11)}`,
+    display: formatted,
   };
 }
 
