@@ -141,6 +141,14 @@ describe("LegalStep - Cenários de Borda e Fallback", () => {
     // 4. Número extra-longo (acima de 11 dígitos, remove máscara rígida mas valida)
     fireEvent.change(zapInput, { target: { value: "21988887777000" } });
     expect(zapInput).toHaveValue("21988887777000"); 
+
+    // 5. Caracteres inválidos (devem ser removidos ou ignorados se não forem numéricos)
+    fireEvent.change(zapInput, { target: { value: "21a9b8888c7777" } });
+    expect(zapInput).toHaveValue("(21) 98888-7777");
+
+    // 6. Campo vazio
+    fireEvent.change(zapInput, { target: { value: "" } });
+    expect(zapInput).toHaveValue("");
   });
 
   it("valida corretamente diferentes comprimentos no modo 'Outro'", () => {
