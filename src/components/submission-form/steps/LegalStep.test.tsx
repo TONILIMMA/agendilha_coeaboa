@@ -45,7 +45,7 @@ const formSchema = z.object({
         return;
     }
     const v = validateBrazilianMobile(val, false);
-    if (!v.valid) {
+    if (v.valid === false) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
     }
   }),
