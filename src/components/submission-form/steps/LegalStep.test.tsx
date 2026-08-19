@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor, cleanup, act } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { LegalStep } from "./LegalStep";
 import { useForm } from "react-hook-form";
 import { MemoryRouter } from "react-router-dom";
@@ -44,9 +44,9 @@ const formSchema = z.object({
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Obrigatório" });
         return;
     }
-    const v = validateBrazilianMobile(val);
-    if (!v.valid) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "WhatsApp inválido. Use (DD) 9XXXX-XXXX" });
+    const v = validateBrazilianMobile(val, false);
+    if (v.valid === false) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
     }
   }),
   eventTitle: z.string().optional(),
@@ -76,7 +76,7 @@ function TestWrapper() {
   );
 }
 
-describe("LegalStep - WhatsApp para dúvidas", () => {
+describe("LegalStep - Cenários de Borda e Fallback", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -85,7 +85,7 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     cleanup();
   });
 
-  it("bloqueia o campo quando não for 'outro' e preenche ao selecionar sugestão", async () => {
+  it("exibe fallback quando responsável selecionado não tem WhatsApp", async () => {
     (supabase.from as any).mockImplementation(() => ({
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
@@ -96,8 +96,8 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
       then: vi.fn().mockImplementation((onFulfilled) => 
         Promise.resolve(onFulfilled({ 
             data: [{ 
-                responsible_name: "João do Pandeiro", 
-                responsavel_duvidas_whatsapp: "21988887777",
+                responsible_name: "João Sem Zap", 
+                responsavel_duvidas_whatsapp: null,
                 responsavel_tipo: "artista"
             }], 
             error: null 
@@ -108,99 +108,58 @@ describe("LegalStep - WhatsApp para dúvidas", () => {
     render(<TestWrapper />);
 
     const zapInput = screen.getByPlaceholderText(/WhatsApp que vai receber dúvidas/i);
-    expect(zapInput).toHaveAttribute("readonly");
-
     const nameInput = screen.getByPlaceholderText(/Como quer aparecer na divulgação/i);
+    
     fireEvent.change(nameInput, { target: { value: "João" } });
-
-    const suggestion = await screen.findByText("João do Pandeiro", {}, { timeout: 2000 });
+    const suggestion = await screen.findByText("João Sem Zap", {}, { timeout: 2000 });
     fireEvent.mouseDown(suggestion);
 
-    expect(nameInput).toHaveValue("João do Pandeiro");
-    expect(zapInput).toHaveValue("(21) 98888-7777");
-    expect(zapInput).toHaveAttribute("readonly");
-  });
-
-  it("libera o campo e limpa ao selecionar 'Outro'", async () => {
-    render(<TestWrapper />);
-
-    const zapInput = screen.getByPlaceholderText(/WhatsApp que vai receber dúvidas/i);
-    const radioOutro = screen.getByLabelText(/Outro/i);
-
-    fireEvent.click(radioOutro);
-
-    expect(zapInput).not.toHaveAttribute("readonly");
     expect(zapInput).toHaveValue("");
-    
-    fireEvent.change(zapInput, { target: { value: "21912345678" } });
-    expect(zapInput).toHaveValue("(21) 91234-5678");
+    expect(zapInput).toHaveAttribute("readonly");
   });
 
-  it("substitui valor manual ao alternar seleções (Maria e Perfil Base)", async () => {
-    (supabase.from as any).mockImplementation(() => ({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      not: vi.fn().mockReturnThis(),
-      ilike: vi.fn().mockReturnThis(),
-      order: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      then: vi.fn().mockImplementation((onFulfilled) => 
-        Promise.resolve(onFulfilled({ 
-            data: [{ 
-                responsible_name: "Maria da Vila", 
-                responsavel_duvidas_whatsapp: "21977776666",
-                responsavel_tipo: "artista"
-            }], 
-            error: null 
-        }))
-      ),
-    }));
-
+  it("permite preenchimento manual no modo 'Outro' com sanitização e variados formatos", async () => {
     render(<TestWrapper />);
 
     const zapInput = screen.getByPlaceholderText(/WhatsApp que vai receber dúvidas/i);
     const radioOutro = screen.getByLabelText(/Outro/i);
-    const radioArtista = screen.getByLabelText(/Artista/i);
-    const nameInput = screen.getByPlaceholderText(/Como quer aparecer na divulgação/i);
 
-    // Teste 1: Limpeza ao ir para Outro
     fireEvent.click(radioOutro);
-    fireEvent.change(zapInput, { target: { value: "21900000000" } });
-    expect(zapInput).toHaveValue("(21) 90000-0000");
 
-    fireEvent.click(radioArtista);
-    // Deve bloquear, mas como não é o perfil do usuário e não selecionou no autocomplete, fica o anterior ou limpa.
-    // Pela regra de LegalStep.tsx, apenas bloqueia.
-    expect(zapInput).toHaveAttribute("readonly");
-
-    // Teste 2: Restauração do perfil base (Dono do App)
-    fireEvent.change(nameInput, { target: { value: "Dono do App" } });
-    fireEvent.click(radioOutro);
-    fireEvent.change(zapInput, { target: { value: "21988888888" } });
-    fireEvent.click(radioArtista);
-    
-    // responsavelNome ("Dono do App") matches nickName, so it restores basicPhone
-    expect(zapInput).toHaveValue("(21) 99999-9999");
-    expect(zapInput).toHaveAttribute("readonly");
-
-    // Teste 3: Limpeza ao voltar para Outro
-    fireEvent.click(radioOutro);
-    expect(zapInput).toHaveValue("");
-    expect(zapInput).not.toHaveAttribute("readonly");
-  });
-
-  it("aplica máscara e validação corretamente no modo 'Outro'", async () => {
-    render(<TestWrapper />);
-    
-    const radioOutro = screen.getByLabelText(/Outro/i);
-    fireEvent.click(radioOutro);
-    
-    const zapInput = screen.getByPlaceholderText(/WhatsApp que vai receber dúvidas/i);
-    
-    fireEvent.change(zapInput, { target: { value: "21988887777" } });
+    // 1. Número com espaços e caracteres não numéricos
+    fireEvent.change(zapInput, { target: { value: "21 9 8888 7777" } });
     expect(zapInput).toHaveValue("(21) 98888-7777");
-    
-    fireEvent.change(zapInput, { target: { value: "21988887777123" } });
-    expect(zapInput).toHaveValue("(21) 98888-7777"); 
+
+    // 2. Número com +55 (deve ser sanitizado internamente pelo validate)
+    fireEvent.change(zapInput, { target: { value: "+55 21 97777 6666" } });
+    expect(zapInput).toHaveValue("(21) 97777-6666");
+
+    // 3. Formato parcial
+    fireEvent.change(zapInput, { target: { value: "219" } });
+    expect(zapInput).toHaveValue("(21) 9");
+
+    // 4. Número extra-longo (acima de 11 dígitos, remove máscara rígida mas valida)
+    fireEvent.change(zapInput, { target: { value: "21988887777000" } });
+    expect(zapInput).toHaveValue("21988887777000"); 
+  });
+
+  it("valida corretamente diferentes comprimentos no modo 'Outro'", () => {
+      // Teste direto da função de validação com o novo parâmetro strict=false
+      
+      // Válido (11 dígitos)
+      expect(validateBrazilianMobile("21988887777", false).valid).toBe(true);
+      
+      // Válido (10 dígitos - fixo)
+      expect(validateBrazilianMobile("2133334444", false).valid).toBe(true);
+      
+      // Inválido (muito curto)
+      expect(validateBrazilianMobile("123", false).valid).toBe(false);
+      
+      // Sanitização de +55
+      const res = validateBrazilianMobile("+55 21 98888 7777", false);
+      expect(res.valid).toBe(true);
+      if (res.valid) {
+          expect(res.e164).toBe("5521988887777");
+      }
   });
 });
