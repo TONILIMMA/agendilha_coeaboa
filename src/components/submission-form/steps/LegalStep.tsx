@@ -318,7 +318,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
               </Button>
             )}
             <p className="text-xs text-muted-foreground">
-              Digite o WhatsApp de quem vai responder às dúvidas sobre esse evento.
+              Informe o WhatsApp com DDD (somente números). O prefixo +55 é adicionado automaticamente.
             </p>
 
             {/* Pré-visualização do link do WhatsApp */}
@@ -347,7 +347,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                 </>
               ) : (
                 <p className="text-muted-foreground">
-                  Informe um celular válido (DDD + 9 + 8 dígitos) pra ver a prévia do link.
+                  Informe um celular válido (ex: 21 9XXXX-XXXX) para ver a prévia.
                 </p>
               )}
             </div>

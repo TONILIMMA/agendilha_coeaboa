@@ -48,37 +48,44 @@ export function validateBrazilianMobile(
   phone: string | null | undefined, 
   strict: boolean = true
 ): PhoneValidation {
-  let d = onlyDigits(phone ?? "");
-  if (!d) return { valid: false, reason: "Telefone não informado." };
+  let rawInput = (phone ?? "").trim();
+  let d = onlyDigits(rawInput);
   
-  // Strip international prefix if present to analyze local number
+  if (!d) return { valid: false, reason: "Informe o número do WhatsApp." };
+  
+  // Strip common international prefixes if the user typed them (+55, 0055, 55)
+  // but only if it leaves a valid local number length (10 or 11 digits).
   if (d.startsWith("0055")) d = d.slice(4);
-  else if (d.startsWith("55") && (d.length === 13 || d.length === 12)) d = d.slice(2);
+  else if (d.startsWith("55") && (d.length === 12 || d.length === 13)) d = d.slice(2);
 
   if (d.length === 10 && strict) {
-    return { valid: false, reason: "Número fixo não recebe WhatsApp — informe um celular com 11 dígitos (DDD + 9 + 8 dígitos)." };
+    return { valid: false, reason: "Informe um celular com 9 após o DDD (ex: 21 9XXXX-XXXX)." };
   }
 
   if (strict) {
     if (d.length !== 11) {
-      return { valid: false, reason: `Telefone com ${d.length} dígitos — esperado 11 (DDD + 9 + 8 dígitos).` };
+      return { valid: false, reason: "O WhatsApp deve ter 11 dígitos (DDD + 9 + número)." };
     }
     const ddd = parseInt(d.slice(0, 2), 10);
     if (!VALID_BR_DDDS.has(ddd)) {
-      return { valid: false, reason: `DDD ${d.slice(0, 2)} não é válido no Brasil.` };
+      return { valid: false, reason: "Esse DDD não é válido no Brasil." };
     }
     if (d[2] !== "9") {
-      return { valid: false, reason: "Celular brasileiro deve começar com 9 após o DDD." };
+      return { valid: false, reason: "Celulares brasileiros devem começar com 9 após o DDD." };
     }
   } else {
-    // Non-strict: just check minimum length
+    // Non-strict: just check minimum length (DDD + Number)
     if (d.length < 10) {
-      return { valid: false, reason: "Telefone muito curto. Informe DDD + Número." };
+      return { valid: false, reason: "Número incompleto. Informe DDD + Número." };
+    }
+    if (d.length > 11) {
+      // If it's too long even after stripping 55, it's likely invalid for BR
+      return { valid: false, reason: "Número muito longo. Use o formato (DD) 9XXXX-XXXX." };
     }
   }
 
   if (/^(\d)\1+$/.test(d)) {
-    return { valid: false, reason: "Telefone com todos os dígitos iguais — inválido." };
+    return { valid: false, reason: "O número não pode ter todos os dígitos iguais." };
   }
 
   const formatted = d.length === 11 

@@ -162,6 +162,9 @@ describe("LegalStep - Cenários de Borda e Fallback", () => {
       
       // Inválido (muito curto)
       expect(validateBrazilianMobile("123", false).valid).toBe(false);
+
+      // Inválido (muito longo)
+      expect(validateBrazilianMobile("21988887777123", false).valid).toBe(false);
       
       // Sanitização de +55
       const res = validateBrazilianMobile("+55 21 98888 7777", false);
@@ -169,5 +172,20 @@ describe("LegalStep - Cenários de Borda e Fallback", () => {
       if (res.valid) {
           expect(res.e164).toBe("5521988887777");
       }
+  });
+
+  it("remove caracteres inválidos e trata campo vazio", async () => {
+    render(<TestWrapper />);
+    const zapInput = screen.getByPlaceholderText(/WhatsApp que vai receber dúvidas/i);
+    const radioOutro = screen.getByLabelText(/Outro/i);
+    fireEvent.click(radioOutro);
+
+    // Caracteres inválidos
+    fireEvent.change(zapInput, { target: { value: "21!@#9$ %^&*()8888-7777" } });
+    expect(zapInput).toHaveValue("(21) 98888-7777");
+
+    // Campo vazio
+    fireEvent.change(zapInput, { target: { value: "" } });
+    expect(zapInput).toHaveValue("");
   });
 });
