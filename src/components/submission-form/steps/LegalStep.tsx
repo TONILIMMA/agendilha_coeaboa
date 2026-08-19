@@ -334,7 +334,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                     o público vai cair aqui:
                   </p>
                   <div className="rounded bg-background border p-2 font-mono text-[11px] break-all">
-                    {phoneValidation.display} · +{phoneValidation.e164}
+                    {phoneValidation.display}
                   </div>
                   <a
                     href={previewUrl}
