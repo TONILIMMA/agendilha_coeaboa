@@ -272,15 +272,19 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
                         onChange={(e) => {
                           if (tipoResponsavel !== "outro") return;
                           
-                          // No modo outro, removemos a obrigatoriedade do +55 e a máscara rígida se necessário,
-                          // mas mantemos a formatação amigável se forem números.
                           const val = e.target.value;
                           const digits = val.replace(/\D/g, "");
                           
+                          // No modo outro, sanitizamos prefixos internacionais comuns para manter a máscara local
+                          let sanitized = val;
+                          if (val.startsWith("+55")) sanitized = val.slice(3).trim();
+                          else if (val.startsWith("55") && digits.length > 11) sanitized = val.slice(2).trim();
+                          
+                          const finalDigits = sanitized.replace(/\D/g, "");
+
                           // Se forem apenas dígitos e tiver menos de 11, aplicamos a máscara padrão.
-                          // Caso contrário, deixamos o usuário digitar livremente (sanitização no Zod/Validate).
-                          if (digits.length <= 11) {
-                            field.onChange(formatPhoneDisplay(val));
+                          if (finalDigits.length <= 11) {
+                            field.onChange(formatPhoneDisplay(sanitized));
                           } else {
                             field.onChange(val);
                           }
