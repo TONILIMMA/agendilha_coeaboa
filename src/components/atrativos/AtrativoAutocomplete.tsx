@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Search, AlertTriangle, Plus } from "lucide-react";
+import { Search, AlertTriangle, Plus, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { onEntityCreated } from "@/lib/entityEvents";
