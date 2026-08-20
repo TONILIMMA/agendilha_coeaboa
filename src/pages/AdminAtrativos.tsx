@@ -37,8 +37,8 @@ import {
  */
 export default function AdminAtrativos() {
   const { user, loading: authLoading } = useAuth();
-  const { isAdmin, isMaster, loading: permsLoading } = useAppPermissions();
-  const canManage = isAdmin || isMaster;
+  const { isAdmin, isMaster, isCollaborator, hasPermission, loading: permsLoading } = useAppPermissions();
+  const canManage = isAdmin || isMaster || isCollaborator || hasPermission("events.update");
   const { data: rows = [], isLoading: loading } = useAllAtrativos(canManage);
   const upsert = useUpsertAtrativo();
   const remove_ = useDeleteAtrativo();
@@ -124,7 +124,7 @@ export default function AdminAtrativos() {
   }
 
   if (authLoading || permsLoading) return <LoadingState fullPage message="Verificando permissões..." />;
-  if (!user || !canManage) return <Navigate to="/" replace />;
+  if (!user || (!canManage && !isCollaborator)) return <Navigate to="/" replace />;
 
   return (
     <PageContainer maxWidth="5xl">
@@ -260,34 +260,41 @@ export default function AdminAtrativos() {
                       </>
                     ) : (
                       <>
-                        <Button size="sm" variant="outline" onClick={() => startEdit(a)}>
-                          <Pencil className="h-4 w-4 mr-1" /> Editar
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => toggleApprove(a)}>
-                          <ShieldCheck className="h-4 w-4 mr-1" />
-                          {a.is_approved ? "Reverter aprovação" : "Aprovar"}
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="destructive">
-                              <Trash2 className="h-4 w-4 mr-1" /> Excluir
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Excluir atrativo?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                "{a.name}" será removido. Essa ação não pode ser desfeita.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(a.id)}>Excluir</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        {(isAdmin || isMaster || a.responsavel_id === user.id || hasPermission("events.update")) && (
+                          <Button size="sm" variant="outline" onClick={() => startEdit(a)}>
+                            <Pencil className="h-4 w-4 mr-1" /> Editar
+                          </Button>
+                        )}
+                        {(isAdmin || isMaster) && (
+                          <Button size="sm" variant="outline" onClick={() => toggleApprove(a)}>
+                            <ShieldCheck className="h-4 w-4 mr-1" />
+                            {a.is_approved ? "Reverter aprovação" : "Aprovar"}
+                          </Button>
+                        )}
+                        {(isAdmin || isMaster || hasPermission("events.delete")) && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="destructive">
+                                <Trash2 className="h-4 w-4 mr-1" /> Excluir
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Excluir atrativo?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  "{a.name}" será removido. Essa ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(a.id)}>Excluir</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </>
                     )}
+
                   </div>
                     </div>
                   )}

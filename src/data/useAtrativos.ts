@@ -24,6 +24,7 @@ export interface AtrativoRow {
   fotos?: string[] | null;
   logo_url?: string | null;
   is_approved?: boolean;
+  responsavel_id?: string | null;
 }
 
 const SELECT_MINE =
