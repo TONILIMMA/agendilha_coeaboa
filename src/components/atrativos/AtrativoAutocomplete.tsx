@@ -28,8 +28,10 @@ interface Props {
   onSelect: (a: AtrativoSuggestion) => void;
   placeholder?: string;
   selected?: boolean;
-  /** Chamado quando o usuário opta por cadastrar um atrativo novo com o texto digitado. */
+  /** Chamado quando o usuário opta por cadastrar um atrativo novo com o texto digitado. Administradores apenas. */
   onCreateNew?: (name: string) => void;
+  /** Se o campo está bloqueado para edição (read-only). */
+  disabled?: boolean;
 }
 
 /** Autocomplete por nome em public.atrativos (case-insensitive, debounce 250ms). */
@@ -40,6 +42,7 @@ export function AtrativoAutocomplete({
   placeholder,
   selected,
   onCreateNew,
+  disabled,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -98,6 +101,7 @@ export function AtrativoAutocomplete({
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           placeholder={placeholder ?? "Título do atrativo"}
           className="pl-9"
+          disabled={disabled}
         />
       </div>
       {showDropdown && (

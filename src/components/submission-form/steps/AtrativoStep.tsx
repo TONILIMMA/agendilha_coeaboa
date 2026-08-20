@@ -42,7 +42,13 @@ const CATEGORIES = [
 type AtrativoCategory = typeof CATEGORIES[number]["value"];
 
 export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
-  const { isAdmin } = useAppPermissions();
+  const { isAdmin, isMaster } = useAppPermissions();
+  const isSuperUser = isAdmin || isMaster;
+  
+  // Um evento já salvo (que tem ID) bloqueia a troca de atrativo para usuários comuns.
+  const submissionId = form.watch("id");
+  const isExistingEvent = !!submissionId;
+  const canEditAtrativo = !isExistingEvent || isSuperUser;
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [resyncing, setResyncing] = useState(false);
   const [confirmUnlink, setConfirmUnlink] = useState(false);
@@ -269,6 +275,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 <AtrativoAutocomplete
                   value={field.value || ""}
                   onChange={(val) => {
+                    if (!canEditAtrativo) return;
                     field.onChange(val);
                     if (sourceId && val !== linkedName) {
                       form.setValue("atrativoSourceId", undefined);
@@ -277,17 +284,21 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                     }
                   }}
                   onSelect={(s) => {
+                    if (!canEditAtrativo) return;
                     linkSource(s.id, s.tipo_atrativo === "Artista" || s.type === "Artista" ? "artist" : "atrativo", s);
                     toast.success(`Vinculado a "${s.name}". Os dados viram um snapshot do perfil.`);
                   }}
-                  onCreateNew={isAdmin ? (name) => criarNovoAtrativo(name) : undefined}
-                  placeholder="Busque ou selecione um atrativo..."
+                  onCreateNew={undefined} // Cadastro direto desativado conforme novo requisito
+                  placeholder={canEditAtrativo ? "Busque ou selecione um atrativo..." : "Atrativo fixado"}
                   selected={!!sourceId}
+                  disabled={!canEditAtrativo}
                 />
               </FormControl>
-              {!isAdmin && (
+              {!isSuperUser && (
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  Selecione um atrativo da lista. Somente administradores podem cadastrar novos.
+                  {isExistingEvent 
+                    ? "Após o envio, apenas administradores podem alterar o atrativo."
+                    : "Selecione um atrativo da lista. Não é possível criar novos por aqui."}
                 </p>
               )}
               <FormMessage />

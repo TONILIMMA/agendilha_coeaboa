@@ -1,44 +1,34 @@
-# Plano de Refatoração e Otimização - AgendIlha (Coé a Boa?)
+# Plano de Restrição e Edição de Atrativos
 
-Este plano detalha as próximas etapas para consolidar o sistema, focando em robustez técnica, segurança e performance mobile-first.
+O objetivo é garantir que o campo **Atrativo** no formulário de eventos seja estritamente baseado em uma lista pré-cadastrada, removendo a possibilidade de criação direta no fluxo de cadastro de eventos e restringindo a edição após o envio apenas para administradores.
 
-## Etapa 1: Consolidação da Camada de Dados (Em Andamento)
-- **Ações:**
-  - Finalizar a migração de hooks legados para o padrão centralizado em `src/data/`.
-  - Implementar lógica de paginação infinita padronizada para todas as listas (Atrativos, Usuários, Eventos).
-  - Unificar o gerenciamento de estados de carregamento (Loading) e erro em um padrão visual consistente.
-- **Técnico:** Uso extensivo de `useInfiniteQuery` e chaves de cache (`queryKeys`) estruturadas.
+## Alterações Realizadas e Pendentes
 
-## Etapa 2: Refinamento de Segurança e Auditoria
-- **Ações:**
-  - Revisão completa das políticas RLS para garantir que o PII (Dados Pessoais) esteja acessível apenas via Security Invoker Views.
-  - Implementar um log de auditoria no frontend para ações críticas de administradores (aprovações, edições de PIN).
-  - Fortalecer a validação de tipos nos Edge Functions (Auth/PIN).
-- **Técnico:** Migrações SQL para auditoria e triggers de sistema.
+### 1. Backend (Segurança)
+- [x] **RLS na tabela `atrativos`**: Criada política `atrativos_admin_insert` que permite `INSERT` apenas para usuários com papel `admin` ou `master`.
+- [x] **Remoção de política antiga**: Removida a política `atrativos_authorized_insert` que permitia qualquer usuário logado criar atrativos.
 
-## Etapa 3: Performance Frontend e Imagens
-- **Ações:**
-  - Implementar otimização automática de flyers no upload (redimensionamento client-side).
-  - Virtualização de listas no Painel Master e Explorar para suportar milhares de itens sem perda de FPS.
-  - Implementar Skeleton Screens em substituição aos Spinners genéricos para melhorar o LCP percebido.
-- **Técnico:** `react-window` ou `tanstack-virtual` e `canvas` para compressão de imagem.
+### 2. Componentes de Interface
+- [x] **`AtrativoAutocomplete.tsx`**:
+    - Adicionada prop `disabled` para bloquear o input.
+    - Mantido o Autocomplete apenas como busca, sem aceitar valores livres (a validação do formulário já exige seleção vinculada).
+- [x] **`AtrativoStep.tsx`**:
+    - Implementada lógica `canEditAtrativo`:
+        - Usuários comuns: podem selecionar apenas na criação (`isExistingEvent` é falso).
+        - Admins/Masters: podem selecionar ou trocar em qualquer momento.
+    - Desativada a função `onCreateNew` no Autocomplete (removido o botão de "Cadastrar novo atrativo" do fluxo).
+    - Adicionadas mensagens de ajuda contextuais sobre as restrições de permissão.
 
-## Etapa 4: UX Administrativa Mobile-First
-- **Ações:**
-  - Substituir diálogos densos por Bottom Sheets no mobile para ações rápidas.
-  - Criar um Dashboard de Insights rápido para Master/Admin (KPIs com gráficos simples).
-  - Melhorar o fluxo de "Aprovação Silenciosa" com feedback táctil (Haptic Feedback) via PWA.
-- **Técnico:** `@vaul` (Drawer) para Shadcn e `lucide-react` para iconografia intuitiva.
-
-## Etapa 5: Qualidade de Código e CI/CD
-- **Ações:**
-  - Remover códigos mortos e arquivos legados identificados na Fase 1.
-  - Implementar testes de integração E2E para o fluxo crítico de submissão e aprovação.
-  - Documentação das chaves de memória (`mem://`) para garantir consistência nas futuras iterações da IA.
-- **Técnico:** Playwright para testes e `ts-morph` para análise de código morto.
-
----
+### 3. Validação e Fluxo
+- [ ] **`SubmissionForm.tsx`**: 
+    - Garantir que o `atrativoSourceId` seja obrigatório e validado para evitar envios com nomes soltos que não existam no banco.
+    - Ajustar os campos de detalhes do atrativo (contato, e-mail, categoria) para serem `readOnly` quando um atrativo está vinculado, permitindo edição apenas por administradores se necessário (conforme o requisito de "administradores podem editar o atrativo escolhido").
 
 ## Detalhes Técnicos
-- **Prioridade:** Estabilidade da Camada de Dados > Segurança > Performance > UX.
-- **Voz:** Manter o tom "Insulano" em todas as mensagens de erro e feedbacks do sistema.
+
+- **Controle de Acesso**: Utilização do hook `useAppPermissions` para identificar `isAdmin` e `isMaster`.
+- **Estado do Evento**: Detecção de evento existente através da presença do campo `id` no formulário (geralmente injetado durante a edição).
+- **Integridade**: A busca no Autocomplete agora é puramente informativa, forçando o usuário a escolher um item da lista para obter o `sourceId`.
+
+---
+*Nota: A criação de novos atrativos deverá ser feita em uma área administrativa separada (já existente em `/admin/atrativos`), mantendo o fluxo de eventos limpo e curado.*
