@@ -124,7 +124,7 @@ export default function AdminAtrativos() {
   }
 
   if (authLoading || permsLoading) return <LoadingState fullPage message="Verificando permissões..." />;
-  if (!user || !canManage) return <Navigate to="/" replace />;
+  if (!user || (!canManage && !isCollaborator)) return <Navigate to="/" replace />;
 
   return (
     <PageContainer maxWidth="5xl">
