@@ -260,40 +260,66 @@ export default function AdminAtrativos() {
                         </Button>
                       </>
                     ) : (
-                      <>
-                        {(isAdmin || isMaster || a.responsavel_id === user.id || hasPermission("events.update")) && (
-                          <Button size="sm" variant="outline" onClick={() => startEdit(a)}>
-                            <Pencil className="h-4 w-4 mr-1" /> Editar
-                          </Button>
+                      <div className="flex flex-col gap-2 w-full">
+                        <div className="flex flex-wrap gap-2">
+                          {(isAdmin || isMaster || a.responsavel_id === user.id || hasPermission("events.update")) ? (
+                            <Button size="sm" variant="outline" onClick={() => startEdit(a)}>
+                              <Pencil className="h-4 w-4 mr-1" /> Editar
+                            </Button>
+                          ) : (
+                            <Button size="sm" variant="outline" disabled className="cursor-not-allowed opacity-50">
+                              <Pencil className="h-4 w-4 mr-1" /> Editar
+                            </Button>
+                          )}
+                          
+                          {(isAdmin || isMaster) ? (
+                            <Button size="sm" variant="outline" onClick={() => toggleApprove(a)}>
+                              <ShieldCheck className="h-4 w-4 mr-1" />
+                              {a.is_approved ? "Reverter aprovação" : "Aprovar"}
+                            </Button>
+                          ) : (
+                            <Button size="sm" variant="outline" disabled className="cursor-not-allowed opacity-50">
+                              <ShieldCheck className="h-4 w-4 mr-1" />
+                              {a.is_approved ? "Aprovado" : "Pendente"}
+                            </Button>
+                          )}
+                          
+                          {canDelete ? (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="destructive">
+                                  <Trash2 className="h-4 w-4 mr-1" /> Excluir
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Excluir atrativo?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    "{a.name}" será removido. Essa ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDelete(a.id)}>Excluir</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          ) : (
+                            <Button size="sm" variant="destructive" disabled className="cursor-not-allowed opacity-50">
+                              <Trash2 className="h-4 w-4 mr-1" /> Excluir
+                            </Button>
+                          )}
+                        </div>
+
+                        {!isAdmin && !isMaster && (
+                          <div className="text-[10px] text-muted-foreground mt-1 px-1 italic">
+                            {!(a.responsavel_id === user.id || hasPermission("events.update")) && 
+                              "Apenas administradores ou o criador podem editar este atrativo. "}
+                            {!hasPermission("events.delete") && 
+                              "Você não tem permissão para excluir registros."}
+                          </div>
                         )}
-                        {(isAdmin || isMaster) && (
-                          <Button size="sm" variant="outline" onClick={() => toggleApprove(a)}>
-                            <ShieldCheck className="h-4 w-4 mr-1" />
-                            {a.is_approved ? "Reverter aprovação" : "Aprovar"}
-                          </Button>
-                        )}
-                        {(isAdmin || isMaster || hasPermission("events.delete")) && (
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button size="sm" variant="destructive">
-                                <Trash2 className="h-4 w-4 mr-1" /> Excluir
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Excluir atrativo?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  "{a.name}" será removido. Essa ação não pode ser desfeita.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(a.id)}>Excluir</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        )}
-                      </>
+                      </div>
                     )}
 
                   </div>
