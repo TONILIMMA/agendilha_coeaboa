@@ -447,7 +447,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Categoria *</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select onValueChange={field.onChange} value={field.value} disabled={!!sourceId && !isSuperUser}>
               <FormControl>
                 <SelectTrigger className="h-12 bg-background border-input">
                   <SelectValue placeholder="Selecione uma categoria" />
