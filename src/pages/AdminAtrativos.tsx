@@ -37,8 +37,8 @@ import {
  */
 export default function AdminAtrativos() {
   const { user, loading: authLoading } = useAuth();
-  const { isAdmin, isMaster, loading: permsLoading } = useAppPermissions();
-  const canManage = isAdmin || isMaster;
+  const { isAdmin, isMaster, isCollaborator, hasPermission, loading: permsLoading } = useAppPermissions();
+  const canManage = isAdmin || isMaster || isCollaborator || hasPermission("events.update");
   const { data: rows = [], isLoading: loading } = useAllAtrativos(canManage);
   const upsert = useUpsertAtrativo();
   const remove_ = useDeleteAtrativo();
