@@ -16,6 +16,17 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { FrameworkAutocomplete } from "@/components/ui/FrameworkAutocomplete";
+
+const EVENT_CATEGORIES = [
+  { value: "musica", label: "Música" },
+  { value: "cultura", label: "Cultura" },
+  { value: "gastronomia", label: "Gastronomia" },
+  { value: "esporte", label: "Esporte" },
+  { value: "turismo", label: "Turismo" },
+  { value: "promocoes", label: "Promoções" },
+  { value: "outros", label: "Outros" },
+];
 
 export function EventStep({ form }: { form: UseFormReturn<any> }) {
   const [pendingRating, setPendingRating] = useState<string | null>(null);
@@ -147,6 +158,27 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
                 Você mudou pra {field.value}. Só menores de idade acompanhados vão poder entrar.
               </p>
             )}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Categoria do evento */}
+      <FormField
+        control={form.control}
+        name="category"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Categoria *</FormLabel>
+            <FormControl>
+              <FrameworkAutocomplete
+                value={field.value}
+                onValueChange={field.onChange}
+                options={EVENT_CATEGORIES}
+                placeholder="Selecione a categoria"
+                emptyText="Nenhuma categoria encontrada."
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
