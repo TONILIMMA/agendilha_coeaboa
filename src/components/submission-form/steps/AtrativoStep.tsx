@@ -100,8 +100,9 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         { shouldDirty: true, shouldValidate: true },
       );
       const cat = (row.tipo_atrativo || row.type || "").toLowerCase();
-      if (CATEGORIES.some((c) => c.value === cat)) {
-        form.setValue("atrativoCategory", cat, { shouldDirty: true });
+      const foundCat = CATEGORIES.find((c) => c.value === cat);
+      if (foundCat) {
+        form.setValue("atrativoCategory", foundCat.value, { shouldDirty: true });
       }
     }
   };
