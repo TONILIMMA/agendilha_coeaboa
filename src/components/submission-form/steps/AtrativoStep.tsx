@@ -27,6 +27,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useAppPermissions } from "@/hooks/useAppPermissions";
+import { AtrativoAutocomplete } from "@/components/atrativos/AtrativoAutocomplete";
 
 const CATEGORIES = [
   { value: "musica", label: "Música / Show" },
@@ -40,6 +42,7 @@ const CATEGORIES = [
 type AtrativoCategory = typeof CATEGORIES[number]["value"];
 
 export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
+  const { isAdmin } = useAppPermissions();
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [resyncing, setResyncing] = useState(false);
   const [confirmUnlink, setConfirmUnlink] = useState(false);
@@ -263,86 +266,34 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
             <FormItem>
               <FormLabel>Nome do atrativo *</FormLabel>
               <FormControl>
-                <div className="relative">
-                <Input
-                  placeholder="Banda, DJ, artista, ponto turístico..."
-                  className="h-12 pr-10"
-                  {...field}
-                  name="name"
-                  autoComplete="name"
-                  id="name"
-                  onFocus={() => searchAtrativo(field.value ?? "")}
-                  onBlur={() => window.setTimeout(() => setSuggestions([]), 150)}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    // digitar manualmente quebra o vínculo — draft vira snapshot livre
-                    if (sourceId && e.target.value !== linkedName) {
+                <AtrativoAutocomplete
+                  value={field.value || ""}
+                  onChange={(val) => {
+                    field.onChange(val);
+                    if (sourceId && val !== linkedName) {
                       form.setValue("atrativoSourceId", undefined);
                       form.setValue("atrativoSourceType", undefined);
                       form.setValue("atrativoLinkedName", undefined);
                     }
-                    searchAtrativo(e.target.value);
                   }}
+                  onSelect={(s) => {
+                    linkSource(s.id, s.tipo_atrativo === "Artista" || s.type === "Artista" ? "artist" : "atrativo", s);
+                    toast.success(`Vinculado a "${s.name}". Os dados viram um snapshot do perfil.`);
+                  }}
+                  onCreateNew={isAdmin ? (name) => criarNovoAtrativo(name) : undefined}
+                  placeholder="Busque ou selecione um atrativo..."
+                  selected={!!sourceId}
                 />
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50" />
-                </div>
               </FormControl>
+              {!isAdmin && (
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Selecione um atrativo da lista. Somente administradores podem cadastrar novos.
+                </p>
+              )}
               <FormMessage />
             </FormItem>
           )}
         />
-        {(suggestions.length > 0 ||
-          (form.watch("atrativoName") ?? "").trim().length >= 2) && (
-          <div className="absolute z-50 w-full mt-1 bg-background border rounded-lg shadow-lg overflow-hidden max-h-72 overflow-y-auto">
-            {suggestions.length > 0 ? (
-              <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted/40">
-                Atrativos e artistas já cadastrados
-              </div>
-            ) : (
-              <div className="px-4 py-2 text-xs text-muted-foreground">
-                Nenhum atrativo ou artista com esse nome ainda.
-              </div>
-            )}
-            {suggestions.map((s: any) => (
-              <button
-                key={`${s.__kind}-${s.__id}`}
-                type="button"
-                onMouseDown={(ev) => ev.preventDefault()}
-                className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm"
-                onClick={() => {
-                  linkSource(s.__id, s.__kind, s.row);
-                  setSuggestions([]);
-                  toast.success(`Vinculado a "${s.row.name}". Os dados viram um snapshot do perfil.`);
-                }}
-              >
-                <span className="font-bold">{s.display.name}</span>
-                {s.display.type && <span className="text-muted-foreground ml-2">({s.display.type})</span>}
-                <span className="ml-2 text-[10px] uppercase tracking-wider text-primary/70">
-                  {s.__kind === "artist" ? "Artista" : "Atrativo"}
-                </span>
-              </button>
-            ))}
-            {(() => {
-              const typed = (form.watch("atrativoName") ?? "").trim();
-              const exact = suggestions.some(
-                (s: any) => (s.row?.name ?? "").trim().toLowerCase() === typed.toLowerCase(),
-              );
-              if (typed.length < 2 || exact) return null;
-              return (
-                <button
-                  type="button"
-                  data-testid="atrativo-create-new"
-                  onMouseDown={(ev) => ev.preventDefault()}
-                  onClick={() => criarNovoAtrativo(typed)}
-                  className="w-full px-4 py-2 text-left text-xs border-t bg-muted/30 hover:bg-muted flex items-center gap-2 text-primary font-semibold"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Cadastrar novo atrativo: "{typed}"
-                </button>
-              );
-            })()}
-          </div>
-        )}
         {novoAtrativo && !sourceId && (
           <Badge variant="secondary" className="mt-2" data-testid="novo-atrativo-badge">
             Novo atrativo — preencha contato e categoria que a gente cadastra ao enviar
