@@ -1,34 +1,20 @@
-# Plano de Restrição e Edição de Atrativos
+# Plano de Liberação de Edição de Atrativos
 
-O objetivo é garantir que o campo **Atrativo** no formulário de eventos seja estritamente baseado em uma lista pré-cadastrada, removendo a possibilidade de criação direta no fluxo de cadastro de eventos e restringindo a edição após o envio apenas para administradores.
+O objetivo é permitir que usuários com permissão de edição em estabelecimentos (como o Mauro Ilha) também possam editar cadastros de atrativos. O ajuste será feito tanto no nível do banco de dados (RLS) quanto na interface do usuário.
 
-## Alterações Realizadas e Pendentes
+## Etapas Técnicas
 
-### 1. Backend (Segurança)
-- [x] **RLS na tabela `atrativos`**: Criada política `atrativos_admin_insert` que permite `INSERT` apenas para usuários com papel `admin` ou `master`.
-- [x] **Remoção de política antiga**: Removida a política `atrativos_authorized_insert` que permitia qualquer usuário logado criar atrativos.
+### 1. Ajuste no Banco de Dados (RLS)
+Garantir que as políticas de `UPDATE` e `DELETE` na tabela `atrativos` permitam o acesso não apenas a donos e administradores, mas também a colaboradores autorizados (seguindo o padrão da tabela `submissions`).
 
-### 2. Componentes de Interface
-- [x] **`AtrativoAutocomplete.tsx`**:
-    - Adicionada prop `disabled` para bloquear o input.
-    - Mantido o Autocomplete apenas como busca, sem aceitar valores livres (a validação do formulário já exige seleção vinculada).
-- [x] **`AtrativoStep.tsx`**:
-    - Implementada lógica `canEditAtrativo`:
-        - Usuários comuns: podem selecionar apenas na criação (`isExistingEvent` é falso).
-        - Admins/Masters: podem selecionar ou trocar em qualquer momento.
-    - Desativada a função `onCreateNew` no Autocomplete (removido o botão de "Cadastrar novo atrativo" do fluxo).
-    - Adicionadas mensagens de ajuda contextuais sobre as restrições de permissão.
+### 2. Ajuste na Interface (Frontend)
+- Modificar o componente `AdminAtrativos.tsx` para permitir que usuários que não são "Super Admin" (mas que possuem permissões de colaborador ou são donos) vejam os botões de edição.
+- Sincronizar a lógica de `canEdit` com a de estabelecimentos, permitindo flexibilidade para colaboradores ativos.
 
-### 3. Validação e Fluxo
-- [ ] **`SubmissionForm.tsx`**: 
-    - Garantir que o `atrativoSourceId` seja obrigatório e validado para evitar envios com nomes soltos que não existam no banco.
-    - Ajustar os campos de detalhes do atrativo (contato, e-mail, categoria) para serem `readOnly` quando um atrativo está vinculado, permitindo edição apenas por administradores se necessário (conforme o requisito de "administradores podem editar o atrativo escolhido").
+### 3. Validação
+- Verificar se a mensagem "sem permissão" parou de aparecer ao salvar alterações.
+- Confirmar se a lista de atrativos continua restrita a quem tem autorização.
 
-## Detalhes Técnicos
-
-- **Controle de Acesso**: Utilização do hook `useAppPermissions` para identificar `isAdmin` e `isMaster`.
-- **Estado do Evento**: Detecção de evento existente através da presença do campo `id` no formulário (geralmente injetado durante a edição).
-- **Integridade**: A busca no Autocomplete agora é puramente informativa, forçando o usuário a escolher um item da lista para obter o `sourceId`.
-
----
-*Nota: A criação de novos atrativos deverá ser feita em uma área administrativa separada (já existente em `/admin/atrativos`), mantendo o fluxo de eventos limpo e curado.*
+## Detalhes de Implementação (Técnico)
+- **RLS**: Adicionar verificação na tabela `atrativos` que consulta a tabela `collaborators` para ver se o `auth.uid()` atual tem `can_edit = true` ou se é um admin/master.
+- **Frontend**: Ajustar a variável `canManage` e `isAdmin` no `AdminAtrativos.tsx` para incluir a verificação de `isCollaborator` ou `hasPermission('events.update')` quando necessário.
