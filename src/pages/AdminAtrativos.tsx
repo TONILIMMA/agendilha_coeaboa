@@ -260,14 +260,19 @@ export default function AdminAtrativos() {
                       </>
                     ) : (
                       <>
-                        <Button size="sm" variant="outline" onClick={() => startEdit(a)}>
-                          <Pencil className="h-4 w-4 mr-1" /> Editar
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => toggleApprove(a)}>
-                          <ShieldCheck className="h-4 w-4 mr-1" />
-                          {a.is_approved ? "Reverter aprovação" : "Aprovar"}
-                        </Button>
-                        <AlertDialog>
+                        {(isAdmin || isMaster || a.responsavel_id === user.id || hasPermission("events.update")) && (
+                          <Button size="sm" variant="outline" onClick={() => startEdit(a)}>
+                            <Pencil className="h-4 w-4 mr-1" /> Editar
+                          </Button>
+                        )}
+                        {(isAdmin || isMaster) && (
+                          <Button size="sm" variant="outline" onClick={() => toggleApprove(a)}>
+                            <ShieldCheck className="h-4 w-4 mr-1" />
+                            {a.is_approved ? "Reverter aprovação" : "Aprovar"}
+                          </Button>
+                        )}
+                        {(isAdmin || isMaster || hasPermission("events.delete")) && (
+                          <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button size="sm" variant="destructive">
                               <Trash2 className="h-4 w-4 mr-1" /> Excluir
