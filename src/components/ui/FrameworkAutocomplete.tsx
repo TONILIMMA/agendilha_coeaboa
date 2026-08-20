@@ -8,6 +8,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -54,7 +55,7 @@ export function FrameworkAutocomplete({
           <CommandInput placeholder={placeholder} />
           <CommandList>
             <CommandEmpty>{emptyText}</CommandEmpty>
-            <CommandGroup className="max-h-60 overflow-y-auto">
+            <CommandGroup>
               {options.map((option) => (
                 <CommandItem
                   key={option.value}
