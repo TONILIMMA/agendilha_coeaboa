@@ -401,6 +401,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                     field.onBlur();
                     form.trigger("atrativoContact");
                   }}
+                  readOnly={!!sourceId && !isSuperUser}
                 />
                 </FormControl>
                 {showOk ? (
@@ -430,6 +431,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 name="email"
                 autoComplete="email"
                 id="email"
+                readOnly={!!sourceId && !isSuperUser}
               />
               </FormControl>
               <FormMessage />
