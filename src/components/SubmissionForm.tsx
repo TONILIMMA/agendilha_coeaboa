@@ -95,7 +95,7 @@ const formSchema = z.object({
     errorMap: () => ({ message: "Selecione uma categoria (inclui Turismo)" }),
   }),
   // Vínculo com cadastro externo (snapshot: draft NÃO segue mudanças posteriores do perfil)
-  atrativoSourceId: z.string().uuid().optional(),
+  atrativoSourceId: z.string().uuid("Selecione um atrativo da lista"),
   atrativoSourceType: z.enum(["artist", "atrativo"]).optional(),
   atrativoLinkedAt: z.string().optional(),
   atrativoLinkedName: z.string().optional(),
@@ -550,22 +550,11 @@ export default function SubmissionForm() {
 
         const atrativoLinkedType = (values as any).atrativoSourceType;
         const atrativoLinkedId = (values as any).atrativoSourceId;
-        if (
-          user?.id &&
-          clean(values.atrativoName) &&
-          !(atrativoLinkedType === "atrativo" && atrativoLinkedId)
-        ) {
-          await supabaseClient.from("atrativos").insert({
-            name: clean(values.atrativoName)!,
-            type: clean(values.atrativoType),
-            style: clean(values.atrativoStyle),
-            description: clean(values.atrativoDescription),
-            contact_whatsapp: clean(values.atrativoContact),
-            responsavel_id: user.id,
-            created_by: user.id,
-          });
-          emitEntityCreated("atrativo");
-        }
+        
+        // Apenas administradores podem criar novos atrativos se eles não estiverem vinculados
+        // Mas a regra diz: "não deve ser possível criar um novo atrativo diretamente no formulário"
+        // Então removemos a criação automática de atrativos aqui para usuários comuns.
+        // O RLS já bloqueia no banco, mas limpamos o código para ser coerente.
       } catch (e) {
         // Não bloqueia o envio se o reuso falhar (ex.: nome duplicado).
         console.warn("[SubmissionForm] auto-create local/atrativo falhou", e);

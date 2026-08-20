@@ -100,8 +100,9 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         { shouldDirty: true, shouldValidate: true },
       );
       const cat = (row.tipo_atrativo || row.type || "").toLowerCase();
-      if (CATEGORIES.some((c) => c.value === cat)) {
-        form.setValue("atrativoCategory", cat, { shouldDirty: true });
+      const foundCat = CATEGORIES.find((c) => c.value === cat);
+      if (foundCat) {
+        form.setValue("atrativoCategory", foundCat.value, { shouldDirty: true });
       }
     }
   };
@@ -400,6 +401,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                     field.onBlur();
                     form.trigger("atrativoContact");
                   }}
+                  readOnly={!!sourceId && !isSuperUser}
                 />
                 </FormControl>
                 {showOk ? (
@@ -429,6 +431,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 name="email"
                 autoComplete="email"
                 id="email"
+                readOnly={!!sourceId && !isSuperUser}
               />
               </FormControl>
               <FormMessage />
@@ -444,7 +447,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Categoria *</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select onValueChange={field.onChange} value={field.value} disabled={!!sourceId && !isSuperUser}>
               <FormControl>
                 <SelectTrigger className="h-12 bg-background border-input">
                   <SelectValue placeholder="Selecione uma categoria" />
@@ -509,7 +512,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
             <FormItem>
               <FormLabel>Tipo</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: DJ, banda, guia, palestrante" className="h-12" {...field} />
+                <Input placeholder="Ex: DJ, banda, guia, palestrante" className="h-12" {...field} readOnly={!!sourceId && !isSuperUser} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -522,7 +525,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
             <FormItem>
               <FormLabel>Estilo / Gênero</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Sertanejo, Rock, Tech House" className="h-12" {...field} />
+                <Input placeholder="Ex: Sertanejo, Rock, Tech House" className="h-12" {...field} readOnly={!!sourceId && !isSuperUser} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -545,6 +548,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 placeholder="Conte um pouco sobre o trabalho do artista ou o atrativo..."
                 className="min-h-[100px] resize-none"
                 {...field}
+                readOnly={!!sourceId && !isSuperUser}
               />
             </FormControl>
             <FormMessage />
