@@ -512,7 +512,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
             <FormItem>
               <FormLabel>Tipo</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: DJ, banda, guia, palestrante" className="h-12" {...field} />
+                <Input placeholder="Ex: DJ, banda, guia, palestrante" className="h-12" {...field} readOnly={!!sourceId && !isSuperUser} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -525,7 +525,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
             <FormItem>
               <FormLabel>Estilo / Gênero</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Sertanejo, Rock, Tech House" className="h-12" {...field} />
+                <Input placeholder="Ex: Sertanejo, Rock, Tech House" className="h-12" {...field} readOnly={!!sourceId && !isSuperUser} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -548,6 +548,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 placeholder="Conte um pouco sobre o trabalho do artista ou o atrativo..."
                 className="min-h-[100px] resize-none"
                 {...field}
+                readOnly={!!sourceId && !isSuperUser}
               />
             </FormControl>
             <FormMessage />
