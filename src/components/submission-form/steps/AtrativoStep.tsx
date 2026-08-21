@@ -32,7 +32,7 @@ import { AtrativoAutocomplete } from "@/components/atrativos/AtrativoAutocomplet
 
 const CATEGORIES = [
   { value: "Gastronomia", label: "Gastronomia" },
-  { value: "Bar/Restaurante", label: "Bar/Restaurante" },
+  { value: "Gastronomia", label: "Gastronomia" },
   { value: "Cultura", label: "Cultura / Arte" },
   { value: "Turismo", label: "Turismo" },
   { value: "Lazer", label: "Lazer" },

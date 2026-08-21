@@ -26,7 +26,6 @@ import type { AtrativoSuggestion } from "./AtrativoAutocomplete";
 
 const TIPOS_ATRATIVO = [
   "Gastronomia",
-  "Bar/Restaurante",
   "Cultura",
   "Turismo",
   "Lazer",
