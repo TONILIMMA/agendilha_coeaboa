@@ -31,12 +31,19 @@ import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { AtrativoAutocomplete } from "@/components/atrativos/AtrativoAutocomplete";
 
 const CATEGORIES = [
-  { value: "musica", label: "Música / Show" },
-  { value: "gastronomia", label: "Gastronomia" },
-  { value: "cultura", label: "Cultura / Arte" },
-  { value: "esporte", label: "Esporte" },
-  { value: "turismo", label: "Turismo" },
-  { value: "outros", label: "Outros" },
+  { value: "Gastronomia", label: "Gastronomia" },
+  { value: "Bar/Restaurante", label: "Bar/Restaurante" },
+  { value: "Cultura", label: "Cultura / Arte" },
+  { value: "Turismo", label: "Turismo" },
+  { value: "Lazer", label: "Lazer" },
+  { value: "Esporte", label: "Esporte" },
+  { value: "Hospedagem", label: "Hospedagem" },
+  { value: "Comércio/Serviços", label: "Comércio / Serviços" },
+  { value: "Saúde e Bem-estar", label: "Saúde e Bem-estar" },
+  { value: "Educação", label: "Educação" },
+  { value: "Religioso", label: "Religioso" },
+  { value: "Espaço para Eventos", label: "Espaço para Eventos" },
+  { value: "Outros", label: "Outros" },
 ] as const;
 
 type AtrativoCategory = typeof CATEGORIES[number]["value"];
@@ -84,7 +91,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
       if (row.contact_email) {
         form.setValue("atrativoEmail", row.contact_email, { shouldDirty: true });
       }
-      form.setValue("atrativoCategory", "musica", { shouldDirty: true });
+      form.setValue("atrativoCategory", "Cultura", { shouldDirty: true });
     } else {
       form.setValue("atrativoName", row.name ?? "", { shouldDirty: true });
       form.setValue("atrativoType", row.tipo_atrativo || row.type || "", { shouldDirty: true });
@@ -96,13 +103,16 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
       form.setValue("atrativoDescription", (row.description ?? "").slice(0, 500), { shouldDirty: true });
       form.setValue(
         "atrativoContact",
-        row.contact_whatsapp ? formatPhoneDisplay(row.contact_whatsapp) : "",
+        row.contact_info || row.contact_whatsapp || "",
         { shouldDirty: true, shouldValidate: true },
       );
-      const cat = (row.tipo_atrativo || row.type || "").toLowerCase();
-      const foundCat = CATEGORIES.find((c) => c.value === cat);
+      const cat = row.tipo_atrativo || row.type || "";
+      const foundCat = CATEGORIES.find((c) => c.value === cat || c.label === cat);
       if (foundCat) {
         form.setValue("atrativoCategory", foundCat.value, { shouldDirty: true });
+      } else if (cat) {
+        form.setValue("atrativoCategory", "Outros", { shouldDirty: true });
+        form.setValue("atrativoCategoryOther", cat, { shouldDirty: true });
       }
     }
   };
@@ -156,7 +166,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
       } else {
         const { data, error } = await supabase
           .from("atrativos_public")
-          .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp")
+          .select("id, name, type, tipo_atrativo, style, estilos, description, contact_info, category_other")
           .eq("id", sourceId)
           .maybeSingle();
         if (error) throw error;
