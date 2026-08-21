@@ -78,14 +78,15 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
 
   // Aplica o snapshot no rascunho a partir de uma linha do banco.
   const applySnapshot = (row: any, kind: "artist" | "atrativo") => {
+    console.log("Applying snapshot:", { kind, row });
     if (kind === "artist") {
       form.setValue("atrativoName", row.name ?? "", { shouldDirty: true });
-      form.setValue("atrativoType", row.artist_type ?? "", { shouldDirty: true });
-      form.setValue("atrativoStyle", row.genre ?? "", { shouldDirty: true });
-      form.setValue("atrativoDescription", (row.bio ?? "").slice(0, 500), { shouldDirty: true });
+      form.setValue("atrativoType", row.artist_type || row.tipo_atrativo || "", { shouldDirty: true });
+      form.setValue("atrativoStyle", row.genre || row.style || "", { shouldDirty: true });
+      form.setValue("atrativoDescription", (row.bio || row.description || "").slice(0, 500), { shouldDirty: true });
       form.setValue(
         "atrativoContact",
-        row.whatsapp ? formatPhoneDisplay(row.whatsapp) : "",
+        row.whatsapp ? formatPhoneDisplay(row.whatsapp) : (row.contact_info || ""),
         { shouldDirty: true, shouldValidate: true },
       );
       if (row.contact_email) {
