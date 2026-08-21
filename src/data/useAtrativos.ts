@@ -64,10 +64,12 @@ export function useAllAtrativos(enabled: boolean) {
       })
     },
     queryFn: async (): Promise<AtrativoRow[]> => {
+      // Usamos a view pública para garantir que os dados sensíveis fiquem protegidos
+      // e que a política de SELECT seja aplicada corretamente.
       const { data, error } = await supabase
         .from("atrativos")
         .select(
-          "id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos, is_approved, responsavel_id, created_by",
+          "id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos, is_approved, responsavel_id, created_by"
         )
         .order("name");
       if (error) throw error;
