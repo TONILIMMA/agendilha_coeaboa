@@ -11,6 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles, Plus, Search, Loader2, Pencil, Trash2, Check, X, ShieldCheck, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
@@ -47,7 +54,13 @@ export default function AdminAtrativos() {
 
   const [search, setSearch] = useState("");
   const [showNew, setShowNew] = useState(false);
-  const [newForm, setNewForm] = useState({ name: "", type: "", description: "" });
+  const [newForm, setNewForm] = useState({ 
+    name: "", 
+    type: "", 
+    description: "", 
+    contact_info: "", 
+    category_other: "" 
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<AtrativoRow>>({});
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -86,7 +99,13 @@ export default function AdminAtrativos() {
 
   function startEdit(row: AtrativoRow) {
     setEditingId(row.id);
-    setEditForm({ name: row.name, type: row.type, description: row.description });
+    setEditForm({ 
+      name: row.name, 
+      type: row.type, 
+      description: row.description,
+      contact_info: row.contact_info,
+      category_other: row.category_other
+    });
   }
 
   async function saveEdit(id: string) {
@@ -95,6 +114,8 @@ export default function AdminAtrativos() {
         name: (editForm.name ?? "").toString().trim(),
         type: editForm.type?.toString().trim() || null,
         description: editForm.description?.toString().trim() || null,
+        contact_info: editForm.contact_info?.toString().trim() || null,
+        category_other: editForm.category_other?.toString().trim() || null,
       } });
       toast.success("Atrativo atualizado");
       setEditingId(null);
