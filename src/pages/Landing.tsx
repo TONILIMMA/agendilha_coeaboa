@@ -475,7 +475,7 @@ export default function Landing() {
         <section className="rounded-3xl bg-secondary/5 p-8 flex flex-col sm:flex-row items-center justify-between mb-16 border border-secondary/10 gap-6">
           <div className="text-center sm:text-left">
             <h3 className="text-xl font-bold mb-2">Explore a Ilha no mapa</h3>
-            <p className="text-muted-foreground text-sm">Bares, shows e pontos culturais em toda a Ilha do Governador.</p>
+            <p className="text-muted-foreground text-sm">Estabelecimentos, shows e pontos culturais em toda a Ilha do Governador.</p>
           </div>
           <Button 
             variant="secondary" 
