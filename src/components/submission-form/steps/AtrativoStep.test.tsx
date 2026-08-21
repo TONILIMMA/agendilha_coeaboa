@@ -38,7 +38,7 @@ const atrativosRows = [
     is_approved: true,
   },
 ];
-const artistRows = atrativosRows;
+const artistRows = [atrativosRows[1]];
 
 vi.mock("@/integrations/supabase/client", () => {
   const build = (rows: any[]) => {
@@ -47,7 +47,6 @@ vi.mock("@/integrations/supabase/client", () => {
     q.ilike = vi.fn().mockReturnValue(q);
     q.eq = vi.fn().mockReturnValue(q);
     q.order = vi.fn().mockReturnValue(q);
-    q.range = vi.fn().mockReturnValue(q);
     q.limit = vi.fn().mockReturnValue(q);
     q.maybeSingle = vi.fn().mockReturnValue(Promise.resolve({ data: rows[0] || null, error: null }));
     q.abortSignal = vi.fn().mockReturnValue(q);
@@ -56,12 +55,11 @@ vi.mock("@/integrations/supabase/client", () => {
   };
   return {
     supabase: {
-      from: vi.fn((table: string) =>
-        table.startsWith("atrativos") ? build(atrativosRows) : build(artistRows)
-      ),
-      rpc: vi.fn((fn: string) =>
-        fn.includes("atrativos") ? build(atrativosRows) : build(artistRows)
-      ),
+      from: vi.fn((table: string) => {
+        if (table === "public_artist_profiles") return build(artistRows);
+        return build(atrativosRows);
+      }),
+      rpc: vi.fn(() => build(atrativosRows)),
       auth: {
         getUser: vi.fn().mockResolvedValue({ data: { user: { id: "test-user-id" } }, error: null }),
       },
