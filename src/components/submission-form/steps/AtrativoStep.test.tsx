@@ -46,11 +46,13 @@ vi.mock("@/integrations/supabase/client", () => {
     q.order = vi.fn().mockReturnValue(q);
     q.limit = vi.fn().mockReturnValue(q);
     q.maybeSingle = vi.fn().mockImplementation(() => {
-        const row = rows[0];
-        if (row && (row.name === "Testa DJ Aprovado" || row.id === "art-1")) {
-            return Promise.resolve({ data: artistMock, error: null });
-        }
-        return Promise.resolve({ data: row || null, error: null });
+        // Se a gente estiver buscando do rpc ou do from de artista...
+        // O teste chama `linkSource` que chama `applySnapshot` direto se a linha já estiver lá.
+        // A busca no AtrativoAutocomplete (rpc) devolve os itens com __kind.
+        // O resync chama `supabase.from(table).select(...).eq('id', id).maybeSingle()`
+        
+        // Se a busca tiver um item, return data: item
+        return Promise.resolve({ data: rows[0] || null, error: null });
     });
     q.abortSignal = vi.fn().mockReturnValue(q);
     q.then = (resolve: any) => Promise.resolve({ data: rows, error: null }).then(resolve);
@@ -63,9 +65,11 @@ vi.mock("@/integrations/supabase/client", () => {
         return build([atrativoMock]);
       }),
       rpc: vi.fn(() => {
+        // A função RPC search_atrativos_autocomplete retorna colunas mescladas.
+        // Para artistas, artist_type vem em artist_type.
         const merged = [
             { ...atrativoMock, __kind: 'atrativo' },
-            { ...artistMock, artist_type: 'DJ', __kind: 'artist' }
+            { ...artistMock, __kind: 'artist' }
         ];
         return build(merged);
       }),
