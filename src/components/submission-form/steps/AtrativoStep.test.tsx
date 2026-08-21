@@ -28,8 +28,6 @@ const atrativosRows = [
     contact_info: "48999990001",
     is_approved: true,
   },
-];
-const artistRows = [
   {
     id: "art-1",
     name: "Testa DJ Aprovado",
@@ -40,6 +38,7 @@ const artistRows = [
     is_approved: true,
   },
 ];
+const artistRows = atrativosRows;
 
 vi.mock("@/integrations/supabase/client", () => {
   const build = (rows: any[]) => {
