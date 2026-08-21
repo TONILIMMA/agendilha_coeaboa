@@ -3,17 +3,30 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useForm, FormProvider } from "react-hook-form";
 import { AtrativoStep } from "./AtrativoStep";
 
+// Mock permissions
+vi.mock("@/hooks/useAppPermissions", () => ({
+  useAppPermissions: () => ({ isAdmin: false, isMaster: false }),
+}));
+
+// Mock AuthContext
+vi.mock("@/contexts/AuthContext", () => ({
+  useAuth: vi.fn(() => ({
+    user: { id: "test-user-id" },
+  })),
+}));
+
 // Mock supabase client used inside AtrativoStep
 const atrativosRows = [
   {
     id: "atr-1",
     name: "Banda Teste Ilha",
     tipo_atrativo: "Banda",
-    type: null,
+    type: "Cultura",
     style: "Rock",
     estilos: ["Rock", "Pop Rock"],
     description: "Banda de rock da ilha.",
-    contact_whatsapp: "48999990001",
+    contact_info: "48999990001",
+    is_approved: true,
   },
 ];
 const artistRows = [
@@ -37,6 +50,7 @@ vi.mock("@/integrations/supabase/client", () => {
     q.order = vi.fn().mockReturnValue(q);
     q.range = vi.fn().mockReturnValue(q);
     q.limit = vi.fn().mockReturnValue(q);
+    q.maybeSingle = vi.fn().mockReturnValue(Promise.resolve({ data: rows[0] || null, error: null }));
     q.abortSignal = vi.fn().mockReturnValue(q);
     q.then = (resolve: any) => Promise.resolve({ data: rows, error: null }).then(resolve);
     return q;
@@ -49,6 +63,9 @@ vi.mock("@/integrations/supabase/client", () => {
       rpc: vi.fn((fn: string) =>
         fn.includes("atrativos") ? build(atrativosRows) : build(artistRows)
       ),
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "test-user-id" } }, error: null }),
+      },
     },
   };
 });
@@ -78,7 +95,7 @@ describe("AtrativoStep autocomplete", () => {
 
   it("mostra sugestões da tabela atrativos e de artist_profiles aprovados ao digitar 2+ caracteres", async () => {
     render(<Harness />);
-    const input = screen.getByPlaceholderText(/Banda, DJ, Artista/i);
+    const input = screen.getByPlaceholderText(/Busque ou selecione um atrativo/i);
     fireEvent.change(input, { target: { value: "te" } });
 
     await waitFor(() => {
@@ -90,7 +107,7 @@ describe("AtrativoStep autocomplete", () => {
   it("não busca com menos de 2 caracteres", async () => {
     const { supabase } = await import("@/integrations/supabase/client");
     render(<Harness />);
-    const input = screen.getByPlaceholderText(/Banda, DJ, Artista/i);
+    const input = screen.getByPlaceholderText(/Busque ou selecione um atrativo/i);
     fireEvent.change(input, { target: { value: "t" } });
     await new Promise((r) => setTimeout(r, 20));
     expect((supabase.from as any)).not.toHaveBeenCalled();
@@ -99,7 +116,7 @@ describe("AtrativoStep autocomplete", () => {
 
   it("preenche tipo, estilo, descrição e contato ao selecionar um atrativo", async () => {
     render(<Harness />);
-    const input = screen.getByPlaceholderText(/Banda, DJ, Artista/i);
+    const input = screen.getByPlaceholderText(/Busque ou selecione um atrativo/i);
     fireEvent.change(input, { target: { value: "banda" } });
     const opt = await screen.findByText("Banda Teste Ilha");
     fireEvent.click(opt);
@@ -110,13 +127,13 @@ describe("AtrativoStep autocomplete", () => {
       expect(dump.atrativoType).toBe("Banda");
       expect(dump.atrativoStyle).toBe("Rock, Pop Rock");
       expect(dump.atrativoDescription).toBe("Banda de rock da ilha.");
-      expect(dump.atrativoContact).toBe("(48) 99999-0001");
+      expect(dump.atrativoContact).toBe("48999990001");
     });
   });
 
   it("preenche corretamente ao selecionar um artist_profile aprovado", async () => {
     render(<Harness />);
-    const input = screen.getByPlaceholderText(/Banda, DJ, Artista/i);
+    const input = screen.getByPlaceholderText(/Busque ou selecione um atrativo/i);
     fireEvent.change(input, { target: { value: "testa" } });
     const opt = await screen.findByText("Testa DJ Aprovado");
     fireEvent.click(opt);
@@ -127,7 +144,7 @@ describe("AtrativoStep autocomplete", () => {
       expect(dump.atrativoType).toBe("DJ");
       expect(dump.atrativoStyle).toBe("House");
       expect(dump.atrativoDescription).toBe("Artista aprovado.");
-      expect(dump.atrativoContact).toBe("(48) 99999-0009");
+      expect(dump.atrativoContact).toBe("48999990009");
     });
   });
 });
