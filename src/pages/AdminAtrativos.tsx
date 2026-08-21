@@ -287,7 +287,33 @@ export default function AdminAtrativos() {
                       {isEditing ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Field label="Nome*" value={String(editForm.name ?? "")} onChange={(v) => setEditForm({ ...editForm, name: v })} />
-                      <Field label="Categoria" value={String(editForm.type ?? "")} onChange={(v) => setEditForm({ ...editForm, type: v })} />
+                      <Field label="Contato*" value={String(editForm.contact_info ?? "")} onChange={(v) => setEditForm({ ...editForm, contact_info: v })} />
+                      <div className="sm:col-span-2">
+                        <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Categoria*</Label>
+                        <Select value={String(editForm.type ?? "")} onValueChange={(v) => setEditForm({ ...editForm, type: v })}>
+                          <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Selecione..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Gastronomia">Gastronomia</SelectItem>
+                            <SelectItem value="Bar/Restaurante">Bar/Restaurante</SelectItem>
+                            <SelectItem value="Cultura">Cultura</SelectItem>
+                            <SelectItem value="Turismo">Turismo</SelectItem>
+                            <SelectItem value="Lazer">Lazer</SelectItem>
+                            <SelectItem value="Esporte">Esporte</SelectItem>
+                            <SelectItem value="Hospedagem">Hospedagem</SelectItem>
+                            <SelectItem value="Comércio/Serviços">Comércio/Serviços</SelectItem>
+                            <SelectItem value="Saúde e Bem-estar">Saúde e Bem-estar</SelectItem>
+                            <SelectItem value="Educação">Educação</SelectItem>
+                            <SelectItem value="Religioso">Religioso</SelectItem>
+                            <SelectItem value="Espaço para Eventos">Espaço para Eventos</SelectItem>
+                            <SelectItem value="Outros">Outros</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {editForm.type === "Outros" && (
+                          <Input placeholder="Especifique..." value={String(editForm.category_other ?? "")} onChange={(e) => setEditForm({ ...editForm, category_other: e.target.value })} className="h-10 mt-2" />
+                        )}
+                      </div>
                       <div className="sm:col-span-2">
                         <Field label="Descrição" value={String(editForm.description ?? "")} onChange={(v) => setEditForm({ ...editForm, description: v })} />
                       </div>
