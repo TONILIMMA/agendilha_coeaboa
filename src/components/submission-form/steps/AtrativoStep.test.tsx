@@ -16,29 +16,26 @@ vi.mock("@/contexts/AuthContext", () => ({
 }));
 
 // Mock supabase client used inside AtrativoStep
-const atrativosRows = [
-  {
-    id: "atr-1",
-    name: "Banda Teste Ilha",
-    tipo_atrativo: "Banda",
-    type: "Cultura",
-    style: "Rock",
-    estilos: ["Rock", "Pop Rock"],
-    description: "Banda de rock da ilha.",
-    contact_info: "48999990001",
-    is_approved: true,
-  },
-  {
-    id: "art-1",
-    name: "Testa DJ Aprovado",
-    artist_type: "DJ",
-    genre: "House",
-    bio: "Artista aprovado.",
-    whatsapp: "48999990009",
-    is_approved: true,
-  },
-];
-const artistRows = [atrativosRows[1]];
+const atrativoMock = {
+  id: "atr-1",
+  name: "Banda Teste Ilha",
+  tipo_atrativo: "Banda",
+  type: "Cultura",
+  style: "Rock",
+  estilos: ["Rock", "Pop Rock"],
+  description: "Banda de rock da ilha.",
+  contact_info: "48999990001",
+  is_approved: true,
+};
+const artistMock = {
+  id: "art-1",
+  name: "Testa DJ Aprovado",
+  artist_type: "DJ",
+  genre: "House",
+  bio: "Artista aprovado.",
+  whatsapp: "48999990009",
+  is_approved: true,
+};
 
 vi.mock("@/integrations/supabase/client", () => {
   const build = (rows: any[]) => {
@@ -48,7 +45,10 @@ vi.mock("@/integrations/supabase/client", () => {
     q.eq = vi.fn().mockReturnValue(q);
     q.order = vi.fn().mockReturnValue(q);
     q.limit = vi.fn().mockReturnValue(q);
-    q.maybeSingle = vi.fn().mockReturnValue(Promise.resolve({ data: rows[0] || null, error: null }));
+    q.maybeSingle = vi.fn().mockImplementation(() => {
+        // Find which row we are looking for by some logic or just return the first
+        return Promise.resolve({ data: rows[0] || null, error: null });
+    });
     q.abortSignal = vi.fn().mockReturnValue(q);
     q.then = (resolve: any) => Promise.resolve({ data: rows, error: null }).then(resolve);
     return q;
@@ -56,10 +56,17 @@ vi.mock("@/integrations/supabase/client", () => {
   return {
     supabase: {
       from: vi.fn((table: string) => {
-        if (table === "public_artist_profiles") return build([atrativosRows[1]]);
-        return build([atrativosRows[0]]);
+        if (table === "public_artist_profiles") return build([artistMock]);
+        return build([atrativoMock]);
       }),
-      rpc: vi.fn(() => build(atrativosRows)),
+      rpc: vi.fn(() => {
+        // Merged results for search
+        const merged = [
+            { ...atrativoMock, __kind: 'atrativo' },
+            { ...artistMock, __kind: 'artist' }
+        ];
+        return build(merged);
+      }),
       auth: {
         getUser: vi.fn().mockResolvedValue({ data: { user: { id: "test-user-id" } }, error: null }),
       },
