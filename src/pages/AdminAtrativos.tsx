@@ -11,6 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles, Plus, Search, Loader2, Pencil, Trash2, Check, X, ShieldCheck, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
@@ -47,7 +54,13 @@ export default function AdminAtrativos() {
 
   const [search, setSearch] = useState("");
   const [showNew, setShowNew] = useState(false);
-  const [newForm, setNewForm] = useState({ name: "", type: "", description: "" });
+  const [newForm, setNewForm] = useState({ 
+    name: "", 
+    type: "", 
+    description: "", 
+    contact_info: "", 
+    category_other: "" 
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<AtrativoRow>>({});
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -68,15 +81,17 @@ export default function AdminAtrativos() {
       await upsert.mutateAsync({
         payload: {
           name: newForm.name.trim(),
-          type: newForm.type.trim() || null,
+          type: newForm.type.trim(),
           description: newForm.description.trim() || null,
+          contact_info: newForm.contact_info?.trim() || null,
+          category_other: newForm.category_other?.trim() || null,
           responsavel_id: user.id,
           created_by: user.id,
         },
       });
       toast.success("Atrativo cadastrado");
       setShowNew(false);
-      setNewForm({ name: "", type: "", description: "" });
+      setNewForm({ name: "", type: "", description: "", contact_info: "", category_other: "" });
     } catch (err) {
       handleError(err, "Erro ao cadastrar atrativo");
     }
@@ -84,7 +99,13 @@ export default function AdminAtrativos() {
 
   function startEdit(row: AtrativoRow) {
     setEditingId(row.id);
-    setEditForm({ name: row.name, type: row.type, description: row.description });
+    setEditForm({ 
+      name: row.name, 
+      type: row.type, 
+      description: row.description,
+      contact_info: row.contact_info,
+      category_other: row.category_other
+    });
   }
 
   async function saveEdit(id: string) {
@@ -93,6 +114,8 @@ export default function AdminAtrativos() {
         name: (editForm.name ?? "").toString().trim(),
         type: editForm.type?.toString().trim() || null,
         description: editForm.description?.toString().trim() || null,
+        contact_info: editForm.contact_info?.toString().trim() || null,
+        category_other: editForm.category_other?.toString().trim() || null,
       } });
       toast.success("Atrativo atualizado");
       setEditingId(null);
@@ -163,7 +186,30 @@ export default function AdminAtrativos() {
             <h3 className="font-bold">Novo atrativo</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Nome*" value={newForm.name} onChange={(v) => setNewForm({ ...newForm, name: v })} />
-              <Field label="Categoria" value={newForm.type} onChange={(v) => setNewForm({ ...newForm, type: v })} placeholder="samba, rock, stand-up..." />
+              <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Categoria*</Label>
+              <Select value={newForm.type} onValueChange={(v) => setNewForm({ ...newForm, type: v })}>
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Gastronomia">Gastronomia</SelectItem>
+                  <SelectItem value="Bar/Restaurante">Bar/Restaurante</SelectItem>
+                  <SelectItem value="Cultura">Cultura</SelectItem>
+                  <SelectItem value="Turismo">Turismo</SelectItem>
+                  <SelectItem value="Lazer">Lazer</SelectItem>
+                  <SelectItem value="Esporte">Esporte</SelectItem>
+                  <SelectItem value="Hospedagem">Hospedagem</SelectItem>
+                  <SelectItem value="Comércio/Serviços">Comércio/Serviços</SelectItem>
+                  <SelectItem value="Saúde e Bem-estar">Saúde e Bem-estar</SelectItem>
+                  <SelectItem value="Educação">Educação</SelectItem>
+                  <SelectItem value="Religioso">Religioso</SelectItem>
+                  <SelectItem value="Espaço para Eventos">Espaço para Eventos</SelectItem>
+                  <SelectItem value="Outros">Outros</SelectItem>
+                </SelectContent>
+              </Select>
+              {newForm.type === "Outros" && (
+                <Input placeholder="Especifique..." value={newForm.category_other || ""} onChange={(e) => setNewForm({ ...newForm, category_other: e.target.value })} className="h-10 mt-2" />
+              )}
               <div className="sm:col-span-2">
                 <Field label="Descrição" value={newForm.description} onChange={(v) => setNewForm({ ...newForm, description: v })} />
               </div>
@@ -241,7 +287,33 @@ export default function AdminAtrativos() {
                       {isEditing ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Field label="Nome*" value={String(editForm.name ?? "")} onChange={(v) => setEditForm({ ...editForm, name: v })} />
-                      <Field label="Categoria" value={String(editForm.type ?? "")} onChange={(v) => setEditForm({ ...editForm, type: v })} />
+                      <Field label="Contato*" value={String(editForm.contact_info ?? "")} onChange={(v) => setEditForm({ ...editForm, contact_info: v })} />
+                      <div className="sm:col-span-2">
+                        <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Categoria*</Label>
+                        <Select value={String(editForm.type ?? "")} onValueChange={(v) => setEditForm({ ...editForm, type: v })}>
+                          <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Selecione..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Gastronomia">Gastronomia</SelectItem>
+                            <SelectItem value="Bar/Restaurante">Bar/Restaurante</SelectItem>
+                            <SelectItem value="Cultura">Cultura</SelectItem>
+                            <SelectItem value="Turismo">Turismo</SelectItem>
+                            <SelectItem value="Lazer">Lazer</SelectItem>
+                            <SelectItem value="Esporte">Esporte</SelectItem>
+                            <SelectItem value="Hospedagem">Hospedagem</SelectItem>
+                            <SelectItem value="Comércio/Serviços">Comércio/Serviços</SelectItem>
+                            <SelectItem value="Saúde e Bem-estar">Saúde e Bem-estar</SelectItem>
+                            <SelectItem value="Educação">Educação</SelectItem>
+                            <SelectItem value="Religioso">Religioso</SelectItem>
+                            <SelectItem value="Espaço para Eventos">Espaço para Eventos</SelectItem>
+                            <SelectItem value="Outros">Outros</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {editForm.type === "Outros" && (
+                          <Input placeholder="Especifique..." value={String(editForm.category_other ?? "")} onChange={(e) => setEditForm({ ...editForm, category_other: e.target.value })} className="h-10 mt-2" />
+                        )}
+                      </div>
                       <div className="sm:col-span-2">
                         <Field label="Descrição" value={String(editForm.description ?? "")} onChange={(v) => setEditForm({ ...editForm, description: v })} />
                       </div>

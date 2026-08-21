@@ -24,7 +24,21 @@ import {
 } from "@/components/ui/select";
 import type { AtrativoSuggestion } from "./AtrativoAutocomplete";
 
-const TIPOS_ATRATIVO = ["Música", "Artes cênicas", "Turismo", "Outros"];
+const TIPOS_ATRATIVO = [
+  "Gastronomia",
+  "Bar/Restaurante",
+  "Cultura",
+  "Turismo",
+  "Lazer",
+  "Esporte",
+  "Hospedagem",
+  "Comércio/Serviços",
+  "Saúde e Bem-estar",
+  "Educação",
+  "Religioso",
+  "Espaço para Eventos",
+  "Outros",
+];
 
 interface Props {
   open: boolean;
@@ -46,7 +60,8 @@ export function NovoAtrativoDialog({
   const [name, setName] = useState(initialName);
   const [type, setType] = useState(initialType);
   const [tipoAtrativo, setTipoAtrativo] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
+  const [categoryOther, setCategoryOther] = useState("");
+  const [contactInfo, setContactInfo] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -61,6 +76,14 @@ export function NovoAtrativoDialog({
       toast.error("Diz o nome do atrativo pra gente.");
       return;
     }
+    if (!contactInfo.trim()) {
+      toast.error("Informe um contato para o atrativo.");
+      return;
+    }
+    if (!tipoAtrativo) {
+      toast.error("Selecione uma categoria.");
+      return;
+    }
     setSaving(true);
     try {
       const { data: userData } = await supabase.auth.getUser();
@@ -69,15 +92,15 @@ export function NovoAtrativoDialog({
         .from("atrativos")
         .insert({
           name: name.trim(),
-          type: type.trim() || null,
-          tipo_atrativo: tipoAtrativo || null,
+          type: tipoAtrativo,
           description: description.trim() || null,
-          contact_whatsapp: whatsapp.trim() || null,
+          contact_info: contactInfo.trim() || null,
+          category_other: tipoAtrativo === "Outros" ? categoryOther.trim() || null : null,
           created_by: uid,
           responsavel_id: uid,
         })
         .select(
-          "id, name, type, estabelecimento_id, tipo_atrativo, style, estilos, description, contact_whatsapp, cidade_regiao, estado, pais, logo_url, fotos",
+          "id, name, type, estabelecimento_id, tipo_atrativo, style, estilos, description, contact_info, category_other, cidade_regiao, estado, pais, logo_url, fotos",
         )
         .single();
       if (error) throw error;
@@ -86,7 +109,8 @@ export function NovoAtrativoDialog({
       onCreated(data as AtrativoSuggestion);
       onOpenChange(false);
       setTipoAtrativo("");
-      setWhatsapp("");
+      setCategoryOther("");
+      setContactInfo("");
       setDescription("");
     } catch (err) {
       handleError(err, "Não rolou cadastrar o atrativo agora.");
@@ -112,19 +136,19 @@ export function NovoAtrativoDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-sm font-semibold">Tipo</Label>
+            <Label className="text-sm font-semibold">Contato*</Label>
             <Input
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              placeholder="Show, festival, feira…"
+              value={contactInfo}
+              onChange={(e) => setContactInfo(e.target.value)}
+              placeholder="(21) 99999-9999 ou @instagram"
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-sm font-semibold">Categoria</Label>
+            <Label className="text-sm font-semibold">Categoria*</Label>
             <Select value={tipoAtrativo} onValueChange={setTipoAtrativo}>
               <SelectTrigger>
-                <SelectValue placeholder="Música, Artes cênicas…" />
+                <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
                 {TIPOS_ATRATIVO.map((t) => (
@@ -134,17 +158,16 @@ export function NovoAtrativoDialog({
                 ))}
               </SelectContent>
             </Select>
+            {tipoAtrativo === "Outros" && (
+              <Input
+                placeholder="Especifique..."
+                value={categoryOther}
+                onChange={(e) => setCategoryOther(e.target.value)}
+                className="mt-2"
+              />
+            )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-sm font-semibold">WhatsApp de contato</Label>
-            <Input
-              value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
-              inputMode="tel"
-              autoComplete="tel"
-            />
-          </div>
 
           <div className="space-y-1.5">
             <Label className="text-sm font-semibold">Descrição</Label>

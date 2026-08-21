@@ -9,6 +9,8 @@ export interface AtrativoSuggestion {
   id: string;
   name: string;
   type: string | null;
+  contact_info?: string | null;
+  category_other?: string | null;
   estabelecimento_id: string | null;
   tipo_atrativo?: string | null;
   style?: string | null;
