@@ -56,8 +56,8 @@ vi.mock("@/integrations/supabase/client", () => {
   return {
     supabase: {
       from: vi.fn((table: string) => {
-        if (table === "public_artist_profiles") return build(artistRows);
-        return build(atrativosRows);
+        if (table === "public_artist_profiles") return build([atrativosRows[1]]);
+        return build([atrativosRows[0]]);
       }),
       rpc: vi.fn(() => build(atrativosRows)),
       auth: {
