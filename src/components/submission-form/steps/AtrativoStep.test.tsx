@@ -46,12 +46,6 @@ vi.mock("@/integrations/supabase/client", () => {
     q.order = vi.fn().mockReturnValue(q);
     q.limit = vi.fn().mockReturnValue(q);
     q.maybeSingle = vi.fn().mockImplementation(() => {
-        // Se a gente estiver buscando do rpc ou do from de artista...
-        // O teste chama `linkSource` que chama `applySnapshot` direto se a linha já estiver lá.
-        // A busca no AtrativoAutocomplete (rpc) devolve os itens com __kind.
-        // O resync chama `supabase.from(table).select(...).eq('id', id).maybeSingle()`
-        
-        // Se a busca tiver um item, return data: item
         return Promise.resolve({ data: rows[0] || null, error: null });
     });
     q.abortSignal = vi.fn().mockReturnValue(q);
@@ -65,15 +59,27 @@ vi.mock("@/integrations/supabase/client", () => {
         return build([atrativoMock]);
       }),
       rpc: vi.fn(() => {
-        // A função RPC search_atrativos_autocomplete retorna colunas mescladas.
-        // O AtrativoAutocomplete injeta artist_type na propriedade tipo_atrativo quando kind === 'artist'
         const merged = [
-            { ...atrativoMock, __kind: 'atrativo' },
             { 
-              ...artistMock, 
-              tipo_atrativo: artistMock.artist_type,
-              type: 'Cultura',
-              style: artistMock.genre,
+              id: atrativoMock.id,
+              name: atrativoMock.name,
+              tipo_atrativo: atrativoMock.tipo_atrativo,
+              type: atrativoMock.type,
+              style: atrativoMock.style,
+              estilos: atrativoMock.estilos,
+              description: atrativoMock.description,
+              contact_info: atrativoMock.contact_info,
+              is_approved: true,
+              __kind: 'atrativo' 
+            },
+            { 
+              id: artistMock.id,
+              name: artistMock.name,
+              artist_type: artistMock.artist_type,
+              genre: artistMock.genre,
+              bio: artistMock.bio,
+              whatsapp: artistMock.whatsapp,
+              is_approved: true,
               __kind: 'artist' 
             }
         ];
