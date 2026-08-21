@@ -62,8 +62,8 @@ vi.mock("@/integrations/supabase/client", () => {
       rpc: vi.fn(() => {
         // Merged results for search
         const merged = [
-            { ...atrativoMock, __kind: 'atrativo' },
-            { ...artistMock, __kind: 'artist' }
+            { ...atrativoMock, tipo_atrativo: atrativoMock.tipo_atrativo, type: atrativoMock.type, __kind: 'atrativo' },
+            { ...artistMock, artist_type: artistMock.artist_type, __kind: 'artist' }
         ];
         return build(merged);
       }),
