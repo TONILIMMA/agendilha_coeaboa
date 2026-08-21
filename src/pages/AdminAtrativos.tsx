@@ -68,15 +68,17 @@ export default function AdminAtrativos() {
       await upsert.mutateAsync({
         payload: {
           name: newForm.name.trim(),
-          type: newForm.type.trim() || null,
+          type: newForm.type.trim(),
           description: newForm.description.trim() || null,
+          contact_info: newForm.contact_info?.trim() || null,
+          category_other: newForm.category_other?.trim() || null,
           responsavel_id: user.id,
           created_by: user.id,
         },
       });
       toast.success("Atrativo cadastrado");
       setShowNew(false);
-      setNewForm({ name: "", type: "", description: "" });
+      setNewForm({ name: "", type: "", description: "", contact_info: "", category_other: "" });
     } catch (err) {
       handleError(err, "Erro ao cadastrar atrativo");
     }
@@ -163,7 +165,30 @@ export default function AdminAtrativos() {
             <h3 className="font-bold">Novo atrativo</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Nome*" value={newForm.name} onChange={(v) => setNewForm({ ...newForm, name: v })} />
-              <Field label="Categoria" value={newForm.type} onChange={(v) => setNewForm({ ...newForm, type: v })} placeholder="samba, rock, stand-up..." />
+              <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Categoria*</Label>
+              <Select value={newForm.type} onValueChange={(v) => setNewForm({ ...newForm, type: v })}>
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Gastronomia">Gastronomia</SelectItem>
+                  <SelectItem value="Bar/Restaurante">Bar/Restaurante</SelectItem>
+                  <SelectItem value="Cultura">Cultura</SelectItem>
+                  <SelectItem value="Turismo">Turismo</SelectItem>
+                  <SelectItem value="Lazer">Lazer</SelectItem>
+                  <SelectItem value="Esporte">Esporte</SelectItem>
+                  <SelectItem value="Hospedagem">Hospedagem</SelectItem>
+                  <SelectItem value="Comércio/Serviços">Comércio/Serviços</SelectItem>
+                  <SelectItem value="Saúde e Bem-estar">Saúde e Bem-estar</SelectItem>
+                  <SelectItem value="Educação">Educação</SelectItem>
+                  <SelectItem value="Religioso">Religioso</SelectItem>
+                  <SelectItem value="Espaço para Eventos">Espaço para Eventos</SelectItem>
+                  <SelectItem value="Outros">Outros</SelectItem>
+                </SelectContent>
+              </Select>
+              {newForm.type === "Outros" && (
+                <Input placeholder="Especifique..." value={newForm.category_other || ""} onChange={(e) => setNewForm({ ...newForm, category_other: e.target.value })} className="h-10 mt-2" />
+              )}
               <div className="sm:col-span-2">
                 <Field label="Descrição" value={newForm.description} onChange={(v) => setNewForm({ ...newForm, description: v })} />
               </div>
