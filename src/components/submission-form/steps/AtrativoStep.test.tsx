@@ -152,16 +152,15 @@ describe("AtrativoStep autocomplete", () => {
       fireEvent.click(opt);
     });
 
-    // Aguarda o processamento do snapshot
     await waitFor(() => {
       const dumpElement = screen.getByTestId("dump");
       const dump = JSON.parse(dumpElement.textContent || "{}");
       
-      // LOG para debug final
-      console.log("DUMP AFTER ARTIST SELECT:", dump);
-      
       expect(dump.atrativoName).toBe("Testa DJ Aprovado");
       expect(dump.atrativoType).toBe("DJ");
+      expect(dump.atrativoStyle).toBe("House");
+      expect(dump.atrativoDescription).toBe("Artista aprovado.");
+      expect(dump.atrativoContact).toBe("(48) 99999-0009");
     }, { timeout: 2000 });
   });
 });
