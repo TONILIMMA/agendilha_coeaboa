@@ -46,11 +46,14 @@ vi.mock("@/integrations/supabase/client", () => {
     q.order = vi.fn().mockReturnValue(q);
     q.limit = vi.fn().mockReturnValue(q);
     q.maybeSingle = vi.fn().mockImplementation(() => {
-        // Se estivermos buscando o Testa DJ, devolvemos o mock de artista
-        if (rows.some(r => r.name === "Testa DJ Aprovado")) {
-            return Promise.resolve({ data: artistMock, error: null });
+        // Find which row we are looking for by some logic or just return the first
+        // If it looks like a merged result (has __kind), strip it
+        const row = rows[0];
+        if (row && row.__kind === 'artist') {
+            const { __kind, ...clean } = row;
+            return Promise.resolve({ data: clean, error: null });
         }
-        return Promise.resolve({ data: rows[0] || null, error: null });
+        return Promise.resolve({ data: row || null, error: null });
     });
     q.abortSignal = vi.fn().mockReturnValue(q);
     q.then = (resolve: any) => Promise.resolve({ data: rows, error: null }).then(resolve);
@@ -65,7 +68,7 @@ vi.mock("@/integrations/supabase/client", () => {
       rpc: vi.fn(() => {
         const merged = [
             { ...atrativoMock, __kind: 'atrativo' },
-            { ...artistMock, artist_type: 'DJ', __kind: 'artist' }
+            { ...artistMock, __kind: 'artist' }
         ];
         return build(merged);
       }),
