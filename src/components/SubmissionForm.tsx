@@ -91,9 +91,8 @@ const formSchema = z.object({
     }
   }),
   atrativoEmail: z.string().trim().email("E-mail inválido").optional().or(z.literal("")).or(z.null()),
-  atrativoCategory: z.enum(["musica", "gastronomia", "cultura", "esporte", "turismo", "outros"], {
-    errorMap: () => ({ message: "Selecione uma categoria (inclui Turismo)" }),
-  }),
+  atrativoCategory: z.string().trim().min(1, "Selecione a categoria"),
+  atrativoCategoryOther: z.string().trim().optional(),
   // Vínculo com cadastro externo (snapshot: draft NÃO segue mudanças posteriores do perfil)
   atrativoSourceId: z.string().uuid("Selecione um atrativo da lista"),
   atrativoSourceType: z.enum(["artist", "atrativo"]).optional(),
