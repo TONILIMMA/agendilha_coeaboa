@@ -100,7 +100,7 @@ export function NovoAtrativoDialog({
           responsavel_id: uid,
         })
         .select(
-          "id, name, type, estabelecimento_id, tipo_atrativo, style, estilos, description, contact_whatsapp, cidade_regiao, estado, pais, logo_url, fotos",
+          "id, name, type, estabelecimento_id, tipo_atrativo, style, estilos, description, contact_info, category_other, cidade_regiao, estado, pais, logo_url, fotos",
         )
         .single();
       if (error) throw error;
