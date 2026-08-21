@@ -66,10 +66,16 @@ vi.mock("@/integrations/supabase/client", () => {
       }),
       rpc: vi.fn(() => {
         // A função RPC search_atrativos_autocomplete retorna colunas mescladas.
-        // Para artistas, artist_type vem em artist_type.
+        // O AtrativoAutocomplete injeta artist_type na propriedade tipo_atrativo quando kind === 'artist'
         const merged = [
             { ...atrativoMock, __kind: 'atrativo' },
-            { ...artistMock, __kind: 'artist' }
+            { 
+              ...artistMock, 
+              tipo_atrativo: artistMock.artist_type,
+              type: 'Cultura',
+              style: artistMock.genre,
+              __kind: 'artist' 
+            }
         ];
         return build(merged);
       }),
