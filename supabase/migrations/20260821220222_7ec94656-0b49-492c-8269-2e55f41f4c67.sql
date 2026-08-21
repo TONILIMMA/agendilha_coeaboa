@@ -1,0 +1,1 @@
+ALTER FUNCTION public.check_atrativo_category_restriction() SET search_path = public;
