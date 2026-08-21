@@ -251,7 +251,7 @@ export default function Landing() {
              O melhor da Ilha,<br className="hidden sm:block" /> <span className="text-secondary">em um só lugar.</span>
            </h1>
            <p className="text-secondary/80 text-base sm:text-lg font-light max-w-xl mx-auto mb-12 text-balance leading-relaxed">
-             Agenda curada de eventos, bares e experiências na Ilha do Governador — atualizada todo dia.
+             Agenda curada de eventos, estabelecimentos e experiências na Ilha do Governador — atualizada todo dia.
            </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-lg mx-auto">

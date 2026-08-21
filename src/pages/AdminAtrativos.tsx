@@ -193,7 +193,6 @@ export default function AdminAtrativos() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Gastronomia">Gastronomia</SelectItem>
-                  <SelectItem value="Bar/Restaurante">Bar/Restaurante</SelectItem>
                   <SelectItem value="Cultura">Cultura</SelectItem>
                   <SelectItem value="Turismo">Turismo</SelectItem>
                   <SelectItem value="Lazer">Lazer</SelectItem>
@@ -296,7 +295,6 @@ export default function AdminAtrativos() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Gastronomia">Gastronomia</SelectItem>
-                            <SelectItem value="Bar/Restaurante">Bar/Restaurante</SelectItem>
                             <SelectItem value="Cultura">Cultura</SelectItem>
                             <SelectItem value="Turismo">Turismo</SelectItem>
                             <SelectItem value="Lazer">Lazer</SelectItem>
