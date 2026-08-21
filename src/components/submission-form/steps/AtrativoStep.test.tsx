@@ -100,6 +100,9 @@ function Harness() {
       atrativoStyle: "",
       atrativoDescription: "",
       atrativoContact: "",
+      atrativoCategory: "",
+      atrativoSourceId: "",
+      atrativoSourceType: "",
     },
   });
   return (
@@ -163,10 +166,12 @@ describe("AtrativoStep autocomplete", () => {
     await waitFor(() => {
       const dump = JSON.parse(screen.getByTestId("dump").textContent || "{}");
       expect(dump.atrativoName).toBe("Testa DJ Aprovado");
+      // Agora o atrativoSourceType deve ser 'artist'
+      expect(dump.atrativoSourceType).toBe("artist");
       expect(dump.atrativoType).toBe("DJ");
       expect(dump.atrativoStyle).toBe("House");
       expect(dump.atrativoDescription).toBe("Artista aprovado.");
-      expect(dump.atrativoContact).toBe("48999990009");
+      expect(dump.atrativoContact).toBe("(48) 99999-0009");
     });
   });
 });

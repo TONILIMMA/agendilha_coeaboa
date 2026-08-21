@@ -78,7 +78,6 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
 
   // Aplica o snapshot no rascunho a partir de uma linha do banco.
   const applySnapshot = (row: any, kind: "artist" | "atrativo") => {
-    console.log("Applying snapshot:", { kind, row });
     if (kind === "artist") {
       form.setValue("atrativoName", row.name ?? "", { shouldDirty: true });
       form.setValue("atrativoType", row.artist_type || row.tipo_atrativo || "", { shouldDirty: true });
