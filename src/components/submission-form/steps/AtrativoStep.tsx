@@ -296,7 +296,8 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                   }}
                   onSelect={(s) => {
                     if (!canEditAtrativo) return;
-                    linkSource(s.id, s.tipo_atrativo === "Artista" || s.type === "Artista" ? "artist" : "atrativo", s);
+                    const kind = s.tipo_atrativo === "Artista" || s.type === "Artista" || (s as any).__kind === "artist" ? "artist" : "atrativo";
+                    linkSource(s.id, kind, s);
                     toast.success(`Vinculado a "${s.name}". Os dados viram um snapshot do perfil.`);
                   }}
                   onCreateNew={undefined} // Cadastro direto desativado conforme novo requisito
