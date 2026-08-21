@@ -466,7 +466,9 @@ export type Database = {
         Row: {
           approved_at: string | null
           approved_by: string | null
+          category_other: string | null
           cidade_regiao: string | null
+          contact_info: string | null
           contact_whatsapp: string | null
           created_at: string | null
           created_by: string | null
@@ -494,7 +496,9 @@ export type Database = {
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
+          category_other?: string | null
           cidade_regiao?: string | null
+          contact_info?: string | null
           contact_whatsapp?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -522,7 +526,9 @@ export type Database = {
         Update: {
           approved_at?: string | null
           approved_by?: string | null
+          category_other?: string | null
           cidade_regiao?: string | null
+          contact_info?: string | null
           contact_whatsapp?: string | null
           created_at?: string | null
           created_by?: string | null
