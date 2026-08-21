@@ -39,6 +39,7 @@ export default function AdminAtrativos() {
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isMaster, isCollaborator, hasPermission, loading: permsLoading } = useAppPermissions();
   const canManage = isAdmin || isMaster || isCollaborator || hasPermission("events.update");
+  const canEdit = isAdmin || isMaster || hasPermission("events.update");
   const canDelete = isAdmin || isMaster || hasPermission("events.delete");
   const { data: rows = [], isLoading: loading } = useAllAtrativos(canManage);
   const upsert = useUpsertAtrativo();
@@ -262,7 +263,7 @@ export default function AdminAtrativos() {
                     ) : (
                       <div className="flex flex-col gap-2 w-full">
                         <div className="flex flex-wrap gap-2">
-                          {(isAdmin || isMaster || a.responsavel_id === user.id || hasPermission("events.update")) ? (
+                          {canEdit || a.responsavel_id === user.id ? (
                             <Button size="sm" variant="outline" onClick={() => startEdit(a)}>
                               <Pencil className="h-4 w-4 mr-1" /> Editar
                             </Button>
