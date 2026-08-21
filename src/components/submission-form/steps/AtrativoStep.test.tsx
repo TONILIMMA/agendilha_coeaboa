@@ -59,28 +59,15 @@ vi.mock("@/integrations/supabase/client", () => {
         return build([atrativoMock]);
       }),
       rpc: vi.fn(() => {
-        // Mimetiza o retorno da search_atrativos_autocomplete que o AtrativoAutocomplete espera
+        // Mimetiza o retorno da search_atrativos_autocomplete
         const merged = [
             { 
-              id: atrativoMock.id,
-              name: atrativoMock.name,
-              tipo_atrativo: atrativoMock.tipo_atrativo,
-              type: atrativoMock.type,
-              style: atrativoMock.style,
-              estilos: atrativoMock.estilos,
-              description: atrativoMock.description,
-              contact_info: atrativoMock.contact_info,
-              is_approved: true,
+              ...atrativoMock,
               __kind: 'atrativo' 
             },
             { 
-              id: artistMock.id,
-              name: artistMock.name,
+              ...artistMock, 
               artist_type: artistMock.artist_type,
-              genre: artistMock.genre,
-              bio: artistMock.bio,
-              whatsapp: artistMock.whatsapp,
-              is_approved: true,
               __kind: 'artist' 
             }
         ];
@@ -92,9 +79,6 @@ vi.mock("@/integrations/supabase/client", () => {
     },
   };
 });
-
-// Mock da função que o AtrativoStep deve chamar
-const onLinkSelectMock = vi.fn();
 
 function Harness() {
   const form = useForm({
@@ -159,14 +143,12 @@ describe("AtrativoStep autocomplete", () => {
     fireEvent.change(input, { target: { value: "testa" } });
     const opt = await screen.findByText("Testa DJ Aprovado");
     
-    // O AtrativoAutocomplete retorna o objeto com __kind: 'artist'.
-    // O AtrativoStep recebe isso no linkedSource.
+    // Simula a seleção no componente real que repassa o item completo do RPC
     fireEvent.click(opt);
 
     await waitFor(() => {
       const dump = JSON.parse(screen.getByTestId("dump").textContent || "{}");
       expect(dump.atrativoName).toBe("Testa DJ Aprovado");
-      // Verifica se o snapshot funcionou mesmo com o mock de colunas mescladas
       expect(dump.atrativoType).toBe("DJ");
       expect(dump.atrativoStyle).toBe("House");
       expect(dump.atrativoDescription).toBe("Artista aprovado.");
