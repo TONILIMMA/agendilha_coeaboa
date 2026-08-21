@@ -315,9 +315,9 @@ export default function AdminAtrativos() {
                         {!isAdmin && !isMaster && (
                           <div className="text-[10px] text-muted-foreground mt-1 px-1 italic">
                             {!(a.responsavel_id === user.id || hasPermission("events.update")) && 
-                              "Apenas administradores ou o criador podem editar este atrativo. "}
+                              "Apenas administradores, mestres, colaboradores autorizados ou o responsável podem editar este atrativo. "}
                             {!hasPermission("events.delete") && 
-                              "Você não tem permissão para excluir registros."}
+                              "Você não tem permissão para excluir este registro."}
                           </div>
                         )}
                       </div>

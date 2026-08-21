@@ -28,7 +28,7 @@ export interface AtrativoRow {
 }
 
 const SELECT_MINE =
-  "id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos, is_approved";
+  "id, name, type, description, estabelecimento_id, tipo_atrativo, estilos, pais, estado, cidade_regiao, membros_equipe, responsavel_nome, responsavel_telefone, responsavel_email, responsavel_redes, fotos, is_approved, responsavel_id";
 
 export function useMyAtrativos(userId: string | null | undefined) {
   return useQuery({
