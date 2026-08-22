@@ -86,7 +86,7 @@ function ExplorarInner() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("public_submissions")
-        .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, description, age_rating, sale_price, is_suitable_for_minors")
+        .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, description, age_rating, sale_price, is_suitable_for_minors, slug")
         .eq("status", "aprovado")
         .order("date", { ascending: true });
       if (error) throw error;
@@ -394,7 +394,7 @@ function ExplorarInner() {
                 event={ev as any}
                 variant="compact"
                 className="w-full h-auto"
-                onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                onClick={() => navigate(`/evento/${ev.slug || ev.id}`)}
               />
             ))}
           </div>

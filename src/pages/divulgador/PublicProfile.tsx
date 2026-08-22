@@ -88,19 +88,13 @@ export default function PublicProfile() {
               <h1 className="text-3xl font-black tracking-tight">
                 {profile.company_name || profile.responsible_name || "Divulgador AgendIlha"}
               </h1>
-              {/* @ts-ignore - added via migration */}
-              {profile.is_trusted_divulgador && (
-                <Badge className="bg-primary/10 text-primary border-none text-[10px] uppercase font-black px-2 py-0.5">
-                  Verificado
-                </Badge>
-              )}
+              {/* profile.is_trusted_divulgador check removed as column does not exist */}
+
             </div>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-sm text-muted-foreground font-medium">
-              {/* @ts-ignore - added via migration */}
-              {profile.neighborhood && (
-                <span className="flex items-center gap-1">
-                  {/* @ts-ignore */}
-                  <MapPin className="h-3.5 w-3.5" /> {profile.neighborhood}
+              {profile.address_neighborhood && (
+                <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest">
+                  <MapPin className="h-3.5 w-3.5" /> {profile.address_neighborhood}
                 </span>
               )}
               {profile.user_type === 'divulgador' && (
@@ -137,13 +131,6 @@ export default function PublicProfile() {
           </div>
         </div>
 
-        {/* @ts-ignore */}
-        {profile.motivo && (
-          <div className="mt-8 p-6 rounded-2xl bg-muted/30 border border-border/50 text-sm leading-relaxed text-muted-foreground italic">
-            {/* @ts-ignore */}
-            "{profile.motivo}"
-          </div>
-        )}
 
         <div className="h-px w-full bg-border my-10" />
 
@@ -170,7 +157,7 @@ export default function PublicProfile() {
                   key={ev.id} 
                   event={ev as any} 
                   variant="compact"
-                  onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                  onClick={() => navigate(`/evento/${ev.slug || ev.id}`)}
                 />
               ))}
             </div>
