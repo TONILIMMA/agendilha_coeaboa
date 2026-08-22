@@ -650,25 +650,56 @@ export default function SubmissionForm() {
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8 mt-8">
-          {currentStep >= 3 && currentStep < 8 && (
-            <PublishChecklist form={form} goToStep={setCurrentStep} variant="compact" />
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              <PublishChecklist form={form} goToStep={setCurrentStep} variant="compact" />
+              <Accordion type="multiple" defaultValue={["item-1", "item-2", "item-3", "item-4", "item-5"]} className="w-full space-y-4">
+                <AccordionItem value="item-1" className="border rounded-2xl px-4 bg-card/30">
+                  <AccordionTrigger className="hover:no-underline font-bold text-lg">1. Dados do Evento</AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-6">
+                    <EventStep form={form} />
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-2" className="border rounded-2xl px-4 bg-card/30">
+                  <AccordionTrigger className="hover:no-underline font-bold text-lg">2. Atrativo</AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-6">
+                    <AtrativoStep form={form} />
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-3" className="border rounded-2xl px-4 bg-card/30">
+                  <AccordionTrigger className="hover:no-underline font-bold text-lg">3. Local</AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-6">
+                    <LocationStep form={form} />
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-4" className="border rounded-2xl px-4 bg-card/30">
+                  <AccordionTrigger className="hover:no-underline font-bold text-lg">4. Arte do Flyer</AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-6">
+                    <MediaStep 
+                      form={form} 
+                      imageSource={imageSource} 
+                      setImageSource={setImageSource} 
+                      eventImage={eventImage} 
+                      setEventImage={setEventImage} 
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-5" className="border rounded-2xl px-4 bg-card/30">
+                  <AccordionTrigger className="hover:no-underline font-bold text-lg">5. Termos e Responsabilidade</AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-6">
+                    <LegalStep form={form} />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
           )}
           {currentStep === 1 && <ContactStep form={form} onRestoreFromProfile={restoreContactFromProfile} hasProfile={!!(profile?.phone || profile?.responsible_name || profile?.email)} />}
           {currentStep === 2 && <ProfessionalStep form={form} />}
-          {currentStep === 3 && <EventStep form={form} />}
-          {currentStep === 4 && <AtrativoStep form={form} />}
-          {currentStep === 5 && <LocationStep form={form} />}
-          {currentStep === 6 && (
-            <MediaStep 
-              form={form} 
-              imageSource={imageSource} 
-              setImageSource={setImageSource} 
-              eventImage={eventImage} 
-              setEventImage={setEventImage} 
-            />
-          )}
-          {currentStep === 7 && <LegalStep form={form} />}
-          {currentStep === 8 && <ReviewStep form={form} goToStep={setCurrentStep} />}
+          {currentStep === 4 && <ReviewStep form={form} goToStep={setCurrentStep} />}
 
           <div className="flex justify-between items-center pt-8 border-t">
             <Button
