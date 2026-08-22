@@ -16,12 +16,12 @@ export default function PublicProfile() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
 
-  const { data: profile, isLoading: loadingProfile } = useQuery({
+  const { data: profile, isLoading: loadingProfile, error: profileError, refetch: refetchProfile } = useQuery({
     queryKey: ["public-profile", userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, company_name, responsible_name, avatar_url, address_neighborhood, user_type, whatsapp_phone, contact_social")
         .eq("id", userId)
         .single();
       if (error) throw error;
@@ -30,12 +30,12 @@ export default function PublicProfile() {
     enabled: !!userId,
   });
 
-  const { data: events = [], isLoading: loadingEvents } = useQuery({
+  const { data: events = [], isLoading: loadingEvents, error: eventsError, refetch: refetchEvents } = useQuery({
     queryKey: ["public-profile-events", userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("public_submissions")
-        .select("*")
+        .select("id, slug, event_title, date, start_time, location, address_neighborhood, category, image_url, description, age_rating, sale_price, is_suitable_for_minors")
         .eq("user_id", userId)
         .eq("status", "aprovado")
         .order("date", { ascending: true });
