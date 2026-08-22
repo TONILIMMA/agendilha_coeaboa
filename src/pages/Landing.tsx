@@ -123,7 +123,6 @@ export default function Landing() {
     const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { locale: ptBR }));
     const [customDate, setCustomDate] = useState<Date | undefined>(new Date());
 
-    const allEvents = useMemo(() => eventsData?.pages.flatMap(page => page.items) || [], [eventsData]);
     const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
     const todayEvents = useMemo(() => allEvents.filter(e => e.date === todayStr).slice(0, 6), [allEvents, todayStr]);
 
