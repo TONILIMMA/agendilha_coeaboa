@@ -9,17 +9,19 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { AppShell } from "@/components/layout/AppShell";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { cn } from "@/lib/utils";
+import { InlineError } from "@/components/errors/InlineError";
+
 
 export default function PublicProfile() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
 
-  const { data: profile, isLoading: loadingProfile } = useQuery({
+  const { data: profile, isLoading: loadingProfile, error: profileError, refetch: refetchProfile } = useQuery({
     queryKey: ["public-profile", userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, company_name, responsible_name, avatar_url, address_neighborhood, user_type, whatsapp_phone, contact_social")
         .eq("id", userId)
         .single();
       if (error) throw error;
@@ -28,12 +30,12 @@ export default function PublicProfile() {
     enabled: !!userId,
   });
 
-  const { data: events = [], isLoading: loadingEvents } = useQuery({
+  const { data: events = [], isLoading: loadingEvents, error: eventsError, refetch: refetchEvents } = useQuery({
     queryKey: ["public-profile-events", userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("public_submissions")
-        .select("*")
+        .select("id, slug, event_title, date, start_time, location, address_neighborhood, category, image_url, description, age_rating, sale_price, is_suitable_for_minors")
         .eq("user_id", userId)
         .eq("status", "aprovado")
         .order("date", { ascending: true });
@@ -44,6 +46,24 @@ export default function PublicProfile() {
   });
 
   if (loadingProfile) return <LoadingState fullPage message="Carregando perfil..." />;
+  
+  if (profileError) {
+    return (
+      <AppShell maxWidth="md">
+        <div className="py-20 flex flex-col items-center justify-center">
+          <InlineError 
+            error={profileError} 
+            title="Não conseguimos carregar este perfil." 
+            onRetry={() => refetchProfile()}
+          />
+          <Button asChild variant="ghost" className="mt-4 rounded-full">
+            <Link to="/">Voltar ao início</Link>
+          </Button>
+        </div>
+      </AppShell>
+    );
+  }
+
   if (!profile) {
     return (
       <AppShell maxWidth="md">
@@ -89,6 +109,7 @@ export default function PublicProfile() {
                 {profile.company_name || profile.responsible_name || "Divulgador AgendIlha"}
               </h1>
               {/* profile.is_trusted_divulgador check removed as column does not exist */}
+
 
             </div>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-sm text-muted-foreground font-medium">
@@ -146,6 +167,12 @@ export default function PublicProfile() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map(i => <div key={i} className="aspect-[3/4] rounded-2xl bg-muted animate-pulse" />)}
             </div>
+          ) : eventsError ? (
+            <InlineError 
+              error={eventsError} 
+              title="Não conseguimos carregar os eventos." 
+              onRetry={() => refetchEvents()}
+            />
           ) : events.length === 0 ? (
             <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed">
               <p className="text-muted-foreground">Nenhum evento ativo no momento.</p>
