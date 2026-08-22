@@ -167,6 +167,12 @@ export default function PublicProfile() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map(i => <div key={i} className="aspect-[3/4] rounded-2xl bg-muted animate-pulse" />)}
             </div>
+          ) : eventsError ? (
+            <InlineError 
+              error={eventsError} 
+              title="Não conseguimos carregar os eventos." 
+              onRetry={() => refetchEvents()}
+            />
           ) : events.length === 0 ? (
             <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed">
               <p className="text-muted-foreground">Nenhum evento ativo no momento.</p>
