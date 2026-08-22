@@ -46,6 +46,24 @@ export default function PublicProfile() {
   });
 
   if (loadingProfile) return <LoadingState fullPage message="Carregando perfil..." />;
+  
+  if (profileError) {
+    return (
+      <AppShell maxWidth="md">
+        <div className="py-20 flex flex-col items-center justify-center">
+          <InlineError 
+            error={profileError} 
+            title="Não conseguimos carregar este perfil." 
+            onRetry={() => refetchProfile()}
+          />
+          <Button asChild variant="ghost" className="mt-4 rounded-full">
+            <Link to="/">Voltar ao início</Link>
+          </Button>
+        </div>
+      </AppShell>
+    );
+  }
+
   if (!profile) {
     return (
       <AppShell maxWidth="md">
