@@ -22,7 +22,8 @@ import {
   Megaphone, 
   Sun, 
   Moon,
-  ExternalLink
+  ExternalLink,
+  Share2
 } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
  import logoCoeABoa from "@/assets/coeaboa-logo.webp";
