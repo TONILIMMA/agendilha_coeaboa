@@ -9,6 +9,8 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { AppShell } from "@/components/layout/AppShell";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { cn } from "@/lib/utils";
+import { InlineError } from "@/components/errors/InlineError";
+
 
 export default function PublicProfile() {
   const { userId } = useParams<{ userId: string }>();
