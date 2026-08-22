@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { useSubmissions } from "@/data/useSubmissions";
 import { exportRowsToCsv } from "@/lib/csv";
 import { format, parseISO } from "date-fns";
