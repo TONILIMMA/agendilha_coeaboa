@@ -110,6 +110,7 @@ export default function PublicProfile() {
               </h1>
               {/* profile.is_trusted_divulgador check removed as column does not exist */}
 
+
             </div>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-sm text-muted-foreground font-medium">
               {profile.address_neighborhood && (
