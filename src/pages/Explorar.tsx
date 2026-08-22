@@ -81,6 +81,19 @@ function ExplorarInner() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { locale: ptBR }));
 
+  const { data: events = [], isLoading, error, refetch } = useQuery({
+    queryKey: ["explorar-events"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("public_submissions")
+        .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, description, age_rating, sale_price, is_suitable_for_minors")
+        .eq("status", "aprovado")
+        .order("date", { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   useEffect(() => {
     if (params.get("view") === "today") {
       setDatePreset("today");
@@ -102,12 +115,6 @@ function ExplorarInner() {
     });
     return set;
   }, [events]);
-
-  const { data: events = [], isLoading, error, refetch } = useQuery({
-    queryKey: ["explorar-events"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("public_submissions")
         .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, description, age_rating, sale_price, is_suitable_for_minors")
         .eq("status", "aprovado")
         .order("date", { ascending: true });
