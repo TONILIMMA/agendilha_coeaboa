@@ -103,7 +103,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       setCheckingStatus(false);
 
       if (error) {
-        logger.error("[AdminPinGate.status] falha ao consultar PIN", error);
+        handleError(error, { context: "AdminPinGate.status", fallback: "Falha ao consultar PIN administrativo." });
         return;
       }
 
@@ -217,7 +217,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
     try {
       const { error } = await supabase.rpc("update_admin_pin", { current_pin: currentPin, new_pin: newPin });
       if (error) {
-        toast.error(error.message || "Erro ao atualizar PIN");
+        handleError(error, { context: "AdminPinGate.update", fallback: "Erro ao atualizar PIN" });
         return;
       }
 
@@ -268,7 +268,7 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
       });
 
       if (error) {
-        toast.error(error.message || "Não foi possível redefinir o PIN");
+        handleError(error, { context: "AdminPinGate.reset", fallback: "Não foi possível redefinir o PIN" });
         return;
       }
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { handleError } from "@/lib/error-handler";
 import { logger } from "@/lib/logger";
 import { toast } from "sonner";
+import { handleError } from "@/lib/error-handler";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -415,7 +416,10 @@ export default function SubmissionForm() {
           .from('event-flyers')
           .upload(filePath, eventImage);
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          handleError(uploadError, { context: "SubmissionForm.uploadFlyer", fallback: "Erro ao subir o flyer." });
+          throw uploadError;
+        }
 
         const { data: { publicUrl } } = supabaseClient.storage
           .from('event-flyers')
