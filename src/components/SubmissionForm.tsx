@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { handleError } from "@/lib/error-handler";
 import { logger } from "@/lib/logger";
 import { toast } from "sonner";
-import { handleError } from "@/lib/error-handler";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
