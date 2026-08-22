@@ -485,12 +485,6 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                     </DropdownMenuItem>
                   )}
                   
-                  {user && (
-                    <DropdownMenuItem onClick={() => navigate(`/divulgador/${user.id}`)} className="cursor-pointer">
-                      <ExternalLink className="h-4 w-4 mr-2 text-primary" />
-                      Meu Perfil Público
-                    </DropdownMenuItem>
-                  )}
 
                   {(isAdmin || isMaster) && user && (
                     <DropdownMenuItem 
