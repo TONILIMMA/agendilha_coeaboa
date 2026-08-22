@@ -157,7 +157,7 @@ export default function PublicProfile() {
                   key={ev.id} 
                   event={ev as any} 
                   variant="compact"
-                  onClick={() => navigate(`/explorar?event=${ev.id}`)}
+                  onClick={() => navigate(`/evento/${ev.slug || ev.id}`)}
                 />
               ))}
             </div>

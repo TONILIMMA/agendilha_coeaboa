@@ -394,7 +394,7 @@ function ExplorarInner() {
                 event={ev as any}
                 variant="compact"
                 className="w-full h-auto"
-                onClick={() => navigate(`/agenda?event=${ev.id}`)}
+                onClick={() => navigate(`/evento/${ev.slug || ev.id}`)}
               />
             ))}
           </div>
