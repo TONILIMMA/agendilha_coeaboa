@@ -12,8 +12,11 @@ import {
   ArrowLeft,
   LayoutDashboard,
   Calendar,
-  ExternalLink
+  ExternalLink,
+  Share2,
+  Copy
 } from "lucide-react";
+import { toast } from "sonner";
 import { formatBrazilianDate } from "@/lib/date-utils";
 
 export default function StatusDivulgador() {
@@ -21,9 +24,38 @@ export default function StatusDivulgador() {
   const { loading, isDivulgador, request } = useDivulgadorStatus();
   const navigate = useNavigate();
 
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/divulgador/${user?.id}`;
+    const shareText = `Confira meu perfil no AgendIlha e acompanhe meus eventos: ${shareUrl}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Meu Perfil no AgendIlha',
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.error("Erro ao compartilhar:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareText);
+        toast.success("Link copiado para a área de transferência!");
+      } catch (err) {
+        toast.error("Não foi possível copiar o link.");
+      }
+    }
+  };
+
+  const handleWhatsAppShare = () => {
+    const shareUrl = `${window.location.origin}/divulgador/${user?.id}`;
+    const shareText = encodeURIComponent(`Confira meu perfil no AgendIlha e acompanhe meus eventos: ${shareUrl}`);
+    window.open(`https://wa.me/?text=${shareText}`, '_blank');
+  };
+
   if (loading) return <LoadingState message="Conferindo seu perfil..." />;
 
-  // Se já for divulgador, encaminha para Meus Eventos que é o painel dele
   if (isDivulgador) {
     return (
       <div className="max-w-md mx-auto px-4 py-12 text-center space-y-6">
@@ -52,6 +84,26 @@ export default function StatusDivulgador() {
             <Calendar className="h-4 w-4 mr-2" />
             Divulgar novo evento
           </Button>
+          
+          <div className="grid grid-cols-2 gap-2">
+            <Button 
+              variant="secondary"
+              className="rounded-full h-12 font-bold"
+              onClick={handleShare}
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              Compartilhar
+            </Button>
+            <Button 
+              variant="secondary"
+              className="rounded-full h-12 font-bold bg-[#25D366] text-white hover:bg-[#25D366]/90"
+              onClick={handleWhatsAppShare}
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              WhatsApp
+            </Button>
+          </div>
+
           <Button 
             variant="ghost"
             className="rounded-full h-12 font-bold text-primary"

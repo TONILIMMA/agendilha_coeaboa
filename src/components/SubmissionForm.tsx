@@ -20,6 +20,7 @@ import {
   ContactStep, ProfessionalStep, EventStep, AtrativoStep, 
   LocationStep, MediaStep, LegalStep, ReviewStep 
 } from "./submission-form/steps";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { validateBrazilianMobile } from "@/lib/whatsapp";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { emitEntityCreated } from "@/lib/entityEvents";
@@ -325,12 +326,8 @@ export default function SubmissionForm() {
   const steps = [
     { id: 1, title: "Identificação" },
     { id: 2, title: "Profissional" },
-    { id: 3, title: "Evento" },
-    { id: 4, title: "Atrativo" },
-    { id: 5, title: "Local" },
-    { id: 6, title: "Arte" },
-    { id: 7, title: "Legal" },
-    { id: 8, title: "Revisão" },
+    { id: 3, title: "Dados do Evento" },
+    { id: 4, title: "Revisão" },
   ];
 
   const FIELD_LABELS: Record<string, string> = {
@@ -384,10 +381,12 @@ export default function SubmissionForm() {
     switch (step) {
       case 1: return ["nickName", "basicPhone"];
       case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
-      case 3: return ["date", "startTime", "ageRating", "eventTitle", "endTime", "isSuitableForMinors"];
-      case 4: return ["atrativoName", "atrativoContact", "atrativoEmail", "atrativoCategory", "atrativoType", "atrativoStyle", "atrativoDescription"];
-      case 5: return ["locationName", "localTipo", "addressNeighborhood", "eventAddress", "locationType", "locationContact", "locationCep"];
-      case 7: return ["legalAcceptance", "responsavelNome", "duvidasWhatsapp"];
+      case 3: return [
+        "date", "startTime", "eventTitle", 
+        "atrativoName", "atrativoContact", "atrativoCategory",
+        "locationName", "addressNeighborhood", "eventAddress", "locationType",
+        "legalAcceptance", "responsavelNome", "duvidasWhatsapp"
+      ];
       default: return [];
     }
   };
