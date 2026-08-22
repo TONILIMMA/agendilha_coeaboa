@@ -415,7 +415,10 @@ export default function SubmissionForm() {
           .from('event-flyers')
           .upload(filePath, eventImage);
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          handleError(uploadError, { context: "SubmissionForm.uploadFlyer", fallback: "Erro ao subir o flyer." });
+          throw uploadError;
+        }
 
         const { data: { publicUrl } } = supabaseClient.storage
           .from('event-flyers')
