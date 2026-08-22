@@ -149,7 +149,6 @@ function ExplorarInner() {
       return (a.start_time || "").localeCompare(b.start_time || "");
     });
   }, [events, datePreset, customDate, neighborhood, category, term]);
-  }, [events, datePreset, customDate, neighborhood, category, term]);
 
   const activeFiltersCount =
     (datePreset !== "all" ? 1 : 0) +
