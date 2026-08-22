@@ -6,7 +6,6 @@ import {
   ChevronDown,
   ChevronRight,
   Download,
-  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserBadge } from "@/hooks/useUserBadge";
@@ -143,20 +142,6 @@ export function SidebarMenu({ onClose }: Props) {
 
       {/* Footer - Sair da Conta is isolated here */}
       <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] mt-auto border-t border-sidebar-border bg-sidebar-accent/5 shrink-0 space-y-2">
-        {user && (
-          <Button 
-            variant="ghost" 
-            size="lg" 
-            className="w-full justify-start gap-3 rounded-xl hover:bg-primary/10 hover:text-primary transition-all duration-300 group"
-            onClick={() => {
-              navigate(`/divulgador/${user.id}`);
-              if (onClose) onClose();
-            }}
-          >
-            <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-            <span className="font-bold text-sm tracking-tight">Meu Perfil Público</span>
-          </Button>
-        )}
         
         {/* PWA Install Entry in Menu */}
         <PwaInstallButton />
