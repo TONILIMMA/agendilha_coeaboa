@@ -115,13 +115,6 @@ function ExplorarInner() {
     });
     return set;
   }, [events]);
-        .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, description, age_rating, sale_price, is_suitable_for_minors")
-        .eq("status", "aprovado")
-        .order("date", { ascending: true });
-      if (error) throw error;
-      return data || [];
-    },
-  });
 
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
