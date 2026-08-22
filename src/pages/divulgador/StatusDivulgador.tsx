@@ -14,7 +14,8 @@ import {
   Calendar,
   ExternalLink,
   Share2,
-  Copy
+  Copy,
+  MessageCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatBrazilianDate } from "@/lib/date-utils";
