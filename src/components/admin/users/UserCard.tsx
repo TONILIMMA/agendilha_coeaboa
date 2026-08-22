@@ -18,6 +18,7 @@ import {
   formatPhoneDisplay,
   buildWhatsappUrl,
 } from "@/lib/whatsapp";
+import { toast } from "sonner";
 import { UserDetailsDialog } from "./UserDetailsDialog";
 import type { UserWithRole } from "./types";
 
