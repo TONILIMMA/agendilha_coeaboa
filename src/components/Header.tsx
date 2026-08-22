@@ -22,7 +22,8 @@ import {
   Megaphone, 
   Sun, 
   Moon,
-  ExternalLink
+  ExternalLink,
+  Share2
 } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
  import logoCoeABoa from "@/assets/coeaboa-logo.webp";
@@ -488,6 +489,38 @@ export default function Header({ onMobileMenuToggle }: { onMobileMenuToggle?: ()
                     <DropdownMenuItem onClick={() => navigate(`/divulgador/${user.id}`)} className="cursor-pointer">
                       <ExternalLink className="h-4 w-4 mr-2 text-primary" />
                       Meu Perfil Público
+                    </DropdownMenuItem>
+                  )}
+
+                  {(isAdmin || isMaster) && user && (
+                    <DropdownMenuItem 
+                      onClick={async () => {
+                        const shareUrl = `${window.location.origin}/divulgador/${user.id}`;
+                        const shareText = `Confira meu perfil de divulgador no AgendIlha: ${shareUrl}`;
+                        
+                        if (navigator.share) {
+                          try {
+                            await navigator.share({
+                              title: 'Perfil no AgendIlha',
+                              text: shareText,
+                              url: shareUrl,
+                            });
+                          } catch (err) {
+                            console.error("Erro ao compartilhar:", err);
+                          }
+                        } else {
+                          try {
+                            await navigator.clipboard.writeText(shareUrl);
+                            toast.success("Link do perfil copiado!");
+                          } catch (err) {
+                            toast.error("Não foi possível copiar o link.");
+                          }
+                        }
+                      }} 
+                      className="cursor-pointer font-medium text-primary"
+                    >
+                      <Share2 className="h-4 w-4 mr-2 text-primary" />
+                      Compartilhar Perfil
                     </DropdownMenuItem>
                   )}
 
