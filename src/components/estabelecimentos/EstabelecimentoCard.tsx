@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   Building2, ChevronDown, ChevronUp, MapPin, Phone, Pencil, Check, X, Loader2, Trash2,
-  ShieldCheck, Clock,
+  ShieldCheck, Clock, Share2, MessageSquare,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export interface EstabelecimentoRow {
   id: string;
@@ -163,41 +164,91 @@ export function EstabelecimentoCard({ estab, canEdit, canDelete, canApprove, onS
                 <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-mono">
                   ID: {estab.id}
                 </p>
-                <div className="flex flex-wrap gap-2 pt-3 border-t border-border">
-                  {canEdit && (
-                    <Button size="sm" variant="outline" className="gap-2" onClick={() => setEditing(true)}>
-                      <Pencil className="h-3.5 w-3.5" />
-                      Editar
-                    </Button>
-                  )}
-                  {canApprove && onApprove && (
+                <div className="flex flex-col gap-4 pt-3 border-t border-border">
+                  <div className="flex flex-wrap gap-2">
+                    {canEdit && (
+                      <Button size="sm" variant="outline" className="gap-2" onClick={() => setEditing(true)}>
+                        <Pencil className="h-3.5 w-3.5" />
+                        Editar
+                      </Button>
+                    )}
+                    {canApprove && onApprove && (
+                      <Button
+                        size="sm"
+                        variant={estab.is_approved ? "ghost" : "default"}
+                        className="gap-2"
+                        disabled={approving}
+                        onClick={async () => {
+                          setApproving(true);
+                          await onApprove(estab.id, !estab.is_approved);
+                          setApproving(false);
+                        }}
+                      >
+                        {approving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+                        {estab.is_approved ? "Reverter aprovação" : "Aprovar cadastro"}
+                      </Button>
+                    )}
+                    {canDelete && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={deleting}
+                        className="gap-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 ml-auto"
+                        onClick={handleDelete}
+                      >
+                        {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        Excluir
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       size="sm"
-                      variant={estab.is_approved ? "ghost" : "default"}
-                      className="gap-2"
-                      disabled={approving}
+                      variant="outline"
+                      className="gap-2 text-primary border-primary/20 hover:bg-primary/5"
                       onClick={async () => {
-                        setApproving(true);
-                        await onApprove(estab.id, !estab.is_approved);
-                        setApproving(false);
+                        const shareUrl = `${window.location.origin}/lugar/${estab.id}`;
+                        const shareText = `Confira o estabelecimento "${estab.nome}" no AgendIlha: ${shareUrl}`;
+                        
+                        if (navigator.share) {
+                          try {
+                            await navigator.share({
+                              title: estab.nome,
+                              text: shareText,
+                              url: shareUrl,
+                            });
+                          } catch (err) {
+                            console.error("Erro ao compartilhar:", err);
+                          }
+                        } else {
+                          try {
+                            await navigator.clipboard.writeText(shareUrl);
+                            toast.success("Link copiado!");
+                          } catch (err) {
+                            toast.error("Erro ao copiar link.");
+                          }
+                        }
                       }}
                     >
-                      {approving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
-                      {estab.is_approved ? "Reverter aprovação" : "Aprovar cadastro"}
+                      <Share2 className="h-4 w-4" />
+                      Compartilhar
                     </Button>
-                  )}
-                  {canDelete && (
+
                     <Button
                       size="sm"
-                      variant="ghost"
-                      disabled={deleting}
-                      className="gap-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 ml-auto"
-                      onClick={handleDelete}
+                      variant="outline"
+                      className="gap-2 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                      onClick={() => {
+                        const shareUrl = `${window.location.origin}/lugar/${estab.id}`;
+                        const shareText = encodeURIComponent(`Confira o estabelecimento "${estab.nome}" no AgendIlha: ${shareUrl}`);
+                        window.open(`https://wa.me/?text=${shareText}`, '_blank');
+                      }}
                     >
-                      {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                      Excluir
+                      <MessageSquare className="h-4 w-4" />
+                      WhatsApp
                     </Button>
-                  )}
+                  </div>
                 </div>
                 {!canEdit && (
                   <p className="text-xs text-muted-foreground italic">

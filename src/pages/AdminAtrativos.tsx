@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Plus, Search, Loader2, Pencil, Trash2, Check, X, ShieldCheck, ChevronDown, ChevronUp } from "lucide-react";
+import { Sparkles, Plus, Search, Loader2, Pencil, Trash2, Check, X, ShieldCheck, ChevronDown, ChevronUp, MessageSquare, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -38,10 +38,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-/**
- * Admin/Master: gestão completa de Atrativos.
- * Lista tudo, permite editar, aprovar/desaprovar e excluir.
- */
 export default function AdminAtrativos() {
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isMaster, isCollaborator, hasPermission, loading: permsLoading } = useAppPermissions();
@@ -282,118 +278,153 @@ export default function AdminAtrativos() {
                   </button>
 
                   {isExpanded && (
-                    <div className="border-t border-border bg-muted/20 p-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                    <div className="border-t border-border bg-muted/20 p-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
                       {isEditing ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <Field label="Nome*" value={String(editForm.name ?? "")} onChange={(v) => setEditForm({ ...editForm, name: v })} />
-                      <Field label="Contato*" value={String(editForm.contact_info ?? "")} onChange={(v) => setEditForm({ ...editForm, contact_info: v })} />
-                      <div className="sm:col-span-2">
-                        <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Categoria*</Label>
-                        <Select value={String(editForm.type ?? "")} onValueChange={(v) => setEditForm({ ...editForm, type: v })}>
-                          <SelectTrigger className="h-10">
-                            <SelectValue placeholder="Selecione..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Gastronomia">Gastronomia</SelectItem>
-                            <SelectItem value="Cultura">Cultura</SelectItem>
-                            <SelectItem value="Turismo">Turismo</SelectItem>
-                            <SelectItem value="Lazer">Lazer</SelectItem>
-                            <SelectItem value="Esporte">Esporte</SelectItem>
-                            <SelectItem value="Hospedagem">Hospedagem</SelectItem>
-                            <SelectItem value="Comércio/Serviços">Comércio/Serviços</SelectItem>
-                            <SelectItem value="Saúde e Bem-estar">Saúde e Bem-estar</SelectItem>
-                            <SelectItem value="Educação">Educação</SelectItem>
-                            <SelectItem value="Religioso">Religioso</SelectItem>
-                            <SelectItem value="Espaço para Eventos">Espaço para Eventos</SelectItem>
-                            <SelectItem value="Outros">Outros</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {editForm.type === "Outros" && (
-                          <Input placeholder="Especifique..." value={String(editForm.category_other ?? "")} onChange={(e) => setEditForm({ ...editForm, category_other: e.target.value })} className="h-10 mt-2" />
-                        )}
-                      </div>
-                      <div className="sm:col-span-2">
-                        <Field label="Descrição" value={String(editForm.description ?? "")} onChange={(v) => setEditForm({ ...editForm, description: v })} />
-                      </div>
-                    </div>
-                      ) : a.description ? (
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{a.description}</p>
-                      ) : null}
-
-                  <div className="flex flex-wrap gap-2">
-                    {isEditing ? (
-                      <>
-                        <Button size="sm" onClick={() => saveEdit(a.id)} disabled={upsert.isPending}>
-                          <Check className="h-4 w-4 mr-1" /> Salvar
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
-                          <X className="h-4 w-4 mr-1" /> Cancelar
-                        </Button>
-                      </>
-                    ) : (
-                      <div className="flex flex-col gap-2 w-full">
-                        <div className="flex flex-wrap gap-2">
-                          {canEdit || a.responsavel_id === user.id ? (
-                            <Button size="sm" variant="outline" onClick={() => startEdit(a)}>
-                              <Pencil className="h-4 w-4 mr-1" /> Editar
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <Field label="Nome*" value={String(editForm.name ?? "")} onChange={(v) => setEditForm({ ...editForm, name: v })} />
+                          <Field label="Contato*" value={String(editForm.contact_info ?? "")} onChange={(v) => setEditForm({ ...editForm, contact_info: v })} />
+                          <div className="sm:col-span-2">
+                            <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Categoria*</Label>
+                            <Select value={String(editForm.type ?? "")} onValueChange={(v) => setEditForm({ ...editForm, type: v })}>
+                              <SelectTrigger className="h-10">
+                                <SelectValue placeholder="Selecione..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Gastronomia">Gastronomia</SelectItem>
+                                <SelectItem value="Cultura">Cultura</SelectItem>
+                                <SelectItem value="Turismo">Turismo</SelectItem>
+                                <SelectItem value="Lazer">Lazer</SelectItem>
+                                <SelectItem value="Esporte">Esporte</SelectItem>
+                                <SelectItem value="Hospedagem">Hospedagem</SelectItem>
+                                <SelectItem value="Comércio/Serviços">Comércio/Serviços</SelectItem>
+                                <SelectItem value="Saúde e Bem-estar">Saúde e Bem-estar</SelectItem>
+                                <SelectItem value="Educação">Educação</SelectItem>
+                                <SelectItem value="Religioso">Religioso</SelectItem>
+                                <SelectItem value="Espaço para Eventos">Espaço para Eventos</SelectItem>
+                                <SelectItem value="Outros">Outros</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            {editForm.type === "Outros" && (
+                              <Input placeholder="Especifique..." value={String(editForm.category_other ?? "")} onChange={(e) => setEditForm({ ...editForm, category_other: e.target.value })} className="h-10 mt-2" />
+                            )}
+                          </div>
+                          <div className="sm:col-span-2">
+                            <Field label="Descrição" value={String(editForm.description ?? "")} onChange={(v) => setEditForm({ ...editForm, description: v })} />
+                          </div>
+                          <div className="flex gap-2 pt-2">
+                            <Button size="sm" onClick={() => saveEdit(a.id)} disabled={upsert.isPending}>
+                              <Check className="h-4 w-4 mr-1" /> Salvar
                             </Button>
-                          ) : (
-                            <Button size="sm" variant="outline" disabled className="cursor-not-allowed opacity-50">
-                              <Pencil className="h-4 w-4 mr-1" /> Editar
+                            <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
+                              <X className="h-4 w-4 mr-1" /> Cancelar
                             </Button>
-                          )}
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {a.description && <p className="text-sm text-muted-foreground whitespace-pre-wrap">{a.description}</p>}
                           
-                          {(isAdmin || isMaster) ? (
-                            <Button size="sm" variant="outline" onClick={() => toggleApprove(a)}>
-                              <ShieldCheck className="h-4 w-4 mr-1" />
-                              {a.is_approved ? "Reverter aprovação" : "Aprovar"}
-                            </Button>
-                          ) : (
-                            <Button size="sm" variant="outline" disabled className="cursor-not-allowed opacity-50">
-                              <ShieldCheck className="h-4 w-4 mr-1" />
-                              {a.is_approved ? "Aprovado" : "Pendente"}
-                            </Button>
-                          )}
-                          
-                          {canDelete ? (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="destructive">
+                          <div className="flex flex-col gap-4 w-full pt-3 border-t border-border">
+                            <div className="flex flex-wrap gap-2">
+                              {canEdit || a.responsavel_id === user.id ? (
+                                <Button size="sm" variant="outline" onClick={() => startEdit(a)}>
+                                  <Pencil className="h-4 w-4 mr-1" /> Editar
+                                </Button>
+                              ) : (
+                                <Button size="sm" variant="outline" disabled className="cursor-not-allowed opacity-50">
+                                  <Pencil className="h-4 w-4 mr-1" /> Editar
+                                </Button>
+                              )}
+                              
+                              {(isAdmin || isMaster) ? (
+                                <Button size="sm" variant="outline" onClick={() => toggleApprove(a)}>
+                                  <ShieldCheck className="h-4 w-4 mr-1" />
+                                  {a.is_approved ? "Reverter aprovação" : "Aprovar"}
+                                </Button>
+                              ) : (
+                                <Button size="sm" variant="outline" disabled className="cursor-not-allowed opacity-50">
+                                  <ShieldCheck className="h-4 w-4 mr-1" />
+                                  {a.is_approved ? "Aprovado" : "Pendente"}
+                                </Button>
+                              )}
+                              
+                              {canDelete ? (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button size="sm" variant="destructive">
+                                      <Trash2 className="h-4 w-4 mr-1" /> Excluir
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Excluir atrativo?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        "{a.name}" será removido. Essa ação não pode ser desfeita.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDelete(a.id)}>Excluir</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              ) : (
+                                <Button size="sm" variant="destructive" disabled className="cursor-not-allowed opacity-50">
                                   <Trash2 className="h-4 w-4 mr-1" /> Excluir
                                 </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Excluir atrativo?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    "{a.name}" será removido. Essa ação não pode ser desfeita.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDelete(a.id)}>Excluir</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          ) : (
-                            <Button size="sm" variant="destructive" disabled className="cursor-not-allowed opacity-50">
-                              <Trash2 className="h-4 w-4 mr-1" /> Excluir
-                            </Button>
-                          )}
-                        </div>
+                              )}
+                            </div>
 
-                        {!isAdmin && !isMaster && (
-                          <div className="text-[10px] text-muted-foreground mt-1 px-1 italic">
-                            {!(a.responsavel_id === user.id || hasPermission("events.update")) && 
-                              "Apenas administradores, mestres, colaboradores autorizados ou o responsável podem editar este atrativo. "}
-                            {!hasPermission("events.delete") && 
-                              "Você não tem permissão para excluir este registro."}
+                            <div className="flex flex-wrap gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-2 text-primary border-primary/20 hover:bg-primary/5"
+                                onClick={async () => {
+                                  const shareUrl = `${window.location.origin}/explorar?term=${encodeURIComponent(a.name)}`;
+                                  const shareText = `Confira o atrativo "${a.name}" no AgendIlha: ${shareUrl}`;
+                                  
+                                  if (navigator.share) {
+                                    try {
+                                      await navigator.share({
+                                        title: a.name,
+                                        text: shareText,
+                                        url: shareUrl,
+                                      });
+                                    } catch (err) {
+                                      console.error("Erro ao compartilhar:", err);
+                                    }
+                                  } else {
+                                    try {
+                                      await navigator.clipboard.writeText(shareText);
+                                      toast.success("Link copiado!");
+                                    } catch (err) {
+                                      toast.error("Erro ao copiar link.");
+                                    }
+                                  }
+                                }}
+                              >
+                                <Share2 className="h-4 w-4" />
+                                Compartilhar
+                              </Button>
+
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-2 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                                onClick={() => {
+                                  const shareUrl = `${window.location.origin}/explorar?term=${encodeURIComponent(a.name)}`;
+                                  const shareText = encodeURIComponent(`Confira o atrativo "${a.name}" no AgendIlha: ${shareUrl}`);
+                                  window.open(`https://wa.me/?text=${shareText}`, '_blank');
+                                }}
+                              >
+                                <MessageSquare className="h-4 w-4" />
+                                WhatsApp
+                              </Button>
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    )}
-
-                  </div>
+                        </>
+                      )}
                     </div>
                   )}
                 </CardContent>

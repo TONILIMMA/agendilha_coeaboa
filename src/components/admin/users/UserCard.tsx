@@ -11,13 +11,14 @@ import {
 import {
   Loader2, User, Phone, MapPin, Music, Pencil, Check, X, Trash2,
   KeyRound, ChevronDown, ChevronUp, MessageSquare, Mail, Calendar,
-  ShieldCheck, Crown, ExternalLink,
+  ShieldCheck, Crown, ExternalLink, Share2,
 } from "lucide-react";
 import {
   isValidBrazilianMobile,
   formatPhoneDisplay,
   buildWhatsappUrl,
 } from "@/lib/whatsapp";
+import { toast } from "sonner";
 import { UserDetailsDialog } from "./UserDetailsDialog";
 import type { UserWithRole } from "./types";
 
@@ -370,15 +371,63 @@ export function UserCard(props: UserCardProps) {
                 Excluir usuário
               </Button>
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-2 text-primary border-primary/20 hover:bg-primary/5"
-              onClick={() => window.open(`/divulgador/${u.id}`, "_blank")}
-            >
-              <ExternalLink className="h-4 w-4" />
-              Ver Perfil Público
-            </Button>
+            <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-border">
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2 text-primary border-primary/20 hover:bg-primary/5"
+                onClick={() => window.open(`/divulgador/${u.id}`, "_blank")}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Ver Perfil
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2 text-primary border-primary/20 hover:bg-primary/5"
+                onClick={async () => {
+                  const shareUrl = `${window.location.origin}/divulgador/${u.id}`;
+                  const shareText = `Confira o perfil de ${u.responsible_name || 'divulgador'} no AgendIlha: ${shareUrl}`;
+                  
+                  if (navigator.share) {
+                    try {
+                      await navigator.share({
+                        title: 'Perfil no AgendIlha',
+                        text: shareText,
+                        url: shareUrl,
+                      });
+                    } catch (err) {
+                      console.error("Erro ao compartilhar:", err);
+                    }
+                  } else {
+                    try {
+                      await navigator.clipboard.writeText(shareText);
+                      toast.success("Link copiado para a área de transferência!");
+                    } catch (err) {
+                      toast.error("Não foi possível copiar o link.");
+                    }
+                  }
+                }}
+              >
+                <Share2 className="h-4 w-4" />
+                Compartilhar
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                onClick={() => {
+                  const shareUrl = `${window.location.origin}/divulgador/${u.id}`;
+                  const shareText = encodeURIComponent(`Confira o perfil de ${u.responsible_name || 'divulgador'} no AgendIlha: ${shareUrl}`);
+                  window.open(`https://wa.me/?text=${shareText}`, '_blank');
+                }}
+              >
+                <MessageSquare className="h-4 w-4" />
+                WhatsApp
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
