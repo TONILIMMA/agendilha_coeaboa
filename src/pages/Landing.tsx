@@ -1,6 +1,6 @@
- import { lazy, Suspense, useEffect, useRef, useState, useCallback, useMemo } from "react";
- import { useInfiniteQuery } from "@tanstack/react-query";
- import { useInView } from "react-intersection-observer";
+import { lazy, Suspense, useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -22,8 +22,11 @@ import {
   Compass,
   Megaphone,
   MessageCircle,
-  Map as MapIcon
+  Map as MapIcon,
+  ChevronLeft
 } from "lucide-react";
+import { format, startOfWeek, addDays, eachDayOfInterval, isSameDay, parseISO, subWeeks, startOfDay, isToday } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
 import { supabase } from "@/integrations/supabase/client";
 import { qk } from "@/data/queryKeys";
@@ -117,8 +120,26 @@ export default function Landing() {
    });
  
     const allEvents = useMemo(() => eventsData?.pages.flatMap(page => page.items) || [], [eventsData]);
+    const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { locale: ptBR }));
+    const [customDate, setCustomDate] = useState<Date | undefined>(new Date());
+
     const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
     const todayEvents = useMemo(() => allEvents.filter(e => e.date === todayStr).slice(0, 6), [allEvents, todayStr]);
+
+    const weekDays = useMemo(() => {
+      return eachDayOfInterval({
+        start: weekStart,
+        end: addDays(weekStart, 6)
+      });
+    }, [weekStart]);
+
+    const daysWithEvents = useMemo(() => {
+      const set = new Set<string>();
+      allEvents.forEach(ev => {
+        if (ev.date) set.add(ev.date);
+      });
+      return set;
+    }, [allEvents]);
     
     // Deduplicate: events in alta should not be in today if possible, or limited
     const trendingEvents = useMemo(() => allEvents
@@ -324,10 +345,62 @@ export default function Landing() {
 
         {/* Featured Events */}
         <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
             <h2 className="text-2xl font-bold font-display">Eventos em alta</h2>
-            <Link to="/agenda" className="text-primary font-bold flex items-center">Ver tudo <ChevronRight className="h-4 w-4"/></Link>
+            
+            <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 rounded-full shrink-0" 
+                onClick={() => setWeekStart(subWeeks(weekStart, 1))}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <div className="flex gap-1">
+                {weekDays.map((day) => {
+                  const dayStr = format(day, "yyyy-MM-dd");
+                  const hasEvents = daysWithEvents.has(dayStr);
+                  const isSelected = format(customDate || new Date(), "yyyy-MM-dd") === dayStr;
+                  
+                  return (
+                    <button
+                      key={day.toString()}
+                      onClick={() => {
+                        setCustomDate(day);
+                        navigate(`/explorar?view=custom&date=${dayStr}`);
+                      }}
+                      className={cn(
+                        "flex flex-col items-center justify-center min-w-[40px] h-14 rounded-xl transition-all relative",
+                        isSelected 
+                          ? "bg-primary text-primary-foreground shadow-md scale-105 z-10" 
+                          : "bg-card/40 hover:bg-card/60 text-muted-foreground"
+                      )}
+                    >
+                      <span className="text-[10px] uppercase font-bold tracking-tighter opacity-70">
+                        {format(day, "EEE", { locale: ptBR })}
+                      </span>
+                      <span className="text-sm font-black">{format(day, "dd")}</span>
+                      {hasEvents && !isSelected && (
+                        <span className="absolute bottom-1.5 h-1 w-1 rounded-full bg-primary/40" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 rounded-full shrink-0" 
+                onClick={() => setWeekStart(addDays(weekStart, 7))}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
+
             <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
               {trendingEvents.map(ev => (
                 <DiscoveryEventCard 

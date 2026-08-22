@@ -1,9 +1,14 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { format, isToday, isTomorrow, parseISO, addDays, startOfDay, endOfDay, isWithinInterval, nextSaturday, nextSunday } from "date-fns";
+import { 
+  format, isToday, isTomorrow, parseISO, addDays, 
+  startOfDay, endOfDay, isWithinInterval, nextSaturday, 
+  nextSunday, startOfWeek, eachDayOfInterval, addWeeks, 
+  subWeeks, isSameDay
+} from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, Search, SlidersHorizontal, X, Sparkles } from "lucide-react";
+import { CalendarIcon, Search, SlidersHorizontal, X, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import { DiscoveryEventCard } from "@/components/DiscoveryEventCard";
@@ -69,11 +74,12 @@ function ExplorarInner() {
   const initialCat = params.get("category") || "all";
 
   const [datePreset, setDatePreset] = useState<DatePreset>("all");
-  const [customDate, setCustomDate] = useState<Date | undefined>();
+  const [customDate, setCustomDate] = useState<Date | undefined>(datePreset === "today" ? new Date() : undefined);
   const [neighborhood, setNeighborhood] = useState<string>("all");
   const [category, setCategory] = useState<string>(initialCat);
   const [term, setTerm] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { locale: ptBR }));
 
   const { data: events = [], isLoading, error, refetch } = useQuery({
     queryKey: ["explorar-events"],
@@ -87,6 +93,28 @@ function ExplorarInner() {
       return data || [];
     },
   });
+
+  useEffect(() => {
+    if (params.get("view") === "today") {
+      setDatePreset("today");
+      setCustomDate(new Date());
+    }
+  }, [params]);
+
+  const weekDays = useMemo(() => {
+    return eachDayOfInterval({
+      start: weekStart,
+      end: addDays(weekStart, 6)
+    });
+  }, [weekStart]);
+
+  const daysWithEvents = useMemo(() => {
+    const set = new Set<string>();
+    events.forEach(ev => {
+      if (ev.date) set.add(ev.date);
+    });
+    return set;
+  }, [events]);
 
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
@@ -117,7 +145,8 @@ function ExplorarInner() {
     return [...list].sort((a, b) => {
       const ra = rank(a), rb = rank(b);
       if (ra !== rb) return ra - rb;
-      return (a.date || "9999-12-31").localeCompare(b.date || "9999-12-31");
+      if (a.date !== b.date) return (a.date || "9999-12-31").localeCompare(b.date || "9999-12-31");
+      return (a.start_time || "").localeCompare(b.start_time || "");
     });
   }, [events, datePreset, customDate, neighborhood, category, term]);
 
@@ -147,6 +176,63 @@ function ExplorarInner() {
     </div>
   );
 
+  const WeeklyCalendar = (
+    <div className="space-y-4 mb-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Calendário da Semana</h3>
+        <div className="flex gap-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 rounded-full" 
+            onClick={() => setWeekStart(subWeeks(weekStart, 1))}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 rounded-full" 
+            onClick={() => setWeekStart(addWeeks(weekStart, 1))}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      <div className="flex justify-between gap-1 overflow-x-auto pb-2 scrollbar-none">
+        {weekDays.map((day) => {
+          const dayStr = format(day, "yyyy-MM-dd");
+          const hasEvents = daysWithEvents.has(dayStr);
+          const isSelected = customDate && isSameDay(day, customDate) && datePreset === "custom";
+          
+          return (
+            <button
+              key={dayStr}
+              onClick={() => {
+                setCustomDate(day);
+                setDatePreset("custom");
+              }}
+              className={cn(
+                "flex flex-col items-center justify-center min-w-[3.5rem] py-3 rounded-2xl border transition-all",
+                isSelected 
+                  ? "bg-primary text-primary-foreground border-primary shadow-sm scale-105" 
+                  : "bg-card border-border hover:border-primary/50"
+              )}
+            >
+              <span className={cn("text-[10px] uppercase font-bold opacity-60", isSelected && "opacity-100")}>
+                {format(day, "EEE", { locale: ptBR })}
+              </span>
+              <span className="text-lg font-black">{format(day, "dd")}</span>
+              {hasEvents && (
+                <div className={cn("w-1 h-1 rounded-full mt-1 bg-primary", isSelected && "bg-primary-foreground")} />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   const DateChips = (
     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
       {[
@@ -154,13 +240,17 @@ function ExplorarInner() {
         { id: "today", label: "Hoje" },
         { id: "tomorrow", label: "Amanhã" },
         { id: "weekend", label: "Fim de semana" },
-        { id: "next7", label: "Próximos 7 dias" },
         { id: "free", label: "Gratuitos" },
         { id: "kids", label: "Para Crianças" },
       ].map(c => (
         <button
           key={c.id}
-          onClick={() => { setDatePreset(c.id as DatePreset); setCustomDate(undefined); }}
+          onClick={() => { 
+            setDatePreset(c.id as DatePreset); 
+            if (c.id === "today") setCustomDate(new Date());
+            else if (c.id === "tomorrow") setCustomDate(addDays(new Date(), 1));
+            else setCustomDate(undefined); 
+          }}
           className={cn(
             "shrink-0 h-9 px-4 rounded-full text-sm font-medium border transition-colors",
             datePreset === c.id
@@ -171,31 +261,6 @@ function ExplorarInner() {
           {c.label}
         </button>
       ))}
-      <Popover>
-        <PopoverTrigger asChild>
-          <button
-            className={cn(
-              "shrink-0 h-9 px-4 rounded-full text-sm font-medium border inline-flex items-center gap-1.5 transition-colors",
-              datePreset === "custom"
-                ? "bg-foreground text-background border-foreground"
-                : "bg-transparent text-foreground/80 border-foreground/15 hover:border-foreground/40"
-            )}
-          >
-            <CalendarIcon className="h-3.5 w-3.5" />
-            {customDate ? format(customDate, "dd/MM", { locale: ptBR }) : "Escolher data"}
-          </button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={customDate}
-            onSelect={(d) => { if (d) { setCustomDate(d); setDatePreset("custom"); } }}
-            initialFocus
-            locale={ptBR}
-            className={cn("p-3 pointer-events-auto")}
-          />
-        </PopoverContent>
-      </Popover>
     </div>
   );
 
@@ -239,6 +304,7 @@ function ExplorarInner() {
         <div className="hidden md:block mb-8 space-y-4 rounded-3xl border border-border/60 bg-card/40 backdrop-blur-sm p-5">
           <h2 className="sr-only">Filtrar eventos por data e categoria</h2>
           {SearchField}
+          {WeeklyCalendar}
           {DateChips}
           {Selects}
           {activeFiltersCount > 0 && (
@@ -274,6 +340,7 @@ function ExplorarInner() {
               <div className="space-y-5 pb-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Quando</p>
+                  {WeeklyCalendar}
                   {DateChips}
                 </div>
                 <div>
