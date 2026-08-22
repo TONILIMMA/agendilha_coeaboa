@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Plus, Search, Loader2, Pencil, Trash2, Check, X, ShieldCheck, ChevronDown, ChevronUp } from "lucide-react";
+import { Sparkles, Plus, Search, Loader2, Pencil, Trash2, Check, X, ShieldCheck, ChevronDown, ChevronUp, MessageSquare, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -331,7 +331,7 @@ export default function AdminAtrativos() {
                         </Button>
                       </>
                     ) : (
-                      <div className="flex flex-col gap-2 w-full">
+                      <div className="flex flex-col gap-4 w-full pt-3 border-t border-border">
                         <div className="flex flex-wrap gap-2">
                           {canEdit || a.responsavel_id === user.id ? (
                             <Button size="sm" variant="outline" onClick={() => startEdit(a)}>
@@ -377,6 +377,59 @@ export default function AdminAtrativos() {
                             </AlertDialog>
                           ) : (
                             <Button size="sm" variant="destructive" disabled className="cursor-not-allowed opacity-50">
+                              <Trash2 className="h-4 w-4 mr-1" /> Excluir
+                            </Button>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-2 text-primary border-primary/20 hover:bg-primary/5"
+                            onClick={async () => {
+                              const shareUrl = `${window.location.origin}/explorar?term=${encodeURIComponent(a.name)}`;
+                              const shareText = `Confira o atrativo "${a.name}" no AgendIlha: ${shareUrl}`;
+                              
+                              if (navigator.share) {
+                                try {
+                                  await navigator.share({
+                                    title: a.name,
+                                    text: shareText,
+                                    url: shareUrl,
+                                  });
+                                } catch (err) {
+                                  console.error("Erro ao compartilhar:", err);
+                                }
+                              } else {
+                                try {
+                                  await navigator.clipboard.writeText(shareText);
+                                  toast.success("Link copiado!");
+                                } catch (err) {
+                                  toast.error("Erro ao copiar link.");
+                                }
+                              }
+                            }}
+                          >
+                            <Share2 className="h-4 w-4" />
+                            Compartilhar
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-2 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                            onClick={() => {
+                              const shareUrl = `${window.location.origin}/explorar?term=${encodeURIComponent(a.name)}`;
+                              const shareText = encodeURIComponent(`Confira o atrativo "${a.name}" no AgendIlha: ${shareUrl}`);
+                              window.open(`https://wa.me/?text=${shareText}`, '_blank');
+                            }}
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                            WhatsApp
+                          </Button>
+                        </div>
+                      </div>
                               <Trash2 className="h-4 w-4 mr-1" /> Excluir
                             </Button>
                           )}
