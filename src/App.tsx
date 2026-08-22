@@ -25,6 +25,7 @@ import NotFound from "./pages/NotFound";
 const Auth = lazy(() => import("./pages/Auth"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const AdminReports = lazy(() => import("./pages/AdminReports"));
 const AdminEvents = lazy(() => import("./pages/AdminEvents"));
 const AgendaCultural = lazy(() => import("./pages/AgendaCultural"));
 const Eventos = lazy(() => import("./pages/Eventos"));
@@ -215,6 +216,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_MEDIA} element={<AdminMedia />} />
           <Route path={ROUTES.ADMIN_AGENDA_INFORMA} element={<AdminAgendaInforma />} />
           <Route path={ROUTES.ADMIN_WHATSAPP_TEMPLATES} element={<AdminWhatsAppTemplates />} />
+          <Route path={ROUTES.ADMIN_REPORTS} element={<AdminReports />} />
           <Route path={ROUTES.ADMIN_ESTABELECIMENTOS} element={<AdminEstabelecimentos />} />
           <Route path={ROUTES.ADMIN_ATRATIVOS} element={<AdminAtrativos />} />
         </Route>

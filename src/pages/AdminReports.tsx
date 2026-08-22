@@ -31,12 +31,14 @@ import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export default function AdminReports() {
-  const { user, isAdmin, isMaster, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { isMaster, loading: permsLoading } = useAppPermissions();
   const [search, setSearch] = useState("");
   const [neighborhoodFilter, setNeighborhoodFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
 
-  const { data: events = [], isLoading: loading } = useSubmissions();
+  const { data: eventsRaw = [], isLoading: loading } = useSubmissions();
+  const events = eventsRaw as any[];
   
   const neighborhoods = useMemo(() => {
     const set = new Set<string>();
@@ -58,7 +60,6 @@ export default function AdminReports() {
         return isPublic && matchSearch && matchNeighborhood && matchDate;
       })
       .sort((a, b) => {
-        // Ordenação por horário crescente
         return (a.start_time || "").localeCompare(b.start_time || "");
       });
   }, [events, search, neighborhoodFilter, dateFilter]);
@@ -79,7 +80,7 @@ export default function AdminReports() {
     toast.success("Exportação concluída!");
   };
 
-  if (authLoading) return <LoadingState fullPage message="Carregando..." />;
+  if (authLoading || permsLoading) return <LoadingState fullPage message="Carregando..." />;
   if (!user || (!isAdmin && !isMaster)) return <Navigate to="/" replace />;
 
   return (
