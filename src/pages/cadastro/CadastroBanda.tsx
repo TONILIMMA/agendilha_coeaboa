@@ -342,6 +342,7 @@ export default function CadastroBanda() {
         bio: bio.trim() || null,
         member_count: Math.max(1, members.length || 1),
         members,
+        representative_name: representativeName.trim() || null,
         whatsapp: whatsapp ? whatsapp.replace(/\D/g, "") : null,
         contact_email: contactEmail.trim() || null,
         instagram: instagram.trim() || null,
