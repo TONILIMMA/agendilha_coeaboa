@@ -51,7 +51,7 @@ const optionalUrl = z
   .or(z.literal(""));
 
 type FieldErrors = Partial<Record<
-  "name" | "genre" | "genreFree" | "artistType" | "bio" | "whatsapp" | "contactEmail" | "instagram" | "spotify" | "youtube" | "website",
+  "name" | "genre" | "genreFree" | "artistType" | "bio" | "representativeName" | "whatsapp" | "contactEmail" | "instagram" | "spotify" | "youtube" | "website",
   string
 >>;
 
@@ -64,6 +64,7 @@ type ArtistRow = {
   bio: string | null;
   member_count: number | null;
   members: string[] | null;
+  representative_name: string | null;
   whatsapp: string | null;
   contact_email: string | null;
   instagram: string | null;
@@ -98,6 +99,7 @@ export default function CadastroBanda() {
   const [bio, setBio] = useState("");
   const [members, setMembers] = useState<string[]>([]);
   const [memberInput, setMemberInput] = useState("");
+  const [representativeName, setRepresentativeName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [instagram, setInstagram] = useState("");
@@ -167,6 +169,7 @@ export default function CadastroBanda() {
     setArtistType((a.artist_type as any) || "");
     setBio(a.bio || "");
     setMembers(Array.isArray(a.members) ? a.members : []);
+    setRepresentativeName(a.representative_name || "");
     setWhatsapp(a.whatsapp ? formatPhoneDisplay(a.whatsapp) : "");
     setContactEmail(a.contact_email || "");
     setInstagram(a.instagram || "");
@@ -208,6 +211,8 @@ export default function CadastroBanda() {
     setArtistType("");
     setBio("");
     setMembers([]);
+    setMemberInput("");
+    setRepresentativeName("");
     setWhatsapp("");
     setContactEmail("");
     setInstagram("");
@@ -262,6 +267,11 @@ export default function CadastroBanda() {
     if (!trimmedBio) e.bio = "Escreve uma descrição curtinha do trampo.";
     else if (trimmedBio.length < 20) e.bio = "Um pouquinho mais — mínimo de 20 caracteres.";
 
+    const trimmedRep = representativeName.trim();
+    if (!trimmedRep) e.representativeName = "Informa o nome da pessoa responsável pela banda.";
+    else if (trimmedRep.length < 2) e.representativeName = "Nome muito curto — pelo menos 2 letras.";
+    else if (trimmedRep.length > 100) e.representativeName = "Nome muito longo — até 100 caracteres.";
+
     if (!whatsapp.trim()) {
       e.whatsapp = "WhatsApp é obrigatório pra receber contato de show.";
     } else {
@@ -295,7 +305,7 @@ export default function CadastroBanda() {
     if (!submitAttempted) return;
     setErrors(runValidation());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, genre, genreFree, artistType, bio, whatsapp, contactEmail, instagram, spotify, youtube, website, submitAttempted]);
+  }, [name, genre, genreFree, artistType, bio, representativeName, whatsapp, contactEmail, instagram, spotify, youtube, website, submitAttempted]);
 
   const hasErrors = Object.keys(errors).length > 0;
 
@@ -332,6 +342,7 @@ export default function CadastroBanda() {
         bio: bio.trim() || null,
         member_count: Math.max(1, members.length || 1),
         members,
+        representative_name: representativeName.trim() || null,
         whatsapp: whatsapp ? whatsapp.replace(/\D/g, "") : null,
         contact_email: contactEmail.trim() || null,
         instagram: instagram.trim() || null,
@@ -619,6 +630,20 @@ export default function CadastroBanda() {
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold">Contato para shows</h2>
                 <Info className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="space-y-2" data-field="representativeName">
+                <Label htmlFor="representativeName" className="text-base font-semibold">
+                  Contato (nome do responsável) <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="representativeName"
+                  value={representativeName}
+                  onChange={(e) => setRepresentativeName(e.target.value)}
+                  placeholder="Ex: João da Silva"
+                  aria-invalid={!!errors.representativeName}
+                  className={cn("h-12", errors.representativeName && "border-destructive focus-visible:ring-destructive")}
+                />
+                {errors.representativeName && <p className="text-xs text-destructive">{errors.representativeName}</p>}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2" data-field="whatsapp">

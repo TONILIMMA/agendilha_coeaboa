@@ -106,8 +106,13 @@ export default function AdminArtists() {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                        <Music className="h-3.5 w-3.5" /> {artist.genre} • {artist.neighborhood || "Bairro não informado"}
+                        <Music className="h-3.5 w-3.5" /> {artist.genre || "Sem estilo"} • {artist.neighborhood || "Bairro não informado"}
                       </p>
+                      {artist.representative_name && (
+                        <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                          <User className="h-3.5 w-3.5" /> Contato: {artist.representative_name}
+                        </p>
+                      )}
                       <a 
                         href={`/artista/${artist.id}`} 
                         target="_blank" 

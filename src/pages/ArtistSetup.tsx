@@ -35,6 +35,7 @@ export default function ArtistSetup() {
   const form = useForm({
     defaultValues: {
       name: "",
+      representative_name: "",
       genre: "",
       neighborhood: "",
       member_count: 1,
@@ -65,6 +66,7 @@ export default function ArtistSetup() {
         setArtistProfile(data);
         form.reset({
           name: data.name || "",
+          representative_name: data.representative_name || "",
           genre: data.genre || "",
           neighborhood: data.neighborhood || "",
           member_count: data.member_count || 1,
@@ -117,7 +119,7 @@ export default function ArtistSetup() {
 
   const calculateCompleteness = () => {
     const fields = [
-      'name', 'genre', 'neighborhood', 'artist_type', 
+      'name', 'representative_name', 'genre', 'neighborhood', 'artist_type', 
       'bio', 'work_description', 'styles', 'whatsapp', 'instagram'
     ];
     const values = form.getValues();
@@ -132,6 +134,7 @@ export default function ArtistSetup() {
   const getMissingFields = () => {
     const labels: Record<string, string> = {
       name: "Nome Artístico",
+      representative_name: "Contato (nome do responsável)",
       genre: "Gênero Principal",
       neighborhood: "Bairro",
       artist_type: "Tipo (Cover/Autoral)",
