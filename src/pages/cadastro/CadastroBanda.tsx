@@ -631,6 +631,20 @@ export default function CadastroBanda() {
                 <h2 className="text-lg font-bold">Contato para shows</h2>
                 <Info className="h-4 w-4 text-muted-foreground" />
               </div>
+              <div className="space-y-2" data-field="representativeName">
+                <Label htmlFor="representativeName" className="text-base font-semibold">
+                  Contato (nome do responsável) <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="representativeName"
+                  value={representativeName}
+                  onChange={(e) => setRepresentativeName(e.target.value)}
+                  placeholder="Ex: João da Silva"
+                  aria-invalid={!!errors.representativeName}
+                  className={cn("h-12", errors.representativeName && "border-destructive focus-visible:ring-destructive")}
+                />
+                {errors.representativeName && <p className="text-xs text-destructive">{errors.representativeName}</p>}
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2" data-field="whatsapp">
                   <Label className="text-base font-semibold">
