@@ -211,6 +211,8 @@ export default function CadastroBanda() {
     setArtistType("");
     setBio("");
     setMembers([]);
+    setMemberInput("");
+    setRepresentativeName("");
     setWhatsapp("");
     setContactEmail("");
     setInstagram("");
