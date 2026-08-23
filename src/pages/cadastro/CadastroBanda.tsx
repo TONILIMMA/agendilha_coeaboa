@@ -267,6 +267,11 @@ export default function CadastroBanda() {
     if (!trimmedBio) e.bio = "Escreve uma descrição curtinha do trampo.";
     else if (trimmedBio.length < 20) e.bio = "Um pouquinho mais — mínimo de 20 caracteres.";
 
+    const trimmedRep = representativeName.trim();
+    if (!trimmedRep) e.representativeName = "Informa o nome da pessoa responsável pela banda.";
+    else if (trimmedRep.length < 2) e.representativeName = "Nome muito curto — pelo menos 2 letras.";
+    else if (trimmedRep.length > 100) e.representativeName = "Nome muito longo — até 100 caracteres.";
+
     if (!whatsapp.trim()) {
       e.whatsapp = "WhatsApp é obrigatório pra receber contato de show.";
     } else {
@@ -300,7 +305,7 @@ export default function CadastroBanda() {
     if (!submitAttempted) return;
     setErrors(runValidation());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, genre, genreFree, artistType, bio, whatsapp, contactEmail, instagram, spotify, youtube, website, submitAttempted]);
+  }, [name, genre, genreFree, artistType, bio, representativeName, whatsapp, contactEmail, instagram, spotify, youtube, website, submitAttempted]);
 
   const hasErrors = Object.keys(errors).length > 0;
 
