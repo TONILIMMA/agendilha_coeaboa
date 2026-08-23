@@ -51,7 +51,7 @@ const optionalUrl = z
   .or(z.literal(""));
 
 type FieldErrors = Partial<Record<
-  "name" | "genre" | "genreFree" | "artistType" | "bio" | "whatsapp" | "contactEmail" | "instagram" | "spotify" | "youtube" | "website",
+  "name" | "genre" | "genreFree" | "artistType" | "bio" | "representativeName" | "whatsapp" | "contactEmail" | "instagram" | "spotify" | "youtube" | "website",
   string
 >>;
 
@@ -64,6 +64,7 @@ type ArtistRow = {
   bio: string | null;
   member_count: number | null;
   members: string[] | null;
+  representative_name: string | null;
   whatsapp: string | null;
   contact_email: string | null;
   instagram: string | null;
@@ -98,6 +99,7 @@ export default function CadastroBanda() {
   const [bio, setBio] = useState("");
   const [members, setMembers] = useState<string[]>([]);
   const [memberInput, setMemberInput] = useState("");
+  const [representativeName, setRepresentativeName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [instagram, setInstagram] = useState("");
