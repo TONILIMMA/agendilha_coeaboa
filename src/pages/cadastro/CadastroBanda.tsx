@@ -169,6 +169,7 @@ export default function CadastroBanda() {
     setArtistType((a.artist_type as any) || "");
     setBio(a.bio || "");
     setMembers(Array.isArray(a.members) ? a.members : []);
+    setRepresentativeName(a.representative_name || "");
     setWhatsapp(a.whatsapp ? formatPhoneDisplay(a.whatsapp) : "");
     setContactEmail(a.contact_email || "");
     setInstagram(a.instagram || "");
