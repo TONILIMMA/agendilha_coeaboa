@@ -45,6 +45,7 @@ type Artist = {
   instagram: string | null;
   work_description: string | null;
   avatar_url: string | null;
+  representative_name: string | null;
 };
 
 function statusBadge(a: Artist) {
@@ -73,7 +74,7 @@ export function MasterArtistsPanel() {
       const { data, error } = await supabase
         .from("artist_profiles")
         .select(
-          "id,user_id,name,genre,neighborhood,is_approved,bio,whatsapp,instagram,work_description,avatar_url"
+          "id,user_id,name,genre,neighborhood,is_approved,bio,whatsapp,instagram,work_description,avatar_url,representative_name"
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -101,12 +102,13 @@ export function MasterArtistsPanel() {
     const list = artists ?? [];
     const q = search.trim().toLowerCase();
     if (!q) return list;
-    return list.filter(
-      (a) =>
-        a.name?.toLowerCase().includes(q) ||
-        a.genre?.toLowerCase().includes(q) ||
-        a.neighborhood?.toLowerCase().includes(q)
-    );
+      return list.filter(
+        (a) =>
+          a.name?.toLowerCase().includes(q) ||
+          a.genre?.toLowerCase().includes(q) ||
+          a.neighborhood?.toLowerCase().includes(q) ||
+          a.representative_name?.toLowerCase().includes(q)
+      );
   }, [artists, search]);
 
   return (
@@ -146,6 +148,7 @@ export function MasterArtistsPanel() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome artístico</TableHead>
+                    <TableHead>Contato</TableHead>
                     <TableHead>Estilo</TableHead>
                     <TableHead>Bairro</TableHead>
                     <TableHead className="text-center">Status</TableHead>
@@ -157,6 +160,7 @@ export function MasterArtistsPanel() {
                   {filtered.map((a) => (
                     <TableRow key={a.id} className="hover:bg-muted/30">
                       <TableCell className="font-semibold">{a.name}</TableCell>
+                      <TableCell className="text-muted-foreground">{a.representative_name || "—"}</TableCell>
                       <TableCell className="text-muted-foreground">{a.genre || "—"}</TableCell>
                       <TableCell className="text-muted-foreground">{a.neighborhood || "—"}</TableCell>
                       <TableCell className="text-center">{statusBadge(a)}</TableCell>
@@ -211,6 +215,11 @@ export function MasterArtistsPanel() {
                       <p className="text-xs text-muted-foreground mt-1 truncate">
                         {a.genre || "Estilo —"} • {a.neighborhood || "Bairro —"}
                       </p>
+                      {a.representative_name && (
+                        <p className="text-xs text-muted-foreground mt-1 truncate">
+                          Contato: {a.representative_name}
+                        </p>
+                      )}
                     </div>
                     <Badge variant="outline" className="shrink-0 gap-1 font-bold">
                       <CalendarDays className="h-3 w-3" />
