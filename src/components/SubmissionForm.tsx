@@ -95,7 +95,7 @@ const formSchema = z.object({
   atrativoCategory: z.string().trim().min(1, "Selecione a categoria"),
   atrativoCategoryOther: z.string().trim().optional(),
   // Vínculo com cadastro externo (snapshot: draft NÃO segue mudanças posteriores do perfil)
-  atrativoSourceId: z.string().uuid("Selecione um atrativo da lista"),
+  atrativoSourceId: z.string().uuid("Selecione um atrativo da lista").optional().or(z.literal("")),
   atrativoSourceType: z.enum(["artist", "atrativo"]).optional(),
   atrativoLinkedAt: z.string().optional(),
   atrativoLinkedName: z.string().optional(),
@@ -594,11 +594,11 @@ export default function SubmissionForm() {
       nickName: 1, basicPhone: 1,
       companyName: 2, email: 2, addressZip: 2, addressStreet: 2, addressNumber: 2,
       category: 3, eventTitle: 3, date: 3, startTime: 3, endTime: 3,
-      atrativoName: 4, atrativoType: 4, atrativoStyle: 4, atrativoDescription: 4, atrativoContact: 4, atrativoEmail: 4, atrativoCategory: 4,
-      locationName: 5, localTipo: 5, addressNeighborhood: 5, eventAddress: 5, locationType: 5, locationContact: 5, locationCep: 5,
-      legalAcceptance: 7,
-      duvidasWhatsapp: 7,
-      duvidasAuthorized: 7,
+      atrativoSourceId: 3, atrativoName: 3, atrativoType: 3, atrativoStyle: 3, atrativoDescription: 3, atrativoContact: 3, atrativoEmail: 3, atrativoCategory: 3,
+      locationName: 3, localTipo: 3, addressNeighborhood: 3, eventAddress: 3, locationType: 3, locationContact: 3, locationCep: 3,
+      legalAcceptance: 3,
+      duvidasWhatsapp: 3,
+      duvidasAuthorized: 3,
     };
     const target = stepMap[firstKey];
     if (target) setCurrentStep(target);

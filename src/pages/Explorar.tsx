@@ -95,9 +95,20 @@ function ExplorarInner() {
   });
 
   useEffect(() => {
-    if (params.get("view") === "today") {
+    const view = params.get("view");
+    if (view === "today") {
       setDatePreset("today");
       setCustomDate(new Date());
+      return;
+    }
+    const dateParam = params.get("date");
+    if (dateParam) {
+      const parsed = parseISO(dateParam);
+      if (!isNaN(parsed.getTime())) {
+        setDatePreset("custom");
+        setCustomDate(parsed);
+        setWeekStart(startOfWeek(parsed, { locale: ptBR }));
+      }
     }
   }, [params]);
 

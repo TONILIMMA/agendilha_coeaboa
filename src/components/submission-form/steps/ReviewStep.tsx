@@ -80,7 +80,7 @@ export function ReviewStep({ form, goToStep }: ReviewStepProps) {
 
       <SummarySection
         title="4. Atrativo"
-        onEdit={() => goToStep(4)}
+        onEdit={() => goToStep(3)}
         items={[
           { label: "Nome", value: values.atrativoName },
           { label: "Tipo", value: values.atrativoType },
@@ -90,7 +90,7 @@ export function ReviewStep({ form, goToStep }: ReviewStepProps) {
 
       <SummarySection
         title="5. Local"
-        onEdit={() => goToStep(5)}
+        onEdit={() => goToStep(3)}
         items={[
           { label: "Nome do Local", value: values.locationName },
           { label: "Endereço", value: values.eventAddress },
