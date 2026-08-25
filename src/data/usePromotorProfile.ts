@@ -17,7 +17,7 @@ export interface PromotorProfile {
  */
 export function usePromotorProfile(targetUserId: string | null | undefined) {
   return useQuery({
-    queryKey: qk.divulgador.status(targetUserId),
+    queryKey: qk.divulgador.profile(targetUserId),
     enabled: !!targetUserId,
     staleTime: 30_000,
     queryFn: async (): Promise<PromotorProfile | null> => {
@@ -61,6 +61,7 @@ export function useUpsertPromotorProfile() {
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: qk.divulgador.profile(vars.user_id) });
       qc.invalidateQueries({ queryKey: qk.divulgador.status(vars.user_id) });
     }
   });

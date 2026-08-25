@@ -70,5 +70,7 @@ export const qk = {
     all: ["divulgador"] as const,
     status: (userId: string | null | undefined) =>
       [...qk.divulgador.all, "status", userId ?? "anon"] as const,
+    profile: (userId: string | null | undefined) =>
+      [...qk.divulgador.all, "promotor-profile", userId ?? "anon"] as const,
   },
 } as const;

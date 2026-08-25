@@ -31,7 +31,7 @@ import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { AtrativoAutocomplete } from "@/components/atrativos/AtrativoAutocomplete";
 
 const CATEGORIES = [
-  { value: "Gastronomia", label: "Gastronomia" },
+  { value: "Música", label: "Música / Show" },
   { value: "Gastronomia", label: "Gastronomia" },
   { value: "Cultura", label: "Cultura / Arte" },
   { value: "Turismo", label: "Turismo" },
@@ -107,7 +107,11 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         { shouldDirty: true, shouldValidate: true },
       );
       const cat = row.tipo_atrativo || row.type || "";
-      const foundCat = CATEGORIES.find((c) => c.value === cat || c.label === cat);
+      const norm = (t: string) =>
+        t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+      const foundCat = CATEGORIES.find(
+        (c) => norm(c.value) === norm(cat) || norm(c.label) === norm(cat),
+      );
       if (foundCat) {
         form.setValue("atrativoCategory", foundCat.value, { shouldDirty: true });
       } else if (cat) {
@@ -166,7 +170,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
       } else {
         const { data, error } = await supabase
           .from("atrativos_public")
-          .select("id, name, type, tipo_atrativo, style, estilos, description, contact_info, category_other")
+          .select("id, name, type, tipo_atrativo, style, estilos, description, contact_whatsapp")
           .eq("id", sourceId)
           .maybeSingle();
         if (error) throw error;
@@ -412,7 +416,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                     field.onBlur();
                     form.trigger("atrativoContact");
                   }}
-                  readOnly={!!sourceId && !isSuperUser}
+                  readOnly={!!sourceId && !isSuperUser && !!field.value}
                 />
                 </FormControl>
                 {showOk ? (
@@ -442,7 +446,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 name="email"
                 autoComplete="email"
                 id="email"
-                readOnly={!!sourceId && !isSuperUser}
+                readOnly={!!sourceId && !isSuperUser && !!field.value}
               />
               </FormControl>
               <FormMessage />
@@ -458,7 +462,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Categoria *</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value} disabled={!!sourceId && !isSuperUser}>
+            <Select onValueChange={field.onChange} value={field.value} disabled={!!sourceId && !isSuperUser && !!field.value}>
               <FormControl>
                 <SelectTrigger className="h-12 bg-background border-input">
                   <SelectValue placeholder="Selecione uma categoria" />
@@ -523,7 +527,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
             <FormItem>
               <FormLabel>Tipo</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: DJ, banda, guia, palestrante" className="h-12" {...field} readOnly={!!sourceId && !isSuperUser} />
+                <Input placeholder="Ex: DJ, banda, guia, palestrante" className="h-12" {...field} readOnly={!!sourceId && !isSuperUser && !!field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -536,7 +540,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
             <FormItem>
               <FormLabel>Estilo / Gênero</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Sertanejo, Rock, Tech House" className="h-12" {...field} readOnly={!!sourceId && !isSuperUser} />
+                <Input placeholder="Ex: Sertanejo, Rock, Tech House" className="h-12" {...field} readOnly={!!sourceId && !isSuperUser && !!field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -559,7 +563,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
                 placeholder="Conte um pouco sobre o trabalho do artista ou o atrativo..."
                 className="min-h-[100px] resize-none"
                 {...field}
-                readOnly={!!sourceId && !isSuperUser}
+                readOnly={!!sourceId && !isSuperUser && !!field.value}
               />
             </FormControl>
             <FormMessage />

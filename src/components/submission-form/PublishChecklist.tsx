@@ -21,7 +21,7 @@ function useItems(form: UseFormReturn<any>): Item[] {
     { key: "title", label: "Título do rolê", ok: has(title), step: 3 },
     { key: "date", label: "Data", ok: has(date), step: 3 },
     { key: "time", label: "Horário", ok: has(startTime), step: 3 },
-    { key: "location", label: "Local (nome e endereço)", ok: has(locationName) && has(eventAddress), step: 5 },
+    { key: "location", label: "Local (nome e endereço)", ok: has(locationName) && has(eventAddress), step: 3 },
   ];
 }
 
