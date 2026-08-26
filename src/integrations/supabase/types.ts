@@ -1498,6 +1498,7 @@ export type Database = {
           approved_by: string | null
           artist_id: string | null
           atrativo_contact: string | null
+          atrativo_id: string | null
           atrativo_name: string | null
           atrativo_style: string | null
           atrativo_type: string | null
@@ -1593,6 +1594,7 @@ export type Database = {
           approved_by?: string | null
           artist_id?: string | null
           atrativo_contact?: string | null
+          atrativo_id?: string | null
           atrativo_name?: string | null
           atrativo_style?: string | null
           atrativo_type?: string | null
@@ -1688,6 +1690,7 @@ export type Database = {
           approved_by?: string | null
           artist_id?: string | null
           atrativo_contact?: string | null
+          atrativo_id?: string | null
           atrativo_name?: string | null
           atrativo_style?: string | null
           atrativo_type?: string | null
@@ -1780,6 +1783,20 @@ export type Database = {
             columns: ["artist_id"]
             isOneToOne: false
             referencedRelation: "public_artist_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_atrativo_id_fkey"
+            columns: ["atrativo_id"]
+            isOneToOne: false
+            referencedRelation: "atrativos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_atrativo_id_fkey"
+            columns: ["atrativo_id"]
+            isOneToOne: false
+            referencedRelation: "atrativos_public"
             referencedColumns: ["id"]
           },
           {
