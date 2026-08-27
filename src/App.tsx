@@ -53,6 +53,8 @@ const CadastroPublico = lazy(() => import("./pages/cadastro/CadastroPublico"));
 const CadastroArtista = lazy(() => import("./pages/cadastro/CadastroArtista"));
 const CadastroBanda = lazy(() => import("./pages/cadastro/CadastroBanda"));
 const CadastroSucesso = lazy(() => import("./pages/cadastro/CadastroSucesso"));
+const CadastroAtrativoPublico = lazy(() => import("./pages/cadastro/CadastroAtrativoPublico"));
+const CadastroEstabelecimentoPublico = lazy(() => import("./pages/cadastro/CadastroEstabelecimentoPublico"));
 const Carrossel = lazy(() => import("./pages/Carrossel"));
 const EventoEnviado = lazy(() => import("./pages/EventoEnviado"));
 const MeusEventos = lazy(() => import("./pages/MeusEventos"));
@@ -183,6 +185,8 @@ export const AppRoutes = () => (
         <Route path={ROUTES.CADASTRO_ARTISTA} element={<CadastroArtista />} />
         <Route path={ROUTES.CADASTRO_BANDA} element={<ProtectedRoute><CadastroBanda /></ProtectedRoute>} />
         <Route path={ROUTES.CADASTRO_SUCESSO} element={<CadastroSucesso />} />
+        <Route path={ROUTES.CADASTRO_ATRATIVO} element={<CadastroAtrativoPublico />} />
+        <Route path={ROUTES.CADASTRO_ESTABELECIMENTO} element={<CadastroEstabelecimentoPublico />} />
         <Route path={ROUTES.CADASTRO_PROMOTOR} element={<CadastroPromotor />} />
         
         {/* App Wrapper for standard pages */}
