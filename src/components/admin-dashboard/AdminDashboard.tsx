@@ -127,6 +127,10 @@ export function MasterPanel() {
       )}
 
       <section>
+        <PublicFormLinks />
+      </section>
+
+      <section>
         <DashboardFilters 
           filters={filters} 
           setFilters={setFilters} 

@@ -26,6 +26,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useAppPermissions } from "@/hooks/useAppPermissions";
+import { PublicFormLinks } from "@/components/admin/PublicFormLinks";
 import { useSubmissions } from "@/data/useSubmissions";
 import { exportRowsToCsv } from "@/lib/csv";
 import { format, parseISO } from "date-fns";
@@ -99,6 +100,10 @@ export default function AdminReports() {
           </Button>
         }
       />
+
+      <PublicFormLinks />
+
+
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-muted/30 p-4 rounded-2xl border border-border/50">
         <div className="relative">
