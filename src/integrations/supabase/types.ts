@@ -1415,6 +1415,77 @@ export type Database = {
         }
         Relationships: []
       }
+      submission_atrativos: {
+        Row: {
+          atrativo_id: string | null
+          category: string | null
+          category_other: string | null
+          created_at: string
+          display_order: number
+          email: string | null
+          id: string
+          name: string
+          submission_id: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          atrativo_id?: string | null
+          category?: string | null
+          category_other?: string | null
+          created_at?: string
+          display_order?: number
+          email?: string | null
+          id?: string
+          name: string
+          submission_id: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          atrativo_id?: string | null
+          category?: string | null
+          category_other?: string | null
+          created_at?: string
+          display_order?: number
+          email?: string | null
+          id?: string
+          name?: string
+          submission_id?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submission_atrativos_atrativo_id_fkey"
+            columns: ["atrativo_id"]
+            isOneToOne: false
+            referencedRelation: "atrativos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_atrativos_atrativo_id_fkey"
+            columns: ["atrativo_id"]
+            isOneToOne: false
+            referencedRelation: "atrativos_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_atrativos_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "public_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_atrativos_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       submission_change_requests: {
         Row: {
           created_at: string
