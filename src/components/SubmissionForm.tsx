@@ -120,7 +120,7 @@ const formSchema = z.object({
   additionalDetails: z.string().trim().optional(),
   stage: z.string().optional(),
   responsiblePerson: z.string().trim().optional(),
-  addressNeighborhood: z.string().trim().min(1, "Selecione o bairro do local"),
+  addressNeighborhood: z.string().trim().optional(),
   addressCity: z.string().optional(),
   addressState: z.string().optional(),
   ageRating: z.enum(["Livre", "10+", "12+", "14+", "16+", "18+"]).default("Livre"),
@@ -326,7 +326,7 @@ export default function SubmissionForm() {
 
   const steps = [
     { id: 1, title: "Informações do evento" },
-    { id: 2, title: "Confirmação" },
+    { id: 2, title: "Termos e contato" },
   ];
 
 
@@ -384,12 +384,12 @@ export default function SubmissionForm() {
         "date", "startTime",
         "atrativoName", "atrativoContact",
         "locationName", "eventAddress",
+        "category", "ageRating", "atrativoCategory",
+        "locationType", "locationContact",
       ];
       // Etapa 2 — seleções obrigatórias restantes + contato e termos
       case 2: return [
-        "category", "ageRating", "atrativoCategory",
-        "addressNeighborhood", "locationType", "locationContact",
-        "nickName", "basicPhone", "companyName",
+        "nickName", "basicPhone",
         "legalAcceptance", "responsavelNome", "duvidasWhatsapp", "duvidasAuthorized",
       ];
       default: return [];
@@ -600,8 +600,8 @@ export default function SubmissionForm() {
       date: 1, startTime: 1, endTime: 1, eventTitle: 1, description: 1,
       atrativoSourceId: 1, atrativoName: 1, atrativoType: 1, atrativoStyle: 1, atrativoDescription: 1, atrativoContact: 1, atrativoEmail: 1,
       locationName: 1, eventAddress: 1, locationCep: 1,
-      category: 2, ageRating: 2, atrativoCategory: 2, localTipo: 2,
-      addressNeighborhood: 2, locationType: 2, locationContact: 2,
+      category: 1, ageRating: 1, atrativoCategory: 1, localTipo: 1,
+      locationType: 1, locationContact: 1,
       nickName: 2, basicPhone: 2, companyName: 2, email: 2,
       addressZip: 2, addressStreet: 2, addressNumber: 2,
       legalAcceptance: 2, responsavelNome: 2,
@@ -689,6 +689,10 @@ export default function SubmissionForm() {
                 <LocationStep form={form} />
               </div>
 
+              <div className="border rounded-2xl px-4 py-5 bg-card/30">
+                <EventStep form={form} section="selections" />
+              </div>
+
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="extras" className="border rounded-2xl px-4 bg-muted/20">
                   <AccordionTrigger className="hover:no-underline font-semibold">
@@ -718,7 +722,7 @@ export default function SubmissionForm() {
               <div className="space-y-1">
                 <h1 className="text-2xl font-bold">Falta pouco</h1>
                 <p className="text-sm text-muted-foreground">
-                  Só as escolhas obrigatórias e a confirmação de quem responde pelo rolê.
+                  Confira o resumo, confirme o contato oficial e aceite os termos de responsabilidade.
                 </p>
               </div>
 
@@ -726,14 +730,10 @@ export default function SubmissionForm() {
 
               <PublishChecklist form={form} goToStep={setCurrentStep} variant="compact" />
 
-              <div className="border rounded-2xl px-4 py-5 bg-card/30">
-                <EventStep form={form} section="selections" />
-              </div>
-
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="contato" className="border rounded-2xl px-4 bg-muted/20">
                   <AccordionTrigger className="hover:no-underline font-semibold">
-                    Seus dados de contato
+                    Contato oficial do rolê
                   </AccordionTrigger>
                   <AccordionContent className="pt-2 pb-6 space-y-6">
                     <ContactStep
@@ -741,7 +741,6 @@ export default function SubmissionForm() {
                       onRestoreFromProfile={restoreContactFromProfile}
                       hasProfile={!!(profile?.phone || profile?.responsible_name || profile?.email)}
                     />
-                    <ProfessionalStep form={form} />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
