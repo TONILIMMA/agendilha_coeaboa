@@ -324,11 +324,10 @@ export default function SubmissionForm() {
   }, [form.watch, currentStep]);
 
   const steps = [
-    { id: 1, title: "Identificação" },
-    { id: 2, title: "Profissional" },
-    { id: 3, title: "Dados do Evento" },
-    { id: 4, title: "Revisão" },
+    { id: 1, title: "Informações do evento" },
+    { id: 2, title: "Confirmação" },
   ];
+
 
   const FIELD_LABELS: Record<string, string> = {
     nickName: "Seu nome",
