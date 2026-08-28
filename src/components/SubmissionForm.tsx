@@ -18,7 +18,7 @@ import { StepIndicator } from "./submission-form/StepIndicator";
 import { PublishChecklist } from "./submission-form/PublishChecklist";
 import { Step1Summary } from "./submission-form/Step1Summary";
 import { 
-  ContactStep, ProfessionalStep, EventStep, AtrativoStep, 
+  ContactStep, EventStep, AtrativoStep, 
   LocationStep, MediaStep, LegalStep 
 } from "./submission-form/steps";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
