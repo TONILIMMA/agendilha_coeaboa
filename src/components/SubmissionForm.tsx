@@ -19,7 +19,7 @@ import { PublishChecklist } from "./submission-form/PublishChecklist";
 import { Step1Summary } from "./submission-form/Step1Summary";
 import { 
   ContactStep, ProfessionalStep, EventStep, AtrativoStep, 
-  LocationStep, MediaStep, LegalStep, ReviewStep 
+  LocationStep, MediaStep, LegalStep 
 } from "./submission-form/steps";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { validateBrazilianMobile } from "@/lib/whatsapp";
