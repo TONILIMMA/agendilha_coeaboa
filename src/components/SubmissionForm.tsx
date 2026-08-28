@@ -596,15 +596,18 @@ export default function SubmissionForm() {
     toast.error("Não foi possível finalizar o envio", { description: String(firstMsg) });
     // Jump to the first step that has an error
     const stepMap: Record<string, number> = {
-      nickName: 1, basicPhone: 1,
-      companyName: 2, email: 2, addressZip: 2, addressStreet: 2, addressNumber: 2,
-      category: 3, eventTitle: 3, date: 3, startTime: 3, endTime: 3,
-      atrativoSourceId: 3, atrativoName: 3, atrativoType: 3, atrativoStyle: 3, atrativoDescription: 3, atrativoContact: 3, atrativoEmail: 3, atrativoCategory: 3,
-      locationName: 3, localTipo: 3, addressNeighborhood: 3, eventAddress: 3, locationType: 3, locationContact: 3, locationCep: 3,
-      legalAcceptance: 3,
-      duvidasWhatsapp: 3,
-      duvidasAuthorized: 3,
+      date: 1, startTime: 1, endTime: 1, eventTitle: 1, description: 1,
+      atrativoSourceId: 1, atrativoName: 1, atrativoType: 1, atrativoStyle: 1, atrativoDescription: 1, atrativoContact: 1, atrativoEmail: 1,
+      locationName: 1, eventAddress: 1, locationCep: 1,
+      category: 2, ageRating: 2, atrativoCategory: 2, localTipo: 2,
+      addressNeighborhood: 2, locationType: 2, locationContact: 2,
+      nickName: 2, basicPhone: 2, companyName: 2, email: 2,
+      addressZip: 2, addressStreet: 2, addressNumber: 2,
+      legalAcceptance: 2, responsavelNome: 2,
+      duvidasWhatsapp: 2,
+      duvidasAuthorized: 2,
     };
+
     const target = stepMap[firstKey];
     if (target) setCurrentStep(target);
   };
