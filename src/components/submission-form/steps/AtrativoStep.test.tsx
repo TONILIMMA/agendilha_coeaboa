@@ -111,7 +111,7 @@ describe("AtrativoStep autocomplete", () => {
 
   it("mostra sugestões da tabela atrativos e de artist_profiles aprovados ao digitar 2+ caracteres", async () => {
     render(<Harness />);
-    const input = screen.getByPlaceholderText(/Busque ou selecione um atrativo/i);
+    const input = screen.getByPlaceholderText(/Banda X, Restaurante Y/i);
     fireEvent.change(input, { target: { value: "te" } });
 
     await waitFor(() => {
@@ -122,7 +122,7 @@ describe("AtrativoStep autocomplete", () => {
 
   it("preenche tipo, estilo, descrição e contato ao selecionar um atrativo", async () => {
     render(<Harness />);
-    const input = screen.getByPlaceholderText(/Busque ou selecione um atrativo/i);
+    const input = screen.getByPlaceholderText(/Banda X, Restaurante Y/i);
     fireEvent.change(input, { target: { value: "banda" } });
     const opt = await screen.findByText("Banda Teste Ilha");
     fireEvent.click(opt);
@@ -139,7 +139,7 @@ describe("AtrativoStep autocomplete", () => {
 
   it("preenche corretamente ao selecionar um artist_profile aprovado", async () => {
     render(<Harness />);
-    const input = screen.getByPlaceholderText(/Busque ou selecione um atrativo/i);
+    const input = screen.getByPlaceholderText(/Banda X, Restaurante Y/i);
     
     // Dispara a busca
     fireEvent.change(input, { target: { value: "testa" } });
