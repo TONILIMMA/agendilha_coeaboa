@@ -26,16 +26,33 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
   const linkedName: string | undefined = form.watch("atrativoLinkedName");
 
   const linkSuggestion = (row: any) => {
+    const isArtist = row.__kind === "artist" || row.artist_type != null;
     form.setValue("atrativoName", row.name ?? "", { shouldDirty: true, shouldValidate: true });
     form.setValue("atrativoSourceId", row.id, { shouldDirty: true });
-    form.setValue("atrativoSourceType", "atrativo", { shouldDirty: true });
+    form.setValue("atrativoSourceType", isArtist ? "artist" : "atrativo", { shouldDirty: true });
     form.setValue("atrativoLinkedName", row.name ?? "", { shouldDirty: true });
     form.setValue("atrativoLinkedAt", new Date().toISOString(), { shouldDirty: true });
-    const phone = row.contact_whatsapp || row.contact_info;
-    if (phone && !form.getValues("atrativoContact")) {
-      form.setValue("atrativoContact", formatPhoneDisplay(phone), { shouldDirty: true, shouldValidate: true });
+
+    // Preenchimento automático dos dados do atrativo (tipo, estilo, descrição, contato).
+    const tipo = isArtist ? row.artist_type : (row.tipo_atrativo || row.type);
+    if (tipo && !form.getValues("atrativoType")) {
+      form.setValue("atrativoType", tipo, { shouldDirty: true });
     }
-    const cat = row.tipo_atrativo || row.type || "";
+    const estilo = isArtist
+      ? row.genre
+      : (Array.isArray(row.estilos) && row.estilos.length ? row.estilos.join(", ") : row.style);
+    if (estilo && !form.getValues("atrativoStyle")) {
+      form.setValue("atrativoStyle", estilo, { shouldDirty: true });
+    }
+    const desc = row.description || row.bio;
+    if (desc && !form.getValues("atrativoDescription")) {
+      form.setValue("atrativoDescription", desc, { shouldDirty: true });
+    }
+    const phone = row.contact_whatsapp || row.contact_info || row.whatsapp;
+    if (phone && !form.getValues("atrativoContact")) {
+      form.setValue("atrativoContact", isArtist ? formatPhoneDisplay(phone) : phone, { shouldDirty: true, shouldValidate: true });
+    }
+    const cat = row.tipo_atrativo || row.type || row.artist_type || "";
     if (cat && !form.getValues("atrativoCategory")) {
       const found = QUICK_CATEGORIES.find(
         (c) => normalizeName(c.value) === normalizeName(cat) || normalizeName(c.label) === normalizeName(cat),
