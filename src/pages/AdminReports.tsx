@@ -171,7 +171,15 @@ export default function AdminReports() {
                     </TableCell>
                     <TableCell className="py-4 text-center">
                       <div className="text-sm font-mono">
-                        {event.date ? format(parseISO(event.date), "dd/MM") : "--"}
+                        {(() => {
+                          try {
+                            return event.date && !isNaN(Date.parse(event.date))
+                              ? format(parseISO(event.date), "dd/MM")
+                              : "--";
+                          } catch {
+                            return "--";
+                          }
+                        })()}
                       </div>
                       <Badge variant="secondary" className="text-[9px] font-black bg-primary/10 text-primary border-none">
                         {event.start_time || "S/H"}
