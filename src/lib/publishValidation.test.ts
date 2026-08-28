@@ -20,13 +20,12 @@ describe("publishValidation", () => {
       expect(missingPublishFields(full)).toEqual([]);
     });
 
-    it("lista título, data, horário e local quando faltam", () => {
-      expect(missingPublishFields({})).toEqual(["título", "data", "horário", "local"]);
+    it("lista data, horário e local quando faltam (título é opcional)", () => {
+      expect(missingPublishFields({})).toEqual(["data", "horário", "local"]);
     });
 
     it("trata strings vazias/espaços como faltando", () => {
       expect(missingPublishFields({ ...full, event_title: "   ", date: "" })).toEqual([
-        "título",
         "data",
       ]);
     });
