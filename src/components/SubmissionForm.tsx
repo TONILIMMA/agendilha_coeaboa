@@ -16,9 +16,10 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { StepIndicator } from "./submission-form/StepIndicator";
 import { PublishChecklist } from "./submission-form/PublishChecklist";
+import { Step1Summary } from "./submission-form/Step1Summary";
 import { 
   ContactStep, ProfessionalStep, EventStep, AtrativoStep, 
-  LocationStep, MediaStep, LegalStep, ReviewStep 
+  LocationStep, MediaStep, LegalStep 
 } from "./submission-form/steps";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { validateBrazilianMobile } from "@/lib/whatsapp";
@@ -287,7 +288,7 @@ export default function SubmissionForm() {
       try {
         const { data, step, savedAt } = JSON.parse(saved);
         form.reset(data);
-        setCurrentStep(step || 1);
+        setCurrentStep(step === 2 ? 2 : 1);
         if (savedAt) setDraftSavedAt(new Date(savedAt));
         toast.info("Rascunho do evento recuperado.");
       } catch (e) {
@@ -324,11 +325,10 @@ export default function SubmissionForm() {
   }, [form.watch, currentStep]);
 
   const steps = [
-    { id: 1, title: "Identificação" },
-    { id: 2, title: "Profissional" },
-    { id: 3, title: "Dados do Evento" },
-    { id: 4, title: "Revisão" },
+    { id: 1, title: "Informações do evento" },
+    { id: 2, title: "Confirmação" },
   ];
+
 
   const FIELD_LABELS: Record<string, string> = {
     nickName: "Seu nome",
@@ -379,17 +379,23 @@ export default function SubmissionForm() {
 
   const getFieldsForStep = (step: number) => {
     switch (step) {
-      case 1: return ["nickName", "basicPhone"];
-      case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
-      case 3: return [
-        "date", "startTime", "eventTitle", 
-        "atrativoName", "atrativoContact", "atrativoCategory",
-        "locationName", "addressNeighborhood", "eventAddress", "locationType",
-        "legalAcceptance", "responsavelNome", "duvidasWhatsapp"
+      // Etapa 1 — informações principais do evento (obrigatórias + complementos)
+      case 1: return [
+        "date", "startTime",
+        "atrativoName", "atrativoContact",
+        "locationName", "eventAddress",
+      ];
+      // Etapa 2 — seleções obrigatórias restantes + contato e termos
+      case 2: return [
+        "category", "ageRating", "atrativoCategory",
+        "addressNeighborhood", "locationType", "locationContact",
+        "nickName", "basicPhone", "companyName",
+        "legalAcceptance", "responsavelNome", "duvidasWhatsapp", "duvidasAuthorized",
       ];
       default: return [];
     }
   };
+
 
   const onSubmit = async (values: FormData) => {
     setSubmitting(true);
@@ -591,15 +597,18 @@ export default function SubmissionForm() {
     toast.error("Não foi possível finalizar o envio", { description: String(firstMsg) });
     // Jump to the first step that has an error
     const stepMap: Record<string, number> = {
-      nickName: 1, basicPhone: 1,
-      companyName: 2, email: 2, addressZip: 2, addressStreet: 2, addressNumber: 2,
-      category: 3, eventTitle: 3, date: 3, startTime: 3, endTime: 3,
-      atrativoSourceId: 3, atrativoName: 3, atrativoType: 3, atrativoStyle: 3, atrativoDescription: 3, atrativoContact: 3, atrativoEmail: 3, atrativoCategory: 3,
-      locationName: 3, localTipo: 3, addressNeighborhood: 3, eventAddress: 3, locationType: 3, locationContact: 3, locationCep: 3,
-      legalAcceptance: 3,
-      duvidasWhatsapp: 3,
-      duvidasAuthorized: 3,
+      date: 1, startTime: 1, endTime: 1, eventTitle: 1, description: 1,
+      atrativoSourceId: 1, atrativoName: 1, atrativoType: 1, atrativoStyle: 1, atrativoDescription: 1, atrativoContact: 1, atrativoEmail: 1,
+      locationName: 1, eventAddress: 1, locationCep: 1,
+      category: 2, ageRating: 2, atrativoCategory: 2, localTipo: 2,
+      addressNeighborhood: 2, locationType: 2, locationContact: 2,
+      nickName: 2, basicPhone: 2, companyName: 2, email: 2,
+      addressZip: 2, addressStreet: 2, addressNumber: 2,
+      legalAcceptance: 2, responsavelNome: 2,
+      duvidasWhatsapp: 2,
+      duvidasAuthorized: 2,
     };
+
     const target = stepMap[firstKey];
     if (target) setCurrentStep(target);
   };
@@ -630,85 +639,124 @@ export default function SubmissionForm() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <StepIndicator steps={steps} currentStep={currentStep} />
-        <div className="flex items-center gap-2">
-          {draftSavedAt && (
-            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest text-emerald-600">
-              <Check className="h-3 w-3" />
-              Rascunho salvo {draftSavedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-            </span>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={resetDraft}
-            className="text-muted-foreground hover:text-destructive gap-1"
-          >
-            <RotateCcw className="h-3 w-3" />
-            <span className="text-[10px] uppercase font-bold tracking-widest">Limpar Rascunho</span>
-          </Button>
+      <div className="mb-6 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-primary">
+            Etapa {currentStep} de {steps.length} · {steps[currentStep - 1]?.title}
+          </span>
+          <div className="flex items-center gap-2">
+            {draftSavedAt && (
+              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest text-emerald-600">
+                <Check className="h-3 w-3" />
+                Rascunho salvo {draftSavedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetDraft}
+              className="text-muted-foreground hover:text-destructive gap-1"
+            >
+              <RotateCcw className="h-3 w-3" />
+              <span className="text-[10px] uppercase font-bold tracking-widest">Limpar</span>
+            </Button>
+          </div>
         </div>
+        <StepIndicator steps={steps} currentStep={currentStep} />
       </div>
-      
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8 mt-8">
-          {currentStep === 3 && (
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8">
+          {/* ETAPA 1 — informações principais do evento */}
+          {currentStep === 1 && (
             <div className="space-y-6">
-              <PublishChecklist form={form} goToStep={setCurrentStep} variant="compact" />
-              <Accordion type="multiple" defaultValue={["item-1", "item-2", "item-3", "item-4", "item-5"]} className="w-full space-y-4">
-                <AccordionItem value="item-1" className="border rounded-2xl px-4 bg-card/30">
-                  <AccordionTrigger className="hover:no-underline font-bold text-lg">1. Dados do Evento</AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-6">
-                    <EventStep form={form} />
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="item-2" className="border rounded-2xl px-4 bg-card/30">
-                  <AccordionTrigger className="hover:no-underline font-bold text-lg">2. Atrativo</AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-6">
-                    <AtrativoStep form={form} />
-                  </AccordionContent>
-                </AccordionItem>
+              <div className="space-y-1">
+                <h1 className="text-2xl font-bold">Divulgar um rolê</h1>
+                <p className="text-sm text-muted-foreground">
+                  Comece pelo essencial: data, atrativo, local e horário. Leva menos de 2 minutos.
+                </p>
+              </div>
 
-                <AccordionItem value="item-3" className="border rounded-2xl px-4 bg-card/30">
-                  <AccordionTrigger className="hover:no-underline font-bold text-lg">3. Local</AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-6">
-                    <LocationStep form={form} />
-                  </AccordionContent>
-                </AccordionItem>
+              <div className="border rounded-2xl px-4 py-5 bg-card/30">
+                <EventStep form={form} section="core" />
+              </div>
 
-                <AccordionItem value="item-4" className="border rounded-2xl px-4 bg-card/30">
-                  <AccordionTrigger className="hover:no-underline font-bold text-lg">4. Arte do Flyer</AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-6">
-                    <MediaStep 
-                      form={form} 
-                      imageSource={imageSource} 
-                      setImageSource={setImageSource} 
-                      eventImage={eventImage} 
-                      setEventImage={setEventImage} 
+              <div className="border rounded-2xl px-4 py-5 bg-card/30">
+                <AtrativoStep form={form} />
+              </div>
+
+              <div className="border rounded-2xl px-4 py-5 bg-card/30">
+                <LocationStep form={form} />
+              </div>
+
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="extras" className="border rounded-2xl px-4 bg-muted/20">
+                  <AccordionTrigger className="hover:no-underline font-semibold">
+                    Complementos opcionais
+                    <span className="ml-2 text-xs font-normal text-muted-foreground">
+                      título, término, flyer e descrição
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-6 space-y-6">
+                    <EventStep form={form} section="optional" />
+                    <MediaStep
+                      form={form}
+                      imageSource={imageSource}
+                      setImageSource={setImageSource}
+                      eventImage={eventImage}
+                      setEventImage={setEventImage}
                     />
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="item-5" className="border rounded-2xl px-4 bg-card/30">
-                  <AccordionTrigger className="hover:no-underline font-bold text-lg">5. Termos e Responsabilidade</AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-6">
-                    <LegalStep form={form} />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
             </div>
           )}
-          {currentStep === 1 && <ContactStep form={form} onRestoreFromProfile={restoreContactFromProfile} hasProfile={!!(profile?.phone || profile?.responsible_name || profile?.email)} />}
-          {currentStep === 2 && <ProfessionalStep form={form} />}
-          {currentStep === 4 && <ReviewStep form={form} goToStep={setCurrentStep} />}
+
+          {/* ETAPA 2 — seleções obrigatórias restantes */}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <h1 className="text-2xl font-bold">Falta pouco</h1>
+                <p className="text-sm text-muted-foreground">
+                  Só as escolhas obrigatórias e a confirmação de quem responde pelo rolê.
+                </p>
+              </div>
+
+              <Step1Summary form={form} onEdit={() => { setCurrentStep(1); window.scrollTo(0, 0); }} />
+
+              <PublishChecklist form={form} goToStep={setCurrentStep} variant="compact" />
+
+              <div className="border rounded-2xl px-4 py-5 bg-card/30">
+                <EventStep form={form} section="selections" />
+              </div>
+
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="contato" className="border rounded-2xl px-4 bg-muted/20">
+                  <AccordionTrigger className="hover:no-underline font-semibold">
+                    Seus dados de contato
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-6 space-y-6">
+                    <ContactStep
+                      form={form}
+                      onRestoreFromProfile={restoreContactFromProfile}
+                      hasProfile={!!(profile?.phone || profile?.responsible_name || profile?.email)}
+                    />
+                    <ProfessionalStep form={form} />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
+              <div className="border rounded-2xl px-4 py-5 bg-card/30">
+                <LegalStep form={form} />
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-between items-center pt-8 border-t">
             <Button
               type="button"
               variant="ghost"
-              onClick={() => setCurrentStep(prev => Math.max(prev - 1, 1))}
+              onClick={() => { setCurrentStep(prev => Math.max(prev - 1, 1)); window.scrollTo(0, 0); }}
               disabled={currentStep === 1}
               className="gap-2"
             >
@@ -716,13 +764,13 @@ export default function SubmissionForm() {
             </Button>
 
             {currentStep < steps.length ? (
-              <Button type="button" onClick={nextStep} className="gap-2">
+              <Button type="button" onClick={nextStep} className="gap-2 h-12 px-6 font-bold">
                 Continuar <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit" disabled={submitting} className="gap-2 gradient-sunset font-bold">
+              <Button type="submit" disabled={submitting} className="gap-2 h-12 px-6 gradient-sunset font-bold">
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                Finalizar Envio
+                Publicar evento
               </Button>
             )}
           </div>
@@ -731,3 +779,4 @@ export default function SubmissionForm() {
     </div>
   );
 }
+

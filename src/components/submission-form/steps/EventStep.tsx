@@ -1,5 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { SuggestInput } from "@/components/ui/SuggestInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
@@ -28,11 +29,15 @@ const EVENT_CATEGORIES = [
   { value: "outros", label: "Outros" },
 ];
 
-export function EventStep({ form }: { form: UseFormReturn<any> }) {
+type EventStepSection = "all" | "core" | "optional" | "selections";
+
+export function EventStep({ form, section = "all" }: { form: UseFormReturn<any>; section?: EventStepSection }) {
   const [pendingRating, setPendingRating] = useState<string | null>(null);
+  const show = (s: Exclude<EventStepSection, "all">) => section === "all" || section === s;
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {show("core") && (
       <div className="space-y-2">
         <h2 className="text-xl font-bold text-primary flex items-center gap-2">
           <PartyPopper className="h-5 w-5" />
@@ -40,6 +45,9 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
         </h2>
         <p className="text-sm text-muted-foreground">Quando vai rolar e pra quem?</p>
       </div>
+      )}
+
+      {show("core") && (<>
 
       {/* 1. Data do evento (com dia da semana na divulgação) */}
       <FormField
@@ -112,6 +120,9 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
         )}
       />
 
+      </>)}
+
+      {show("selections") && (<>
       {/* 3. Classificação (Livre pré-marcado) */}
       <FormField
         control={form.control}
@@ -184,6 +195,9 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
         )}
       />
 
+      </>)}
+
+      {show("optional") && (<>
       {/* Separador de opcionais */}
       <div className="pt-2">
         <div className="flex items-center gap-3">
@@ -244,7 +258,29 @@ export function EventStep({ form }: { form: UseFormReturn<any> }) {
         )}
       />
 
+      {/* Descrição do evento (opcional) */}
+      <FormField
+        control={form.control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Descrição do evento <span className="text-xs font-normal text-muted-foreground">(opcional)</span></FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="Conta rapidinho como vai ser o rolê..."
+                className="min-h-24"
+                maxLength={500}
+                {...field}
+                value={field.value ?? ""}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       <EventPreview form={form} variant="event" />
+      </>)}
 
       <AlertDialog open={pendingRating !== null} onOpenChange={(o) => !o && setPendingRating(null)}>
         <AlertDialogContent>
