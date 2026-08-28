@@ -16,6 +16,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { StepIndicator } from "./submission-form/StepIndicator";
 import { PublishChecklist } from "./submission-form/PublishChecklist";
+import { Step1Summary } from "./submission-form/Step1Summary";
 import { 
   ContactStep, ProfessionalStep, EventStep, AtrativoStep, 
   LocationStep, MediaStep, LegalStep, ReviewStep 
@@ -287,7 +288,7 @@ export default function SubmissionForm() {
       try {
         const { data, step, savedAt } = JSON.parse(saved);
         form.reset(data);
-        setCurrentStep(step || 1);
+        setCurrentStep(step === 2 ? 2 : 1);
         if (savedAt) setDraftSavedAt(new Date(savedAt));
         toast.info("Rascunho do evento recuperado.");
       } catch (e) {
