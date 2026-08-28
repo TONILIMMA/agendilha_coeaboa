@@ -9,7 +9,6 @@ import {
   type EstabelecimentoSuggestion,
 } from "@/components/estabelecimentos/EstabelecimentoAutocomplete";
 import { NovoEstabelecimentoDialog } from "@/components/estabelecimentos/NovoEstabelecimentoDialog";
-import { BAIRROS, PLACEHOLDER_BAIRRO, isBairroValido } from "@/lib/neighborhoods";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { AutofillIssues } from "../AutofillIssues";
@@ -61,9 +60,6 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
       if (data?.erro) return;
       const endereco = [data.logradouro, data.bairro].filter(Boolean).join(", ");
       if (endereco) form.setValue("eventAddress", endereco, { shouldValidate: true });
-      if (data.bairro && isBairroValido(data.bairro)) {
-        form.setValue("addressNeighborhood", data.bairro, { shouldValidate: true });
-      }
       if (data.localidade) form.setValue("addressCity", data.localidade);
       if (data.uf) form.setValue("addressState", data.uf);
     } catch {
@@ -87,7 +83,6 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
     form.setValue("estabelecimentoId", s.id);
     const enderecoCompleto = [s.endereco, s.numero, s.bairro].filter(Boolean).join(", ");
     if (enderecoCompleto) form.setValue("eventAddress", enderecoCompleto, { shouldValidate: true });
-    if (s.bairro) form.setValue("addressNeighborhood", s.bairro, { shouldValidate: true });
     if (s.tipo) {
       form.setValue("localTipo", s.tipo, { shouldValidate: true });
       form.setValue(
@@ -167,28 +162,6 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="addressNeighborhood"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bairro do local *</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value || ""}>
-                <FormControl>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder={PLACEHOLDER_BAIRRO} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {BAIRROS.map((b) => (
-                    <SelectItem key={b} value={b}>{b}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </div>
 
       <FormField
@@ -311,7 +284,6 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
         onOpenChange={setNovoLocalOpen}
         initialName={novoLocalNome}
         initialEndereco={form.getValues("eventAddress") ?? ""}
-        initialBairro={form.getValues("addressNeighborhood") ?? ""}
         onCreated={(estab) => {
           handleSelectEstab(estab);
           setNovoLocal(false);

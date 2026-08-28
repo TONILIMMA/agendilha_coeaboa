@@ -416,36 +416,6 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
 
       {/* Removido o campo duplicado duvidasWhatsappOutro, pois agora usamos o campo principal duvidasWhatsapp */}
 
-      {tipoResponsavel === "artista" && (
-        <div className="rounded-md border p-4 space-y-3">
-          <div className="text-xs text-muted-foreground">Perfil de artista (opcional — usado nas próximas divulgações).</div>
-          <FormField control={form.control} name="perfilNomeArtistico" render={({ field }) => (
-            <FormItem><FormLabel>Nome artístico</FormLabel><FormControl><Input {...field} placeholder="Nome que aparece nos flyers" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="perfilEstiloMusical" render={({ field }) => (
-            <FormItem><FormLabel>Estilo musical</FormLabel><FormControl><Input {...field} placeholder="Samba, MPB, Rock…" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="perfilLinkPrincipal" render={({ field }) => (
-            <FormItem><FormLabel>Link principal</FormLabel><FormControl><Input {...field} placeholder="Instagram, Spotify, YouTube…" /></FormControl><FormMessage /></FormItem>
-          )} />
-        </div>
-      )}
-
-      {tipoResponsavel === "estabelecimento" && (
-        <div className="rounded-md border p-4 space-y-3">
-          <div className="text-xs text-muted-foreground">Perfil do estabelecimento (opcional).</div>
-          <FormField control={form.control} name="perfilNomeEstabelecimento" render={({ field }) => (
-            <FormItem><FormLabel>Nome do estabelecimento</FormLabel><FormControl><Input {...field} placeholder="Ex.: Bar do Zé" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="perfilCategoriaLocal" render={({ field }) => (
-            <FormItem><FormLabel>Categoria</FormLabel><FormControl><Input {...field} placeholder="Bar, restaurante, casa de show…" /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="perfilEnderecoResumido" render={({ field }) => (
-            <FormItem><FormLabel>Endereço resumido</FormLabel><FormControl><Input {...field} placeholder="Rua e bairro" /></FormControl><FormMessage /></FormItem>
-          )} />
-        </div>
-      )}
-
       <FormField
         control={form.control}
         name="duvidasAuthorized"
