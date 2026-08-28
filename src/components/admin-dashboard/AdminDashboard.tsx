@@ -13,6 +13,7 @@ import { Activity, TrendingUp, Shield } from "lucide-react";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { useAuth } from "@/contexts/AuthContext";
+import { PublicFormLinks } from "@/components/admin/PublicFormLinks";
 
 /** Série temporal vinda do RPC de estatísticas. */
 interface SeriesPoint { date: string; count: number }
