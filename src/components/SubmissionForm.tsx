@@ -378,17 +378,23 @@ export default function SubmissionForm() {
 
   const getFieldsForStep = (step: number) => {
     switch (step) {
-      case 1: return ["nickName", "basicPhone"];
-      case 2: return ["companyName", "email", "addressZip", "addressStreet", "addressNumber"];
-      case 3: return [
-        "date", "startTime", "eventTitle", 
-        "atrativoName", "atrativoContact", "atrativoCategory",
-        "locationName", "addressNeighborhood", "eventAddress", "locationType",
-        "legalAcceptance", "responsavelNome", "duvidasWhatsapp"
+      // Etapa 1 — informações principais do evento (obrigatórias + complementos)
+      case 1: return [
+        "date", "startTime",
+        "atrativoName", "atrativoContact",
+        "locationName", "eventAddress",
+      ];
+      // Etapa 2 — seleções obrigatórias restantes + contato e termos
+      case 2: return [
+        "category", "ageRating", "atrativoCategory",
+        "addressNeighborhood", "locationType", "locationContact",
+        "nickName", "basicPhone", "companyName",
+        "legalAcceptance", "responsavelNome", "duvidasWhatsapp", "duvidasAuthorized",
       ];
       default: return [];
     }
   };
+
 
   const onSubmit = async (values: FormData) => {
     setSubmitting(true);
