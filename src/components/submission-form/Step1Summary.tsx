@@ -36,7 +36,7 @@ export function Step1Summary({ form, onEdit }: { form: UseFormReturn<any>; onEdi
         {rows.map(({ icon: Icon, text }) => (
           <li key={text} className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
             <Icon className="h-3.5 w-3.5 shrink-0 text-primary" />
-            <span className="truncate capitalize-first">{text}</span>
+            <span className="truncate">{text}</span>
           </li>
         ))}
       </ul>
