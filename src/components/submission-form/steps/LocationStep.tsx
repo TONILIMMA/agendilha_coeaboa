@@ -167,28 +167,6 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="addressNeighborhood"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bairro do local *</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value || ""}>
-                <FormControl>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder={PLACEHOLDER_BAIRRO} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {BAIRROS.map((b) => (
-                    <SelectItem key={b} value={b}>{b}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </div>
 
       <FormField
