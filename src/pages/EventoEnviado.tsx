@@ -26,7 +26,7 @@ interface Submission {
   title?: string | null;
   date: string | null;
   start_time?: string | null;
-  location_name?: string | null;
+  location?: string | null;
   atrativo_name?: string | null;
   status: string;
 }
@@ -45,7 +45,7 @@ export default function EventoEnviado() {
   const validId = !!id && /^[0-9a-f-]{10,}$/i.test(id);
   const { data: sub, isLoading: loading } = useSubmission<Submission>(
     validId ? id! : "",
-    "id, event_title, title, date, start_time, location_name, atrativo_name, status"
+    "id, event_title, title, date, start_time, location, atrativo_name, status"
   );
   const [valorDestaque, setValorDestaque] = useState("");
 
@@ -126,7 +126,7 @@ export default function EventoEnviado() {
                 </dt>
                 <dd className="inline-flex items-center gap-2 font-medium">
                   <MapPin className="h-4 w-4 text-amber-400" />
-                  {sub?.location_name ?? "Local a confirmar"}
+                  {sub?.location ?? "Local a confirmar"}
                 </dd>
               </div>
               <div className="space-y-1">
