@@ -251,7 +251,7 @@ export default function EventoEnviado() {
                 asChild
                 className="w-full h-11 rounded-full bg-amber-400 text-black hover:bg-amber-300 font-semibold"
               >
-                <Link to={`/meus-eventos?editar=${sub.id}`}>
+                <Link to="/meus-eventos">
                   <PencilLine className="h-4 w-4 mr-2" />
                   Editar informações
                 </Link>
