@@ -153,6 +153,53 @@ export default function EventoEnviado() {
             </dl>
           )}
 
+          {/* Flyer do evento */}
+          {!loading && (
+            <div className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
+              {sub?.flyer_url ? (
+                <a
+                  href={sub.flyer_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 group"
+                  title="Ver flyer em tamanho original"
+                >
+                  <img
+                    src={sub.flyer_url}
+                    alt={`Flyer de ${nomeEvento}`}
+                    className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl object-cover shadow-lg shadow-black/40 ring-1 ring-slate-700 group-hover:ring-amber-400/60 transition"
+                    loading="lazy"
+                  />
+                </a>
+              ) : (
+                <div className="h-20 w-20 sm:h-24 sm:w-24 shrink-0 rounded-xl bg-slate-800/80 flex items-center justify-center ring-1 ring-slate-700">
+                  <ImageIcon className="h-7 w-7 text-slate-500" />
+                </div>
+              )}
+              <div className="min-w-0 space-y-1.5">
+                <p className="text-[11px] uppercase tracking-widest text-slate-500 font-semibold">
+                  Flyer do evento
+                </p>
+                <p className="text-sm text-slate-300 leading-snug">
+                  {sub?.flyer_url
+                    ? "Prévia do flyer que vai junto com a publicação."
+                    : "Um flyer padrão será gerado automaticamente na publicação."}
+                </p>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="secondary"
+                  className="rounded-full h-8 px-4 text-xs bg-slate-800 text-slate-100 hover:bg-slate-700 border-none"
+                >
+                  <Link to="/meus-eventos">
+                    <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                    Alterar flyer
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Barra de progresso */}
           <div className="pt-2">
             <ol className="relative flex items-start justify-between">
@@ -302,7 +349,9 @@ export default function EventoEnviado() {
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 text-slate-400 hover:text-amber-400 transition-colors"
             >
-              <Send className="h-3.5 w-3.5" />
+              <span className="h-5 w-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-md shadow-emerald-500/30">
+                <MessageCircle className="h-3 w-3 text-white" />
+              </span>
               Fale Conosco
             </a>
             <Link
