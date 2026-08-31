@@ -14,7 +14,6 @@ import {
   Crown,
   Megaphone,
   PencilLine,
-  Send,
   Zap,
   Star,
   ImageIcon,
