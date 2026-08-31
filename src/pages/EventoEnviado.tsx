@@ -33,6 +33,7 @@ interface Submission {
   start_time?: string | null;
   location?: string | null;
   atrativo_name?: string | null;
+  flyer_url?: string | null;
   status: string;
 }
 
@@ -54,7 +55,7 @@ export default function EventoEnviado() {
   const validId = !!id && /^[0-9a-f-]{10,}$/i.test(id);
   const { data: sub, isLoading: loading } = useSubmission<Submission>(
     validId ? id! : "",
-    "id, event_title, title, date, start_time, location, atrativo_name, status"
+    "id, event_title, title, date, start_time, location, atrativo_name, flyer_url, status"
   );
   const [valorDestaque, setValorDestaque] = useState("");
 
