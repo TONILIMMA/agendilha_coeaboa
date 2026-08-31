@@ -28,11 +28,11 @@ export function normalizePhone(phone: string): string {
 }
 
 /**
- * Strict Brazilian mobile validation.
+ * Brazilian phone validation (mobile or landline).
  * Rules:
- *  - 11 local digits: DDD (2) + 9 + 8 digits
- *  - DDD between 11 and 99
- *  - Mobile prefix MUST start with 9 (Brazilian mobile rule since 2016)
+ *  - 11 local digits: DDD (2) + 9 + 8 digits (celular)
+ *  - 10 local digits: DDD (2) + 8 digits (telefone fixo — aceito mesmo com um dígito a menos)
+ *  - DDD válido (ANATEL)
  *  - Optional country code 55
  */
 export type PhoneValidation =
@@ -42,7 +42,7 @@ export type PhoneValidation =
 /**
  * Brazilian mobile validation.
  * @param phone The phone number to validate.
- * @param strict If true, requires exactly 11 digits (DDD+9+8). If false, accepts any numeric string (min 10 digits).
+ * @param strict If true, validates DDD and mobile prefix. Landlines (10 dígitos) são sempre aceitos. If false, accepts any numeric string (min 10 digits).
  */
 export function validateBrazilianMobile(
   phone: string | null | undefined, 
@@ -58,19 +58,16 @@ export function validateBrazilianMobile(
   if (d.startsWith("0055")) d = d.slice(4);
   else if (d.startsWith("55") && (d.length === 12 || d.length === 13)) d = d.slice(2);
 
-  if (d.length === 10 && strict) {
-    return { valid: false, reason: "Informe um celular com 9 após o DDD (ex: 21 9XXXX-XXXX)." };
-  }
-
   if (strict) {
-    if (d.length !== 11) {
-      return { valid: false, reason: "O WhatsApp deve ter 11 dígitos (DDD + 9 + número)." };
+    if (d.length !== 10 && d.length !== 11) {
+      return { valid: false, reason: "O número deve ter DDD + número (10 ou 11 dígitos)." };
     }
     const ddd = parseInt(d.slice(0, 2), 10);
     if (!VALID_BR_DDDS.has(ddd)) {
       return { valid: false, reason: "Esse DDD não é válido no Brasil." };
     }
-    if (d[2] !== "9") {
+    // Celular (11 dígitos) deve começar com 9; fixo (10 dígitos) é aceito direto.
+    if (d.length === 11 && d[2] !== "9") {
       return { valid: false, reason: "Celulares brasileiros devem começar com 9 após o DDD." };
     }
   } else {
@@ -126,6 +123,7 @@ export function formatPhoneDisplay(value: string): string {
   if (d.length > 11) d = d.slice(0, 11);
   if (d.length <= 2) return d;
   if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7, 11)}`;
 }
 
