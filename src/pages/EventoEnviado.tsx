@@ -17,6 +17,9 @@ import {
   Send,
   Zap,
   Star,
+  ImageIcon,
+  RefreshCw,
+  MessageCircle,
 } from "lucide-react";
 import { useSubmission } from "@/data";
 import logoCoeABoa from "@/assets/coeaboa-logo.webp";
