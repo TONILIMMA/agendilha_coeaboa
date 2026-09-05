@@ -1,300 +1,98 @@
-import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { CalendarClock, Eye, EyeOff, Loader2, Plus, Star, StarOff } from "lucide-react";
-import { toast } from "sonner";
-import { handleError } from "@/lib/error-handler";
-import { LoadingState } from "@/components/ui/LoadingState";
-import {
-  useHighlightActions,
-  useHighlightCandidates,
-  useHighlightedEvents,
-  type HighlightedEvent,
-} from "@/data/useHighlights";
-import { useHighlightPackages, formatDuration, formatPriceBRL } from "@/data/useHighlightPackages";
-import { HIGHLIGHT_STATUS_LABEL, highlightDaysLeft, type HighlightStatus } from "@/lib/highlights";
+import { Loader2, Calendar, Clock, ExternalLink } from "lucide-react";
+import { format, isAfter, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
 
-const FILTROS: { value: HighlightStatus | "todos"; label: string }[] = [
-  { value: "todos", label: "Todos" },
-  { value: "ativo", label: "Ativos" },
-  { value: "expirado", label: "Expirados" },
-  { value: "escondido", label: "Escondidos" },
-];
-
-function statusBadge(status: HighlightStatus) {
-  const label = HIGHLIGHT_STATUS_LABEL[status];
-  if (status === "ativo") return <Badge className="bg-emerald-600 hover:bg-emerald-600">{label}</Badge>;
-  if (status === "expirado") return <Badge variant="destructive">{label}</Badge>;
-  if (status === "escondido") return <Badge variant="outline">{label}</Badge>;
-  return <Badge variant="secondary">{label}</Badge>;
-}
-
-function formatData(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+interface HighlightedEvent {
+  id: string;
+  event_title: string;
+  status: string;
+  is_highlight: boolean;
+  highlight_until: string | null;
+  date: string;
 }
 
 export function HighlightedEventsPanel() {
-  const { data: destaques = [], isLoading } = useHighlightedEvents();
-  const { data: pacotes = [] } = useHighlightPackages();
-  const { ativar, estender, esconder, encerrar } = useHighlightActions();
+  const [events, setEvents] = useState<HighlightedEvent[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [filtro, setFiltro] = useState<HighlightStatus | "todos">("todos");
-  const [busca, setBusca] = useState("");
-  const [novoRole, setNovoRole] = useState<string>("");
-  const [novoPacote, setNovoPacote] = useState<string>("");
-  const { data: candidatos = [], isLoading: loadingCandidatos } = useHighlightCandidates(busca);
+  useEffect(() => {
+    async function fetchHighlights() {
+      const { data, error } = await supabase
+        .from("public_submissions")
+        .select("id, event_title, status, is_highlight, highlight_until, date")
+        .eq("is_highlight", true)
+        .not("highlight_until", "is", null)
+        .order("highlight_until", { ascending: false });
 
-  const lista = useMemo(
-    () => (filtro === "todos" ? destaques : destaques.filter((d) => d.status === filtro)),
-    [destaques, filtro],
-  );
-
-  const ativos = destaques.filter((d) => d.status === "ativo").length;
-
-  async function handleAtivar() {
-    const pacote = pacotes.find((p) => p.id === novoPacote);
-    if (!novoRole || !pacote) {
-      toast.error("Escolha o rolê e o plano de destaque.");
-      return;
+      if (!error && data) {
+        setEvents(data as HighlightedEvent[]);
+      }
+      setLoading(false);
     }
-    try {
-      await ativar.mutateAsync({
-        eventId: novoRole,
-        packageId: pacote.id,
-        durationDays: pacote.duration_days,
-      });
-      toast.success(`Destaque ligado por ${formatDuration(pacote.duration_days)}.`);
-      setNovoRole("");
-      setNovoPacote("");
-    } catch (e) {
-      handleError(e, "Não deu pra ligar o destaque agora");
-    }
+    fetchHighlights();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex h-32 items-center justify-center rounded-2xl border border-dashed text-muted-foreground p-8">
+        <Loader2 className="animate-spin h-6 w-6" />
+        <span className="ml-2 font-medium">Carregando rolês em destaque...</span>
+      </div>
+    );
   }
 
-  async function handleEstender(item: HighlightedEvent) {
-    const dias = item.package_duration_days ?? 7;
-    try {
-      await estender.mutateAsync({ eventId: item.id, days: dias, currentUntil: item.highlight_until });
-      toast.success(`Destaque estendido por ${formatDuration(dias)}.`);
-    } catch (e) {
-      handleError(e, "Não deu pra estender o destaque");
-    }
-  }
-
-  async function handleEsconder(item: HighlightedEvent) {
-    try {
-      await esconder.mutateAsync({ eventId: item.id, hidden: !item.highlight_hidden });
-      toast.success(item.highlight_hidden ? "Destaque de volta na vitrine." : "Destaque escondido da vitrine.");
-    } catch (e) {
-      handleError(e, "Não deu pra mudar a visibilidade");
-    }
-  }
-
-  async function handleEncerrar(item: HighlightedEvent) {
-    try {
-      await encerrar.mutateAsync(item.id);
-      toast.success("Destaque encerrado.");
-    } catch (e) {
-      handleError(e, "Não deu pra encerrar o destaque");
-    }
-  }
+  const now = new Date();
 
   return (
-    <div className="space-y-5">
-      <Card className="rounded-2xl">
-        <CardContent className="pt-5 space-y-4">
-          <div className="space-y-1">
-            <h2 className="font-bold text-base">Ligar um destaque</h2>
-            <p className="text-xs text-muted-foreground">
-              Escolha o rolê e o plano. O prazo é calculado automaticamente pela duração do plano.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="busca-role">Procurar rolê</Label>
-              <Input
-                id="busca-role"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                placeholder="Digite parte do nome"
-                className="h-11"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Rolê</Label>
-              <Select value={novoRole} onValueChange={setNovoRole}>
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder={loadingCandidatos ? "Carregando…" : "Selecione o rolê"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {candidatos.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {(c.event_title || "Rolê sem título") + (c.date ? ` · ${c.date}` : "")}
-                    </SelectItem>
-                  ))}
-                  {candidatos.length === 0 && (
-                    <div className="px-3 py-2 text-xs text-muted-foreground">
-                      Nenhum rolê disponível pra destacar.
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Plano</Label>
-              <Select value={novoPacote} onValueChange={setNovoPacote}>
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Selecione o plano" />
-                </SelectTrigger>
-                <SelectContent>
-                  {pacotes.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name} · {formatPriceBRL(p.price_cents)} · {formatDuration(p.duration_days)}
-                    </SelectItem>
-                  ))}
-                  {pacotes.length === 0 && (
-                    <div className="px-3 py-2 text-xs text-muted-foreground">
-                      Nenhum plano ativo. Crie um na aba Pacotes.
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-end">
-              <Button
-                onClick={() => void handleAtivar()}
-                disabled={ativar.isPending}
-                className="h-11 w-full font-bold"
-              >
-                {ativar.isPending ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Plus className="h-4 w-4 mr-2" />
-                )}
-                Ligar destaque
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-muted-foreground mr-1">
-          {ativos} destaque{ativos === 1 ? "" : "s"} valendo agora
-        </span>
-        {FILTROS.map((f) => (
-          <Button
-            key={f.value}
-            size="sm"
-            variant={filtro === f.value ? "default" : "outline"}
-            onClick={() => setFiltro(f.value)}
-            className="rounded-full"
-          >
-            {f.label}
-          </Button>
-        ))}
-      </div>
-
-      {isLoading ? (
-        <LoadingState message="Carregando destaques…" />
-      ) : lista.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-6">
-          Nenhum rolê nesse status. Ligue um destaque no bloco acima.
-        </p>
+    <div className="space-y-4">
+      {events.length === 0 ? (
+        <div className="flex h-32 items-center justify-center rounded-2xl border border-dashed p-8">
+          <p className="text-sm font-medium text-muted-foreground">Nenhum evento em destaque no momento.</p>
+        </div>
       ) : (
-        <div className="space-y-3">
-          {lista.map((item) => {
-            const dias = highlightDaysLeft(item);
+        <div className="grid gap-4 md:grid-cols-2">
+          {events.map((ev) => {
+            const isActive = ev.highlight_until && isAfter(parseISO(ev.highlight_until), now);
             return (
-              <Card key={item.id} className="rounded-2xl">
-                <CardContent className="pt-4 space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-bold truncate">{item.event_title || "Rolê sem título"}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {[item.date, item.address_neighborhood].filter(Boolean).join(" · ") || "—"}
-                      </p>
-                    </div>
-                    {statusBadge(item.status)}
+              <Card key={ev.id} className="rounded-2xl transition-all shadow-sm hover:shadow">
+                <CardHeader className="pb-3 border-b flex flex-row items-center justify-between space-y-0">
+                  <div className="max-w-[70%]">
+                    <CardTitle className="text-lg font-bold truncate" title={ev.event_title}>
+                      {ev.event_title}
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1 font-medium capitalize flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" />
+                      {ev.date ? format(parseISO(ev.date), "dd 'de' MMM, yyyy", { locale: ptBR }) : "Sem data"}
+                    </p>
                   </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                    <div>
-                      <p className="text-muted-foreground">Plano</p>
-                      <p className="font-semibold">{item.package_name ?? "Manual"}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Começou</p>
-                      <p className="font-semibold">{formatData(item.highlight_starts_at)}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Vale até</p>
-                      <p className="font-semibold">{formatData(item.highlight_until)}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Faltam</p>
-                      <p className="font-semibold">
-                        {dias === null ? "Sem prazo" : dias === 0 ? "Acabou" : formatDuration(dias)}
-                      </p>
-                    </div>
+                  {isActive ? (
+                    <Badge className="bg-emerald-500 hover:bg-emerald-600 font-bold whitespace-nowrap shadow-sm">
+                      Ativo
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="whitespace-nowrap font-semibold">Expirado</Badge>
+                  )}
+                </CardHeader>
+                <CardContent className="pt-4 flex items-center justify-between">
+                  <div className="text-sm flex flex-col gap-1 text-muted-foreground font-medium">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" />
+                      Fim do pacote:
+                    </span>
+                    <span className="text-foreground pl-5">
+                      {ev.highlight_until ? format(parseISO(ev.highlight_until), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : '-'}
+                    </span>
                   </div>
-
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => void handleEstender(item)}
-                      disabled={estender.isPending}
-                    >
-                      <CalendarClock className="h-4 w-4 mr-2" />
-                      Estender {formatDuration(item.package_duration_days ?? 7)}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => void handleEsconder(item)}
-                      disabled={esconder.isPending}
-                    >
-                      {item.highlight_hidden ? (
-                        <>
-                          <Eye className="h-4 w-4 mr-2" />
-                          Mostrar na vitrine
-                        </>
-                      ) : (
-                        <>
-                          <EyeOff className="h-4 w-4 mr-2" />
-                          Esconder
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => void handleEncerrar(item)}
-                      disabled={encerrar.isPending}
-                    >
-                      {item.status === "ativo" ? (
-                        <StarOff className="h-4 w-4 mr-2" />
-                      ) : (
-                        <Star className="h-4 w-4 mr-2" />
-                      )}
-                      Encerrar destaque
-                    </Button>
-                  </div>
+                  <Button variant="outline" size="sm" className="font-semibold rounded-full" asChild>
+                    <a href={`/evento/${ev.id}`} target="_blank" rel="noreferrer">
+                      Ver evento <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                    </a>
+                  </Button>
                 </CardContent>
               </Card>
             );
