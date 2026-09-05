@@ -41,12 +41,12 @@ function toCents(valor: string): number | null {
 
 export default function AdminDestaques() {
   const { user } = useAuth();
-  const { hasPermission, loading: permsLoading } = useAppPermissions();
+  const { isAdmin, loading: permsLoading } = useAppPermissions();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [pacotes, setPacotes] = useState<Pacote[]>([]);
 
-  const canManage = hasPermission("events.read"); // Administrador ou Master
+  const canManage = isAdmin; // Administrador ou Master
 
   useEffect(() => {
     if (!canManage) return;
@@ -156,7 +156,7 @@ export default function AdminDestaques() {
     void carregar();
   }
 
-  if (permsLoading) return <LoadingState label="Verificando seu acesso…" />;
+  if (permsLoading) return <LoadingState message="Verificando seu acesso…" fullPage />;
   if (!canManage) return <Navigate to="/" replace />;
 
   return (
@@ -174,7 +174,7 @@ export default function AdminDestaques() {
         </header>
 
         {loading ? (
-          <LoadingState label="Carregando planos…" />
+          <LoadingState message="Carregando planos…" />
         ) : (
           <div className="space-y-4">
             {pacotes.length === 0 && (
