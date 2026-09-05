@@ -22,7 +22,13 @@ import {
 } from "lucide-react";
 import { useSubmission } from "@/data";
 import logoCoeABoa from "@/assets/coeaboa-logo.webp";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  useHighlightPackages,
+  formatPriceBRL,
+  formatDuration,
+} from "@/data/useHighlightPackages";
+import { DestaqueModal } from "@/components/destaque/DestaqueModal";
 
 interface Submission {
   id: string;
