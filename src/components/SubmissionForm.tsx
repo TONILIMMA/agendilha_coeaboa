@@ -234,7 +234,7 @@ export default function SubmissionForm() {
         form.setValue("responsavelNome", profile.responsible_name, { shouldDirty: false });
       }
       if (profile.phone && !currentValues.duvidasWhatsapp) {
-        form.setValue("duvidasWhatsapp", profile.phone, { shouldDirty: false });
+        form.setValue("duvidasWhatsapp", formatPhoneDisplay(profile.phone), { shouldDirty: false });
       }
       if (profile.company_name || profile.responsible_name) {
         form.setValue("companyName", profile.company_name || profile.responsible_name || "", { shouldDirty: false });
