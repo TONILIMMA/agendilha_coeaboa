@@ -71,13 +71,8 @@ const formSchema = z.object({
   responsavelNome: z.string().trim().min(1, "Informe o nome do responsável").max(100),
   usarMeuWhatsapp: z.boolean().default(true),
   // duvidasWhatsapp = WhatsApp do responsável (mantivemos o nome do campo p/ compat com backend).
-  duvidasWhatsapp: z.string().trim().superRefine((val, ctx) => {
-    const phone = (val || "").trim();
-    if (!phone) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe o WhatsApp que vai receber as dúvidas" });
-      return;
-    }
-    const v = validateBrazilianMobile(phone);
+  duvidasWhatsapp: z.string().trim().min(1, "Informe o WhatsApp que vai receber as dúvidas").superRefine((val, ctx) => {
+    const v = validateBrazilianMobile(val);
     if (v.valid === false) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
     }
