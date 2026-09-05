@@ -311,6 +311,8 @@ export default function AdminDestaques() {
             </Button>
           </div>
         )}
+          </TabsContent>
+        </Tabs>
       </div>
     </PageContainer>
   );
