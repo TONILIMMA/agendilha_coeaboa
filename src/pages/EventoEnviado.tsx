@@ -261,59 +261,85 @@ export default function EventoEnviado() {
           </div>
         </section>
 
-        {/* Destaque premium */}
+        {/* Destaque premium — valores e prazos definidos pelos administradores */}
         <section className="space-y-5">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-amber-400" />
             <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-50">
-              Quer mais visibilidade?
+              Destaque sua publicação para maior visibilidade
             </h2>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Card roxo */}
-            <div className="rounded-2xl bg-purple-600 p-5 sm:p-6 space-y-3 shadow-xl shadow-purple-900/40 border border-purple-500/30">
-              <div className="h-10 w-10 rounded-full bg-purple-500/50 flex items-center justify-center shadow-inner">
-                <Zap className="h-5 w-5 text-purple-100" />
-              </div>
-              <div>
-                <h3 className="font-bold text-purple-50 text-base">Destaque Simples</h3>
-                <p className="text-sm text-purple-100/80 leading-relaxed mt-1">
-                  Seu evento ganha selo especial e destaque na agenda da semana.
-                </p>
-              </div>
-            </div>
-            {/* Card dourado */}
-            <div className="rounded-2xl bg-amber-400 p-5 sm:p-6 space-y-3 shadow-xl shadow-amber-900/40 border border-amber-300/50">
-              <div className="h-10 w-10 rounded-full bg-amber-300/60 flex items-center justify-center shadow-inner">
-                <Crown className="h-5 w-5 text-amber-900" />
-              </div>
-              <div>
-                <h3 className="font-bold text-amber-950 text-base">Destaque Plus</h3>
-                <p className="text-sm text-amber-900/80 leading-relaxed mt-1">
-                  Topo da agenda + chamada nos stories e no canal oficial.
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
+            Contrate o destaque e seu flyer ficará em evidência no carrossel de até 10 eventos,
+            aumentando alcance e público.
+          </p>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base font-medium">
-                R$
-              </span>
-              <Input
-                inputMode="numeric"
-                placeholder="Valor do destaque"
-                value={valorDestaque}
-                onChange={(e) => setValorDestaque(e.target.value)}
-                className="h-12 rounded-xl bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500 pl-9 text-base focus-visible:ring-amber-400 focus-visible:ring-offset-slate-950"
-              />
+          {pacotes.length > 0 && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {pacotes.slice(0, 2).map((pkg, i) => {
+                const roxo = i % 2 === 0;
+                const CardIcon = roxo ? Zap : Crown;
+                return (
+                  <div
+                    key={pkg.id}
+                    className={`rounded-2xl p-5 sm:p-6 space-y-3 shadow-xl border ${
+                      roxo
+                        ? "bg-purple-600 shadow-purple-900/40 border-purple-500/30"
+                        : "bg-amber-400 shadow-amber-900/40 border-amber-300/50"
+                    }`}
+                  >
+                    <div
+                      className={`h-10 w-10 rounded-full flex items-center justify-center shadow-inner ${
+                        roxo ? "bg-purple-500/50" : "bg-amber-300/60"
+                      }`}
+                    >
+                      <CardIcon
+                        className={`h-5 w-5 ${roxo ? "text-purple-100" : "text-amber-900"}`}
+                      />
+                    </div>
+                    <div>
+                      <h3
+                        className={`font-bold text-base ${roxo ? "text-purple-50" : "text-amber-950"}`}
+                      >
+                        {pkg.name}
+                      </h3>
+                      {pkg.description && (
+                        <p
+                          className={`text-sm leading-relaxed mt-1 ${
+                            roxo ? "text-purple-100/80" : "text-amber-900/80"
+                          }`}
+                        >
+                          {pkg.description}
+                        </p>
+                      )}
+                      <p
+                        className={`text-sm font-black mt-2 ${
+                          roxo ? "text-purple-50" : "text-amber-950"
+                        }`}
+                      >
+                        {formatPriceBRL(pkg.price_cents)}
+                        <span
+                          className={`ml-1.5 text-xs font-semibold ${
+                            roxo ? "text-purple-100/80" : "text-amber-900/80"
+                          }`}
+                        >
+                          · {formatDuration(pkg.duration_days)}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <Button className="h-12 rounded-xl px-6 font-bold bg-gradient-to-r from-purple-600 via-fuchsia-500 to-amber-400 text-white hover:opacity-90 shadow-lg shadow-purple-900/40 transition-opacity">
-              <Star className="h-4 w-4 mr-2" />
-              Destacar publicação
-            </Button>
-          </div>
+          )}
+
+          <Button
+            onClick={() => setDestaqueAberto(true)}
+            className="h-12 rounded-xl px-6 font-bold bg-gradient-to-r from-purple-600 via-fuchsia-500 to-amber-400 text-white hover:opacity-90 shadow-lg shadow-purple-900/40 transition-opacity"
+          >
+            <Star className="h-4 w-4 mr-2" />
+            Destacar publicação
+          </Button>
         </section>
 
         {/* Ações rápidas */}
