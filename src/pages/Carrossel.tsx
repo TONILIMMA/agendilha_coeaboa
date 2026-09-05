@@ -12,6 +12,9 @@ import { toPng } from "html-to-image";
 import JSZip from "jszip";
 import { toast } from "sonner";
 import { handleError } from "@/lib/error-handler";
+import { pickCarouselEvents } from "@/lib/highlights";
+
+const CAROUSEL_LIMIT = 10;
 
 export default function Carrossel() {
   const [events, setEvents] = useState<FlyerEvent[]>([]);
