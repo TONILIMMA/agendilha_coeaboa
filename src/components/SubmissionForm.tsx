@@ -23,7 +23,7 @@ import {
   LocationStep, MediaStep, LegalStep 
 } from "./submission-form/steps";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { validateBrazilianMobile } from "@/lib/whatsapp";
+import { validateBrazilianMobile, formatPhoneDisplay } from "@/lib/whatsapp";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { emitEntityCreated } from "@/lib/entityEvents";
 import { usePromotorProfile, useUpsertPromotorProfile } from "@/data/usePromotorProfile";
