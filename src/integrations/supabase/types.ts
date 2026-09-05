@@ -2135,6 +2135,7 @@ export type Database = {
           bairro: string | null
           cep: string | null
           complemento: string | null
+          contato: string | null
           created_at: string | null
           endereco: string | null
           fotos: string[] | null
@@ -2148,6 +2149,7 @@ export type Database = {
           bairro?: string | null
           cep?: string | null
           complemento?: string | null
+          contato?: string | null
           created_at?: string | null
           endereco?: string | null
           fotos?: string[] | null
@@ -2161,6 +2163,7 @@ export type Database = {
           bairro?: string | null
           cep?: string | null
           complemento?: string | null
+          contato?: string | null
           created_at?: string | null
           endereco?: string | null
           fotos?: string[] | null
