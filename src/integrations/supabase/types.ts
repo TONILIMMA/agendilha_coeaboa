@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_plans: {
+        Row: {
+          benefits: string[]
+          created_at: string
+          description: string | null
+          display_order: number
+          duration_days: number
+          id: string
+          is_active: boolean
+          name: string
+          price_cents: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          benefits?: string[]
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          duration_days?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          price_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          benefits?: string[]
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          duration_days?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       admin_configs: {
         Row: {
           created_at: string | null
@@ -103,6 +145,80 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      ads: {
+        Row: {
+          category: string
+          city: string | null
+          contact_whatsapp: string
+          created_at: string
+          description: string
+          highlight_plan_id: string | null
+          highlight_until: string | null
+          id: string
+          is_highlight: boolean
+          neighborhood: string | null
+          photos: string[]
+          price_cents: number | null
+          published_at: string | null
+          rejection_reason: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          views_count: number
+        }
+        Insert: {
+          category: string
+          city?: string | null
+          contact_whatsapp: string
+          created_at?: string
+          description: string
+          highlight_plan_id?: string | null
+          highlight_until?: string | null
+          id?: string
+          is_highlight?: boolean
+          neighborhood?: string | null
+          photos?: string[]
+          price_cents?: number | null
+          published_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          views_count?: number
+        }
+        Update: {
+          category?: string
+          city?: string | null
+          contact_whatsapp?: string
+          created_at?: string
+          description?: string
+          highlight_plan_id?: string | null
+          highlight_until?: string | null
+          id?: string
+          is_highlight?: boolean
+          neighborhood?: string | null
+          photos?: string[]
+          price_cents?: number | null
+          published_at?: string | null
+          rejection_reason?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          views_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_highlight_plan_id_fkey"
+            columns: ["highlight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "ad_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       app_notifications: {
         Row: {
@@ -2612,6 +2728,7 @@ export type Database = {
             Returns: boolean
           }
         | { Args: { _role: string; _user_id: string }; Returns: boolean }
+      increment_ad_views: { Args: { target_ad_id: string }; Returns: undefined }
       increment_shares: { Args: { event_id: string }; Returns: undefined }
       increment_views: { Args: { event_id: string }; Returns: undefined }
       is_admin_or_master: { Args: { p_user_id: string }; Returns: boolean }
