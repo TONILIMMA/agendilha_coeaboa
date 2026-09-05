@@ -60,8 +60,10 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
       if (data?.erro) return;
       const endereco = [data.logradouro, data.bairro].filter(Boolean).join(", ");
       if (endereco) form.setValue("eventAddress", endereco, { shouldValidate: true });
+      if (data.bairro) form.setValue("addressNeighborhood", data.bairro, { shouldValidate: true });
       if (data.localidade) form.setValue("addressCity", data.localidade);
       if (data.uf) form.setValue("addressState", data.uf);
+
     } catch {
       /* silencioso — o usuário ainda pode digitar à mão */
     } finally {
@@ -83,6 +85,7 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
     form.setValue("estabelecimentoId", s.id);
     const enderecoCompleto = [s.endereco, s.numero, s.bairro].filter(Boolean).join(", ");
     if (enderecoCompleto) form.setValue("eventAddress", enderecoCompleto, { shouldValidate: true });
+    if (s.bairro) form.setValue("addressNeighborhood", s.bairro, { shouldValidate: true });
     if (s.tipo) {
       form.setValue("localTipo", s.tipo, { shouldValidate: true });
       form.setValue(
@@ -220,6 +223,27 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
                 {...field}
                 name="street-address"
                 autoComplete="street-address"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="addressNeighborhood"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Bairro do local *</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Ex.: Jardim Guanabara"
+                className="h-12"
+                {...field}
+                value={field.value ?? ""}
+                name="address-level3"
+                autoComplete="address-level3"
               />
             </FormControl>
             <FormMessage />

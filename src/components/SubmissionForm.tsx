@@ -46,7 +46,7 @@ const formSchema = z.object({
     }
   }),
 
-  companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
+  companyName: z.string().trim().max(100).optional(),
   email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
   addressZip: z.string().trim().optional(),
   addressStreet: z.string().trim().optional(),
@@ -120,7 +120,7 @@ const formSchema = z.object({
   additionalDetails: z.string().trim().optional(),
   stage: z.string().optional(),
   responsiblePerson: z.string().trim().optional(),
-  addressNeighborhood: z.string().trim().optional(),
+  addressNeighborhood: z.string().trim().min(2, "Informe o bairro do local").max(100),
   addressCity: z.string().optional(),
   addressState: z.string().optional(),
   ageRating: z.enum(["Livre", "10+", "12+", "14+", "16+", "18+"]).default("Livre"),
@@ -383,7 +383,7 @@ export default function SubmissionForm() {
       case 1: return [
         "date", "startTime",
         "atrativoName", "atrativoContact",
-        "locationName", "eventAddress",
+        "locationName", "eventAddress", "addressNeighborhood",
         "category", "ageRating", "atrativoCategory",
         "locationType", "locationContact",
       ];
@@ -463,7 +463,7 @@ export default function SubmissionForm() {
 
       // Map camelCase form fields → snake_case DB columns
       const payload: any = {
-        company_name: clean(values.companyName),
+        company_name: clean(values.companyName) || clean(values.nickName) || clean(profile?.responsible_name) || null,
         // responsible_name é preenchido abaixo com o nome do responsável (Fase 7).
         email: clean(values.email),
         phone: clean(values.basicPhone),
@@ -599,7 +599,7 @@ export default function SubmissionForm() {
     const stepMap: Record<string, number> = {
       date: 1, startTime: 1, endTime: 1, eventTitle: 1, description: 1,
       atrativoSourceId: 1, atrativoName: 1, atrativoType: 1, atrativoStyle: 1, atrativoDescription: 1, atrativoContact: 1, atrativoEmail: 1,
-      locationName: 1, eventAddress: 1, locationCep: 1,
+      locationName: 1, eventAddress: 1, locationCep: 1, addressNeighborhood: 1,
       category: 1, ageRating: 1, atrativoCategory: 1, localTipo: 1,
       locationType: 1, locationContact: 1,
       nickName: 2, basicPhone: 2, companyName: 2, email: 2,
