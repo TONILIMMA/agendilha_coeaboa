@@ -275,7 +275,7 @@ export default function SubmissionForm() {
     }
     if (promotorProfile.promotor_whatsapp) {
       form.setValue("usarMeuWhatsapp", false, { shouldDirty: false });
-      form.setValue("duvidasWhatsapp", promotorProfile.promotor_whatsapp, { shouldDirty: false });
+      form.setValue("duvidasWhatsapp", formatPhoneDisplay(promotorProfile.promotor_whatsapp), { shouldDirty: false });
     }
     if (promotorProfile.tipo_promotor && !current.tipoResponsavel) {
       form.setValue("tipoResponsavel", promotorProfile.tipo_promotor as any, { shouldDirty: false });
