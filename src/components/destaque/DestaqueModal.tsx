@@ -16,14 +16,17 @@ import {
   type HighlightPackage,
 } from "@/data/useHighlightPackages";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
+import { SETTING_KEYS, settingOr, useAppSettings } from "@/data/useAppSettings";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Título do rolê, usado na mensagem enviada para a equipe. */
   eventTitle?: string | null;
-  /** WhatsApp da curadoria/equipe para contratar o destaque. */
+  /** WhatsApp alternativo; por padrão usa o número oficial das configurações. */
   contactWhatsapp?: string | null;
+  /** Link público do rolê, incluído na pré-mensagem. */
+  eventUrl?: string | null;
 }
 
 const CARD_STYLES = [
@@ -43,22 +46,41 @@ const CARD_STYLES = [
   },
 ];
 
-export function DestaqueModal({ open, onOpenChange, eventTitle, contactWhatsapp }: Props) {
+export function DestaqueModal({
+  open,
+  onOpenChange,
+  eventTitle,
+  contactWhatsapp,
+  eventUrl,
+}: Props) {
   const { data: packages = [], isLoading } = useHighlightPackages();
+  const { data: settings } = useAppSettings();
   const [selected, setSelected] = useState<string | null>(null);
 
   const chosen: HighlightPackage | undefined =
     packages.find((p) => p.id === selected) ?? packages[0];
 
+  const teamWhatsapp = settingOr(settings, SETTING_KEYS.teamWhatsapp);
+  const destino = teamWhatsapp || contactWhatsapp || "";
+  const titulo = settingOr(settings, SETTING_KEYS.destaqueEventoTitulo);
+  const texto = settingOr(settings, SETTING_KEYS.destaqueEventoTexto);
+  const cta = settingOr(settings, SETTING_KEYS.destaqueCta);
+
+  function abrirWhatsapp(mensagem: string) {
+    const direto = destino ? buildWhatsappUrl(destino, mensagem) : null;
+    const url = direto ?? `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
   function contratar() {
     if (!chosen) return;
     const linha = eventTitle ? `o rolê "${eventTitle}"` : "meu rolê";
-    const texto =
-      `Oi! Quero contratar o ${chosen.name} para ${linha} ` +
-      `(${formatPriceBRL(chosen.price_cents)} · ${formatDuration(chosen.duration_days)}).`;
-    const direto = contactWhatsapp ? buildWhatsappUrl(contactWhatsapp, texto) : null;
-    const url = direto ?? `https://wa.me/?text=${encodeURIComponent(texto)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    const link = eventUrl || (typeof window !== "undefined" ? window.location.href : "");
+    const mensagem =
+      `Oi! Quero contratar o ${chosen.name} para ${linha}.\n` +
+      `Plano: ${chosen.name} — ${formatPriceBRL(chosen.price_cents)} · ${formatDuration(chosen.duration_days)}` +
+      (link ? `\nLink: ${link}` : "");
+    abrirWhatsapp(mensagem);
     onOpenChange(false);
   }
 
@@ -69,12 +91,9 @@ export function DestaqueModal({ open, onOpenChange, eventTitle, contactWhatsapp 
           <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center mb-1">
             <Sparkles className="h-5 w-5 text-primary" />
           </div>
-          <DialogTitle className="text-xl font-black tracking-tight">
-            Destaque sua publicação para maior visibilidade
-          </DialogTitle>
-          <DialogDescription className="text-sm leading-relaxed">
-            Contrate o destaque e seu flyer ficará em evidência no carrossel de até 10 eventos,
-            aumentando alcance e público.
+          <DialogTitle className="text-xl font-black tracking-tight">{titulo}</DialogTitle>
+          <DialogDescription className="text-sm leading-relaxed whitespace-pre-line">
+            {texto}
           </DialogDescription>
         </DialogHeader>
 
@@ -89,18 +108,13 @@ export function DestaqueModal({ open, onOpenChange, eventTitle, contactWhatsapp 
               Os planos estão sendo ajustados pela curadoria. Chama a equipe no WhatsApp pra saber
               valores e prazos, ou tenta de novo mais tarde.
             </p>
-            {contactWhatsapp && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const url = buildWhatsappUrl(contactWhatsapp, "Oi! Quero saber sobre destacar meu rolê.");
-                  if (url) window.open(url, "_blank", "noopener,noreferrer");
-                }}
-                className="font-semibold"
-              >
-                Falar com a curadoria
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              onClick={() => abrirWhatsapp("Oi! Quero saber sobre destacar meu rolê.")}
+              className="font-semibold"
+            >
+              Falar com a curadoria
+            </Button>
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
@@ -148,7 +162,7 @@ export function DestaqueModal({ open, onOpenChange, eventTitle, contactWhatsapp 
             className="font-bold bg-gradient-to-r from-purple-600 via-fuchsia-500 to-amber-400 text-white hover:opacity-90"
           >
             <Star className="h-4 w-4 mr-2" />
-            Destacar publicação
+            {cta}
           </Button>
         </DialogFooter>
       </DialogContent>
