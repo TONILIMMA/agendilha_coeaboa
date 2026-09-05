@@ -87,8 +87,8 @@ describe("DuvidasWhatsappField", () => {
 
   it("copia o link gerado para a área de transferência", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
     const user = userEvent.setup();
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
     render(<Harness />);
     await user.type(screen.getByLabelText(/Número com DDD/i), "21998554322");
     await user.click(screen.getByRole("button", { name: /Copiar link/i }));
