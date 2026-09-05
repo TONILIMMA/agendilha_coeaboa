@@ -639,11 +639,10 @@ export default function SubmissionForm() {
       atrativoSourceId: 1, atrativoName: 1, atrativoType: 1, atrativoStyle: 1, atrativoDescription: 1, atrativoContact: 1, atrativoEmail: 1,
       locationName: 1, eventAddress: 1, locationCep: 1, addressNeighborhood: 1,
       category: 1, ageRating: 1, atrativoCategory: 1, localTipo: 1,
-      locationType: 1, locationContact: 1,
+      locationType: 1, locationContact: 1, duvidasWhatsapp: 1,
       nickName: 2, basicPhone: 2, companyName: 2, email: 2,
       addressZip: 2, addressStreet: 2, addressNumber: 2,
       legalAcceptance: 2, responsavelNome: 2,
-      duvidasWhatsapp: 2,
       duvidasAuthorized: 2,
     };
 
