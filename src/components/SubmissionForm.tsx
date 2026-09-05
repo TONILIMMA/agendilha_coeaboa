@@ -17,12 +17,13 @@ import { Button } from "@/components/ui/button";
 import { StepIndicator } from "./submission-form/StepIndicator";
 import { PublishChecklist } from "./submission-form/PublishChecklist";
 import { Step1Summary } from "./submission-form/Step1Summary";
+import { DuvidasWhatsappField } from "./submission-form/DuvidasWhatsappField";
 import { 
   ContactStep, EventStep, AtrativoStep, 
   LocationStep, MediaStep, LegalStep 
 } from "./submission-form/steps";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { validateBrazilianMobile } from "@/lib/whatsapp";
+import { validateBrazilianMobile, formatPhoneDisplay } from "@/lib/whatsapp";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { emitEntityCreated } from "@/lib/entityEvents";
 import { usePromotorProfile, useUpsertPromotorProfile } from "@/data/usePromotorProfile";
@@ -70,7 +71,12 @@ const formSchema = z.object({
   responsavelNome: z.string().trim().min(1, "Informe o nome do responsável").max(100),
   usarMeuWhatsapp: z.boolean().default(true),
   // duvidasWhatsapp = WhatsApp do responsável (mantivemos o nome do campo p/ compat com backend).
-  duvidasWhatsapp: z.string().trim().optional().default(""),
+  duvidasWhatsapp: z.string().trim().min(1, "Informe o WhatsApp que vai receber as dúvidas").superRefine((val, ctx) => {
+    const v = validateBrazilianMobile(val);
+    if (v.valid === false) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
+    }
+  }).default(""),
   // Campo legado — mantido em 'promotor' pra compat com telas antigas.
   duvidasSource: z.enum(["promotor", "atrativo", "estabelecimento"]).default("promotor"),
   duvidasAuthorized: z.literal(true, {
@@ -144,22 +150,8 @@ const formSchema = z.object({
   message: "Contato do responsável é obrigatório para estabelecimentos comerciais",
   path: ["locationContact"],
 }).superRefine((data, ctx) => {
-  // WhatsApp do responsável por dúvidas: sempre exigimos número válido; para atrativo/estabelecimento é obrigatório.
-  const phone = (data.duvidasWhatsapp || "").trim();
-  if (!phone) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["duvidasWhatsapp"],
-      message: "Informe o WhatsApp que vai receber as dúvidas",
-    });
-    return;
-  }
-  const v = validateBrazilianMobile(phone);
-  if (v.valid === false) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["duvidasWhatsapp"], message: v.reason });
-  }
-
-  // Se "Outro" for selecionado em tipoResponsavel, o telefone deve estar no formato correto
+  // Se "Outro" for selecionado em tipoResponsavel, o telefone deve estar no formato correto.
+  // A validação padrão do campo já cobre o fluxo normal; aqui tratamos apenas o caso especial.
   if (data.tipoResponsavel === "outro") {
     const outroPhone = (data.duvidasWhatsapp as string || "").trim();
     if (!outroPhone) {
@@ -233,7 +225,7 @@ export default function SubmissionForm() {
         form.setValue("responsavelNome", profile.responsible_name, { shouldDirty: false });
       }
       if (profile.phone && !currentValues.duvidasWhatsapp) {
-        form.setValue("duvidasWhatsapp", profile.phone, { shouldDirty: false });
+        form.setValue("duvidasWhatsapp", formatPhoneDisplay(profile.phone), { shouldDirty: false });
       }
       if (profile.company_name || profile.responsible_name) {
         form.setValue("companyName", profile.company_name || profile.responsible_name || "", { shouldDirty: false });
@@ -274,7 +266,7 @@ export default function SubmissionForm() {
     }
     if (promotorProfile.promotor_whatsapp) {
       form.setValue("usarMeuWhatsapp", false, { shouldDirty: false });
-      form.setValue("duvidasWhatsapp", promotorProfile.promotor_whatsapp, { shouldDirty: false });
+      form.setValue("duvidasWhatsapp", formatPhoneDisplay(promotorProfile.promotor_whatsapp), { shouldDirty: false });
     }
     if (promotorProfile.tipo_promotor && !current.tipoResponsavel) {
       form.setValue("tipoResponsavel", promotorProfile.tipo_promotor as any, { shouldDirty: false });
@@ -395,12 +387,12 @@ export default function SubmissionForm() {
         "atrativoName", "atrativoContact",
         "locationName", "eventAddress", "addressNeighborhood",
         "category", "ageRating", "atrativoCategory",
-        "locationType", "locationContact",
+        "locationType", "locationContact", "duvidasWhatsapp",
       ];
       // Etapa 2 — seleções obrigatórias restantes + contato e termos
       case 2: return [
         "nickName", "basicPhone",
-        "legalAcceptance", "responsavelNome", "duvidasWhatsapp", "duvidasAuthorized",
+        "legalAcceptance", "responsavelNome", "duvidasAuthorized",
       ];
       default: return [];
     }
@@ -638,11 +630,10 @@ export default function SubmissionForm() {
       atrativoSourceId: 1, atrativoName: 1, atrativoType: 1, atrativoStyle: 1, atrativoDescription: 1, atrativoContact: 1, atrativoEmail: 1,
       locationName: 1, eventAddress: 1, locationCep: 1, addressNeighborhood: 1,
       category: 1, ageRating: 1, atrativoCategory: 1, localTipo: 1,
-      locationType: 1, locationContact: 1,
+      locationType: 1, locationContact: 1, duvidasWhatsapp: 1,
       nickName: 2, basicPhone: 2, companyName: 2, email: 2,
       addressZip: 2, addressStreet: 2, addressNumber: 2,
       legalAcceptance: 2, responsavelNome: 2,
-      duvidasWhatsapp: 2,
       duvidasAuthorized: 2,
     };
 
