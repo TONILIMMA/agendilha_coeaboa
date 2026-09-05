@@ -143,7 +143,7 @@ export function DestaqueAnuncioModal({ open, onOpenChange, adTitle, adUrl }: Pro
           </Button>
           <Button onClick={contratar} disabled={!escolhido} className="font-bold">
             <Sparkles className="h-4 w-4 mr-2" />
-            Contratar destaque
+            {cta}
           </Button>
         </DialogFooter>
       </DialogContent>
