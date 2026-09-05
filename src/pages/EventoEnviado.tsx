@@ -406,6 +406,13 @@ export default function EventoEnviado() {
           </nav>
         </div>
       </footer>
+
+      <DestaqueModal
+        open={destaqueAberto}
+        onOpenChange={setDestaqueAberto}
+        eventTitle={sub?.event_title}
+        contactWhatsapp={null}
+      />
     </div>
   );
 }
