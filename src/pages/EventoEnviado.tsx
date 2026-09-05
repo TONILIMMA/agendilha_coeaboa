@@ -27,12 +27,11 @@ import { useState } from "react";
 interface Submission {
   id: string;
   event_title: string | null;
-  title?: string | null;
   date: string | null;
   start_time?: string | null;
   location?: string | null;
   atrativo_name?: string | null;
-  flyer_url?: string | null;
+  image_url?: string | null;
   status: string;
 }
 
@@ -54,7 +53,7 @@ export default function EventoEnviado() {
   const validId = !!id && /^[0-9a-f-]{10,}$/i.test(id);
   const { data: sub, isLoading: loading } = useSubmission<Submission>(
     validId ? id! : "",
-    "id, event_title, title, date, start_time, location, atrativo_name, flyer_url, status"
+    "id, event_title, date, start_time, location, atrativo_name, image_url, status"
   );
   const [valorDestaque, setValorDestaque] = useState("");
 
@@ -62,9 +61,9 @@ export default function EventoEnviado() {
     return <Navigate to="/meus-eventos" replace />;
   }
 
-  const nomeEvento = sub?.event_title || sub?.title || "Seu evento";
+  const nomeEvento = sub?.event_title || "Seu evento";
   const dataFormatada = formatDateBR(sub?.date);
-  const etapaAtual = sub?.status === "approved" ? 2 : 1;
+  const etapaAtual = sub?.status === "aprovado" ? 2 : 1;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col font-[family-name:var(--font-body)]">
@@ -155,16 +154,16 @@ export default function EventoEnviado() {
           {/* Flyer do evento */}
           {!loading && (
             <div className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
-              {sub?.flyer_url ? (
+              {sub?.image_url ? (
                 <a
-                  href={sub.flyer_url}
+                  href={sub.image_url}
                   target="_blank"
                   rel="noreferrer"
                   className="shrink-0 group"
                   title="Ver flyer em tamanho original"
                 >
                   <img
-                    src={sub.flyer_url}
+                    src={sub.image_url}
                     alt={`Flyer de ${nomeEvento}`}
                     className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl object-cover shadow-lg shadow-black/40 ring-1 ring-slate-700 group-hover:ring-amber-400/60 transition"
                     loading="lazy"
@@ -180,7 +179,7 @@ export default function EventoEnviado() {
                   Flyer do evento
                 </p>
                 <p className="text-sm text-slate-300 leading-snug">
-                  {sub?.flyer_url
+                  {sub?.image_url
                     ? "Prévia do flyer que vai junto com a publicação."
                     : "Um flyer padrão será gerado automaticamente na publicação."}
                 </p>
@@ -320,7 +319,7 @@ export default function EventoEnviado() {
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </Button>
-            {sub?.status === "pending" && (
+            {sub?.status === "pendente" && (
               <Button
                 asChild
                 className="w-full h-11 rounded-full bg-amber-400 text-slate-950 hover:bg-amber-300 font-semibold shadow-lg shadow-amber-400/20"
