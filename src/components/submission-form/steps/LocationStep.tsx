@@ -60,8 +60,10 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
       if (data?.erro) return;
       const endereco = [data.logradouro, data.bairro].filter(Boolean).join(", ");
       if (endereco) form.setValue("eventAddress", endereco, { shouldValidate: true });
+      if (data.bairro) form.setValue("addressNeighborhood", data.bairro, { shouldValidate: true });
       if (data.localidade) form.setValue("addressCity", data.localidade);
       if (data.uf) form.setValue("addressState", data.uf);
+
     } catch {
       /* silencioso — o usuário ainda pode digitar à mão */
     } finally {
