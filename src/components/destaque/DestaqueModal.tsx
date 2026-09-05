@@ -83,10 +83,25 @@ export function DestaqueModal({ open, onOpenChange, eventTitle, contactWhatsapp 
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : packages.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4">
-            Os planos de destaque estão sendo ajustados. Fale com a curadoria pelo WhatsApp pra
-            saber os valores.
-          </p>
+          <div className="rounded-2xl border border-dashed p-4 space-y-2">
+            <p className="text-sm font-semibold">Nenhum destaque disponível agora</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Os planos estão sendo ajustados pela curadoria. Chama a equipe no WhatsApp pra saber
+              valores e prazos, ou tenta de novo mais tarde.
+            </p>
+            {contactWhatsapp && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const url = buildWhatsappUrl(contactWhatsapp, "Oi! Quero saber sobre destacar meu rolê.");
+                  if (url) window.open(url, "_blank", "noopener,noreferrer");
+                }}
+                className="font-semibold"
+              >
+                Falar com a curadoria
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {packages.map((pkg, i) => {

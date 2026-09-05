@@ -103,9 +103,9 @@ export default function Landing() {
     queryFn: async ({ pageParam = 0 }) => {
       const { data, error } = await supabase
          .from("public_submissions")
-        .select("id, event_title, date, start_time, end_time, location, address_street, address_neighborhood, category, image_url, is_highlight, atrativo_style, description, age_rating, is_suitable_for_minors, views_count")
+        .select("id, event_title, date, start_time, end_time, location, address_street, address_neighborhood, category, image_url, is_highlight, highlight_active, highlight_hidden, highlight_until, atrativo_style, description, age_rating, is_suitable_for_minors, views_count")
         .eq('status', 'aprovado')
-        .order('is_highlight', { ascending: false })
+        .order('highlight_active', { ascending: false, nullsFirst: false })
         .order('date', { ascending: true })
         .range(pageParam, pageParam + 9);
        
