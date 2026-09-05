@@ -383,7 +383,7 @@ export default function SubmissionForm() {
       case 1: return [
         "date", "startTime",
         "atrativoName", "atrativoContact",
-        "locationName", "eventAddress",
+        "locationName", "eventAddress", "addressNeighborhood",
         "category", "ageRating", "atrativoCategory",
         "locationType", "locationContact",
       ];
