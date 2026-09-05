@@ -138,6 +138,7 @@ export default function AnuncioDetalhe() {
         open={destaqueAberto}
         onOpenChange={setDestaqueAberto}
         adTitle={ad.title}
+        adUrl={`${window.location.origin}/anuncios/${ad.id}`}
       />
     </PageContainer>
   );
