@@ -18,7 +18,8 @@ import { Sparkles,
   Megaphone,
   Images,
   MessageSquare,
-  Building2
+  Building2,
+  ShoppingBag
 } from "lucide-react";
 import { ROUTES } from "@/routes/config";
 
@@ -62,6 +63,20 @@ export const sidebarConfig: SidebarSection[] = [
         path: `${ROUTES.AGENDA}?view=favorites`, 
         icon: Heart, 
         roles: ["public_registered"] 
+      },
+      {
+        id: "anuncios",
+        label: "Anúncios",
+        path: ROUTES.ANUNCIOS,
+        icon: ShoppingBag,
+        roles: ["public_guest", "public_registered", "promoter", "admin", "master"]
+      },
+      {
+        id: "meus_anuncios",
+        label: "Meus anúncios",
+        path: ROUTES.MEUS_ANUNCIOS,
+        icon: ShoppingBag,
+        roles: ["promoter", "admin", "master"]
       },
       { 
         id: "artists", 
@@ -145,6 +160,20 @@ export const sidebarConfig: SidebarSection[] = [
         label: "Templates WhatsApp",
         path: ROUTES.ADMIN_WHATSAPP_TEMPLATES,
         icon: MessageSquare,
+        roles: ["admin", "master"]
+      },
+      {
+        id: "anuncios_admin",
+        label: "Anúncios (gestão)",
+        path: ROUTES.ADMIN_ANUNCIOS,
+        icon: ShoppingBag,
+        roles: ["admin", "master"]
+      },
+      {
+        id: "planos_anuncio_admin",
+        label: "Planos de anúncio",
+        path: ROUTES.ADMIN_PLANOS_ANUNCIO,
+        icon: ShoppingBag,
         roles: ["admin", "master"]
       },
       {
