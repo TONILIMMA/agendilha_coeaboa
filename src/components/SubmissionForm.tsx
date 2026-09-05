@@ -46,7 +46,7 @@ const formSchema = z.object({
     }
   }),
 
-  companyName: z.string().trim().min(1, "Nome completo/Empresa é obrigatório").max(100),
+  companyName: z.string().trim().max(100).optional(),
   email: z.string().trim().email("E-mail inválido").max(255).optional().or(z.literal("")),
   addressZip: z.string().trim().optional(),
   addressStreet: z.string().trim().optional(),
@@ -463,7 +463,7 @@ export default function SubmissionForm() {
 
       // Map camelCase form fields → snake_case DB columns
       const payload: any = {
-        company_name: clean(values.companyName),
+        company_name: clean(values.companyName) || clean(values.nickName) || clean(profile?.responsible_name) || null,
         // responsible_name é preenchido abaixo com o nome do responsável (Fase 7).
         email: clean(values.email),
         phone: clean(values.basicPhone),

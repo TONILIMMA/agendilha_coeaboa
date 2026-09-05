@@ -64,7 +64,7 @@ export function AgendaHero({
                     key={ev.id}
                     event={ev}
                     icon={CalendarDays}
-                    caption={`${ev.address_neighborhood} • ${ev.date} • ${ev.start_time}`}
+                    caption={[ev.address_neighborhood, ev.date, ev.start_time].filter(Boolean).join(" • ")}
                     onSelect={onSelectEvent}
                     onShare={onShare}
                   />
