@@ -71,7 +71,17 @@ const formSchema = z.object({
   responsavelNome: z.string().trim().min(1, "Informe o nome do responsável").max(100),
   usarMeuWhatsapp: z.boolean().default(true),
   // duvidasWhatsapp = WhatsApp do responsável (mantivemos o nome do campo p/ compat com backend).
-  duvidasWhatsapp: z.string().trim().optional().default(""),
+  duvidasWhatsapp: z.string().trim().superRefine((val, ctx) => {
+    const phone = (val || "").trim();
+    if (!phone) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe o WhatsApp que vai receber as dúvidas" });
+      return;
+    }
+    const v = validateBrazilianMobile(phone);
+    if (v.valid === false) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
+    }
+  }).default(""),
   // Campo legado — mantido em 'promotor' pra compat com telas antigas.
   duvidasSource: z.enum(["promotor", "atrativo", "estabelecimento"]).default("promotor"),
   duvidasAuthorized: z.literal(true, {
