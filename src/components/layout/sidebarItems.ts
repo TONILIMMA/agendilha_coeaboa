@@ -1,5 +1,6 @@
 import React from "react";
-import { Sparkles, 
+import { 
+  Sparkles, 
   CalendarDays, 
   Users, 
   Heart, 
@@ -66,18 +67,49 @@ export const sidebarConfig: SidebarSection[] = [
         roles: ["public_registered"] 
       },
       {
-        id: "anuncios",
-        label: "Anúncios",
+        id: "anuncios_destaques",
+        label: "Anúncios e Destaques",
         path: ROUTES.ANUNCIOS,
         icon: ShoppingBag,
-        roles: ["public_guest", "public_registered", "promoter", "admin", "master"]
-      },
-      {
-        id: "meus_anuncios",
-        label: "Meus anúncios",
-        path: ROUTES.MEUS_ANUNCIOS,
-        icon: ShoppingBag,
-        roles: ["promoter", "admin", "master"]
+        roles: ["public_guest", "public_registered", "promoter", "admin", "master"],
+        children: [
+          {
+            id: "ver_anuncios",
+            label: "Explorar Anúncios",
+            path: ROUTES.ANUNCIOS,
+            icon: Eye,
+            roles: ["public_guest", "public_registered", "promoter", "admin", "master"],
+            exact: true
+          },
+          {
+            id: "meus_anuncios",
+            label: "Meus Anúncios",
+            path: ROUTES.MEUS_ANUNCIOS,
+            icon: ShoppingBag,
+            roles: ["promoter", "admin", "master"]
+          },
+          {
+            id: "planos_anuncio_admin",
+            label: "Planos disponíveis",
+            path: ROUTES.ADMIN_PLANOS_ANUNCIO,
+            icon: LayoutDashboard,
+            roles: ["admin", "master"]
+          },
+          {
+            id: "destaques_admin",
+            label: "Gestão de destaques",
+            path: ROUTES.ADMIN_DESTAQUES,
+            icon: Sparkles,
+            roles: ["admin", "master"]
+          },
+          {
+            id: "anuncios_admin",
+            label: "Anúncios (Gestão)",
+            path: ROUTES.ADMIN_ANUNCIOS,
+            icon: LayoutDashboard,
+            roles: ["admin", "master"]
+          }
+        ]
       },
       { 
         id: "artists", 
@@ -164,31 +196,10 @@ export const sidebarConfig: SidebarSection[] = [
         roles: ["admin", "master"]
       },
       {
-        id: "anuncios_admin",
-        label: "Anúncios (gestão)",
-        path: ROUTES.ADMIN_ANUNCIOS,
-        icon: ShoppingBag,
-        roles: ["admin", "master"]
-      },
-      {
-        id: "planos_anuncio_admin",
-        label: "Planos de anúncio",
-        path: ROUTES.ADMIN_PLANOS_ANUNCIO,
-        icon: ShoppingBag,
-        roles: ["admin", "master"]
-      },
-      {
         id: "configuracoes_admin",
         label: "Configurações",
         path: ROUTES.ADMIN_CONFIGURACOES,
         icon: Settings2,
-        roles: ["admin", "master"]
-      },
-      {
-        id: "destaques_admin",
-        label: "Planos de destaque",
-        path: ROUTES.ADMIN_DESTAQUES,
-        icon: Sparkles,
         roles: ["admin", "master"]
       },
       {
@@ -211,7 +222,7 @@ export const sidebarConfig: SidebarSection[] = [
         path: ROUTES.ADMIN_USERS,
         icon: Megaphone,
         roles: ["admin", "master"]
-      },
+      }
     ]
   },
   {
@@ -243,7 +254,7 @@ export const sidebarConfig: SidebarSection[] = [
         path: ROUTES.MASTER_USUARIOS, 
         icon: Users, 
         roles: ["master"] 
-      },
+      }
     ]
   },
   {
@@ -278,7 +289,7 @@ export const sidebarConfig: SidebarSection[] = [
         path: `${ROUTES.AUTH}?mode=signup`, 
         icon: UserPlus, 
         roles: ["public_guest"] 
-      },
+      }
     ]
   }
 ];

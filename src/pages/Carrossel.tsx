@@ -26,15 +26,19 @@ export default function Carrossel() {
 
   useEffect(() => {
     (async () => {
+      const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("public_submissions")
         .select("*")
         .eq("status", "aprovado")
         .neq("moderation_status", "blocked")
-        .order("date", { ascending: true });
+        .eq("is_highlight", true)
+        .eq("highlight_hidden", false)
+        .gte("highlight_until", now)
+        .order("date", { ascending: true })
+        .limit(CAROUSEL_LIMIT);
       if (!error && data) {
-        // Até 10 cards, com os destaques ativos (prazo válido e não escondidos) na frente.
-        setEvents(pickCarouselEvents(data as any[], CAROUSEL_LIMIT) as any as FlyerEvent[]);
+        setEvents(data as any as FlyerEvent[]);
       }
       setLoading(false);
     })();
