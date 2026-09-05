@@ -43,6 +43,7 @@ export const ROUTES = {
   MEUS_EVENTOS: "/meus-eventos",
   ADMIN_WHATSAPP_TEMPLATES: "/admin/whatsapp-templates",
   ADMIN_DESTAQUES: "/admin/destaques",
+  ADMIN_CONFIGURACOES: "/admin/configuracoes",
   CADASTRO_PROMOTOR: "/cadastro-promotor",
   PROMOTOR_HOME: "/promotor",
   PROMOTOR_ESTABELECIMENTOS: "/promotor/estabelecimentos",

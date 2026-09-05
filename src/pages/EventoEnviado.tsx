@@ -412,6 +412,7 @@ export default function EventoEnviado() {
         onOpenChange={setDestaqueAberto}
         eventTitle={sub?.event_title}
         contactWhatsapp={null}
+        eventUrl={sub?.slug ? `${window.location.origin}/evento/${sub.slug}` : window.location.href}
       />
     </div>
   );

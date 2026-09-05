@@ -16,13 +16,15 @@ import {
   type AdPlan,
 } from "@/data/useAdPlans";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
-import { TEAM_WHATSAPP } from "@/lib/contact";
+import { SETTING_KEYS, settingOr, useAppSettings } from "@/data/useAppSettings";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Título do anúncio, usado na mensagem enviada à equipe. */
   adTitle?: string | null;
+  /** Link público do anúncio, incluído na pré-mensagem. */
+  adUrl?: string | null;
 }
 
 const CARD_STYLES = [
@@ -31,27 +33,36 @@ const CARD_STYLES = [
   { ring: "border-amber-400/60", badge: "bg-amber-400/15 text-amber-600", Icon: Crown },
 ];
 
-export function DestaqueAnuncioModal({ open, onOpenChange, adTitle }: Props) {
+export function DestaqueAnuncioModal({ open, onOpenChange, adTitle, adUrl }: Props) {
   const { data: planos = [], isLoading } = useAdPlans();
+  const { data: settings } = useAppSettings();
   const [selecionado, setSelecionado] = useState<string | null>(null);
 
   const escolhido: AdPlan | undefined =
     planos.find((p) => p.id === selecionado) ?? planos[0];
 
+  const destino = settingOr(settings, SETTING_KEYS.teamWhatsapp);
+  const titulo = settingOr(settings, SETTING_KEYS.destaqueAnuncioTitulo);
+  const texto = settingOr(settings, SETTING_KEYS.destaqueAnuncioTexto);
+  const cta = settingOr(settings, SETTING_KEYS.destaqueCta);
+
   function contratar() {
     if (!escolhido) return;
     const alvo = adTitle ? `o anúncio "${adTitle}"` : "meu anúncio";
-    const texto =
-      `Oi! Quero contratar o destaque ${escolhido.name} para ${alvo} ` +
-      `(${formatPriceBRL(escolhido.price_cents)} · ${formatDurationDays(escolhido.duration_days)}).`;
-    const direto = TEAM_WHATSAPP ? buildWhatsappUrl(TEAM_WHATSAPP, texto) : null;
+    const link = adUrl || (typeof window !== "undefined" ? window.location.href : "");
+    const mensagem =
+      `Oi! Quero contratar o destaque para ${alvo}.\n` +
+      `Plano: ${escolhido.name} — ${formatPriceBRL(escolhido.price_cents)} · ${formatDurationDays(escolhido.duration_days)}` +
+      (link ? `\nLink: ${link}` : "");
+    const direto = destino ? buildWhatsappUrl(destino, mensagem) : null;
     window.open(
-      direto ?? `https://wa.me/?text=${encodeURIComponent(texto)}`,
+      direto ?? `https://wa.me/?text=${encodeURIComponent(mensagem)}`,
       "_blank",
       "noopener,noreferrer",
     );
     onOpenChange(false);
   }
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -60,14 +71,12 @@ export function DestaqueAnuncioModal({ open, onOpenChange, adTitle }: Props) {
           <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center mb-1">
             <Sparkles className="h-5 w-5 text-primary" />
           </div>
-          <DialogTitle className="text-xl font-black tracking-tight">
-            Destaque sua publicação para maior visibilidade
-          </DialogTitle>
-          <DialogDescription className="text-sm leading-relaxed">
-            Contrate um destaque e seu anúncio ficará em evidência no carrossel de até 10
-            destaques, aumentando alcance e vendas.
+          <DialogTitle className="text-xl font-black tracking-tight">{titulo}</DialogTitle>
+          <DialogDescription className="text-sm leading-relaxed whitespace-pre-line">
+            {texto}
           </DialogDescription>
         </DialogHeader>
+
 
         {isLoading ? (
           <div className="flex items-center justify-center py-10 text-muted-foreground">
@@ -134,7 +143,7 @@ export function DestaqueAnuncioModal({ open, onOpenChange, adTitle }: Props) {
           </Button>
           <Button onClick={contratar} disabled={!escolhido} className="font-bold">
             <Sparkles className="h-4 w-4 mr-2" />
-            Contratar destaque
+            {cta}
           </Button>
         </DialogFooter>
       </DialogContent>

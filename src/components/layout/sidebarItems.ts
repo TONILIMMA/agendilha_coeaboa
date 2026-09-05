@@ -19,7 +19,8 @@ import { Sparkles,
   Images,
   MessageSquare,
   Building2,
-  ShoppingBag
+  ShoppingBag,
+  Settings2
 } from "lucide-react";
 import { ROUTES } from "@/routes/config";
 
@@ -174,6 +175,13 @@ export const sidebarConfig: SidebarSection[] = [
         label: "Planos de anúncio",
         path: ROUTES.ADMIN_PLANOS_ANUNCIO,
         icon: ShoppingBag,
+        roles: ["admin", "master"]
+      },
+      {
+        id: "configuracoes_admin",
+        label: "Configurações",
+        path: ROUTES.ADMIN_CONFIGURACOES,
+        icon: Settings2,
         roles: ["admin", "master"]
       },
       {
