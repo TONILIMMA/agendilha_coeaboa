@@ -37,6 +37,16 @@ const formSchema = z.object({
   eventImageUrlStory: z.string().optional(),
   eventImageUrlWhatsapp: z.string().optional(),
   fotos: z.array(z.string().url()).default([]),
+  // Atrativos adicionais do mesmo evento (o principal continua nos campos atrativo*).
+  extraAtrativos: z
+    .array(
+      z.object({
+        name: z.string().trim().max(120).default(""),
+        category: z.string().trim().max(80).optional(),
+        whatsapp: z.string().trim().max(20).optional(),
+      }),
+    )
+    .default([]),
   
   nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
   basicPhone: z.string().trim().min(1, "Informe o WhatsApp").superRefine((val, ctx) => {
@@ -527,6 +537,33 @@ export default function SubmissionForm() {
 
       if (!result) return; // toast already shown by ctx
 
+      // Atrativos do evento: o principal + os incluídos pelo botão "Incluir atrativo".
+      try {
+        const extras = (values.extraAtrativos || []).filter((a) => clean(a?.name));
+        if (extras.length) {
+          const rows = [
+            {
+              submission_id: result.id,
+              name: clean(values.atrativoName)!,
+              category: clean(values.atrativoCategory),
+              whatsapp: clean(values.atrativoContact),
+              display_order: 0,
+            },
+            ...extras.map((a, i) => ({
+              submission_id: result.id,
+              name: clean(a.name)!,
+              category: clean(a.category),
+              whatsapp: clean(a.whatsapp),
+              display_order: i + 1,
+            })),
+          ];
+          await supabaseClient.from("submission_atrativos").insert(rows);
+        }
+      } catch (e) {
+        console.warn("[SubmissionForm] atrativos adicionais falharam", e);
+      }
+
+
       // "Primeira vez grava, próximas vezes reaproveita".
       // Cria Local/Estabelecimento e Atrativo quando o usuário digitou nomes novos,
       // pra que apareçam no autocomplete em divulgações futuras (após aprovação).
@@ -692,6 +729,11 @@ export default function SubmissionForm() {
               <div className="border rounded-2xl px-4 py-5 bg-card/30">
                 <EventStep form={form} section="selections" />
               </div>
+
+              <div className="border rounded-2xl px-4 py-5 bg-card/30">
+                <DuvidasWhatsappField form={form} />
+              </div>
+
 
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="extras" className="border rounded-2xl px-4 bg-muted/20">

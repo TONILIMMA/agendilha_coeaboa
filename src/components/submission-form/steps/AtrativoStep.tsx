@@ -1,7 +1,7 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { Music, Link2, Unlink, Check } from "lucide-react";
+import { Music, Link2, Unlink, Check, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { onEntityCreated } from "@/lib/entityEvents";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
@@ -220,6 +220,8 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         )}
       />
 
+      <ExtraAtrativos form={form} />
+
       {form.watch("atrativoCategory") === "Outros" && (
         <FormField
           control={form.control}
@@ -235,6 +237,80 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
           )}
         />
       )}
+    </div>
+  );
+}
+
+/**
+ * Lista de atrativos adicionais do mesmo evento.
+ * O primeiro atrativo continua sendo o principal (campos acima).
+ */
+function ExtraAtrativos({ form }: { form: UseFormReturn<any> }) {
+  const extras: Array<{ name: string; category?: string; whatsapp?: string }> =
+    form.watch("extraAtrativos") || [];
+
+  const setExtras = (next: typeof extras) =>
+    form.setValue("extraAtrativos", next, { shouldDirty: true });
+
+  const add = () => {
+    const principal = (form.getValues("atrativoName") || "").trim();
+    if (!principal) {
+      toast.error("Preencha o atrativo principal antes de incluir outro.");
+      return;
+    }
+    setExtras([...extras, { name: "", category: "", whatsapp: "" }]);
+  };
+
+  const update = (i: number, patch: Partial<(typeof extras)[number]>) =>
+    setExtras(extras.map((e, idx) => (idx === i ? { ...e, ...patch } : e)));
+
+  const remove = (i: number) => setExtras(extras.filter((_, idx) => idx !== i));
+
+  return (
+    <div className="space-y-3">
+      {extras.map((item, i) => (
+        <div key={i} className="rounded-xl border bg-muted/20 p-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              Atrativo {i + 2}
+            </span>
+            <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => remove(i)}>
+              Remover
+            </Button>
+          </div>
+          <AtrativoAutocomplete
+            value={item.name}
+            onChange={(val) => update(i, { name: val })}
+            onSelect={(row: any) =>
+              update(i, {
+                name: row.name ?? "",
+                category: row.tipo_atrativo || row.type || row.artist_type || "",
+                whatsapp: row.contact_whatsapp || row.contact_info || row.whatsapp || "",
+              })
+            }
+            placeholder="Nome do outro atrativo"
+            selected={!!item.name}
+          />
+          <Input
+            placeholder="WhatsApp (opcional)"
+            inputMode="tel"
+            maxLength={16}
+            className="h-11 text-base"
+            value={item.whatsapp || ""}
+            onChange={(e) => update(i, { whatsapp: formatPhoneDisplay(e.target.value) })}
+          />
+        </div>
+      ))}
+
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full h-12 font-bold uppercase tracking-widest text-xs"
+        onClick={add}
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Incluir atrativo
+      </Button>
     </div>
   );
 }
