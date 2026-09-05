@@ -2067,7 +2067,6 @@ export type Database = {
       atrativos_public: {
         Row: {
           cidade_regiao: string | null
-          contact_whatsapp: string | null
           created_at: string | null
           description: string | null
           estabelecimento_id: string | null
@@ -2084,7 +2083,6 @@ export type Database = {
         }
         Insert: {
           cidade_regiao?: string | null
-          contact_whatsapp?: string | null
           created_at?: string | null
           description?: string | null
           estabelecimento_id?: string | null
@@ -2101,7 +2099,6 @@ export type Database = {
         }
         Update: {
           cidade_regiao?: string | null
-          contact_whatsapp?: string | null
           created_at?: string | null
           description?: string | null
           estabelecimento_id?: string | null

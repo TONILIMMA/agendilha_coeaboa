@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { UpdateAnnouncement } from "./UpdateAnnouncement";
 import { APP_VERSION, UPDATES } from "@/lib/changelog";
 
@@ -13,7 +14,11 @@ describe("UpdateAnnouncement", () => {
   it("usa exatamente o título e bullets de src/lib/changelog.ts", async () => {
     const current = UPDATES.find((u) => u.version === APP_VERSION) ?? UPDATES[0];
 
-    render(<UpdateAnnouncement />);
+    render(
+      <MemoryRouter>
+        <UpdateAnnouncement />
+      </MemoryRouter>
+    );
 
     // O modal abre com um pequeno atraso (setTimeout 800ms). Espera o título.
     const title = await screen.findByText(current.title, {}, { timeout: 2000 });
