@@ -1,52 +1,47 @@
-# Plano de Melhorias AgendIlha / Coé a Boa
+# Auditoria completa — AgendIlha / Coé a Boa?
 
-Melhorias focadas em UX do Divulgador, simplificação do fluxo de cadastro, organização temporal da agenda e relatórios administrativos.
+Auditoria em 5 frentes, entregando um relatório com severidade e recomendação para cada problema, e corrigindo os itens confirmados de severidade crítica e média.
 
-## 1. Área do Divulgador: Compartilhamento de Perfil
-- **Objetivo**: Facilitar a divulgação do perfil público do divulgador.
-- **Implementação**:
-  - Adicionar botão "Compartilhar Perfil" em `src/pages/divulgador/StatusDivulgador.tsx` (quando aprovado).
-  - Usar a Web Share API (se disponível) ou fallback para copiar para o clipboard.
-  - Gerar link no formato: `window.location.origin + "/divulgador/" + user.id`.
-  - Template de mensagem WhatsApp: "Confira meu perfil no AgendIlha e acompanhe meus eventos: [link]".
+## O que já foi verificado agora
 
-## 2. Simplificação do Fluxo de Cadastro (Etapas 3-7)
-- **Objetivo**: Reduzir o número de cliques unificando o cadastro do evento em uma única visualização densa.
-- **Implementação**:
-  - Refatorar `src/components/SubmissionForm.tsx` para combinar os campos das etapas 3 (Evento), 4 (Atrativo), 5 (Local), 6 (Arte) e 7 (Legal).
-  - Manter as etapas 1 (Identificação) e 2 (Profissional) como onboarding inicial (ou combiná-las se possível, mas o pedido foca em 3 a 7).
-  - Utilizar `Accordions` ou `Sections` verticais para organizar os grupos de campos sem mudar de página.
+- Compilação: sem erros.
+- Testes automatizados: 77 passam, 1 falha (o aviso de novidades quebra no teste por falta do contexto de navegação).
+- Segurança do banco: 5 alertas ativos, sendo 2 críticos — contatos pessoais de atrativos (telefone/e-mail) visíveis para qualquer visitante, e uma consulta interna com permissões elevadas demais.
+- Sinais de código: 41 pontos sem tipagem definida, 16 consultas puxando todas as colunas (mais dados que o necessário), telas grandes concentrando muita lógica (gerenciamento de eventos e formulário de divulgação passam de 800 linhas).
 
-## 3. Agenda Organizada por Semana e Calendário Compacto
-- **Objetivo**: Melhorar a navegação temporal na Landing e na Explorar.
-- **Implementação**:
-  - Modificar `src/pages/Explorar.tsx` e `src/pages/Landing.tsx`.
-  - Criar componente `WeeklyCalendar` que exibe 7 dias por vez.
-  - Destacar apenas dias com eventos (usando os dados já buscados).
-  - Adicionar navegação "Semana anterior/próxima".
-  - Filtro de lista: Ao selecionar um dia, filtrar o array local de eventos e ordenar por `start_time`.
+## Etapas da auditoria
 
-## 4. Relatório de Parceiros com Busca por Região/Data
-- **Objetivo**: Ferramenta administrativa para curadoria.
-- **Implementação**:
-  - Criar ou atualizar a página de relatório (presumivelmente em `src/pages/AdminNewsletter.tsx` ou similar, mas o pedido sugere algo novo/específico).
-  - Filtros: `Região` (Bairro) e `Data`.
-  - Ordenação obrigatória por horário crescente.
+### 1. Relatório e correções de segurança (crítico)
+- Fechar a exposição pública de telefone e e-mail dos responsáveis por atrativos, criando uma visão pública sem esses campos (mesmo padrão já usado em outras áreas).
+- Revisar a consulta interna com permissão elevada e reduzi-la ao mínimo necessário.
+- Avaliar os 3 alertas de nível médio (identidade de quem avalia, contatos de atrativos ligados a eventos, funções sem caminho de busca fixo) e corrigir ou justificar cada um.
 
-## 5. QR Code Coé a Boa
-- **Objetivo**: Divulgação física do portal.
-- **Implementação**:
-  - Adicionar componente de geração de QR Code (usando `qrcode.react`) direcionado para `https://coeaboa.com`.
-  - Opção de download como PNG.
-  - Label: "Acesse o Coé a Boa".
+### 2. Estabilidade dos testes e das telas (médio)
+- Corrigir o teste do aviso de novidades envolvendo-o no contexto de navegação.
+- Percorrer no navegador os fluxos principais: cadastro de usuário, divulgação de evento (etapas 1 e 2), envio e troca de flyer, aprovação no painel administrativo, cadastro de atrativo e estabelecimento. Registrar cada falha com passos de reprodução.
 
-## Detalhes Técnicos
-- **Frontend**: React, Lucide-React para ícones, Shadcn UI para componentes.
-- **Backend**: Supabase (RLS já configurado para `submissions` aprovadas).
-- **Responsividade**: Tailwind classes (`sm:`, `md:`, `lg:`) garantindo mobile-first.
+### 3. Usabilidade e responsividade (médio/baixo)
+- Testar em telas de celular e desktop: campos obrigatórios, mensagens de erro, textos truncados, botões pequenos demais, estados vazios e de carregamento.
+- Conferir se toda mensagem de erro diz o próximo passo, no tom do app.
 
----
-Informe ao final:
-- **Componentes**: `SubmissionForm`, `Explorar`, `StatusDivulgador`, `DiscoveryEventCard`.
-- **Tabelas**: `submissions`, `profiles`, `user_roles`.
-- **Regras**: Somente eventos `status = 'aprovado'` na área pública.
+### 4. Qualidade de código (médio/baixo)
+- Mapear duplicações (validação de telefone, formatação de datas, buscas repetidas) e propor um único ponto de verdade.
+- Trocar consultas que puxam todas as colunas por listas explícitas nas telas mais pesadas.
+- Reduzir pontos sem tipagem nos arquivos de formulário e painel.
+- Remover registros de depuração que sobraram.
+
+### 5. Performance e estabilidade (baixo)
+- Medir o tempo de carregamento das telas principais e o tamanho dos pacotes carregados.
+- Verificar vazamentos: assinaturas em tempo real e timers sem limpeza; buscas em loop.
+- Conferir imagens sem carregamento tardio e listas longas sem paginação.
+
+## Entrega
+
+Um documento de relatório com: problema, onde acontece, severidade (crítico / médio / baixo), impacto para o usuário e recomendação. Os itens críticos e médios confirmados são corrigidos nesta mesma execução; os de baixa severidade ficam listados como melhorias sugeridas.
+
+## Detalhes técnicos
+
+- Correções de banco via migração: view pública `atrativos_public` (sem `responsavel_telefone`, `responsavel_email`, `contact_info`, `contact_whatsapp`), ajuste da policy `atrativos_select_v2` para `anon`, revisão da view SECURITY DEFINER e `SET search_path` nas funções sinalizadas.
+- Testes: wrapper `MemoryRouter` em `UpdateAnnouncement.test.tsx`; novos testes para os fluxos que apresentarem regressão.
+- Verificação funcional via Playwright autenticado em `/enviar-evento`, `/admin/events`, `/cadastro/*`.
+- Relatório salvo como documento em `/mnt/documents/auditoria-agendilha.md`.
