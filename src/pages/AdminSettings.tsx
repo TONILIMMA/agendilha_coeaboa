@@ -17,7 +17,7 @@ import {
   useAppSettings,
   useSaveAppSettings,
 } from "@/data/useAppSettings";
-import { formatWhatsappInput, isValidWhatsapp, buildWhatsappUrl } from "@/lib/whatsapp";
+import { formatPhoneDisplay, isValidBrazilianMobile, buildWhatsappUrl } from "@/lib/whatsapp";
 
 const KEYS = [
   SETTING_KEYS.teamWhatsapp,
@@ -49,7 +49,7 @@ export default function AdminSettings() {
   const dirty = KEYS.some((k) => (form[k] ?? "") !== (settings?.[k] ?? DEFAULT_SETTINGS[k]));
 
   const whatsapp = form[SETTING_KEYS.teamWhatsapp] ?? "";
-  const whatsappOk = whatsapp.trim() === "" || isValidWhatsapp(whatsapp);
+  const whatsappOk = whatsapp.trim() === "" || isValidBrazilianMobile(whatsapp);
   const previewUrl = whatsappOk && whatsapp.trim()
     ? buildWhatsappUrl(whatsapp, "Oi! Quero contratar um destaque.")
     : null;
@@ -113,7 +113,7 @@ export default function AdminSettings() {
               inputMode="numeric"
               placeholder="(21) 99999-9999"
               value={whatsapp}
-              onChange={(e) => set(SETTING_KEYS.teamWhatsapp, formatWhatsappInput(e.target.value))}
+              onChange={(e) => set(SETTING_KEYS.teamWhatsapp, formatPhoneDisplay(e.target.value))}
               aria-invalid={!whatsappOk}
               className={!whatsappOk ? "border-destructive" : ""}
             />
