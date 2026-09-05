@@ -67,12 +67,25 @@ export function DuvidasWhatsappField({ form }: { form: UseFormReturn<any> }) {
         )}
       />
 
-      {link && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
-            Link gerado
-          </p>
-          <p className="text-xs break-all text-emerald-800 dark:text-emerald-300">{link.split("?")[0]}</p>
+      {shortLink && (
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+              Link gerado
+            </p>
+            <p className="text-xs break-all text-emerald-800 dark:text-emerald-300">{shortLink}</p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-label="Copiar link do WhatsApp"
+            onClick={handleCopy}
+            className="shrink-0 gap-1 border-emerald-500/40"
+          >
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? "Copiado" : "Copiar"}
+          </Button>
         </div>
       )}
     </div>
