@@ -15,7 +15,7 @@ import {
   formatDuration,
   type HighlightPackage,
 } from "@/data/useHighlightPackages";
-import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { buildWhatsappUrl } from "@/lib/whatsapp";
 
 interface Props {
   open: boolean;
@@ -56,7 +56,8 @@ export function DestaqueModal({ open, onOpenChange, eventTitle, contactWhatsapp 
     const texto =
       `Oi! Quero contratar o ${chosen.name} para ${linha} ` +
       `(${formatPriceBRL(chosen.price_cents)} · ${formatDuration(chosen.duration_days)}).`;
-    const url = buildWhatsAppUrl(contactWhatsapp || "", texto);
+    const direto = contactWhatsapp ? buildWhatsappUrl(contactWhatsapp, texto) : null;
+    const url = direto ?? `https://wa.me/?text=${encodeURIComponent(texto)}`;
     window.open(url, "_blank", "noopener,noreferrer");
     onOpenChange(false);
   }
