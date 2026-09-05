@@ -37,6 +37,16 @@ const formSchema = z.object({
   eventImageUrlStory: z.string().optional(),
   eventImageUrlWhatsapp: z.string().optional(),
   fotos: z.array(z.string().url()).default([]),
+  // Atrativos adicionais do mesmo evento (o principal continua nos campos atrativo*).
+  extraAtrativos: z
+    .array(
+      z.object({
+        name: z.string().trim().max(120).default(""),
+        category: z.string().trim().max(80).optional(),
+        whatsapp: z.string().trim().max(20).optional(),
+      }),
+    )
+    .default([]),
   
   nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
   basicPhone: z.string().trim().min(1, "Informe o WhatsApp").superRefine((val, ctx) => {
