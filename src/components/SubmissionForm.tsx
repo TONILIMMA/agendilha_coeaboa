@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { StepIndicator } from "./submission-form/StepIndicator";
 import { PublishChecklist } from "./submission-form/PublishChecklist";
 import { Step1Summary } from "./submission-form/Step1Summary";
+import { DuvidasWhatsappField } from "./submission-form/DuvidasWhatsappField";
 import { 
   ContactStep, EventStep, AtrativoStep, 
   LocationStep, MediaStep, LegalStep 
