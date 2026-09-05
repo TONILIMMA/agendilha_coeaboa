@@ -220,6 +220,8 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         )}
       />
 
+      <ExtraAtrativos form={form} />
+
       {form.watch("atrativoCategory") === "Outros" && (
         <FormField
           control={form.control}
