@@ -71,14 +71,12 @@ export function DestaqueAnuncioModal({ open, onOpenChange, adTitle, adUrl }: Pro
           <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center mb-1">
             <Sparkles className="h-5 w-5 text-primary" />
           </div>
-          <DialogTitle className="text-xl font-black tracking-tight">
-            Destaque sua publicação para maior visibilidade
-          </DialogTitle>
-          <DialogDescription className="text-sm leading-relaxed">
-            Contrate um destaque e seu anúncio ficará em evidência no carrossel de até 10
-            destaques, aumentando alcance e vendas.
+          <DialogTitle className="text-xl font-black tracking-tight">{titulo}</DialogTitle>
+          <DialogDescription className="text-sm leading-relaxed whitespace-pre-line">
+            {texto}
           </DialogDescription>
         </DialogHeader>
+
 
         {isLoading ? (
           <div className="flex items-center justify-center py-10 text-muted-foreground">
