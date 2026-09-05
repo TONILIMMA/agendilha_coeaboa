@@ -587,10 +587,20 @@ export default function SubmissionForm() {
         const atrativoLinkedType = (values as any).atrativoSourceType;
         const atrativoLinkedId = (values as any).atrativoSourceId;
         
-        // Apenas administradores podem criar novos atrativos se eles não estiverem vinculados
-        // Mas a regra diz: "não deve ser possível criar um novo atrativo diretamente no formulário"
-        // Então removemos a criação automática de atrativos aqui para usuários comuns.
-        // O RLS já bloqueia no banco, mas limpamos o código para ser coerente.
+        if (!atrativoLinkedId && user?.id && clean(values.atrativoName)) {
+          await supabaseClient.from("atrativos").insert({
+            name: clean(values.atrativoName)!,
+            tipo_atrativo: clean(values.atrativoCategory),
+            type: clean(values.atrativoType),
+            style: clean(values.atrativoStyle),
+            contact_whatsapp: clean(values.atrativoContact),
+            contact_info: clean(values.atrativoContact),
+            description: clean(values.atrativoDescription),
+            created_by: user.id,
+            responsavel_id: user.id
+          });
+          emitEntityCreated("atrativo");
+        }
       } catch (e) {
         // Não bloqueia o envio se o reuso falhar (ex.: nome duplicado).
         console.warn("[SubmissionForm] auto-create local/atrativo falhou", e);
