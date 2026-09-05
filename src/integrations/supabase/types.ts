@@ -1751,6 +1751,10 @@ export type Database = {
           flyer_approved_at: string | null
           flyer_aprovado: boolean
           fotos: string[] | null
+          highlight_hidden: boolean
+          highlight_package_id: string | null
+          highlight_starts_at: string | null
+          highlight_until: string | null
           id: string
           image_url: string | null
           image_url_story: string | null
@@ -1847,6 +1851,10 @@ export type Database = {
           flyer_approved_at?: string | null
           flyer_aprovado?: boolean
           fotos?: string[] | null
+          highlight_hidden?: boolean
+          highlight_package_id?: string | null
+          highlight_starts_at?: string | null
+          highlight_until?: string | null
           id?: string
           image_url?: string | null
           image_url_story?: string | null
@@ -1943,6 +1951,10 @@ export type Database = {
           flyer_approved_at?: string | null
           flyer_aprovado?: boolean
           fotos?: string[] | null
+          highlight_hidden?: boolean
+          highlight_package_id?: string | null
+          highlight_starts_at?: string | null
+          highlight_until?: string | null
           id?: string
           image_url?: string | null
           image_url_story?: string | null
@@ -2037,6 +2049,13 @@ export type Database = {
             columns: ["estabelecimento_id"]
             isOneToOne: false
             referencedRelation: "estabelecimentos_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_highlight_package_id_fkey"
+            columns: ["highlight_package_id"]
+            isOneToOne: false
+            referencedRelation: "highlight_packages"
             referencedColumns: ["id"]
           },
         ]
@@ -2471,6 +2490,9 @@ export type Database = {
           end_time: string | null
           event_title: string | null
           fotos: string[] | null
+          highlight_active: boolean | null
+          highlight_hidden: boolean | null
+          highlight_until: string | null
           id: string | null
           image_url: string | null
           image_url_story: string | null
@@ -2536,6 +2558,9 @@ export type Database = {
           end_time?: string | null
           event_title?: string | null
           fotos?: string[] | null
+          highlight_active?: never
+          highlight_hidden?: boolean | null
+          highlight_until?: string | null
           id?: string | null
           image_url?: string | null
           image_url_story?: string | null
@@ -2601,6 +2626,9 @@ export type Database = {
           end_time?: string | null
           event_title?: string | null
           fotos?: string[] | null
+          highlight_active?: never
+          highlight_hidden?: boolean | null
+          highlight_until?: string | null
           id?: string | null
           image_url?: string | null
           image_url_story?: string | null
