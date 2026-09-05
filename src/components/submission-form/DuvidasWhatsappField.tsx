@@ -12,9 +12,23 @@ import { formatPhoneDisplay, validateBrazilianMobile, buildWhatsappUrl } from "@
  * Máscara automática, validação flexível e pré-visualização do link gerado.
  */
 export function DuvidasWhatsappField({ form }: { form: UseFormReturn<any> }) {
+  const [copied, setCopied] = useState(false);
   const value: string = form.watch("duvidasWhatsapp") || "";
   const validation = validateBrazilianMobile(value);
   const link = validation.valid ? buildWhatsappUrl(value, "") : null;
+  const shortLink = link ? link.split("?")[0] : null;
+
+  const handleCopy = async () => {
+    if (!shortLink) return;
+    try {
+      await navigator.clipboard.writeText(shortLink);
+      setCopied(true);
+      toast.success("Link copiado!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Não deu pra copiar. Copie o link na mão mesmo.");
+    }
+  };
 
   return (
     <div className="space-y-3">
