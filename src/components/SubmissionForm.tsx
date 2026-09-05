@@ -120,7 +120,7 @@ const formSchema = z.object({
   additionalDetails: z.string().trim().optional(),
   stage: z.string().optional(),
   responsiblePerson: z.string().trim().optional(),
-  addressNeighborhood: z.string().trim().optional(),
+  addressNeighborhood: z.string().trim().min(2, "Informe o bairro do local").max(100),
   addressCity: z.string().optional(),
   addressState: z.string().optional(),
   ageRating: z.enum(["Livre", "10+", "12+", "14+", "16+", "18+"]).default("Livre"),
@@ -599,7 +599,7 @@ export default function SubmissionForm() {
     const stepMap: Record<string, number> = {
       date: 1, startTime: 1, endTime: 1, eventTitle: 1, description: 1,
       atrativoSourceId: 1, atrativoName: 1, atrativoType: 1, atrativoStyle: 1, atrativoDescription: 1, atrativoContact: 1, atrativoEmail: 1,
-      locationName: 1, eventAddress: 1, locationCep: 1,
+      locationName: 1, eventAddress: 1, locationCep: 1, addressNeighborhood: 1,
       category: 1, ageRating: 1, atrativoCategory: 1, localTipo: 1,
       locationType: 1, locationContact: 1,
       nickName: 2, basicPhone: 2, companyName: 2, email: 2,
