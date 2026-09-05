@@ -16,6 +16,8 @@ import { handleError } from "@/lib/error-handler";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { formatPriceBRL } from "@/data/useHighlightPackages";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HighlightedEventsPanel } from "@/components/destaque/HighlightedEventsPanel";
 
 interface Pacote {
   id: string;
