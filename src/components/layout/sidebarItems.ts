@@ -1,5 +1,5 @@
 import React from "react";
-import { 
+import { Sparkles, 
   CalendarDays, 
   Users, 
   Heart, 
@@ -145,6 +145,13 @@ export const sidebarConfig: SidebarSection[] = [
         label: "Templates WhatsApp",
         path: ROUTES.ADMIN_WHATSAPP_TEMPLATES,
         icon: MessageSquare,
+        roles: ["admin", "master"]
+      },
+      {
+        id: "destaques_admin",
+        label: "Planos de destaque",
+        path: ROUTES.ADMIN_DESTAQUES,
+        icon: Sparkles,
         roles: ["admin", "master"]
       },
       {

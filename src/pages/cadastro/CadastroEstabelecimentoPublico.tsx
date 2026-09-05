@@ -16,6 +16,7 @@ const TIPOS = [
   { value: "Bar", label: "Bar" },
   { value: "Restaurante", label: "Restaurante" },
   { value: "Casa de eventos", label: "Casa de eventos" },
+  { value: "Quiosque", label: "Quiosque" },
   { value: "Outro", label: "Outro tipo" },
 ];
 

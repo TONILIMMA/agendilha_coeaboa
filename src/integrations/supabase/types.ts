@@ -1067,6 +1067,45 @@ export type Database = {
         }
         Relationships: []
       }
+      highlight_packages: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          duration_days: number
+          id: string
+          is_active: boolean
+          name: string
+          price_cents: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          duration_days?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          price_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          duration_days?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       location_requests: {
         Row: {
           created_at: string | null

@@ -59,6 +59,7 @@ const Carrossel = lazy(() => import("./pages/Carrossel"));
 const EventoEnviado = lazy(() => import("./pages/EventoEnviado"));
 const MeusEventos = lazy(() => import("./pages/MeusEventos"));
 const AdminWhatsAppTemplates = lazy(() => import("./pages/AdminWhatsAppTemplates"));
+const AdminDestaques = lazy(() => import("./pages/AdminDestaques"));
 const AdminEstabelecimentos = lazy(() => import("./pages/AdminEstabelecimentos"));
 const AdminAtrativos = lazy(() => import("./pages/AdminAtrativos"));
 const CadastroPromotor = lazy(() => import("./pages/cadastro/CadastroPromotor"));
@@ -220,6 +221,7 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_MEDIA} element={<AdminMedia />} />
           <Route path={ROUTES.ADMIN_AGENDA_INFORMA} element={<AdminAgendaInforma />} />
           <Route path={ROUTES.ADMIN_WHATSAPP_TEMPLATES} element={<AdminWhatsAppTemplates />} />
+          <Route path={ROUTES.ADMIN_DESTAQUES} element={<AdminDestaques />} />
           <Route path={ROUTES.ADMIN_REPORTS} element={<AdminReports />} />
           <Route path={ROUTES.ADMIN_ESTABELECIMENTOS} element={<AdminEstabelecimentos />} />
           <Route path={ROUTES.ADMIN_ATRATIVOS} element={<AdminAtrativos />} />

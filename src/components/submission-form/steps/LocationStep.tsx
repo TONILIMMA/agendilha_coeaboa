@@ -19,6 +19,7 @@ const LOCAL_TIPOS = [
   { v: "bar", l: "Bar" },
   { v: "restaurante", l: "Restaurante" },
   { v: "casa_show", l: "Casa de show" },
+  { v: "quiosque", l: "Quiosque" },
   { v: "praca", l: "Praça / espaço público" },
   { v: "clube", l: "Clube" },
   { v: "espaco_cultural", l: "Espaço cultural" },
