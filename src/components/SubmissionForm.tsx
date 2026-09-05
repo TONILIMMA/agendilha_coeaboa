@@ -396,12 +396,12 @@ export default function SubmissionForm() {
         "atrativoName", "atrativoContact",
         "locationName", "eventAddress", "addressNeighborhood",
         "category", "ageRating", "atrativoCategory",
-        "locationType", "locationContact",
+        "locationType", "locationContact", "duvidasWhatsapp",
       ];
       // Etapa 2 — seleções obrigatórias restantes + contato e termos
       case 2: return [
         "nickName", "basicPhone",
-        "legalAcceptance", "responsavelNome", "duvidasWhatsapp", "duvidasAuthorized",
+        "legalAcceptance", "responsavelNome", "duvidasAuthorized",
       ];
       default: return [];
     }
