@@ -80,7 +80,7 @@ export default function NovoAnuncio() {
       return;
     }
     const telefone = validateBrazilianMobile(whats);
-    if (!telefone.valid) {
+    if (telefone.valid === false) {
       toast.error(telefone.reason);
       return;
     }
