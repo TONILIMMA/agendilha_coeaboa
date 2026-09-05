@@ -730,6 +730,11 @@ export default function SubmissionForm() {
                 <EventStep form={form} section="selections" />
               </div>
 
+              <div className="border rounded-2xl px-4 py-5 bg-card/30">
+                <DuvidasWhatsappField form={form} />
+              </div>
+
+
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="extras" className="border rounded-2xl px-4 bg-muted/20">
                   <AccordionTrigger className="hover:no-underline font-semibold">
