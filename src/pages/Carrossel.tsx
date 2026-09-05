@@ -29,7 +29,10 @@ export default function Carrossel() {
         .eq("status", "aprovado")
         .neq("moderation_status", "blocked")
         .order("date", { ascending: true });
-      if (!error && data) setEvents(data as any as FlyerEvent[]);
+      if (!error && data) {
+        // Até 10 cards, com os destaques ativos (prazo válido e não escondidos) na frente.
+        setEvents(pickCarouselEvents(data as any[], CAROUSEL_LIMIT) as any as FlyerEvent[]);
+      }
       setLoading(false);
     })();
   }, []);
