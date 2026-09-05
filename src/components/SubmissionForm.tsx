@@ -537,6 +537,33 @@ export default function SubmissionForm() {
 
       if (!result) return; // toast already shown by ctx
 
+      // Atrativos do evento: o principal + os incluídos pelo botão "Incluir atrativo".
+      try {
+        const extras = (values.extraAtrativos || []).filter((a) => clean(a?.name));
+        if (extras.length) {
+          const rows = [
+            {
+              submission_id: result.id,
+              name: clean(values.atrativoName)!,
+              category: clean(values.atrativoCategory),
+              whatsapp: clean(values.atrativoContact),
+              display_order: 0,
+            },
+            ...extras.map((a, i) => ({
+              submission_id: result.id,
+              name: clean(a.name)!,
+              category: clean(a.category),
+              whatsapp: clean(a.whatsapp),
+              display_order: i + 1,
+            })),
+          ];
+          await supabaseClient.from("submission_atrativos").insert(rows);
+        }
+      } catch (e) {
+        console.warn("[SubmissionForm] atrativos adicionais falharam", e);
+      }
+
+
       // "Primeira vez grava, próximas vezes reaproveita".
       // Cria Local/Estabelecimento e Atrativo quando o usuário digitou nomes novos,
       // pra que apareçam no autocomplete em divulgações futuras (após aprovação).
