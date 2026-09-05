@@ -165,14 +165,25 @@ export default function AdminDestaques() {
         <header className="space-y-2">
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight inline-flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-primary" />
-            Planos de destaque
+            Destaques
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
-            Defina os valores e prazos do destaque. O que você salvar aqui é exatamente o que o
-            divulgador vê depois de enviar o rolê. Planos desativados não aparecem para ninguém.
+            Defina os valores e prazos do destaque e acompanhe quais rolês estão em evidência. O que
+            você salvar aqui é exatamente o que o divulgador vê depois de enviar o rolê.
           </p>
         </header>
 
+        <Tabs defaultValue="pacotes" className="space-y-5">
+          <TabsList>
+            <TabsTrigger value="pacotes">Pacotes</TabsTrigger>
+            <TabsTrigger value="roles">Rolês em destaque</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="roles" className="mt-0">
+            <HighlightedEventsPanel />
+          </TabsContent>
+
+          <TabsContent value="pacotes" className="mt-0">
         {loading ? (
           <LoadingState message="Carregando planos…" />
         ) : (
