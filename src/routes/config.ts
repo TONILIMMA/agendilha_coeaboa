@@ -52,6 +52,13 @@ export const ROUTES = {
   PRIVACIDADE: "/privacidade",
   IMPULSIONAMENTO: "/impulsionamento-em-breve",
   DIVULGADOR_STATUS: "/divulgador/status",
+  ANUNCIOS: "/anuncios",
+  ANUNCIO_NOVO: "/anuncios/novo",
+  ANUNCIO_EDITAR: "/anuncios/:id/editar",
+  ANUNCIO_DETALHE: "/anuncios/:id",
+  MEUS_ANUNCIOS: "/meus-anuncios",
+  ADMIN_ANUNCIOS: "/admin/anuncios",
+  ADMIN_PLANOS_ANUNCIO: "/admin/planos-anuncio",
 };
 
 export const VALID_ROUTES = Object.values(ROUTES);
