@@ -23,7 +23,7 @@ import { AD_CATEGORIES, useAd, useCreateAd, useUpdateAd } from "@/data/useAds";
 import { AdPhotoUploader } from "@/components/anuncios/AdPhotoUploader";
 import { DestaqueAnuncioModal } from "@/components/anuncios/DestaqueAnuncioModal";
 import { inputToCents, centsToInput } from "@/data/useAdPlans";
-import { formatBrPhoneInput, validateBrPhone } from "@/lib/whatsapp";
+import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 import { ROUTES } from "@/routes/config";
 
 export default function NovoAnuncio() {
@@ -54,7 +54,7 @@ export default function NovoAnuncio() {
     setDescription(existente.description);
     setCategory(existente.category);
     setPreco(existente.price_cents !== null ? centsToInput(existente.price_cents) : "");
-    setWhats(formatBrPhoneInput(existente.contact_whatsapp));
+    setWhats(formatPhoneDisplay(existente.contact_whatsapp));
     setCity(existente.city ?? "");
     setNeighborhood(existente.neighborhood ?? "");
     setPhotos(existente.photos);
@@ -79,9 +79,9 @@ export default function NovoAnuncio() {
       toast.error("Escolha uma categoria.");
       return;
     }
-    const telefone = validateBrPhone(whats);
+    const telefone = validateBrazilianMobile(whats);
     if (!telefone.valid) {
-      toast.error(telefone.error ?? "Confira o número de WhatsApp.");
+      toast.error(telefone.reason);
       return;
     }
     let price_cents: number | null = null;
@@ -206,7 +206,7 @@ export default function NovoAnuncio() {
                     id="whats"
                     inputMode="tel"
                     value={whats}
-                    onChange={(e) => setWhats(formatBrPhoneInput(e.target.value))}
+                    onChange={(e) => setWhats(formatPhoneDisplay(e.target.value))}
                     placeholder="(21) 99999-9999"
                     className="h-11"
                   />
