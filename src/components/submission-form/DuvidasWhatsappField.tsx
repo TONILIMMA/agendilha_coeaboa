@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MessageCircle, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 import { formatPhoneDisplay, validateBrazilianMobile, buildWhatsappUrl } from "@/lib/whatsapp";
 
 /**
@@ -9,9 +12,23 @@ import { formatPhoneDisplay, validateBrazilianMobile, buildWhatsappUrl } from "@
  * Máscara automática, validação flexível e pré-visualização do link gerado.
  */
 export function DuvidasWhatsappField({ form }: { form: UseFormReturn<any> }) {
+  const [copied, setCopied] = useState(false);
   const value: string = form.watch("duvidasWhatsapp") || "";
   const validation = validateBrazilianMobile(value);
   const link = validation.valid ? buildWhatsappUrl(value, "") : null;
+  const shortLink = link ? link.split("?")[0] : null;
+
+  const handleCopy = async () => {
+    if (!shortLink) return;
+    try {
+      await navigator.clipboard.writeText(shortLink);
+      setCopied(true);
+      toast.success("Link copiado!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Não deu pra copiar. Copie o link na mão mesmo.");
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -50,12 +67,25 @@ export function DuvidasWhatsappField({ form }: { form: UseFormReturn<any> }) {
         )}
       />
 
-      {link && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
-            Link gerado
-          </p>
-          <p className="text-xs break-all text-emerald-800 dark:text-emerald-300">{link.split("?")[0]}</p>
+      {shortLink && (
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+              Link gerado
+            </p>
+            <p className="text-xs break-all text-emerald-800 dark:text-emerald-300">{shortLink}</p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-label="Copiar link do WhatsApp"
+            onClick={handleCopy}
+            className="shrink-0 gap-1 border-emerald-500/40"
+          >
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? "Copiado" : "Copiar"}
+          </Button>
         </div>
       )}
     </div>
