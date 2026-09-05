@@ -155,22 +155,8 @@ const formSchema = z.object({
   message: "Contato do responsável é obrigatório para estabelecimentos comerciais",
   path: ["locationContact"],
 }).superRefine((data, ctx) => {
-  // WhatsApp do responsável por dúvidas: sempre exigimos número válido; para atrativo/estabelecimento é obrigatório.
-  const phone = (data.duvidasWhatsapp || "").trim();
-  if (!phone) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["duvidasWhatsapp"],
-      message: "Informe o WhatsApp que vai receber as dúvidas",
-    });
-    return;
-  }
-  const v = validateBrazilianMobile(phone);
-  if (v.valid === false) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["duvidasWhatsapp"], message: v.reason });
-  }
-
-  // Se "Outro" for selecionado em tipoResponsavel, o telefone deve estar no formato correto
+  // Se "Outro" for selecionado em tipoResponsavel, o telefone deve estar no formato correto.
+  // A validação padrão do campo já cobre o fluxo normal; aqui tratamos apenas o caso especial.
   if (data.tipoResponsavel === "outro") {
     const outroPhone = (data.duvidasWhatsapp as string || "").trim();
     if (!outroPhone) {
