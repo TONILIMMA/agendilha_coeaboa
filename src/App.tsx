@@ -60,6 +60,12 @@ const EventoEnviado = lazy(() => import("./pages/EventoEnviado"));
 const MeusEventos = lazy(() => import("./pages/MeusEventos"));
 const AdminWhatsAppTemplates = lazy(() => import("./pages/AdminWhatsAppTemplates"));
 const AdminDestaques = lazy(() => import("./pages/AdminDestaques"));
+const AdminAdPlans = lazy(() => import("./pages/AdminAdPlans"));
+const AdminAds = lazy(() => import("./pages/AdminAds"));
+const Anuncios = lazy(() => import("./pages/anuncios/Anuncios"));
+const AnuncioDetalhe = lazy(() => import("./pages/anuncios/AnuncioDetalhe"));
+const NovoAnuncio = lazy(() => import("./pages/anuncios/NovoAnuncio"));
+const MeusAnuncios = lazy(() => import("./pages/anuncios/MeusAnuncios"));
 const AdminEstabelecimentos = lazy(() => import("./pages/AdminEstabelecimentos"));
 const AdminAtrativos = lazy(() => import("./pages/AdminAtrativos"));
 const CadastroPromotor = lazy(() => import("./pages/cadastro/CadastroPromotor"));
@@ -209,6 +215,11 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ARTISTA_PROFILE} element={<ArtistProfile />} />
           <Route path={ROUTES.EVENTO_DETAIL} element={<EventDetail />} />
           <Route path={ROUTES.ESTABELECIMENTO_DETAIL} element={<EstabelecimentoDetail />} />
+          <Route path={ROUTES.ANUNCIOS} element={<Anuncios />} />
+          <Route path={ROUTES.ANUNCIO_NOVO} element={<NovoAnuncio />} />
+          <Route path={ROUTES.ANUNCIO_EDITAR} element={<NovoAnuncio />} />
+          <Route path={ROUTES.MEUS_ANUNCIOS} element={<MeusAnuncios />} />
+          <Route path={ROUTES.ANUNCIO_DETALHE} element={<AnuncioDetalhe />} />
         </Route>
 
         {/* Admin Pages - Full sidebar integration */}
@@ -225,6 +236,8 @@ export const AppRoutes = () => (
           <Route path={ROUTES.ADMIN_REPORTS} element={<AdminReports />} />
           <Route path={ROUTES.ADMIN_ESTABELECIMENTOS} element={<AdminEstabelecimentos />} />
           <Route path={ROUTES.ADMIN_ATRATIVOS} element={<AdminAtrativos />} />
+          <Route path={ROUTES.ADMIN_ANUNCIOS} element={<AdminAds />} />
+          <Route path={ROUTES.ADMIN_PLANOS_ANUNCIO} element={<AdminAdPlans />} />
         </Route>
 
         {/* Promotor area — guarded by user_type=divulgador (admins/masters incluídos) */}
