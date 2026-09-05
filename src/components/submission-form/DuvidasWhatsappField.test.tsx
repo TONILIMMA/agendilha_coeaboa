@@ -67,7 +67,7 @@ describe("DuvidasWhatsappField", () => {
     render(<Harness />);
     const input = screen.getByLabelText(/Número com DDD/i) as HTMLInputElement;
     await user.click(input);
-    await user.paste("+55 (21) 99855-4322");
+    await user.paste("55 21 99855-4322");
     expect(input.value).toBe("(21) 99855-4322");
   });
 
@@ -87,7 +87,7 @@ describe("DuvidasWhatsappField", () => {
 
   it("copia o link gerado para a área de transferência", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.assign(navigator, { clipboard: { writeText } });
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
     const user = userEvent.setup();
     render(<Harness />);
     await user.type(screen.getByLabelText(/Número com DDD/i), "21998554322");
