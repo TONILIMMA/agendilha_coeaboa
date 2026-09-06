@@ -2790,6 +2790,13 @@ export type Database = {
       is_master: { Args: { _user_id: string }; Returns: boolean }
       is_promotor: { Args: { _user_id: string }; Returns: boolean }
       owns_artist_media_path: { Args: { _name: string }; Returns: boolean }
+      process_expired_highlights: {
+        Args: never
+        Returns: {
+          nome_tabela: string
+          registro_id: string
+        }[]
+      }
       report_event: {
         Args: {
           report_description?: string
