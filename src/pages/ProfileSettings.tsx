@@ -434,35 +434,35 @@ export default function ProfileSettings() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="sm:col-span-2 space-y-2">
                 <Label>Rua / Avenida</Label>
-                <Input value={addressStreet} onChange={(e) => setAddressStreet(e.target.value)} />
+                <Input name="address-line1" autoComplete="address-line1" value={addressStreet} onChange={(e) => setAddressStreet(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label>Número</Label>
-                <Input value={addressNumber} onChange={(e) => setAddressNumber(e.target.value)} />
+                <Input name="address-line2" autoComplete="address-line2" value={addressNumber} onChange={(e) => setAddressNumber(e.target.value)} />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Complemento (opcional)</Label>
-              <Input value={addressComplement} onChange={(e) => setAddressComplement(e.target.value)} placeholder="Bloco, apto…" />
+              <Input name="address-line3" autoComplete="address-line3" value={addressComplement} onChange={(e) => setAddressComplement(e.target.value)} placeholder="Bloco, apto…" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Bairro</Label>
-                <Input value={addressNeighborhood} onChange={(e) => setAddressNeighborhood(e.target.value)} />
+                <Input name="address-level3" autoComplete="address-level3" value={addressNeighborhood} onChange={(e) => setAddressNeighborhood(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label>Cidade</Label>
-                <Input value={addressCity} onChange={(e) => setAddressCity(e.target.value)} />
+                <Input name="city" autoComplete="address-level2" value={addressCity} onChange={(e) => setAddressCity(e.target.value)} />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Estado (UF)</Label>
-                <Input value={addressState} onChange={(e) => setAddressState(e.target.value)} placeholder="RJ" />
+                <Input name="state" autoComplete="address-level1" value={addressState} onChange={(e) => setAddressState(e.target.value)} placeholder="RJ" />
               </div>
               <div className="space-y-2">
                 <Label>País</Label>
-                <Input value={country} onChange={(e) => setCountry(e.target.value)} />
+                <Input name="country" autoComplete="country-name" value={country} onChange={(e) => setCountry(e.target.value)} />
               </div>
             </div>
           </CardContent>
