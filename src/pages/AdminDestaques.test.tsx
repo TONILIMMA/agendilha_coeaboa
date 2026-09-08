@@ -27,8 +27,12 @@ vi.mock('@/integrations/supabase/client', () => ({
   }
 }));
 
-vi.mock('@/components/destaque/HighlightedEventsPanel', () => ({
+const { HighlightedEventsPanel: MockedPanel } = vi.hoisted(() => ({
   HighlightedEventsPanel: () => <div data-testid="mocked-panel">Rolês listados mock</div>
+}));
+
+vi.mock('@/components/destaque/HighlightedEventsPanel', () => ({
+  HighlightedEventsPanel: MockedPanel
 }));
 
 describe('AdminDestaques', () => {
