@@ -275,6 +275,8 @@ export default function ProfileSettings() {
             <Label htmlFor="name">Nome <span className="text-destructive">*</span></Label>
             <Input 
               id="name" 
+              name="name"
+              autoComplete="name"
               value={name} 
               onChange={(e) => setName(e.target.value)} 
               aria-invalid={!!baseErrors.name}
@@ -288,7 +290,10 @@ export default function ProfileSettings() {
             </Label>
             <Input
               id="whatsapp-principal"
+              name="tel"
+              type="tel"
               inputMode="tel"
+              autoComplete="tel"
               placeholder="21 9XXXX-XXXX"
               value={whatsappPhone}
               onChange={(e) => setWhatsappPhone(formatPhoneMask(e.target.value))}
