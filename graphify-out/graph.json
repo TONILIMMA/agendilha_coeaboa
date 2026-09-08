@@ -3911,7 +3911,7 @@
       "file_type": "code",
       "norm_label": "cardoption()",
       "source_file": "src/components/auth/RegistrationFlow.tsx",
-      "source_location": "L709"
+      "source_location": "L717"
     },
     {
       "id": "src_components_auth_registrationflow_summaryitem",
@@ -3922,7 +3922,7 @@
       "file_type": "code",
       "norm_label": "summaryitem()",
       "source_file": "src/components/auth/RegistrationFlow.tsx",
-      "source_location": "L732"
+      "source_location": "L740"
     },
     {
       "id": "src_components_ui_context_menu_contextmenushortcut",
@@ -22655,7 +22655,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/RegistrationFlow.tsx",
-      "source_location": "L713",
+      "source_location": "L721",
       "weight": 1.0
     },
     {
@@ -22691,7 +22691,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/RegistrationFlow.tsx",
-      "source_location": "L266",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -22703,7 +22703,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/RegistrationFlow.tsx",
-      "source_location": "L303",
+      "source_location": "L310",
       "weight": 1.0
     },
     {
@@ -22715,7 +22715,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/RegistrationFlow.tsx",
-      "source_location": "L475",
+      "source_location": "L483",
       "weight": 1.0
     },
     {
@@ -22739,7 +22739,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/RegistrationFlow.tsx",
-      "source_location": "L734",
+      "source_location": "L742",
       "weight": 1.0
     },
     {
@@ -32711,7 +32711,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pages/ProfileSettings.tsx",
-      "source_location": "L343",
+      "source_location": "L348",
       "weight": 1.0
     },
     {
@@ -32723,7 +32723,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pages/ProfileSettings.tsx",
-      "source_location": "L547",
+      "source_location": "L552",
       "weight": 1.0
     },
     {
@@ -90765,7 +90765,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/auth/RegistrationFlow.tsx",
-      "source_location": "L709",
+      "source_location": "L717",
       "weight": 1.0
     },
     {
@@ -90776,7 +90776,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/auth/RegistrationFlow.tsx",
-      "source_location": "L732",
+      "source_location": "L740",
       "weight": 1.0
     },
     {
@@ -104202,5 +104202,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2c6a5bb15ebe6c7fccc9139df6e9b6d63042f997"
+  "built_at_commit": "7c70f1427b8b1a29f877619a88a0ffff75450a97"
 }
