@@ -10,20 +10,12 @@ vi.mock('@/integrations/supabase/client', () => ({
       select: () => ({
         eq: () => ({
           neq: () => ({
-            eq: () => ({
-              eq: () => ({
-                gte: () => ({
-                  order: () => ({
-                    limit: vi.fn().mockResolvedValue({
-                      data: [
-                        { id: '1', event_title: 'Rolê Destaque 1', is_highlight: true },
-                        { id: '2', event_title: 'Rolê Destaque 2', is_highlight: true }
-                      ],
-                      error: null
-                    })
-                  })
-                })
-              })
+            order: vi.fn().mockResolvedValue({
+              data: [
+                { id: '1', event_title: 'Rolê Destaque 1', is_highlight: true },
+                { id: '2', event_title: 'Rolê Destaque 2', is_highlight: true }
+              ],
+              error: null
             })
           })
         })
