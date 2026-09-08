@@ -250,6 +250,8 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
                 </Label>
                 <Input
                   id="name"
+                  name="name"
+                  autoComplete="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ex: João Silva ou Agência Festas"
