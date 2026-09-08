@@ -14,25 +14,24 @@ vi.mock('@/hooks/useAppPermissions', () => ({
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: () => ({
-      select: () => ({
-        order: vi.fn().mockResolvedValue({
-          data: [
-            { id: '1', name: 'Plano Master', price_cents: 5000, duration_days: 14, is_active: true, display_order: 1 }
-          ],
-          error: null
+    from: (table: string) => {
+      const plans = [
+        { id: '1', name: 'Plano Master', price_cents: 5000, duration_days: 14, is_active: true, display_order: 1 }
+      ];
+      const empty = { data: [], error: null };
+      const withData = (data: unknown[]) => ({ data, error: null });
+      return {
+        select: () => ({
+          order: vi.fn().mockResolvedValue(withData(table === 'highlight_packages' ? plans : [])),
+          eq: () => ({
+            not: () => ({
+              order: vi.fn().mockResolvedValue(empty)
+            })
+          })
         })
-      })
-    })
+      };
+    }
   }
-}));
-
-const { HighlightedEventsPanel: MockedPanel } = vi.hoisted(() => ({
-  HighlightedEventsPanel: () => <div data-testid="mocked-panel">Rolês listados mock</div>
-}));
-
-vi.mock('@/components/destaque/HighlightedEventsPanel', () => ({
-  HighlightedEventsPanel: MockedPanel
 }));
 
 describe('AdminDestaques', () => {
@@ -40,6 +39,6 @@ describe('AdminDestaques', () => {
     render(<BrowserRouter><AdminDestaques /></BrowserRouter>);
     expect(await screen.findByText('Destaques')).toBeInTheDocument();
     expect(await screen.findByText(/Plano Master/i)).toBeInTheDocument();
-    expect(screen.getByTestId('mocked-panel')).toBeInTheDocument();
+    expect(await screen.findByText('Nenhum evento em destaque no momento.')).toBeInTheDocument();
   });
 });
