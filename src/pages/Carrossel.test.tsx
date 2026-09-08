@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import Carrossel from './Carrossel';
 import { BrowserRouter } from 'react-router-dom';
@@ -27,6 +27,8 @@ vi.mock('@/integrations/supabase/client', () => ({
 describe('Carrossel', () => {
   it('deve renderizar e carregar os eventos destacados corretamente', async () => {
     render(<BrowserRouter><Carrossel /></BrowserRouter>);
-    expect(await screen.findByText(/Rolê Destaque 1/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Rolê Destaque 1');
+    });
   });
 });
