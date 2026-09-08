@@ -26,19 +26,14 @@ export default function Carrossel() {
 
   useEffect(() => {
     (async () => {
-      const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("public_submissions")
         .select("*")
         .eq("status", "aprovado")
         .neq("moderation_status", "blocked")
-        .eq("is_highlight", true)
-        .eq("highlight_hidden", false)
-        .gte("highlight_until", now)
-        .order("date", { ascending: true })
-        .limit(CAROUSEL_LIMIT);
+        .order("date", { ascending: true });
       if (!error && data) {
-        setEvents(data as any as FlyerEvent[]);
+        setEvents(pickCarouselEvents(data as any as FlyerEvent[], CAROUSEL_LIMIT));
       }
       setLoading(false);
     })();

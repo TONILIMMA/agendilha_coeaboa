@@ -288,7 +288,7 @@ function ExtraAtrativos({ form }: { form: UseFormReturn<any> }) {
                 whatsapp: row.contact_whatsapp || row.contact_info || row.whatsapp || "",
               })
             }
-            onCreateNew={(nome) => handleCreateExtra(i, nome)}
+            onCreateNew={(nome) => update(i, { name: nome })}
             placeholder="Nome do outro atrativo"
             selected={!!item.name}
           />
