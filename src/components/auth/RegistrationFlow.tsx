@@ -250,6 +250,8 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
                 </Label>
                 <Input
                   id="name"
+                  name="name"
+                  autoComplete="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ex: João Silva ou Agência Festas"
@@ -275,7 +277,9 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
                   <Label htmlFor="email">E-mail (Para contato comercial)</Label>
                   <Input
                     id="email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="contato@exemplo.com"
@@ -286,6 +290,8 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
                 <Label htmlFor="password">Senha</Label>
                 <PasswordInput
                   id="password"
+                  name="new-password"
+                  autoComplete="new-password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="Mínimo 8 caracteres"
@@ -298,6 +304,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
                     id="pin"
                     type="password"
                     inputMode="numeric"
+                    autoComplete="off"
                     maxLength={4}
                     value={formData.pin}
                     onChange={(e) => setFormData({ ...formData, pin: onlyPinDigits(e.target.value) })}
@@ -308,6 +315,7 @@ export function RegistrationFlow({ onComplete }: { onComplete: () => void }) {
                     id="pinConfirm"
                     type="password"
                     inputMode="numeric"
+                    autoComplete="off"
                     maxLength={4}
                     value={formData.pinConfirm}
                     onChange={(e) => setFormData({ ...formData, pinConfirm: onlyPinDigits(e.target.value) })}
