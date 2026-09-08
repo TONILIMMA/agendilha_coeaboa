@@ -32,6 +32,7 @@ import { DestaqueModal } from "@/components/destaque/DestaqueModal";
 
 interface Submission {
   id: string;
+  slug?: string | null;
   event_title: string | null;
   date: string | null;
   start_time?: string | null;
@@ -59,7 +60,7 @@ export default function EventoEnviado() {
   const validId = !!id && /^[0-9a-f-]{10,}$/i.test(id);
   const { data: sub, isLoading: loading } = useSubmission<Submission>(
     validId ? id! : "",
-    "id, event_title, date, start_time, location, atrativo_name, image_url, status"
+    "id, slug, event_title, date, start_time, location, atrativo_name, image_url, status"
   );
   const { data: pacotes = [] } = useHighlightPackages();
   const [destaqueAberto, setDestaqueAberto] = useState(false);
