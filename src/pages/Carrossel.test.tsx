@@ -27,6 +27,6 @@ vi.mock('@/integrations/supabase/client', () => ({
 describe('Carrossel', () => {
   it('deve renderizar e carregar os eventos destacados corretamente', async () => {
     render(<BrowserRouter><Carrossel /></BrowserRouter>);
-    expect(await screen.findByAltText('Rolê Destaque 1')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Rolê Destaque 1/ })).toBeInTheDocument();
   });
 });
