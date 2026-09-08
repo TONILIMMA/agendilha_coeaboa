@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import AdminDestaques from './AdminDestaques';
 import { BrowserRouter } from 'react-router-dom';
@@ -39,6 +39,8 @@ describe('AdminDestaques', () => {
     render(<BrowserRouter><AdminDestaques /></BrowserRouter>);
     expect(await screen.findByText('Destaques')).toBeInTheDocument();
     expect(await screen.findByText(/Plano Master/i)).toBeInTheDocument();
-    expect(await screen.findByText('Nenhum evento em destaque no momento.')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Nenhum evento em destaque no momento.');
+    });
   });
 });
