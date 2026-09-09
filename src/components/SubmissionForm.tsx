@@ -192,7 +192,6 @@ export default function SubmissionForm() {
   const { data: promotorProfile, isLoading: promotorLoading } = usePromotorProfile(user?.id);
   const { mutateAsync: upsertPromotorProfile } = useUpsertPromotorProfile();
   const [currentStep, setCurrentStep] = useState(1);
-  const [wantHighlight, setWantHighlight] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const draftLoadedRef = useRef(false);
 
@@ -797,10 +796,9 @@ export default function SubmissionForm() {
               <DestaquePremiumSection
                 submitting={submitting}
                 onDestacar={() => {
-                  setWantHighlight(true);
-                  // Envia o formulário; ao concluir, a tela de confirmação abre
-                  // automaticamente o modal de destaque.
-                  setTimeout(() => form.handleSubmit(onSubmit, onInvalid)(), 0);
+                  // Envia o formulário; a tela de confirmação abre o modal
+                  // de destaque automaticamente após o envio.
+                  form.handleSubmit(onSubmit, onInvalid)();
                 }}
               />
             </div>
