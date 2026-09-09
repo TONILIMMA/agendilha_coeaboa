@@ -39,23 +39,23 @@ export function DestaquePremiumSection({ onDestacar, submitting }: Props) {
   return (
     <section
       aria-label="Destaque premium"
-      className="rounded-3xl bg-neutral-950 px-6 py-10 sm:px-10 shadow-2xl shadow-amber-500/10 ring-1 ring-amber-400/20"
+      className="box-border w-full rounded-3xl bg-neutral-950 p-4 lg:px-10 lg:py-10 shadow-2xl shadow-amber-500/10 ring-1 ring-amber-400/20"
     >
-      <div className="flex items-center justify-center gap-3">
+      <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Crown className="h-7 w-7 text-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.5)]" aria-hidden />
-        <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-amber-400 text-center font-display">
+        <h2 className="text-center font-display text-[1.2rem] font-extrabold text-amber-400 sm:text-2xl">
           Destaque sua publicação para maior visibilidade!
         </h2>
       </div>
 
-      <p className="mt-3 text-center text-sm sm:text-base text-neutral-300 max-w-xl mx-auto">
+      <p className="mx-auto mt-4 max-w-xl text-center text-[0.9rem] text-neutral-300 lg:text-base">
         Contrate o destaque e seu flyer fica em evidência no carrossel de eventos,
         aumentando o alcance e o público do seu rolê.
       </p>
 
-      <ul className="mt-6 space-y-3 max-w-md mx-auto">
+      <ul className="mx-auto mt-7 max-w-md space-y-4">
         {BENEFITS.map((b) => (
-          <li key={b} className="flex items-start gap-3 text-sm text-neutral-200">
+          <li key={b} className="flex items-start gap-3 text-left text-sm text-neutral-200">
             <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/15 ring-1 ring-amber-400/40">
               <Check className="h-3 w-3 text-amber-400" strokeWidth={3} />
             </span>
@@ -64,13 +64,13 @@ export function DestaquePremiumSection({ onDestacar, submitting }: Props) {
         ))}
       </ul>
 
-      <div className="mt-8 flex flex-col items-center gap-3">
+      <div className="mt-9 flex flex-col items-center gap-4">
         <Button
           type="button"
           onClick={onDestacar}
           disabled={submitting}
           className={cn(
-            "h-12 px-8 w-full sm:w-auto font-extrabold tracking-wide",
+            "h-12 w-full px-5 font-extrabold tracking-wide sm:w-auto sm:px-8",
             "bg-amber-400 text-neutral-950 shadow-lg shadow-amber-500/25",
             "hover:bg-neutral-950 hover:text-amber-400 hover:ring-2 hover:ring-amber-400",
             "transition-colors"
