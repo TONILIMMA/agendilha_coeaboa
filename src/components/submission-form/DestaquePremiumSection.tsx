@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Crown, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { DestaqueModal } from "@/components/destaque/DestaqueModal";
 
 const BENEFITS = [
   "Flyer em evidência no carrossel principal de eventos",
