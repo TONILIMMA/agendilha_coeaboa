@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { StepIndicator } from "./submission-form/StepIndicator";
 import { PublishChecklist } from "./submission-form/PublishChecklist";
 import { Step1Summary } from "./submission-form/Step1Summary";
+import { DestaquePremiumSection } from "./submission-form/DestaquePremiumSection";
 import { DuvidasWhatsappField } from "./submission-form/DuvidasWhatsappField";
 import { 
   ContactStep, EventStep, AtrativoStep, 
@@ -191,6 +192,7 @@ export default function SubmissionForm() {
   const { data: promotorProfile, isLoading: promotorLoading } = usePromotorProfile(user?.id);
   const { mutateAsync: upsertPromotorProfile } = useUpsertPromotorProfile();
   const [currentStep, setCurrentStep] = useState(1);
+  const [wantHighlight, setWantHighlight] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const draftLoadedRef = useRef(false);
 
