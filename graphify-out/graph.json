@@ -9004,7 +9004,7 @@
       "file_type": "code",
       "norm_label": "field()",
       "source_file": "src/pages/promotor/PromotorEstabelecimentos.tsx",
-      "source_location": "L342"
+      "source_location": "L343"
     },
     {
       "id": "src_pages_promotor_promotorestabelecimentos_promotorestabelecimentos",
@@ -22619,7 +22619,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/RecoveryPinSection.tsx",
-      "source_location": "L103",
+      "source_location": "L105",
       "weight": 1.0
     },
     {
@@ -31799,7 +31799,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pages/cadastro/CadastroBanda.tsx",
-      "source_location": "L655",
+      "source_location": "L660",
       "weight": 1.0
     },
     {
@@ -31979,7 +31979,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pages/cadastro/CadastroPromotor.tsx",
-      "source_location": "L127",
+      "source_location": "L128",
       "weight": 1.0
     },
     {
@@ -32903,7 +32903,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/pages/promotor/PromotorEstabelecimentos.tsx",
-      "source_location": "L217",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -102249,7 +102249,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/promotor/PromotorEstabelecimentos.tsx",
-      "source_location": "L342",
+      "source_location": "L343",
       "weight": 1.0
     },
     {
@@ -104202,5 +104202,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "7c70f1427b8b1a29f877619a88a0ffff75450a97"
+  "built_at_commit": "6971c7781cab80077b514eaea009ee8dab6aef11"
 }
