@@ -183,6 +183,7 @@ export default function SubmissionForm() {
   const [eventImage, setEventImage] = useState<File | string | null>(null);
   const [imageSource, setImageSource] = useState<"upload" | "ai" | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [destaqueRecolhido, setDestaqueRecolhido] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
   const { addSubmission } = useSubmissions();
@@ -795,11 +796,9 @@ export default function SubmissionForm() {
 
               <DestaquePremiumSection
                 submitting={submitting}
-                onDestacar={() => {
-                  // Envia o formulário; a tela de confirmação abre o modal
-                  // de destaque automaticamente após o envio.
-                  form.handleSubmit(onSubmit, onInvalid)();
-                }}
+                eventTitle={form.watch("eventTitle")}
+                dismissed={destaqueRecolhido}
+                onDismissedChange={setDestaqueRecolhido}
               />
             </div>
           )}
