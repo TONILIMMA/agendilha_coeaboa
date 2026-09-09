@@ -11,29 +11,60 @@ const BENEFITS = [
 ];
 
 interface Props {
-  /** Chamado quando o usuário clica em "DESTACAR MEU EVENTO" (envia o formulário). */
-  onDestacar: () => void;
+  /** Título do rolê, usado na mensagem enviada para a equipe. */
+  eventTitle?: string | null;
   submitting?: boolean;
+  /** Estado recolhido controlado pelo formulário, pra sobreviver ao avançar/voltar. */
+  dismissed?: boolean;
+  onDismissedChange?: (dismissed: boolean) => void;
 }
 
 /**
  * Seção premium de destaque exibida no final do formulário de divulgação.
  * Visual preto + amarelo vibrante, padrão Coe a Boa.
  */
-export function DestaquePremiumSection({ onDestacar, submitting }: Props) {
-  const [dismissed, setDismissed] = useState(false);
+export function DestaquePremiumSection({
+  eventTitle,
+  submitting,
+  dismissed: dismissedProp,
+  onDismissedChange,
+}: Props) {
+  const [dismissedLocal, setDismissedLocal] = useState(false);
+  const dismissed = dismissedProp ?? dismissedLocal;
+  const setDismissed = (v: boolean) => {
+    setDismissedLocal(v);
+    onDismissedChange?.(v);
+  };
+  const [modalOpen, setModalOpen] = useState(false);
+  const ctaRef = useRef<HTMLButtonElement>(null);
+
+  const modal = (
+    <DestaqueModal
+      open={modalOpen}
+      onOpenChange={(open) => {
+        setModalOpen(open);
+        if (!open) ctaRef.current?.focus();
+      }}
+      eventTitle={eventTitle}
+    />
+  );
 
   if (dismissed) {
     return (
-      <button
-        type="button"
-        onClick={() => setDismissed(false)}
-        className="w-full flex items-center justify-center gap-2 rounded-2xl border border-amber-400/30 bg-neutral-950 py-3 text-xs font-semibold uppercase tracking-widest text-amber-400/80 hover:text-amber-300 transition-colors"
-      >
-        <Crown className="h-3.5 w-3.5" />
-        Quero dar destaque ao meu evento
-        <ChevronDown className="h-3.5 w-3.5" />
-      </button>
+      <>
+        <button
+          type="button"
+          aria-expanded={false}
+          aria-label="Reabrir opções de destaque para o meu evento"
+          onClick={() => setDismissed(false)}
+          className="w-full flex items-center justify-center gap-2 rounded-2xl border border-amber-400/30 bg-neutral-950 py-3 text-xs font-semibold uppercase tracking-widest text-amber-400/80 hover:text-amber-300 transition-colors"
+        >
+          <Crown className="h-3.5 w-3.5" aria-hidden />
+          Quero dar destaque ao meu evento
+          <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+        </button>
+        {modal}
+      </>
     );
   }
 
