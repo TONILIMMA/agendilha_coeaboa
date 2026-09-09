@@ -69,11 +69,10 @@ describe("flow performance instrumentation is behavior-neutral", () => {
       throw new Error("performance indisponível");
     });
     const timer = startFlowMeasure("submission", "upload");
-    expect(() => timer.finish()).toThrow();
+    expect(() => timer.finish()).not.toThrow();
 
-    // A wrapped action still returns its value even if measuring fails afterwards.
     await expect(
-      measureFlowOperation("submission", "upload", async () => "ok").catch(() => "ok"),
+      measureFlowOperation("submission", "upload", async () => "ok"),
     ).resolves.toBe("ok");
   });
 });
