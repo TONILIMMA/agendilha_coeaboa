@@ -259,14 +259,14 @@ export function EstabelecimentoCard({ estab, canEdit, canDelete, canApprove, onS
             ) : (
               <div className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Editable label="Nome*" value={form.nome} onChange={(v) => setForm({ ...form, nome: v })} />
-                  <Editable label="Tipo" value={form.tipo} onChange={(v) => setForm({ ...form, tipo: v })} placeholder="bar, restaurante, praça..." />
-                  <Editable label="Endereço" value={form.endereco} onChange={(v) => setForm({ ...form, endereco: v })} />
-                  <Editable label="Número" value={form.numero} onChange={(v) => setForm({ ...form, numero: v })} />
-                  <Editable label="Bairro" value={form.bairro} onChange={(v) => setForm({ ...form, bairro: v })} />
-                  <Editable label="CEP" value={form.cep} onChange={(v) => setForm({ ...form, cep: v })} />
-                  <Editable label="Complemento" value={form.complemento} onChange={(v) => setForm({ ...form, complemento: v })} />
-                  <Editable label="Contato" value={form.contato} onChange={(v) => setForm({ ...form, contato: v })} placeholder="WhatsApp ou e-mail" />
+                  <Editable label="Nome*" value={form.nome} onChange={(v) => setForm({ ...form, nome: v })} autoComplete="name" />
+                  <Editable label="Tipo" value={form.tipo} onChange={(v) => setForm({ ...form, tipo: v })} placeholder="bar, restaurante, praça..." autoComplete="off" />
+                  <Editable label="Endereço" value={form.endereco} onChange={(v) => setForm({ ...form, endereco: v })} autoComplete="street-address" />
+                  <Editable label="Número" value={form.numero} onChange={(v) => setForm({ ...form, numero: v })} autoComplete="off" />
+                  <Editable label="Bairro" value={form.bairro} onChange={(v) => setForm({ ...form, bairro: v })} autoComplete="address-level3" />
+                  <Editable label="CEP" value={form.cep} onChange={(v) => setForm({ ...form, cep: v })} autoComplete="postal-code" />
+                  <Editable label="Complemento" value={form.complemento} onChange={(v) => setForm({ ...form, complemento: v })} autoComplete="off" />
+                  <Editable label="Contato" value={form.contato} onChange={(v) => setForm({ ...form, contato: v })} placeholder="WhatsApp ou e-mail" autoComplete="off" />
                 </div>
                 <div className="flex items-center gap-2 pt-2">
                   <Button size="sm" onClick={handleSave} disabled={saving || !form.nome.trim()} className="gap-2">
@@ -297,12 +297,12 @@ function Field({ label, value }: { label: string; value: string | null | undefin
 }
 
 function Editable({
-  label, value, onChange, placeholder,
-}: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+  label, value, onChange, placeholder, autoComplete,
+}: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; autoComplete?: string }) {
   return (
     <div className="space-y-1">
       <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">{label}</Label>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="h-10" />
+      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} autoComplete={autoComplete} className="h-10" />
     </div>
   );
 }

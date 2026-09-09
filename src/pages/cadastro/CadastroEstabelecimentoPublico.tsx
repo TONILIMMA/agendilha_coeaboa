@@ -171,18 +171,18 @@ export default function CadastroEstabelecimentoPublico() {
 
         <div className="space-y-2">
           <Label htmlFor="responsavelNome">Contato (nome do responsável) *</Label>
-          <Input id="responsavelNome" className="h-12 text-base" value={form.responsavelNome} onChange={(e) => set("responsavelNome", e.target.value)} placeholder="Quem responde pelo local" />
+          <Input id="responsavelNome" name="name" autoComplete="name" className="h-12 text-base" value={form.responsavelNome} onChange={(e) => set("responsavelNome", e.target.value)} placeholder="Quem responde pelo local" />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="whatsapp">WhatsApp *</Label>
-          <Input id="whatsapp" inputMode="tel" maxLength={16} className="h-12 text-base" value={form.whatsapp} onChange={(e) => set("whatsapp", formatPhoneDisplay(e.target.value))} placeholder="(21) 99999-9999" />
+          <Input id="whatsapp" name="tel" autoComplete="tel" inputMode="tel" maxLength={16} className="h-12 text-base" value={form.whatsapp} onChange={(e) => set("whatsapp", formatPhoneDisplay(e.target.value))} placeholder="(21) 99999-9999" />
           <p className="text-xs text-muted-foreground">DDD + 9 + 8 dígitos.</p>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="email">E-mail (opcional)</Label>
-          <Input id="email" type="email" className="h-12 text-base" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="contato@exemplo.com" />
+          <Input id="email" name="email" autoComplete="email" type="email" className="h-12 text-base" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="contato@exemplo.com" />
         </div>
 
         <div className="space-y-2">

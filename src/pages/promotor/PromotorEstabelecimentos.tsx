@@ -197,9 +197,10 @@ function PromotorEstabelecimentosInner() {
               onChange={(v) => setForm({ ...form, endereco: v })}
               suggestFrom="estabelecimentos_public"
               suggestColumn="endereco"
+              autoComplete="street-address"
             />
-            <Field label="Bairro" value={form.bairro} onChange={(v) => setForm({ ...form, bairro: v })} />
-            <Field label="Contato geral" value={form.contato} onChange={(v) => setForm({ ...form, contato: v })} placeholder="WhatsApp ou e-mail" />
+            <Field label="Bairro" value={form.bairro} onChange={(v) => setForm({ ...form, bairro: v })} autoComplete="address-level3" />
+            <Field label="Contato geral" value={form.contato} onChange={(v) => setForm({ ...form, contato: v })} placeholder="WhatsApp ou e-mail" autoComplete="off" />
           </div>
         </div>
 
@@ -346,6 +347,7 @@ function Field({
   placeholder,
   suggestFrom,
   suggestColumn,
+  autoComplete,
 }: {
   label: string;
   value: string;
@@ -353,6 +355,7 @@ function Field({
   placeholder?: string;
   suggestFrom?: string;
   suggestColumn?: string;
+  autoComplete?: string;
 }) {
   return (
     <div className="space-y-1.5">
@@ -364,9 +367,10 @@ function Field({
           placeholder={placeholder}
           suggestFrom={suggestFrom}
           suggestColumn={suggestColumn}
+          autoComplete={autoComplete}
         />
       ) : (
-        <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+        <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} autoComplete={autoComplete} />
       )}
     </div>
   );
