@@ -795,11 +795,9 @@ export default function SubmissionForm() {
 
               <DestaquePremiumSection
                 submitting={submitting}
-                onDestacar={() => {
-                  // Envia o formulário; a tela de confirmação abre o modal
-                  // de destaque automaticamente após o envio.
-                  form.handleSubmit(onSubmit, onInvalid)();
-                }}
+                eventTitle={form.watch("eventTitle")}
+                dismissed={destaqueRecolhido}
+                onDismissedChange={setDestaqueRecolhido}
               />
             </div>
           )}
