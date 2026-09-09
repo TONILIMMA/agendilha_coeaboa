@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { StepIndicator } from "./submission-form/StepIndicator";
 import { PublishChecklist } from "./submission-form/PublishChecklist";
 import { Step1Summary } from "./submission-form/Step1Summary";
+import { DestaquePremiumSection } from "./submission-form/DestaquePremiumSection";
 import { DuvidasWhatsappField } from "./submission-form/DuvidasWhatsappField";
 import { 
   ContactStep, EventStep, AtrativoStep, 
@@ -791,6 +792,15 @@ export default function SubmissionForm() {
               <div className="border rounded-2xl px-4 py-5 bg-card/30">
                 <LegalStep form={form} />
               </div>
+
+              <DestaquePremiumSection
+                submitting={submitting}
+                onDestacar={() => {
+                  // Envia o formulário; a tela de confirmação abre o modal
+                  // de destaque automaticamente após o envio.
+                  form.handleSubmit(onSubmit, onInvalid)();
+                }}
+              />
             </div>
           )}
 
