@@ -93,13 +93,17 @@ export function startFlowMeasure(flow: string, operation: string, initialStep?: 
       };
 
       if (typeof performance !== "undefined") {
-        const endMark = `${markPrefix}:end`;
-        const measureName = `agendilha-flow:${flow}:${operation}`;
-        performance.mark(endMark);
-        performance.measure(measureName, `${markPrefix}:start`, endMark);
-        recordedMarks.push(endMark);
-        recordedMeasures.push(measureName);
-        trimPerformanceEntries();
+        try {
+          const endMark = `${markPrefix}:end`;
+          const measureName = `agendilha-flow:${flow}:${operation}`;
+          performance.mark(endMark);
+          performance.measure(measureName, `${markPrefix}:start`, endMark);
+          recordedMarks.push(endMark);
+          recordedMeasures.push(measureName);
+          trimPerformanceEntries();
+        } catch {
+          // Measuring must never break the user flow.
+        }
       }
 
       publish(detail);
