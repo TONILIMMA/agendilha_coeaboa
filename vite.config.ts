@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'prompt',
       injectRegister: null,
-      includeAssets: ['favicon.ico', 'logo.png', 'logo.jpg', 'robots.txt', 'placeholder.svg'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'logo.png', 'logo.jpg', 'robots.txt', 'placeholder.svg'],
       workbox: {
         // Don't precache HTML — always fetch fresh navigations so mobile clients
         // see new builds immediately instead of being stuck on an old shell.
