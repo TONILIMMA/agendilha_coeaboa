@@ -320,8 +320,10 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
               <Label htmlFor="pin">PIN</Label>
               <Input
                 id="pin"
+                name="pin"
                 type="password"
                 inputMode="numeric"
+                autoComplete="off"
                 autoFocus
                 maxLength={4}
                 value={pin}
@@ -369,8 +371,10 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
               <Label htmlFor="setup-newpin">Novo PIN</Label>
               <Input
                 id="setup-newpin"
+                name="new-pin"
                 type="password"
                 inputMode="numeric"
+                autoComplete="off"
                 autoFocus
                 maxLength={4}
                 value={newPin}
@@ -383,8 +387,10 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
               <Label htmlFor="setup-confirmpin">Confirmar PIN</Label>
               <Input
                 id="setup-confirmpin"
+                name="confirm-pin"
                 type="password"
                 inputMode="numeric"
+                autoComplete="off"
                 maxLength={4}
                 value={confirmPin}
                 onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
@@ -406,8 +412,10 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
               <Label htmlFor="currentpin">PIN atual</Label>
               <Input
                 id="currentpin"
+                name="current-pin"
                 type="password"
                 inputMode="numeric"
+                autoComplete="off"
                 autoFocus
                 maxLength={4}
                 value={currentPin}
@@ -420,8 +428,10 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
               <Label htmlFor="newpin">Novo PIN</Label>
               <Input
                 id="newpin"
+                name="new-pin"
                 type="password"
                 inputMode="numeric"
+                autoComplete="off"
                 maxLength={4}
                 value={newPin}
                 onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
@@ -433,8 +443,10 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
               <Label htmlFor="confirmpin">Confirmar PIN</Label>
               <Input
                 id="confirmpin"
+                name="confirm-pin"
                 type="password"
                 inputMode="numeric"
+                autoComplete="off"
                 maxLength={4}
                 value={confirmPin}
                 onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
@@ -470,7 +482,9 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
               <Label htmlFor="reset-password">Senha atual da conta</Label>
               <Input
                 id="reset-password"
+                name="password"
                 type="password"
+                autoComplete="current-password"
                 autoFocus
                 value={resetPassword}
                 onChange={(e) => setResetPassword(e.target.value)}
@@ -481,8 +495,10 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
               <Label htmlFor="forgot-newpin">Novo PIN</Label>
               <Input
                 id="forgot-newpin"
+                name="new-pin"
                 type="password"
                 inputMode="numeric"
+                autoComplete="off"
                 maxLength={4}
                 value={newPin}
                 onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
@@ -494,8 +510,10 @@ export default function AdminPinGate({ children }: { children: ReactNode }) {
               <Label htmlFor="forgot-confirmpin">Confirmar PIN</Label>
               <Input
                 id="forgot-confirmpin"
+                name="confirm-pin"
                 type="password"
                 inputMode="numeric"
+                autoComplete="off"
                 maxLength={4}
                 value={confirmPin}
                 onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}

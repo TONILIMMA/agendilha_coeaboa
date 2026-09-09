@@ -96,8 +96,10 @@ export function RecoveryPinSection() {
           <Label htmlFor="new-pin">{hasPin ? "Novo PIN" : "PIN"}</Label>
           <Input
             id="new-pin"
+            name="new-pin"
             type="password"
             inputMode="numeric"
+            autoComplete="off"
             maxLength={4}
             value={pin}
             onChange={(e) => setPin(onlyPinDigits(e.target.value))}
@@ -109,8 +111,10 @@ export function RecoveryPinSection() {
           <Label htmlFor="confirm-pin">Confirmar</Label>
           <Input
             id="confirm-pin"
+            name="confirm-pin"
             type="password"
             inputMode="numeric"
+            autoComplete="off"
             maxLength={4}
             value={confirmPin}
             onChange={(e) => setConfirmPin(onlyPinDigits(e.target.value))}
