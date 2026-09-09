@@ -28,6 +28,7 @@ import { validateBrazilianMobile, formatPhoneDisplay } from "@/lib/whatsapp";
 import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { emitEntityCreated } from "@/lib/entityEvents";
 import { usePromotorProfile, useUpsertPromotorProfile } from "@/data/usePromotorProfile";
+import { measureFlowOperation, startFlowMeasure } from "@/lib/flow-performance";
 
 const formSchema = z.object({
   imageSource: z.enum(["upload", "ai"]).optional(),
@@ -195,6 +196,7 @@ export default function SubmissionForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const draftLoadedRef = useRef(false);
+  const stepTimerRef = useRef<ReturnType<typeof startFlowMeasure> | null>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -333,6 +335,18 @@ export default function SubmissionForm() {
     { id: 2, title: "Termos e contato" },
   ];
 
+  useEffect(() => {
+    stepTimerRef.current?.finish({ outcome: "success" });
+    stepTimerRef.current = startFlowMeasure("event-submission", "step-visible", currentStep);
+  }, [currentStep]);
+
+  useEffect(() => {
+    return () => {
+      stepTimerRef.current?.finish({ outcome: "cancelled" });
+      stepTimerRef.current = null;
+    };
+  }, []);
+
 
   const FIELD_LABELS: Record<string, string> = {
     nickName: "Seu nome",
@@ -362,7 +376,18 @@ export default function SubmissionForm() {
 
   const nextStep = async () => {
     const fields = getFieldsForStep(currentStep);
-    const isValid = await form.trigger(fields as any, { shouldFocus: true });
+    const validationTimer = startFlowMeasure("event-submission", "step-validation", currentStep);
+    let isValid = false;
+    try {
+      isValid = await form.trigger(fields as any, { shouldFocus: true });
+      validationTimer.finish({
+        outcome: isValid ? "success" : "blocked",
+        fieldCount: fields.length,
+      });
+    } catch (error) {
+      validationTimer.finish({ outcome: "failure", fieldCount: fields.length, error });
+      throw error;
+    }
     if (isValid) {
       setCurrentStep((prev) => Math.min(prev + 1, steps.length));
       window.scrollTo(0, 0);
@@ -403,6 +428,7 @@ export default function SubmissionForm() {
 
   const onSubmit = async (values: FormData) => {
     setSubmitting(true);
+    const submissionTimer = startFlowMeasure("event-submission", "complete-submission", currentStep);
     try {
       const clean = (v?: string | null) => {
         if (v == null) return null;
@@ -421,9 +447,12 @@ export default function SubmissionForm() {
         const fileName = `${crypto.randomUUID()}.${fileExt}`;
         const filePath = `${user?.id}/${fileName}`;
 
-        const { error: uploadError } = await supabaseClient.storage
-          .from('event-flyers')
-          .upload(filePath, eventImage);
+        const { error: uploadError } = await measureFlowOperation(
+          "event-submission",
+          "flyer-upload",
+          () => supabaseClient.storage.from('event-flyers').upload(filePath, eventImage),
+          currentStep,
+        );
 
         if (uploadError) {
           handleError(uploadError, { context: "SubmissionForm.uploadFlyer", fallback: "Erro ao subir o flyer." });
@@ -441,18 +470,33 @@ export default function SubmissionForm() {
       // genérico da marca para o espaço do evento nunca ficar vazio.
       if (!imageUrl) {
         try {
-          const dataUrl = await generateFallbackFlyer({
-            title: clean(values.eventTitle) || clean(values.atrativoName) || "Evento",
-            date: clean(values.date),
-            startTime: clean(values.startTime),
-            location: clean(values.locationName),
-            category: clean(values.atrativoCategory) || clean(values.category),
-          });
-          const blob = await (await fetch(dataUrl)).blob();
-          const filePath = `${user?.id ?? "anon"}/fallback-${crypto.randomUUID()}.jpg`;
-          const { error: fbErr } = await supabaseClient.storage
-            .from("event-flyers")
-            .upload(filePath, blob, { contentType: "image/jpeg", upsert: false });
+          const { blob, filePath } = await measureFlowOperation(
+            "event-submission",
+            "fallback-flyer-generation",
+            async () => {
+              const dataUrl = await generateFallbackFlyer({
+                title: clean(values.eventTitle) || clean(values.atrativoName) || "Evento",
+                date: clean(values.date),
+                startTime: clean(values.startTime),
+                location: clean(values.locationName),
+                category: clean(values.atrativoCategory) || clean(values.category),
+              });
+              const generatedBlob = await (await fetch(dataUrl)).blob();
+              return {
+                blob: generatedBlob,
+                filePath: `${user?.id ?? "anon"}/fallback-${crypto.randomUUID()}.jpg`,
+              };
+            },
+            currentStep,
+          );
+          const { error: fbErr } = await measureFlowOperation(
+            "event-submission",
+            "fallback-flyer-upload",
+            () => supabaseClient.storage
+              .from("event-flyers")
+              .upload(filePath, blob, { contentType: "image/jpeg", upsert: false }),
+            currentStep,
+          );
           if (!fbErr) {
             const { data: { publicUrl } } = supabaseClient.storage
               .from("event-flyers")
@@ -461,7 +505,7 @@ export default function SubmissionForm() {
           }
         } catch (e) {
           // Segue sem flyer se algo der errado — não bloqueia o envio.
-          console.warn("[fallback flyer] falhou, seguindo sem imagem", e);
+          logger.warn("[fallback flyer] falhou, seguindo sem imagem", e);
         }
       }
 
@@ -527,9 +571,14 @@ export default function SubmissionForm() {
       const selectedEstabId = (values as any).estabelecimentoId || null;
       if (selectedEstabId) payload.estabelecimento_id = selectedEstabId;
 
+      const submissionInsertTimer = startFlowMeasure("event-submission", "submission-insert", currentStep);
       const result = await addSubmission(payload as any);
+      submissionInsertTimer.finish({ outcome: result ? "success" : "failure" });
 
-      if (!result) return; // toast already shown by ctx
+      if (!result) {
+        submissionTimer.finish({ outcome: "failure" });
+        return; // toast already shown by ctx
+      }
 
       // Atrativos do evento: o principal + os incluídos pelo botão "Incluir atrativo".
       try {
@@ -551,10 +600,18 @@ export default function SubmissionForm() {
               display_order: i + 1,
             })),
           ];
-          await supabaseClient.from("submission_atrativos").insert(rows);
+          await measureFlowOperation(
+            "event-submission",
+            "additional-attractions-insert",
+            async () => supabaseClient.from("submission_atrativos").insert(rows).then((response) => {
+              if (response.error) throw response.error;
+              return response;
+            }),
+            currentStep,
+          );
         }
       } catch (e) {
-        console.warn("[SubmissionForm] atrativos adicionais falharam", e);
+        logger.warn("[SubmissionForm] atrativos adicionais falharam", e);
       }
 
 
@@ -605,7 +662,7 @@ export default function SubmissionForm() {
         }
       } catch (e) {
         // Não bloqueia o envio se o reuso falhar (ex.: nome duplicado).
-        console.warn("[SubmissionForm] auto-create local/atrativo falhou", e);
+        logger.warn("[SubmissionForm] auto-create local/atrativo falhou", e);
       }
 
       // Atualiza/cria o perfil de Promotor/Divulgador do usuário logado,
@@ -620,12 +677,14 @@ export default function SubmissionForm() {
           });
         }
       } catch (e) {
-        console.warn("[SubmissionForm] upsert promotor_profile falhou", e);
+        logger.warn("[SubmissionForm] upsert promotor_profile falhou", e);
       }
 
       localStorage.removeItem(DRAFT_KEY);
+      submissionTimer.finish({ outcome: "success" });
       navigate(`/evento-enviado/${result.id}`, { replace: true });
     } catch (error) {
+      submissionTimer.finish({ outcome: "failure", error });
       handleError(error, { context: "SubmissionForm.onSubmit", fallback: "Não deu pra enviar o evento. Tenta de novo." });
     } finally {
       setSubmitting(false);
@@ -634,6 +693,8 @@ export default function SubmissionForm() {
 
   const onInvalid = (errors: any) => {
     const firstKey = Object.keys(errors)[0];
+    const invalidTimer = startFlowMeasure("event-submission", "final-validation", currentStep);
+    invalidTimer.finish({ outcome: "blocked", fieldCount: Object.keys(errors).length });
     const firstMsg = errors[firstKey]?.message || "Verifique os campos obrigatórios";
     toast.error("Não foi possível finalizar o envio", { description: String(firstMsg) });
     // Jump to the first step that has an error
