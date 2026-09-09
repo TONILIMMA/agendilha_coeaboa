@@ -23,6 +23,8 @@ interface FinishOptions {
 const SLOW_OPERATION_MS = 1_000;
 const MAX_MARKS = 120;
 let sequence = 0;
+const recordedMarks: string[] = [];
+const recordedMeasures: string[] = [];
 
 function now(): number {
   return typeof performance !== "undefined" ? performance.now() : Date.now();
@@ -53,8 +55,8 @@ function publish(detail: FlowMetricDetail) {
 
 function trimPerformanceEntries() {
   if (typeof performance === "undefined" || sequence % MAX_MARKS !== 0) return;
-  performance.clearMarks("agendilha-flow");
-  performance.clearMeasures("agendilha-flow");
+  recordedMarks.splice(0).forEach((name) => performance.clearMarks(name));
+  recordedMeasures.splice(0).forEach((name) => performance.clearMeasures(name));
 }
 
 /**
@@ -67,7 +69,9 @@ export function startFlowMeasure(flow: string, operation: string, initialStep?: 
   const markPrefix = `agendilha-flow:${flow}:${operation}:${id}`;
 
   if (typeof performance !== "undefined") {
-    performance.mark(`${markPrefix}:start`, { detail: { flow, operation, step: initialStep } });
+    const startMark = `${markPrefix}:start`;
+    performance.mark(startMark, { detail: { flow, operation, step: initialStep } });
+    recordedMarks.push(startMark);
   }
 
   let finished = false;
@@ -89,8 +93,12 @@ export function startFlowMeasure(flow: string, operation: string, initialStep?: 
       };
 
       if (typeof performance !== "undefined") {
-        performance.mark(`${markPrefix}:end`);
-        performance.measure(`agendilha-flow:${flow}:${operation}`, `${markPrefix}:start`, `${markPrefix}:end`);
+        const endMark = `${markPrefix}:end`;
+        const measureName = `agendilha-flow:${flow}:${operation}`;
+        performance.mark(endMark);
+        performance.measure(measureName, `${markPrefix}:start`, endMark);
+        recordedMarks.push(endMark);
+        recordedMeasures.push(measureName);
         trimPerformanceEntries();
       }
 

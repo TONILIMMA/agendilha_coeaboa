@@ -338,12 +338,14 @@ export default function SubmissionForm() {
   useEffect(() => {
     stepTimerRef.current?.finish({ outcome: "success" });
     stepTimerRef.current = startFlowMeasure("event-submission", "step-visible", currentStep);
+  }, [currentStep]);
 
+  useEffect(() => {
     return () => {
       stepTimerRef.current?.finish({ outcome: "cancelled" });
       stepTimerRef.current = null;
     };
-  }, [currentStep]);
+  }, []);
 
 
   const FIELD_LABELS: Record<string, string> = {
@@ -601,7 +603,7 @@ export default function SubmissionForm() {
           await measureFlowOperation(
             "event-submission",
             "additional-attractions-insert",
-            () => supabaseClient.from("submission_atrativos").insert(rows).then((response) => {
+            async () => supabaseClient.from("submission_atrativos").insert(rows).then((response) => {
               if (response.error) throw response.error;
               return response;
             }),
