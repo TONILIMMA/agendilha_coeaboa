@@ -34,6 +34,9 @@ export function FrameworkAutocomplete({
   className,
 }: FrameworkAutocompleteProps) {
   const [open, setOpen] = React.useState(false);
+  const selectedLabel = value
+    ? options.find((option) => option.value === value)?.label || value
+    : placeholder;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -42,11 +45,10 @@ export function FrameworkAutocomplete({
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          aria-label={selectedLabel}
           className={cn("w-full justify-between h-12 font-normal", className)}
         >
-          {value
-            ? options.find((option) => option.value === value)?.label || value
-            : placeholder}
+          {selectedLabel}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
