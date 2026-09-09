@@ -183,6 +183,7 @@ export default function SubmissionForm() {
   const [eventImage, setEventImage] = useState<File | string | null>(null);
   const [imageSource, setImageSource] = useState<"upload" | "ai" | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [destaqueRecolhido, setDestaqueRecolhido] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
   const { addSubmission } = useSubmissions();
