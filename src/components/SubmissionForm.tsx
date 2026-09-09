@@ -624,7 +624,7 @@ export default function SubmissionForm() {
       }
 
       localStorage.removeItem(DRAFT_KEY);
-      navigate(`/evento-enviado/${result.id}`, { replace: true, state: wantHighlight ? { openDestaque: true } : undefined });
+      navigate(`/evento-enviado/${result.id}`, { replace: true });
     } catch (error) {
       handleError(error, { context: "SubmissionForm.onSubmit", fallback: "Não deu pra enviar o evento. Tenta de novo." });
     } finally {
