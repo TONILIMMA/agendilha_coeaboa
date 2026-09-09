@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { AtrativoStep } from "./AtrativoStep";
 
@@ -81,6 +82,7 @@ vi.mock("@/integrations/supabase/client", () => {
 });
 
 function Harness() {
+  const [visible, setVisible] = useState(true);
   const form = useForm({
     defaultValues: {
       atrativoName: "",
@@ -96,7 +98,10 @@ function Harness() {
   
   return (
     <FormProvider {...form}>
-      <AtrativoStep form={form as any} />
+      {visible && <AtrativoStep form={form as any} />}
+      <button type="button" onClick={() => setVisible((current) => !current)}>
+        Alternar etapa
+      </button>
       <output data-testid="dump">
         {JSON.stringify(form.watch())}
       </output>
@@ -162,5 +167,25 @@ describe("AtrativoStep autocomplete", () => {
       expect(dump.atrativoDescription).toBe("Artista aprovado.");
       expect(dump.atrativoContact).toBe("(48) 99999-0009");
     }, { timeout: 2000 });
+  });
+
+  it("preserva o atrativo selecionado ao avançar e voltar para a etapa", async () => {
+    render(<Harness />);
+    fireEvent.change(screen.getByPlaceholderText(/Banda X, Restaurante Y/i), {
+      target: { value: "banda" },
+    });
+    fireEvent.click(await screen.findByText("Banda Teste Ilha"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Alternar etapa" }));
+    expect(screen.queryByPlaceholderText(/Banda X, Restaurante Y/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Alternar etapa" }));
+
+    expect(screen.getByPlaceholderText(/Banda X, Restaurante Y/i)).toHaveValue("Banda Teste Ilha");
+    const dump = JSON.parse(screen.getByTestId("dump").textContent || "{}");
+    expect(dump).toMatchObject({
+      atrativoName: "Banda Teste Ilha",
+      atrativoSourceId: "atr-1",
+      atrativoContact: "48999990001",
+    });
   });
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { PromotorAutocomplete } from "./PromotorAutocomplete";
 
 // Mock auth + supabase client
@@ -24,6 +25,26 @@ vi.mock("@/integrations/supabase/client", () => {
 
 function setupSuggestions(rows: any[]) {
   mockLimit.mockResolvedValueOnce({ data: rows, error: null });
+}
+
+function PersistenceHarness() {
+  const [value, setValue] = useState("Zé");
+  const [visible, setVisible] = useState(true);
+  return (
+    <>
+      {visible && (
+        <PromotorAutocomplete
+          value={value}
+          onChange={setValue}
+          onSelect={(promotor) => setValue(promotor.nome)}
+        />
+      )}
+      <button type="button" onClick={() => setVisible((current) => !current)}>
+        Alternar etapa
+      </button>
+      <output data-testid="responsavel-value">{value}</output>
+    </>
+  );
 }
 
 describe("PromotorAutocomplete", () => {
@@ -103,5 +124,24 @@ describe("PromotorAutocomplete", () => {
     await waitFor(() =>
       expect(screen.getByTestId("promotor-duplicate-alert")).toBeInTheDocument(),
     );
+  });
+
+  it("preserva o responsável selecionado ao avançar e voltar para a etapa", async () => {
+    setupSuggestions([
+      {
+        responsible_name: "Zé do Rolê",
+        responsavel_duvidas_whatsapp: "21999998888",
+        responsavel_tipo: "artista",
+      },
+    ]);
+    render(<PersistenceHarness />);
+
+    const item = await screen.findByText("Zé do Rolê");
+    fireEvent.mouseDown(item.closest("button")!);
+    expect(screen.getByTestId("responsavel-value")).toHaveTextContent("Zé do Rolê");
+
+    fireEvent.click(screen.getByRole("button", { name: "Alternar etapa" }));
+    fireEvent.click(screen.getByRole("button", { name: "Alternar etapa" }));
+    expect(screen.getByDisplayValue("Zé do Rolê")).toBeInTheDocument();
   });
 });
