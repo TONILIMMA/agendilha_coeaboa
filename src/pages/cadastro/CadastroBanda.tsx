@@ -637,6 +637,8 @@ export default function CadastroBanda() {
                 </Label>
                 <Input
                   id="representativeName"
+                  name="name"
+                  autoComplete="name"
                   value={representativeName}
                   onChange={(e) => setRepresentativeName(e.target.value)}
                   placeholder="Ex: João da Silva"
@@ -647,10 +649,13 @@ export default function CadastroBanda() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2" data-field="whatsapp">
-                  <Label className="text-base font-semibold">
+                  <Label htmlFor="whatsapp" className="text-base font-semibold">
                     WhatsApp <span className="text-destructive">*</span>
                   </Label>
                   <Input
+                    id="whatsapp"
+                    name="tel"
+                    autoComplete="tel"
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(formatPhoneDisplay(e.target.value))}
                     placeholder="(21) 99999-9999"
@@ -668,8 +673,11 @@ export default function CadastroBanda() {
                   )}
                 </div>
                 <div className="space-y-2" data-field="contactEmail">
-                  <Label className="text-base font-semibold">E-mail</Label>
+                  <Label htmlFor="contactEmail" className="text-base font-semibold">E-mail</Label>
                   <Input
+                    id="contactEmail"
+                    name="email"
+                    autoComplete="email"
                     type="email"
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}

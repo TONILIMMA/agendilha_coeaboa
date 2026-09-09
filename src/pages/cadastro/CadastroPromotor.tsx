@@ -119,6 +119,7 @@ export default function CadastroPromotor() {
             required
             error={errors.nome}
             placeholder="Ex.: Bar do Zé, Produções da Ana"
+            autoComplete="name"
           />
           <FormField
             id="whatsapp"
@@ -129,6 +130,7 @@ export default function CadastroPromotor() {
             inputMode="tel"
             placeholder="Ex.: 21 99999-0000"
             error={errors.whatsapp}
+            autoComplete="tel"
           />
           <div className="space-y-1.5">
             <Label htmlFor="bairro">
@@ -156,6 +158,7 @@ export default function CadastroPromotor() {
             required
             error={errors.password}
             placeholder="Mínimo 6 caracteres"
+            autoComplete="new-password"
           />
           <div className="space-y-1.5">
             <div className="flex items-start gap-3 rounded-xl border-2 border-rose-200 bg-rose-50/60 p-4">
