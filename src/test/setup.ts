@@ -26,3 +26,8 @@ Object.defineProperty(window, 'ResizeObserver', {
   writable: true,
   value: ResizeObserverMock,
 });
+
+Object.defineProperty(Element.prototype, 'scrollIntoView', {
+  writable: true,
+  value: vi.fn(),
+});
