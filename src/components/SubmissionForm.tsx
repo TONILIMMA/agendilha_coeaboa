@@ -624,7 +624,7 @@ export default function SubmissionForm() {
       }
 
       localStorage.removeItem(DRAFT_KEY);
-      navigate(`/evento-enviado/${result.id}`, { replace: true });
+      navigate(`/evento-enviado/${result.id}`, { replace: true, state: wantHighlight ? { openDestaque: true } : undefined });
     } catch (error) {
       handleError(error, { context: "SubmissionForm.onSubmit", fallback: "Não deu pra enviar o evento. Tenta de novo." });
     } finally {
@@ -793,6 +793,16 @@ export default function SubmissionForm() {
               <div className="border rounded-2xl px-4 py-5 bg-card/30">
                 <LegalStep form={form} />
               </div>
+
+              <DestaquePremiumSection
+                submitting={submitting}
+                onDestacar={() => {
+                  setWantHighlight(true);
+                  // Envia o formulário; ao concluir, a tela de confirmação abre
+                  // automaticamente o modal de destaque.
+                  setTimeout(() => form.handleSubmit(onSubmit, onInvalid)(), 0);
+                }}
+              />
             </div>
           )}
 
