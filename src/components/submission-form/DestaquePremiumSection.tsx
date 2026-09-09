@@ -98,9 +98,12 @@ export function DestaquePremiumSection({
 
       <div className="mt-9 flex flex-col items-center gap-4">
         <Button
+          ref={ctaRef}
           type="button"
-          onClick={onDestacar}
+          onClick={() => setModalOpen(true)}
           disabled={submitting}
+          aria-haspopup="dialog"
+          aria-label="Ver planos e destacar meu evento"
           className={cn(
             "h-12 w-full px-5 font-extrabold tracking-wide sm:w-auto sm:px-8",
             "bg-amber-400 text-neutral-950 shadow-lg shadow-amber-500/25",
@@ -108,17 +111,19 @@ export function DestaquePremiumSection({
             "transition-colors"
           )}
         >
-          <Crown className="h-4 w-4 mr-2" />
+          <Crown className="h-4 w-4 mr-2" aria-hidden />
           DESTACAR MEU EVENTO
         </Button>
         <button
           type="button"
+          aria-label="Recolher a seção de destaque"
           onClick={() => setDismissed(true)}
           className="text-xs text-neutral-400 hover:text-neutral-200 underline-offset-4 hover:underline transition-colors"
         >
           Não agora
         </button>
       </div>
+      {modal}
     </section>
   );
 }
