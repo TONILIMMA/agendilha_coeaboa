@@ -277,7 +277,7 @@ export default function Landing() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-lg mx-auto">
                 <Button
-                  onClick={() => navigate("/agenda?view=today")}
+                  onClick={() => navigate("/hoje")}
                   className="w-full sm:w-auto sm:px-10 h-12 sm:h-13 rounded-full font-semibold text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-card transition-all"
                 >
                   Ver o que tem hoje
