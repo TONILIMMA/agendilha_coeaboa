@@ -109,12 +109,12 @@ export function NovoEstabelecimentoDialog({
       // Validação de duplicidade no submit, pelo identificador único (nome).
       const { data: existente } = await supabase
         .from("estabelecimentos_public")
-        .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato")
+        .select("id, nome, endereco, bairro, cep, numero, complemento, tipo")
         .ilike("nome", nome.trim())
         .limit(1)
         .maybeSingle();
       if (existente?.id) {
-        setDuplicado(existente as EstabelecimentoSuggestion);
+        setDuplicado({ ...existente, contato: null } as EstabelecimentoSuggestion);
         setSaving(false);
         return;
       }
