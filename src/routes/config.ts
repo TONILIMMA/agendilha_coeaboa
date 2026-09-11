@@ -7,6 +7,7 @@ export const ROUTES = {
   ENVIAR_EVENTO: "/enviar-evento",
   EVENTOS: "/eventos",
   EXPLORAR: "/explorar",
+  CURADORIA_HOJE: "/hoje",
   ARTISTA_PROFILE: "/artista/:id",
   EVENTO_DETAIL: "/evento/:slug",
   EVENTO_IMPRIMIR: "/evento/:slug/imprimir",
