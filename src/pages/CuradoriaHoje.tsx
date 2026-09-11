@@ -36,7 +36,10 @@ interface CuratedEvent {
   start_time: string | null;
   location: string | null;
   address_neighborhood: string | null;
+  address_street: string | null;
   category: string | null;
+  description: string | null;
+  end_time: string | null;
   image_url: string | null;
   age_rating: string | null;
   is_suitable_for_minors: boolean | null;
@@ -94,7 +97,7 @@ function CuradoriaHojeInner() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("public_submissions")
-        .select("id, event_title, date, start_time, location, address_neighborhood, category, image_url, age_rating, is_suitable_for_minors, slug, is_highlight, highlight_active")
+        .select("id, event_title, date, start_time, end_time, location, address_street, address_neighborhood, category, description, image_url, age_rating, is_suitable_for_minors, slug, is_highlight, highlight_active")
         .eq("status", "aprovado")
         .order("date", { ascending: true })
         .order("start_time", { ascending: true });
