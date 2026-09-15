@@ -1,3 +1,5 @@
+import { asArray } from "@/lib/safe";
+
 /**
  * Formato mínimo que os resumos precisam de um evento. Estrutural de propósito:
  * serve tanto para `Submission` quanto para linhas cruas do backend.
@@ -78,7 +80,7 @@ export function buildTodayWhatsAppSummary(submissions: SummaryEvent[]): {
   count: number;
 } {
   const today = todayISO();
-  const items = submissions
+  const items = asArray<SummaryEvent>(submissions)
     .filter((s) => s.status === "aprovado" && s.date === today)
     .sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
 
@@ -113,7 +115,7 @@ export function openWhatsAppWithText(text: string) {
 
 export function buildCoeABoaSummary(submissions: SummaryEvent[]): { text: string; count: number } {
   const today = todayISO();
-  const items = submissions
+  const items = asArray<SummaryEvent>(submissions)
     .filter((s) => s.status === "aprovado" && s.date === today)
     .sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
 
@@ -151,7 +153,7 @@ export function buildWeekWhatsAppSummary(submissions: SummaryEvent[]): {
   const start = todayISO();
   const end = addDaysISO(start, 6);
 
-  const items = submissions
+  const items = asArray<SummaryEvent>(submissions)
     .filter((s) => s.status === "aprovado" && s.date && s.date >= start && s.date <= end)
     .sort((a, b) => {
       const d = (a.date || "").localeCompare(b.date || "");

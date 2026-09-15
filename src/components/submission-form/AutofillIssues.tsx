@@ -14,7 +14,9 @@ export function AutofillIssues({
   okMessage?: string;
   title?: string;
 }) {
-  if (issues.length === 0) {
+  const safeIssues = issues || [];
+
+  if (safeIssues.length === 0) {
     return (
       <div
         data-testid="autofill-ok"
@@ -26,7 +28,7 @@ export function AutofillIssues({
     );
   }
 
-  const hasError = issues.some((i) => i.level === "error");
+  const hasError = safeIssues.some((i) => i.level === "error");
 
   return (
     <div
@@ -44,7 +46,7 @@ export function AutofillIssues({
         {title}
       </p>
       <ul className="space-y-1 pl-6 list-disc">
-        {issues.map((i) => (
+        {safeIssues.map((i) => (
           <li key={`${i.field}-${i.message}`}>
             <span className="font-medium">{i.label}:</span> {i.message}
           </li>

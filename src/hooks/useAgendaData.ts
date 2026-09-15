@@ -16,7 +16,7 @@ export function useAgendaData() {
 
   // Pick up ?event= from URL once events land.
   useEffect(() => {
-    if (!events.length) return;
+    if (!events?.length || !Array.isArray(events)) return;
     const params = new URLSearchParams(window.location.search);
     const eventId = params.get("event");
     if (eventId && events.find((e) => e.id === eventId)) {

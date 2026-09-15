@@ -79,7 +79,7 @@ function AgendaCulturalInner() {
   // Abre o evento vindo da URL quando os dados chegam
   useEffect(() => {
     if (!initialEventId) return;
-    const ev = events.find((e) => e.id === initialEventId);
+    const ev = Array.isArray(events) ? events.find((e) => e.id === initialEventId) : undefined;
     if (ev) {
       setSelectedEvent(ev);
       trackView(ev.id);
@@ -191,14 +191,14 @@ function AgendaCulturalInner() {
               />
             ) : (
               <div className="space-y-12">
-                {filters.filteredEvents.some((e) => e.is_highlight) && (
+                {(filters.filteredEvents || []).some((e) => e.is_highlight) && (
                   <section>
                     <div className="flex items-center gap-3 mb-6">
                       <div className="h-3 w-3 rounded-full bg-orange-500 animate-pulse" />
                       <h2 className="text-2xl font-bold font-display">Destaques AgendIlha</h2>
                     </div>
                     <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
-                      {filters.filteredEvents
+                      {(filters.filteredEvents || [])
                         .filter((e) => e.is_highlight)
                         .map((ev) => (
                           <HighlightCard

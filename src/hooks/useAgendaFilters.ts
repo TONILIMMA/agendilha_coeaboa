@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { formatBrazilianDate } from "@/lib/date-utils";
 import { formatDayLabel, parseDateToObj } from "@/components/agenda/agenda-utils";
 import type { AgendaEvent } from "@/components/agenda/types";
+import { asArray } from "@/lib/safe";
 
 export interface AgendaProfileHints {
   home_location?: string | null;
@@ -53,7 +54,7 @@ export function useAgendaFilters(params: {
   const upcomingEvents = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return events.filter((e) => {
+    return asArray<AgendaEvent>(events).filter((e) => {
       const d = parseDateToObj(e.date);
       return !d || d >= today;
     });
