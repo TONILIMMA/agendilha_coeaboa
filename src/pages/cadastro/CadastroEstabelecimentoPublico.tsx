@@ -51,7 +51,7 @@ export default function CadastroEstabelecimentoPublico() {
     if (!form.tipo) return toast.error("Escolha o tipo do estabelecimento.");
     if (form.tipo === "Outro" && !form.tipoOutro.trim()) return toast.error("Diga qual é o tipo.");
     if (!form.endereco.trim()) return toast.error("Informe o endereço.");
-    if (!validateBrazilianMobile(form.whatsapp).valid)
+    if (form.whatsapp.trim() && !validateBrazilianMobile(form.whatsapp).valid)
       return toast.error("Informe um WhatsApp válido com DDD.");
 
     setLoading(true);
@@ -175,9 +175,9 @@ export default function CadastroEstabelecimentoPublico() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="whatsapp">WhatsApp *</Label>
+          <Label htmlFor="whatsapp">WhatsApp (opcional)</Label>
           <Input id="whatsapp" name="tel" autoComplete="tel" inputMode="tel" maxLength={16} className="h-12 text-base" value={form.whatsapp} onChange={(e) => set("whatsapp", formatPhoneDisplay(e.target.value))} placeholder="(21) 99999-9999" />
-          <p className="text-xs text-muted-foreground">DDD + 9 + 8 dígitos.</p>
+          <p className="text-xs text-muted-foreground">DDD + 9 + 8 dígitos. Apenas se quiser contato por ele.</p>
         </div>
 
         <div className="space-y-2">

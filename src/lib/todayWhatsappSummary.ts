@@ -111,6 +111,36 @@ export function openWhatsAppWithText(text: string) {
   window.open(url, "_blank");
 }
 
+export function buildCoeABoaSummary(submissions: SummaryEvent[]): { text: string; count: number } {
+  const today = todayISO();
+  const items = submissions
+    .filter((s) => s.status === "aprovado" && s.date === today)
+    .sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
+
+  if (items.length === 0) return { text: "", count: 0 };
+
+  const [y, m, d] = today.split("-");
+  const dateStr = `🗓️ ${d}/${m}/${y}`;
+
+  const header = `Brasil - RJ - Rio de Janeiro\n${dateStr}`;
+
+  const blocks = items.map((s) => {
+    const nome = s.atrativo_name || s.event_title;
+    const horaBruta = s.start_time ? s.start_time.split(":") : [];
+    const hora = horaBruta.length >= 2 ? `${horaBruta[0]}:${horaBruta[1]}h` : "";
+
+    const local = s.location || s.estabelecimento_name || "";
+    const street = [s.address_street, s.address_number].filter(Boolean).join(", ");
+    const enderecoFull = [street, s.address_neighborhood].filter(Boolean).join(" - ");
+    const linhaLocal = [local, enderecoFull].filter(Boolean).join(" – ");
+
+    return `🕒 ${hora} * ${nome} *\n📍 ${linhaLocal}`;
+  });
+
+  const text = [header, "", blocks.join("\n\n")].join("\n");
+  return { text, count: items.length };
+}
+
 /**
  * Monta o resumo da semana (hoje até +6 dias) agrupado por dia.
  */

@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import {
-  CalendarDays, FileDown, LayoutDashboard, MessageCircle, RotateCcw, Send,
+  CalendarDays, FileDown, LayoutDashboard, MessageCircle, RotateCcw, Send, FileText
 } from "lucide-react";
 import { toast } from "sonner";
-import { buildTodayWhatsAppSummary, buildWeekWhatsAppSummary, openWhatsAppWithText } from "@/lib/todayWhatsappSummary";
+import { buildTodayWhatsAppSummary, buildWeekWhatsAppSummary, buildCoeABoaSummary, openWhatsAppWithText } from "@/lib/todayWhatsappSummary";
 import { buildWhatsAppMessage, type AdminSubmission } from "./adminEventsHelpers";
 
 interface AdminEventsToolbarProps {
@@ -82,6 +82,25 @@ export function AdminEventsToolbar({
           <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
           <span className="hidden sm:inline">Resumo de hoje no WhatsApp</span>
           <span className="sm:hidden">Resumo hoje</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className={summaryBtn}
+          title="Gera o relatório diário COEABOA e abre o WhatsApp."
+          onClick={() => {
+            const { text, count } = buildCoeABoaSummary(submissions);
+            if (count === 0) {
+              toast.info("Hoje não temos eventos cadastrados.", { description: "Cadastre ou mude a data de um evento para gerar o relatório." });
+              return;
+            }
+            openWhatsAppWithText(text);
+            toast.success(`Relatório COEABOA gerado com ${count} evento(s)!`);
+          }}
+        >
+          <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+          <span className="hidden sm:inline">COEABOA do dia</span>
+          <span className="sm:hidden">COEABOA</span>
         </Button>
         <Button
           variant="outline"
