@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AdStatus = "pendente" | "publicado" | "recusado";
 
+export type AdType = "gratuito" | "destaque";
+
 export interface Ad {
   id: string;
   user_id: string;
@@ -20,6 +22,7 @@ export interface Ad {
   highlight_plan_id: string | null;
   highlight_until: string | null;
   event_date: string | null;
+  ad_type: AdType;
   views_count: number;
   created_at: string;
 }
@@ -36,7 +39,7 @@ export const AD_CATEGORIES = [
 ] as const;
 
 const AD_COLUMNS =
-  "id, user_id, title, description, category, price_cents, contact_whatsapp, city, neighborhood, photos, status, rejection_reason, is_highlight, highlight_plan_id, highlight_until, event_date, views_count, created_at";
+  "id, user_id, title, description, category, price_cents, contact_whatsapp, city, neighborhood, photos, status, rejection_reason, is_highlight, highlight_plan_id, highlight_until, event_date, ad_type, views_count, created_at";
 
 export const ADS_KEY = ["ads"] as const;
 
@@ -144,6 +147,8 @@ export interface AdInput {
   neighborhood: string | null;
   photos: string[];
   event_date: string | null;
+  is_highlight?: boolean;
+  ad_type?: AdType;
 }
 
 /** Cria um anúncio (entra em análise). */
@@ -213,5 +218,9 @@ export function useDeleteAd() {
 }
 
 function normalize(rows: unknown): Ad[] {
-  return ((rows ?? []) as Ad[]).map((r) => ({ ...r, photos: r.photos ?? [] }));
+  return ((rows ?? []) as Ad[]).map((r) => ({
+    ...r,
+    photos: r.photos ?? [],
+    ad_type: (r.ad_type as AdType) ?? "gratuito",
+  }));
 }

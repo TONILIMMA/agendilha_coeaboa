@@ -118,6 +118,8 @@ export default function NovoAnuncio() {
       neighborhood: neighborhood.trim() || null,
       event_date,
       photos,
+      is_highlight: comDestaque,
+      ad_type: (comDestaque ? "destaque" : "gratuito") as "gratuito" | "destaque",
     };
 
     try {
