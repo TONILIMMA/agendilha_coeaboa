@@ -61,10 +61,10 @@ export function useAgendaFilters(params: {
   }, [events]);
 
   const filteredEvents = useMemo(() => {
-    const term = search.toLowerCase();
+    const term = (search || "").toLowerCase();
     return upcomingEvents.filter((ev) => {
       const matchSearch =
-        ev.event_title.toLowerCase().includes(term) ||
+        (ev.event_title || "").toLowerCase().includes(term) ||
         (ev.description || "").toLowerCase().includes(term);
       const matchCat = categoryFilter === "all" || ev.category === categoryFilter;
       const matchFav = !showFavoritesOnly || isFavorite(ev.id);
@@ -88,8 +88,8 @@ export function useAgendaFilters(params: {
       .filter((ev) =>
         prefs.some(
           (p) =>
-            ev.category?.toLowerCase().includes(p.toLowerCase()) ||
-            ev.description?.toLowerCase().includes(p.toLowerCase()),
+            ev.category?.toLowerCase().includes((p || "").toLowerCase()) ||
+            ev.description?.toLowerCase().includes((p || "").toLowerCase()),
         ),
       )
       .slice(0, 4);

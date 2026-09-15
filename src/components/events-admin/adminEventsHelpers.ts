@@ -172,7 +172,7 @@ export function filterSubmissions(
   let list = [...submissions];
   if (opts.statusFilter !== "all") list = list.filter((s) => s.status === opts.statusFilter);
   if (opts.categoryFilter !== "all") list = list.filter((s) => s.category === opts.categoryFilter);
-  const q = opts.search.trim().toLowerCase();
+  const q = (opts.search || "").trim().toLowerCase();
   if (q) {
     list = list.filter(
       (s) =>
