@@ -26,6 +26,15 @@ import { inputToCents, centsToInput } from "@/data/useAdPlans";
 import { formatPhoneDisplay, validateBrazilianMobile } from "@/lib/whatsapp";
 import { ROUTES } from "@/routes/config";
 
+/** ISO -> valor aceito pelo input datetime-local (YYYY-MM-DDTHH:mm no horário local). */
+function isoParaDatetimeLocal(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const off = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - off).toISOString().slice(0, 16);
+}
+
 export default function NovoAnuncio() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -44,6 +53,7 @@ export default function NovoAnuncio() {
   const [whats, setWhats] = useState("");
   const [city, setCity] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
+  const [eventDate, setEventDate] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [comDestaque, setComDestaque] = useState(false);
   const [destaqueAberto, setDestaqueAberto] = useState(false);
@@ -58,6 +68,7 @@ export default function NovoAnuncio() {
     setWhats(formatPhoneDisplay(existente.contact_whatsapp));
     setCity(existente.city ?? "");
     setNeighborhood(existente.neighborhood ?? "");
+    setEventDate(isoParaDatetimeLocal(existente.event_date));
     setPhotos(existente.photos);
     setComDestaque(existente.is_highlight);
   }, [existente]);
@@ -95,6 +106,16 @@ export default function NovoAnuncio() {
       }
     }
 
+    let event_date: string | null = null;
+    if (eventDate.trim()) {
+      const d = new Date(eventDate);
+      if (Number.isNaN(d.getTime())) {
+        toast.error("Data do evento inválida.");
+        return;
+      }
+      event_date = d.toISOString();
+    }
+
     const input = {
       title: title.trim(),
       description: description.trim(),
@@ -103,6 +124,7 @@ export default function NovoAnuncio() {
       contact_whatsapp: telefone.e164,
       city: city.trim() || null,
       neighborhood: neighborhood.trim() || null,
+      event_date,
       photos,
     };
 
@@ -216,6 +238,20 @@ export default function NovoAnuncio() {
                     placeholder="(21) 99999-9999"
                     className="h-11"
                   />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="eventDate">Data do evento (opcional)</Label>
+                  <Input
+                    id="eventDate"
+                    type="datetime-local"
+                    value={eventDate}
+                    onChange={(e) => setEventDate(e.target.value)}
+                    className="h-11"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Usada para ordenar e sumir da lista quando passar.
+                  </p>
                 </div>
 
                 <div className="space-y-1.5">

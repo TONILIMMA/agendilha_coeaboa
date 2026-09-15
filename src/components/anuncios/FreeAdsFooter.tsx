@@ -17,9 +17,15 @@ function formatDate(iso: string): string {
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
+/** Data mostrada para o anúncio: a do evento quando existe, senão a de criação. */
+function adDate(ad: Ad): string {
+  return ad.event_date ? formatDate(ad.event_date) : formatDate(ad.created_at);
+}
+
 /**
  * Seção fixa de anúncios gratuitos, exibida acima do rodapé do app.
  * Sem cores especiais, banner ou prioridade visual: apenas uma lista simples.
+ * A ordem (por data do evento) já vem pronta da query useFreeAds.
  * Ao clicar num item, abre uma visualização com título, descrição, data e contato.
  */
 export function FreeAdsFooter() {
@@ -48,9 +54,7 @@ export function FreeAdsFooter() {
                 className="w-full text-left py-2.5 flex items-center justify-between gap-3 hover:text-primary transition-colors"
               >
                 <span className="text-sm text-foreground truncate">{ad.title}</span>
-                <span className="text-xs text-muted-foreground shrink-0">
-                  {formatDate(ad.created_at)}
-                </span>
+                <span className="text-xs text-muted-foreground shrink-0">{adDate(ad)}</span>
               </button>
             </li>
           ))}
@@ -65,7 +69,7 @@ export function FreeAdsFooter() {
                 <DialogTitle>{selecionado.title}</DialogTitle>
                 <DialogDescription className="inline-flex items-center gap-1.5">
                   <CalendarDays className="h-3.5 w-3.5" />
-                  {formatDate(selecionado.created_at)}
+                  {adDate(selecionado)}
                 </DialogDescription>
               </DialogHeader>
 

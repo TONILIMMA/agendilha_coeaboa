@@ -19,6 +19,7 @@ export interface Ad {
   is_highlight: boolean;
   highlight_plan_id: string | null;
   highlight_until: string | null;
+  event_date: string | null;
   views_count: number;
   created_at: string;
 }
@@ -35,7 +36,7 @@ export const AD_CATEGORIES = [
 ] as const;
 
 const AD_COLUMNS =
-  "id, user_id, title, description, category, price_cents, contact_whatsapp, city, neighborhood, photos, status, rejection_reason, is_highlight, highlight_plan_id, highlight_until, views_count, created_at";
+  "id, user_id, title, description, category, price_cents, contact_whatsapp, city, neighborhood, photos, status, rejection_reason, is_highlight, highlight_plan_id, highlight_until, event_date, views_count, created_at";
 
 export const ADS_KEY = ["ads"] as const;
 
@@ -59,19 +60,22 @@ export function usePublishedAds() {
 
 /**
  * Anúncios publicados e SEM destaque (gratuitos), para a seção fixa do rodapé.
- * Observação: a tabela `ads` não tem coluna de data do evento; ordenamos por
- * data de publicação (mais recentes primeiro). Se um dia existir uma coluna de
- * data do evento, é aqui que a ordenação por proximidade deve ser ligada.
+ * Ordenados pela data do evento (event_date), dos mais próximos para os mais
+ * distantes. Anúncios cujo event_date já passou são ocultados. Anúncios sem
+ * event_date continuam aparecendo, mas no fim da lista.
  */
 export function useFreeAds() {
   return useQuery({
     queryKey: [...ADS_KEY, "gratuitos"],
     queryFn: async (): Promise<Ad[]> => {
+      const agora = new Date().toISOString();
       const { data, error } = await supabase
         .from("ads")
         .select(AD_COLUMNS)
         .eq("status", "publicado")
         .eq("is_highlight", false)
+        .or(`event_date.is.null,event_date.gte.${agora}`)
+        .order("event_date", { ascending: true, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
       return normalize(data);
@@ -139,6 +143,7 @@ export interface AdInput {
   city: string | null;
   neighborhood: string | null;
   photos: string[];
+  event_date: string | null;
 }
 
 /** Cria um anúncio (entra em análise). */
