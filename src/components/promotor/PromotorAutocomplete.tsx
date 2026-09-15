@@ -78,11 +78,12 @@ export function PromotorAutocomplete({
     };
   }, [value, user?.id, refreshKey]);
 
+  const safeValue = value ?? "";
   const exactMatch = suggestions.some(
-    (s) => s.nome.trim().toLowerCase() === value.trim().toLowerCase(),
+    (s) => s.nome.trim().toLowerCase() === safeValue.trim().toLowerCase(),
   );
   const duplicateWarning =
-    !selected && exactMatch && value.trim().length >= 1;
+    !selected && exactMatch && safeValue.trim().length >= 1;
 
   return (
     <div className="relative">
@@ -123,10 +124,10 @@ export function PromotorAutocomplete({
               </span>
             </button>
           ))}
-          {value.trim().length >= 1 && !exactMatch && (
+          {safeValue.trim().length >= 1 && !exactMatch && (
             <div className="px-4 py-2 text-xs text-muted-foreground border-t bg-muted/30 flex items-center gap-2">
               <Plus className="h-3.5 w-3.5" />
-              Novo promotor — “{value.trim()}” será salvo neste evento.
+              Novo promotor — “{safeValue.trim()}” será salvo neste evento.
             </div>
           )}
         </div>
