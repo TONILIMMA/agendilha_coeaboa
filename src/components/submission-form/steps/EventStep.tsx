@@ -129,7 +129,7 @@ export function EventStep({ form, section = "all" }: { form: UseFormReturn<any>;
         name="ageRating"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Classificação *</FormLabel>
+            <FormLabel>Classificação (obrigatório por lei) *</FormLabel>
             <Select
               value={field.value || "Livre"}
               defaultValue="Livre"

@@ -238,9 +238,11 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
           <FormItem>
             <FormLabel>Bairro do local *</FormLabel>
             <FormControl>
-              <Input
+              <SuggestInput
                 placeholder="Ex.: Jardim Guanabara"
                 className="h-12"
+                suggestFrom="estabelecimentos_public"
+                suggestColumn="bairro"
                 {...field}
                 value={field.value ?? ""}
                 name="address-level3"

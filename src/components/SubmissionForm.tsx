@@ -10,7 +10,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
 import { z } from "zod";
-import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2, RotateCcw, Check } from "lucide-react";
+import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2, RotateCcw, Check, Clock } from "lucide-react";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -832,7 +832,27 @@ export default function SubmissionForm() {
                 </p>
               </div>
 
-              <Step1Summary form={form} onEdit={() => { setCurrentStep(1); window.scrollTo(0, 0); }} />
+              {/* Quadro de Conferência Não Editável */}
+              <div className="border-2 border-primary/20 rounded-2xl bg-card shadow-sm overflow-hidden relative">
+                <div className="bg-muted/30 px-4 py-3 border-b border-primary/10 flex items-center flex-wrap gap-2 justify-between">
+                  <h3 className="font-bold flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    Quadro de Conferência
+                  </h3>
+                  <div className="flex gap-2 text-[10px] uppercase font-bold tracking-widest items-center">
+                    <span className="text-muted-foreground">Status:</span>
+                    <span className="bg-amber-500/10 text-amber-600 dark:text-amber-500 px-2 py-1 rounded-full border border-amber-500/20 flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> Em Análise (Aguardando Curadoria)
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4 space-y-4 opacity-90 pointer-events-none grayscale-[20%]">
+                  <Step1Summary form={form} onEdit={() => {}} />
+                </div>
+                <div className="bg-amber-500/5 px-4 py-3 border-t border-amber-500/10 text-xs text-amber-900 dark:text-amber-200 font-medium z-20 relative">
+                  Aviso de análise: Este é um fluxo de pré-cadastro. Os dados confirmados neste quadro formarão um evento que estará sujeito à aprovação da curadoria antes de ser veiculado publicamente.
+                </div>
+              </div>
 
               <PublishChecklist form={form} goToStep={setCurrentStep} variant="compact" />
 
