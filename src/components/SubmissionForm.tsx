@@ -51,8 +51,9 @@ const formSchema = z.object({
     )
     .default([]),
   
-  nickName: z.string().trim().min(1, "Seu nome é obrigatório").max(50),
-  basicPhone: z.string().trim().min(1, "Informe o WhatsApp").superRefine((val, ctx) => {
+  nickName: z.string().trim().max(50).optional().or(z.literal("")),
+  basicPhone: z.string().trim().max(20).optional().superRefine((val, ctx) => {
+    if (!val) return;
     const v = validateBrazilianMobile(val);
     if (v.valid === false) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
@@ -65,15 +66,14 @@ const formSchema = z.object({
   addressStreet: z.string().trim().optional(),
   addressNumber: z.string().trim().optional(),
 
-  legalAcceptance: z.literal(true, {
-    errorMap: () => ({ message: "Você precisa aceitar os termos para continuar" }),
-  }),
+  legalAcceptance: z.boolean().optional().default(false),
   // Novo modelo (Fase 7): "Responsável pelo evento".
   // Substitui o antigo seletor promotor/atrativo/estabelecimento.
-  responsavelNome: z.string().trim().min(1, "Informe o nome do responsável").max(100),
+  responsavelNome: z.string().trim().max(100).optional().or(z.literal("")),
   usarMeuWhatsapp: z.boolean().default(true),
   // duvidasWhatsapp = WhatsApp do responsável (mantivemos o nome do campo p/ compat com backend).
-  duvidasWhatsapp: z.string().trim().min(1, "Informe o WhatsApp que vai receber as dúvidas").superRefine((val, ctx) => {
+  duvidasWhatsapp: z.string().trim().max(20).optional().superRefine((val, ctx) => {
+    if (!val) return;
     const v = validateBrazilianMobile(val);
     if (v.valid === false) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
@@ -81,9 +81,7 @@ const formSchema = z.object({
   }).default(""),
   // Campo legado — mantido em 'promotor' pra compat com telas antigas.
   duvidasSource: z.enum(["promotor", "atrativo", "estabelecimento"]).default("promotor"),
-  duvidasAuthorized: z.literal(true, {
-    errorMap: () => ({ message: "Você precisa autorizar o uso deste WhatsApp" }),
-  }),
+  duvidasAuthorized: z.boolean().optional().default(false),
   // Caracterização opcional do responsável (reaproveitada em divulgações futuras).
   tipoResponsavel: z.enum(["artista", "estabelecimento", "produtor", "outro"]).optional(),
   perfilNomeArtistico: z.string().trim().max(120).optional(),
@@ -96,22 +94,23 @@ const formSchema = z.object({
 
   category: z.string().trim().optional(),
   eventTitle: z.string().trim().optional().or(z.literal("")).or(z.null()),
-  date: z.string().trim().min(1, "Selecione a data"),
-  startTime: z.string().trim().min(1, "Campo obrigatório"),
+  date: z.string().trim().optional().or(z.literal("")),
+  startTime: z.string().trim().optional().or(z.literal("")),
   endTime: z.string().trim().optional(),
   
-  atrativoName: z.string().trim().min(1, "Atrativo é obrigatório"),
+  atrativoName: z.string().trim().optional().or(z.literal("")),
   atrativoType: z.string().trim().optional(),
   atrativoStyle: z.string().trim().optional(),
   atrativoDescription: z.string().trim().max(500).optional(),
-  atrativoContact: z.string().trim().min(1, "WhatsApp do atrativo é obrigatório").superRefine((val, ctx) => {
+  atrativoContact: z.string().trim().max(20).optional().superRefine((val, ctx) => {
+    if (!val) return;
     const v = validateBrazilianMobile(val);
     if (v.valid === false) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
     }
   }),
   atrativoEmail: z.string().trim().email("E-mail inválido").optional().or(z.literal("")).or(z.null()),
-  atrativoCategory: z.string().trim().min(1, "Selecione a categoria"),
+  atrativoCategory: z.string().trim().optional().or(z.literal("")),
   atrativoCategoryOther: z.string().trim().optional(),
   // Vínculo com cadastro externo (snapshot: draft NÃO segue mudanças posteriores do perfil)
   atrativoSourceId: z.string().uuid("Selecione um atrativo da lista").optional().or(z.literal("")),
@@ -119,9 +118,9 @@ const formSchema = z.object({
   atrativoLinkedAt: z.string().optional(),
   atrativoLinkedName: z.string().optional(),
 
-  locationName: z.string().trim().min(1, "Informe o nome do local/estabelecimento"),
-  eventAddress: z.string().trim().min(1, "Informe o endereço resumido"),
-  locationType: z.enum(["public", "commercial"], { required_error: "Selecione a categoria do espaço" }),
+  locationName: z.string().trim().optional().or(z.literal("")),
+  eventAddress: z.string().trim().optional().or(z.literal("")),
+  locationType: z.enum(["public", "commercial"]).optional(),
   locationContact: z.string().trim().optional(),
   locationCep: z.string().trim().optional().superRefine((val, ctx) => {
     if (!val) return;
@@ -138,19 +137,11 @@ const formSchema = z.object({
   additionalDetails: z.string().trim().optional(),
   stage: z.string().optional(),
   responsiblePerson: z.string().trim().optional(),
-  addressNeighborhood: z.string().trim().min(2, "Informe o bairro do local").max(100),
+  addressNeighborhood: z.string().trim().max(100).optional().or(z.literal("")),
   addressCity: z.string().optional(),
   addressState: z.string().optional(),
   ageRating: z.enum(["Livre", "10+", "12+", "14+", "16+", "18+"]).default("Livre"),
   isSuitableForMinors: z.boolean().default(true),
-}).refine((data) => {
-  if (data.locationType === "commercial" && !data.locationContact) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Contato do responsável é obrigatório para estabelecimentos comerciais",
-  path: ["locationContact"],
 }).superRefine((data, ctx) => {
   // Se "Outro" for selecionado em tipoResponsavel, o telefone deve estar no formato correto.
   // A validação padrão do campo já cobre o fluxo normal; aqui tratamos apenas o caso especial.
@@ -408,18 +399,13 @@ export default function SubmissionForm() {
 
   const getFieldsForStep = (step: number) => {
     switch (step) {
-      // Etapa 1 — informações principais do evento (obrigatórias + complementos)
+      // Etapa 1 — todos os campos agora são opcionais; validamos só formato quando preenchidos
       case 1: return [
-        "date", "startTime",
-        "atrativoName", "atrativoContact",
-        "locationName", "eventAddress", "addressNeighborhood",
-        "category", "ageRating", "atrativoCategory",
-        "locationType", "locationContact", "duvidasWhatsapp",
+        "basicPhone", "atrativoContact", "duvidasWhatsapp",
       ];
-      // Etapa 2 — seleções obrigatórias restantes + contato e termos
+      // Etapa 2 — sem campos obrigatórios; valida só formato de contato se preenchido
       case 2: return [
-        "nickName", "basicPhone",
-        "legalAcceptance", "responsavelNome", "duvidasAuthorized",
+        "basicPhone",
       ];
       default: return [];
     }
