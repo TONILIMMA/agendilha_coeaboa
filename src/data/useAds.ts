@@ -57,6 +57,29 @@ export function usePublishedAds() {
   });
 }
 
+/**
+ * Anúncios publicados e SEM destaque (gratuitos), para a seção fixa do rodapé.
+ * Observação: a tabela `ads` não tem coluna de data do evento; ordenamos por
+ * data de publicação (mais recentes primeiro). Se um dia existir uma coluna de
+ * data do evento, é aqui que a ordenação por proximidade deve ser ligada.
+ */
+export function useFreeAds() {
+  return useQuery({
+    queryKey: [...ADS_KEY, "gratuitos"],
+    queryFn: async (): Promise<Ad[]> => {
+      const { data, error } = await supabase
+        .from("ads")
+        .select(AD_COLUMNS)
+        .eq("status", "publicado")
+        .eq("is_highlight", false)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return normalize(data);
+    },
+    staleTime: 60 * 1000,
+  });
+}
+
 /** Anúncios do usuário logado. */
 export function useMyAds(userId: string | undefined) {
   return useQuery({

@@ -45,6 +45,7 @@ export default function NovoAnuncio() {
   const [city, setCity] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [comDestaque, setComDestaque] = useState(false);
   const [destaqueAberto, setDestaqueAberto] = useState(false);
   const [tituloEnviado, setTituloEnviado] = useState<string | null>(null);
 
@@ -58,6 +59,7 @@ export default function NovoAnuncio() {
     setCity(existente.city ?? "");
     setNeighborhood(existente.neighborhood ?? "");
     setPhotos(existente.photos);
+    setComDestaque(existente.is_highlight);
   }, [existente]);
 
   const podeAnunciar = isPromoter || isAdmin;
@@ -113,8 +115,12 @@ export default function NovoAnuncio() {
       }
       const novo = await criar.mutateAsync({ userId: user.id, input });
       toast.success("Anúncio enviado! A equipe confere e publica.");
-      setTituloEnviado(novo.title);
-      setDestaqueAberto(true);
+      if (comDestaque) {
+        setTituloEnviado(novo.title);
+        setDestaqueAberto(true);
+      } else {
+        navigate(ROUTES.MEUS_ANUNCIOS);
+      }
     } catch (err) {
       handleError(err, "Não deu pra salvar o anúncio agora");
     }
@@ -232,6 +238,36 @@ export default function NovoAnuncio() {
                     placeholder="Ex.: Cocotá"
                     className="h-11"
                   />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tipo de anúncio</Label>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setComDestaque(false)}
+                    className={`rounded-xl border p-4 text-left transition-colors ${
+                      !comDestaque ? "border-primary bg-primary/5" : "hover:border-primary/40"
+                    }`}
+                  >
+                    <p className="font-bold">Gratuito</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Aparece na lista de anúncios gratuitos no rodapé do app, sem destaque.
+                    </p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setComDestaque(true)}
+                    className={`rounded-xl border p-4 text-left transition-colors ${
+                      comDestaque ? "border-primary bg-primary/5" : "hover:border-primary/40"
+                    }`}
+                  >
+                    <p className="font-bold">Com destaque</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Fica na área principal de anúncios, com prioridade.
+                    </p>
+                  </button>
                 </div>
               </div>
 
