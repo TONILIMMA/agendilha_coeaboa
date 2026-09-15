@@ -54,7 +54,7 @@ export default function EstabelecimentoDetail() {
       setLoading(true);
       const { data, error } = await supabase
         .from("estabelecimentos_public")
-        .select("id, nome, tipo, bairro, endereco, numero, complemento, cep, contato, fotos")
+        .select("id, nome, tipo, bairro, endereco, numero, complemento, cep, fotos")
         .eq("id", id)
         .maybeSingle();
       if (cancelled) return;
@@ -63,7 +63,8 @@ export default function EstabelecimentoDetail() {
         setLoading(false);
         return;
       }
-      setEstab(data as Estabelecimento);
+      // Contato do responsável não é público: fica fora da consulta pública.
+      setEstab({ ...data, contato: null } as Estabelecimento);
 
       const today = new Date().toISOString().slice(0, 10);
       const { data: evs } = await supabase

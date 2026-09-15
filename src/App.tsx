@@ -30,6 +30,7 @@ const AdminEvents = lazy(() => import("./pages/AdminEvents"));
 const AgendaCultural = lazy(() => import("./pages/AgendaCultural"));
 const Eventos = lazy(() => import("./pages/Eventos"));
 const Explorar = lazy(() => import("./pages/Explorar"));
+const CuradoriaHoje = lazy(() => import("./pages/CuradoriaHoje"));
 const AdminCollaborators = lazy(() => import("./pages/AdminCollaborators"));
 const AdminMaster = lazy(() => import("./pages/AdminMaster"));
 const Ranking = lazy(() => import("./pages/Ranking"));
@@ -184,6 +185,7 @@ export const AppRoutes = () => (
         {/* Públicas */}
         <Route path={ROUTES.LANDING} element={<Landing />} />
         <Route path={ROUTES.EXPLORAR} element={<Explorar />} />
+         <Route path={ROUTES.CURADORIA_HOJE} element={<CuradoriaHoje />} />
         <Route path={ROUTES.EVENTO_IMPRIMIR} element={<PrintEvent />} />
 
         {/* Cadastro por perfil (sem AppShell, fullscreen mobile-first) */}

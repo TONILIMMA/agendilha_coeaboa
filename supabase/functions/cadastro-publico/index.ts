@@ -55,7 +55,9 @@ Deno.serve(async (req) => {
       const whatsapp = normalizePhone((body as any).whatsapp);
       if (!name) return json({ error: "Informe o nome do atrativo." }, 400);
       if (!category) return json({ error: "Escolha a categoria do atrativo." }, 400);
-      if (!whatsapp) return json({ error: "Informe um WhatsApp válido com DDD." }, 400);
+      if ((body as any).whatsapp && !whatsapp) {
+        return json({ error: "Confira o WhatsApp informado ou deixe o campo vazio." }, 400);
+      }
 
       const categoryOther = clean((body as any).categoryOther, 80);
       const finalCategory = category === "Outros" && categoryOther ? categoryOther : category;
@@ -97,7 +99,9 @@ Deno.serve(async (req) => {
       const whatsapp = normalizePhone((body as any).whatsapp);
       const endereco = clean((body as any).endereco, 200);
       if (!nome) return json({ error: "Informe o nome do estabelecimento." }, 400);
-      if (!whatsapp) return json({ error: "Informe um WhatsApp válido com DDD." }, 400);
+      if ((body as any).whatsapp && !whatsapp) {
+        return json({ error: "Confira o WhatsApp informado ou deixe o campo vazio." }, 400);
+      }
       if (!endereco) return json({ error: "Informe o endereço." }, 400);
 
       const tipo = clean((body as any).tipo, 80);

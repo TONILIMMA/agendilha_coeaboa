@@ -91,10 +91,10 @@ export function EstabelecimentoAutocomplete({
     try {
       const { data } = await supabase
         .from("estabelecimentos_public")
-        .select("id, nome, endereco, bairro, cep, numero, complemento, tipo, contato")
+        .select("id, nome, endereco, bairro, cep, numero, complemento, tipo")
         .eq("id", s.id)
         .maybeSingle();
-      if (data?.id) onSelect(data as EstabelecimentoSuggestion);
+      if (data?.id) onSelect({ ...data, contato: s.contato ?? null } as EstabelecimentoSuggestion);
     } catch {
       /* mantém os dados da sugestão */
     }

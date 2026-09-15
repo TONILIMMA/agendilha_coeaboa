@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'prompt',
       injectRegister: null,
-      includeAssets: ['favicon.ico', 'logo.png', 'logo.jpg', 'robots.txt', 'placeholder.svg'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'logo.png', 'logo.jpg', 'robots.txt', 'placeholder.svg'],
       workbox: {
         // Don't precache HTML — always fetch fresh navigations so mobile clients
         // see new builds immediately instead of being stuck on an old shell.
@@ -90,20 +90,17 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       manifest: {
-        name: 'AgendIlha',
-        short_name: 'AgendIlha',
-        description: 'A agenda cultural curada da Ilha do Governador',
-        theme_color: '#ea580c',
+        name: 'Coé a Boa?',
+        short_name: 'Coé a Boa',
+        description: 'Encontre e divulgue eventos, artistas e lugares perto de você.',
+        theme_color: '#000000',
         icons: [
-          {
-            src: 'logo.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ],
         display: 'standalone',
-        background_color: '#ffffff',
+        background_color: '#000000',
         start_url: '/'
       },
       devOptions: {

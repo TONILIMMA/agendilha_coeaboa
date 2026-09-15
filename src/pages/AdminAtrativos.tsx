@@ -282,7 +282,7 @@ export default function AdminAtrativos() {
                       {isEditing ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <Field label="Nome*" value={String(editForm.name ?? "")} onChange={(v) => setEditForm({ ...editForm, name: v })} />
-                          <Field label="Contato*" value={String(editForm.contact_info ?? "")} onChange={(v) => setEditForm({ ...editForm, contact_info: v })} />
+                           <Field label="Contato (opcional)" value={String(editForm.contact_info ?? "")} onChange={(v) => setEditForm({ ...editForm, contact_info: v })} />
                           <div className="sm:col-span-2">
                             <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Categoria*</Label>
                             <Select value={String(editForm.type ?? "")} onValueChange={(v) => setEditForm({ ...editForm, type: v })}>

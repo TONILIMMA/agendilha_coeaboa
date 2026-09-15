@@ -75,10 +75,6 @@ export function NovoAtrativoDialog({
       toast.error("Diz o nome do atrativo pra gente.");
       return;
     }
-    if (!contactInfo.trim()) {
-      toast.error("Informe um contato para o atrativo.");
-      return;
-    }
     if (!tipoAtrativo) {
       toast.error("Selecione uma categoria.");
       return;
@@ -135,7 +131,7 @@ export function NovoAtrativoDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-sm font-semibold">Contato*</Label>
+            <Label className="text-sm font-semibold">Contato (opcional)</Label>
             <Input
               value={contactInfo}
               onChange={(e) => setContactInfo(e.target.value)}

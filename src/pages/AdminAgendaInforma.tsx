@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Copy, Send, Sparkles } from "lucide-react";
+import { Copy, Send } from "lucide-react";
 import { toast } from "sonner";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { buildCoeaboaDailyReport } from "@/lib/todayWhatsappSummary";
 
 interface Ev {
   id: string;
@@ -22,16 +23,10 @@ interface Ev {
   atrativo_name: string | null;
   atrativo_style: string | null;
   short_copy: string | null;
+  address_street: string | null;
+  address_number: string | null;
+  submission_atrativos: Array<{ name: string | null; display_order: number | null }> | null;
 }
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  musica: "🎸",
-  gastronomia: "🍽️",
-  cultura: "🎭",
-  esporte: "⚽",
-  promocoes: "🏷️",
-  outros: "📌",
-};
 
 function todayISO() {
   const d = new Date();
@@ -52,20 +47,13 @@ export default function AdminAgendaInforma() {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
 
-  const [header, setHeader] = useState("🎶 AGENDILHA INFORMA 🎶");
-  const [intro, setIntro] = useState("🔥 A Ilha está fervendo hoje! Escolha seu rolê 👇");
-  const [footer, setFooter] = useState(
-    "📲 Compartilhe com os amigos e monte sua noite!\n#Agendilha #IlhaMusical #RolêDaSemana"
-  );
-  const [withImageMarker, setWithImageMarker] = useState(true);
-
   useEffect(() => {
     let active = true;
     setLoading(true);
     supabase
       .from("submissions")
       .select(
-        "id, event_title, date, start_time, location, address_neighborhood, category, atrativo_name, atrativo_style, short_copy"
+        "id, event_title, date, start_time, location, address_street, address_number, address_neighborhood, category, atrativo_name, atrativo_style, short_copy, submission_atrativos(name, display_order)"
       )
       .eq("status", "aprovado")
       .eq("date", date)
@@ -90,26 +78,8 @@ export default function AdminAgendaInforma() {
 
   const lines = useMemo(() => {
     const chosen = events.filter((e) => selected[e.id]);
-    const blocks = chosen.map((e, i) => {
-      const emoji = CATEGORY_EMOJI[e.category || "outros"] || "📌";
-      const title = e.atrativo_name || e.event_title;
-      const time = formatTime(e.start_time);
-      const loc = [e.location, e.address_neighborhood].filter(Boolean).join(" - ");
-      const desc = e.short_copy || e.atrativo_style || "";
-      return [
-        `🕖 ${time ? `${time} — ` : ""}${title}`,
-        `📍 ${loc}`,
-        desc ? `${emoji} ${desc}` : null,
-        withImageMarker ? `👉 [Imagem ${i + 1}]` : null,
-      ]
-        .filter(Boolean)
-        .join("\n");
-    });
-
-    return [header, "", intro, "", blocks.join("\n\n"), "", footer]
-      .filter((s) => s !== null)
-      .join("\n");
-  }, [events, selected, header, intro, footer, withImageMarker]);
+    return buildCoeaboaDailyReport(chosen, date).text;
+  }, [events, selected, date]);
 
   const chosenCount = Object.values(selected).filter(Boolean).length;
 
@@ -126,8 +96,8 @@ export default function AdminAgendaInforma() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title="AgendIlha Informa"
-        subtitle="Gere o roteiro do dia em formato pronto para WhatsApp."
+        title="Relatório diário COEABOA"
+        subtitle="Selecione os eventos e copie o texto pronto para postar no WhatsApp Agendilha."
         rightElement={
           <div>
             <Label htmlFor="date" className="text-xs">Data</Label>
@@ -144,33 +114,6 @@ export default function AdminAgendaInforma() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Cabeçalho</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-xs">Título</Label>
-                <Input value={header} onChange={(e) => setHeader(e.target.value)} />
-              </div>
-              <div>
-                <Label className="text-xs">Introdução</Label>
-                <Textarea rows={2} value={intro} onChange={(e) => setIntro(e.target.value)} />
-              </div>
-              <div>
-                <Label className="text-xs">Rodapé / hashtags</Label>
-                <Textarea rows={2} value={footer} onChange={(e) => setFooter(e.target.value)} />
-              </div>
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox
-                  checked={withImageMarker}
-                  onCheckedChange={(v) => setWithImageMarker(Boolean(v))}
-                />
-                Incluir marcador "[Imagem N]" para colar os flyers
-              </label>
-            </CardContent>
-          </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="text-base">
@@ -201,7 +144,7 @@ export default function AdminAgendaInforma() {
                       <div className="text-sm flex-1 min-w-0">
                         <div className="font-medium truncate">
                           {formatTime(e.start_time)} —{" "}
-                          {e.atrativo_name || e.event_title}
+                           {(e.submission_atrativos || []).map((item) => item.name).filter(Boolean).join(" - ") || e.atrativo_name || e.event_title}
                         </div>
                         <div className="text-xs text-muted-foreground truncate">
                           {e.location} {e.address_neighborhood && `· ${e.address_neighborhood}`}
@@ -228,7 +171,7 @@ export default function AdminAgendaInforma() {
                 value={lines}
                 onChange={() => {}}
                 readOnly
-                className="font-mono text-xs h-[420px] resize-none bg-muted/30"
+                className="font-mono text-sm h-[420px] resize-none bg-muted/30 leading-relaxed"
               />
               <div className="flex gap-2 mt-3">
                 <Button onClick={copy} variant="outline" className="flex-1">

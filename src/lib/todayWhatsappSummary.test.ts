@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   buildTodayWhatsAppSummary,
   buildWeekWhatsAppSummary,
+  buildCoeaboaDailyReport,
   openWhatsAppWithText,
 } from "./todayWhatsappSummary";
 
@@ -131,5 +132,48 @@ describe("openWhatsAppWithText", () => {
     expect(url).not.toContain("🎙️");
     expect(url).not.toContain("\n");
     expect(url).not.toContain("é");
+  });
+});
+
+describe("buildCoeaboaDailyReport", () => {
+  it("gera o modelo diário com múltiplos atrativos e endereço completo", () => {
+    const date = "2026-09-15";
+    const { text, count } = buildCoeaboaDailyReport([
+      {
+        status: "aprovado",
+        date,
+        start_time: "18:00:00",
+        event_title: "Noite de rock",
+        location: "Aterro do Cocotá",
+        address_street: "Parque Manoel Bandeira",
+        address_number: "s/n",
+        address_neighborhood: "Cocotá",
+        submission_atrativos: [
+          { name: "Linha Vermelha", display_order: 2 },
+          { name: "Banda 4X Rock", display_order: 1 },
+        ],
+      },
+    ], date);
+
+    expect(count).toBe(1);
+    expect(text).toBe(
+      "Brasil - RJ - Rio de Janeiro\n\n" +
+      "🗓️ 15/09/2026\n\n" +
+      "🕒 18:00h * Banda 4X Rock - Linha Vermelha *\n" +
+      "📍 Aterro do Cocotá – Parque Manoel Bandeira, s/n - Cocotá",
+    );
+  });
+
+  it("ignora eventos não aprovados e ordena por horário", () => {
+    const date = "2026-09-15";
+    const { text, count } = buildCoeaboaDailyReport([
+      { status: "aprovado", date, start_time: "22:00", event_title: "Mais tarde" },
+      { status: "pendente", date, start_time: "17:00", event_title: "Pendente" },
+      { status: "aprovado", date, start_time: "18:00", event_title: "Mais cedo" },
+    ], date);
+
+    expect(count).toBe(2);
+    expect(text.indexOf("Mais cedo")).toBeLessThan(text.indexOf("Mais tarde"));
+    expect(text).not.toContain("Pendente");
   });
 });
