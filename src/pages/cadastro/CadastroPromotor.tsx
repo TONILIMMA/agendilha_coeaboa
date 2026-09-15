@@ -44,12 +44,11 @@ export default function CadastroPromotor() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!nome.trim() || nome.trim().length < 3) e.nome = "Diz pra gente como você quer ser chamado.";
-    const v = validateBrazilianMobile(whatsapp);
-    if (v.valid === false) e.whatsapp = v.reason;
-    if (!bairro) e.bairro = "Escolha seu bairro.";
-    if (password.length < 6) e.password = "Mínimo 6 caracteres.";
-    if (!aceite) e.aceite = "Pra seguir, é preciso aceitar os termos.";
+    // Só valida o formato do telefone quando algo for digitado.
+    if (whatsapp.trim()) {
+      const v = validateBrazilianMobile(whatsapp);
+      if (v.valid === false) e.whatsapp = v.reason;
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -116,7 +115,6 @@ export default function CadastroPromotor() {
             label="Seu nome ou nome fantasia"
             value={nome}
             onChange={setNome}
-            required
             error={errors.nome}
             placeholder="Ex.: Bar do Zé, Produções da Ana"
             autoComplete="name"
@@ -126,16 +124,13 @@ export default function CadastroPromotor() {
             label="WhatsApp (DDD + número)"
             value={whatsapp}
             onChange={(v) => setWhatsapp(maskPhone(v))}
-            required
             inputMode="tel"
             placeholder="Ex.: 21 99999-0000"
             error={errors.whatsapp}
             autoComplete="tel"
           />
           <div className="space-y-1.5">
-            <Label htmlFor="bairro">
-              Seu bairro <span className="text-destructive">*</span>
-            </Label>
+            <Label htmlFor="bairro">Seu bairro</Label>
             <Select value={bairro} onValueChange={setBairro}>
               <SelectTrigger id="bairro" className="h-12">
                 <SelectValue placeholder="Escolha seu bairro" />
@@ -155,7 +150,6 @@ export default function CadastroPromotor() {
             label="Crie uma senha"
             value={password}
             onChange={setPassword}
-            required
             error={errors.password}
             placeholder="Mínimo 6 caracteres"
             autoComplete="new-password"

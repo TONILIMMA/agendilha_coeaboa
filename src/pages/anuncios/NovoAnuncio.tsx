@@ -80,22 +80,14 @@ export default function NovoAnuncio() {
     e.preventDefault();
     if (!user) return;
 
-    if (title.trim().length < 4) {
-      toast.error("Dê um nome ao anúncio (mínimo 4 letras).");
-      return;
-    }
-    if (description.trim().length < 20) {
-      toast.error("Conte um pouco mais no texto do anúncio (mínimo 20 letras).");
-      return;
-    }
-    if (!category) {
-      toast.error("Escolha uma categoria.");
-      return;
-    }
-    const telefone = validateBrazilianMobile(whats);
-    if (telefone.valid === false) {
-      toast.error(telefone.reason);
-      return;
+    let contactWhatsapp = "";
+    if (whats.trim()) {
+      const telefone = validateBrazilianMobile(whats);
+      if (telefone.valid === false) {
+        toast.error(telefone.reason);
+        return;
+      }
+      contactWhatsapp = telefone.e164;
     }
     let price_cents: number | null = null;
     if (preco.trim()) {
@@ -121,7 +113,7 @@ export default function NovoAnuncio() {
       description: description.trim(),
       category,
       price_cents,
-      contact_whatsapp: telefone.e164,
+      contact_whatsapp: contactWhatsapp,
       city: city.trim() || null,
       neighborhood: neighborhood.trim() || null,
       event_date,

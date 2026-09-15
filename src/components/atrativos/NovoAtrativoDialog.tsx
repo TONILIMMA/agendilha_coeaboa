@@ -71,14 +71,6 @@ export function NovoAtrativoDialog({
   }, [open, initialName, initialType]);
 
   const salvar = async () => {
-    if (name.trim().length < 2) {
-      toast.error("Diz o nome do atrativo pra gente.");
-      return;
-    }
-    if (!tipoAtrativo) {
-      toast.error("Selecione uma categoria.");
-      return;
-    }
     setSaving(true);
     try {
       const { data: userData } = await supabase.auth.getUser();
@@ -86,8 +78,8 @@ export function NovoAtrativoDialog({
       const { data, error } = await supabase
         .from("atrativos")
         .insert({
-          name: name.trim(),
-          type: tipoAtrativo,
+          name: name.trim() || null,
+          type: tipoAtrativo || null,
           description: description.trim() || null,
           contact_info: contactInfo.trim() || null,
           category_other: tipoAtrativo === "Outros" ? categoryOther.trim() || null : null,
@@ -126,7 +118,7 @@ export function NovoAtrativoDialog({
 
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label className="text-sm font-semibold">Nome do atrativo*</Label>
+            <Label className="text-sm font-semibold">Nome do atrativo</Label>
             <Input value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" />
           </div>
 
@@ -140,7 +132,7 @@ export function NovoAtrativoDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-sm font-semibold">Categoria*</Label>
+            <Label className="text-sm font-semibold">Categoria</Label>
             <Select value={tipoAtrativo} onValueChange={setTipoAtrativo}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione..." />

@@ -100,10 +100,6 @@ export function NovoEstabelecimentoDialog({
   };
 
   const salvar = async () => {
-    if (nome.trim().length < 2) {
-      toast.error("Diz o nome do lugar pra gente.");
-      return;
-    }
     setSaving(true);
     try {
       // Validação de duplicidade no submit, pelo identificador único (nome).
@@ -124,7 +120,7 @@ export function NovoEstabelecimentoDialog({
       const { data, error } = await supabase
         .from("estabelecimentos")
         .insert({
-          nome: nome.trim(),
+          nome: nome.trim() || null,
           tipo: tipo || null,
           endereco: endereco.trim() || null,
           numero: numero.trim() || null,
@@ -191,7 +187,7 @@ export function NovoEstabelecimentoDialog({
 
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label className="text-sm font-semibold">Nome do local*</Label>
+            <Label className="text-sm font-semibold">Nome do local</Label>
             <Input
               value={nome}
               onChange={(e) => {
