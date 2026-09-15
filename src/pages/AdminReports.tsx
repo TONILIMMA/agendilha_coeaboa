@@ -20,8 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Download, Calendar, Filter, MapPin } from "lucide-react";
+import { Search, Download, Calendar, Filter, MapPin, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { buildCoeABoaSummary } from "@/lib/todayWhatsappSummary";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -82,6 +83,20 @@ export default function AdminReports() {
     toast.success("Exportação concluída!");
   };
 
+  const copiarCoeABoa = async () => {
+    const { text, count } = buildCoeABoaSummary(events);
+    if (count === 0) {
+      toast.error("Nenhum rolê aprovado para hoje.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`COEABOA de hoje copiado (${count} rolê${count > 1 ? "s" : ""}).`);
+    } catch {
+      window.prompt("Copie o texto do COEABOA:", text);
+    }
+  };
+
   if (authLoading || permsLoading) return <LoadingState fullPage message="Carregando..." />;
   if (!user || (!isAdmin && !isMaster)) return <Navigate to="/" replace />;
 
@@ -91,13 +106,21 @@ export default function AdminReports() {
         title="Relatório de Parceiros" 
         subtitle="Listagem curada de eventos por região e data para coordenação administrativa."
         rightElement={
-          <Button 
-            onClick={exportToCSV} 
-            variant="outline" 
-            className="rounded-full gap-2 border-primary/20 text-primary hover:bg-primary/5 font-bold"
-          >
-            <Download className="h-4 w-4" /> Exportar CSV
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              onClick={copiarCoeABoa} 
+              className="rounded-full gap-2 font-bold"
+            >
+              <Copy className="h-4 w-4" /> Copiar COEABOA de hoje
+            </Button>
+            <Button 
+              onClick={exportToCSV} 
+              variant="outline" 
+              className="rounded-full gap-2 border-primary/20 text-primary hover:bg-primary/5 font-bold"
+            >
+              <Download className="h-4 w-4" /> Exportar CSV
+            </Button>
+          </div>
         }
       />
 
