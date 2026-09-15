@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [mustChangePassword, setMustChangePassword] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "TOKEN_REFRESHED") {
         // Session token refreshed
       }
@@ -51,25 +51,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return;
       }
-      setSession(session);
-      setUser(session?.user ?? null);
+      
       if (session?.user) {
-        setTimeout(() => checkAdmin(session.user.id), 0);
-        setTimeout(() => checkMustChangePassword(session.user.id), 0);
+        await Promise.all([
+          checkAdmin(session.user.id),
+          checkMustChangePassword(session.user.id)
+        ]);
       } else {
         setIsAdmin(false);
         setMustChangePassword(false);
       }
+
+      setSession(session);
+      setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        await Promise.all([
+          checkAdmin(session.user.id),
+          checkMustChangePassword(session.user.id)
+        ]);
+      }
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) {
-        checkAdmin(session.user.id);
-        checkMustChangePassword(session.user.id);
-      }
       setLoading(false);
     });
 
