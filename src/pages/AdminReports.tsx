@@ -23,6 +23,7 @@ import {
 import { Search, Download, Calendar, Filter, MapPin, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { buildCoeABoaSummary } from "@/lib/todayWhatsappSummary";
+import { asArray } from "@/lib/safe";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -41,7 +42,7 @@ export default function AdminReports() {
   const [dateFilter, setDateFilter] = useState("");
 
   const { data: eventsRaw = [], isLoading: loading } = useSubmissions();
-  const events = eventsRaw as any[];
+  const events = asArray<any>(eventsRaw);
   
   const neighborhoods = useMemo(() => {
     const set = new Set<string>();
