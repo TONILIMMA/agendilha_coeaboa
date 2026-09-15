@@ -8,3 +8,5 @@
 - [ ] Exibir aviso fixo de análise pela curadoria no formulário.
 - [ ] Adicionar publicidade rotativa com detalhes e link, preparada para a página de anúncios.
 - [ ] Exibir eventos gratuitos abaixo da programação, ordenados pela data mais próxima.
+- [ ] Tornar telefone opcional nos cadastros de atrativos e estabelecimentos.
+- [ ] Adaptar o relatório diário COEABOA ao formato pronto para WhatsApp, incluindo múltiplos atrativos.
