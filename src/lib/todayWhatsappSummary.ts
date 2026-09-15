@@ -14,6 +14,7 @@ export interface SummaryEvent {
   address_street?: string | null;
   address_number?: string | null;
   address_neighborhood?: string | null;
+  submission_atrativos?: Array<{ name?: string | null; display_order?: number | null }> | null;
 }
 
 function todayISO(): string {
@@ -33,6 +34,53 @@ function shortAddress(s: SummaryEvent): string {
   const parts = [s.address_street, s.address_number].filter(Boolean).join(", ");
   const bairro = s.address_neighborhood;
   return [parts, bairro].filter(Boolean).join(" - ");
+}
+
+function eventAttractions(s: SummaryEvent): string {
+  const linked = [...(s.submission_atrativos ?? [])]
+    .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+    .map((item) => item.name?.trim())
+    .filter((name): name is string => Boolean(name));
+  const names = linked.length ? linked : [s.atrativo_name?.trim(), s.event_title?.trim()].filter(
+    (name): name is string => Boolean(name),
+  );
+  return names.join(" - ") || "Evento";
+}
+
+function formatReportDate(iso: string): string {
+  const [year, month, day] = iso.split("-");
+  return `${day}/${month}/${year}`;
+}
+
+function formatReportTime(time?: string | null): string {
+  if (!time) return "Horário a confirmar";
+  const [hour = "", minute = "00"] = time.split(":");
+  return `${hour}:${minute}h`;
+}
+
+/** Gera o relatório diário COEABOA pronto para copiar e postar no WhatsApp. */
+export function buildCoeaboaDailyReport(
+  submissions: SummaryEvent[],
+  date: string,
+): { text: string; count: number } {
+  const items = submissions
+    .filter((event) => event.status === "aprovado" && event.date === date)
+    .sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
+
+  const header = ["Brasil - RJ - Rio de Janeiro", "", `🗓️ ${formatReportDate(date)}`].join("\n");
+  if (items.length === 0) return { text: header, count: 0 };
+
+  const blocks = items.map((event) => {
+    const local = event.location || event.estabelecimento_name || "Local a confirmar";
+    const address = shortAddress(event);
+    const locationLine = [local, address].filter(Boolean).join(" – ");
+    return [
+      `🕒 ${formatReportTime(event.start_time)} * ${eventAttractions(event)} *`,
+      `📍 ${locationLine}`,
+    ].join("\n");
+  });
+
+  return { text: [header, "", blocks.join("\n\n")].join("\n"), count: items.length };
 }
 
 function addDaysISO(iso: string, days: number): string {

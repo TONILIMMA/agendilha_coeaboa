@@ -43,8 +43,10 @@ export default function CadastroAtrativoPublico() {
     if (!form.category) return toast.error("Escolha a categoria.");
     if (form.category === "Outros" && !form.categoryOther.trim())
       return toast.error("Diga qual é a categoria.");
-    const v = validateBrazilianMobile(form.whatsapp);
-    if (!v.valid) return toast.error("Informe um WhatsApp válido com DDD.");
+    if (form.whatsapp.trim()) {
+      const v = validateBrazilianMobile(form.whatsapp);
+      if (!v.valid) return toast.error("Confira o WhatsApp ou deixe o campo vazio.");
+    }
 
     setLoading(true);
     try {
@@ -142,9 +144,9 @@ export default function CadastroAtrativoPublico() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="whatsapp">WhatsApp *</Label>
+          <Label htmlFor="whatsapp">WhatsApp (opcional)</Label>
           <Input id="whatsapp" name="tel" autoComplete="tel" inputMode="tel" maxLength={16} className="h-12 text-base" value={form.whatsapp} onChange={(e) => set("whatsapp", formatPhoneDisplay(e.target.value))} placeholder="(21) 99999-9999" />
-          <p className="text-xs text-muted-foreground">DDD + 9 + 8 dígitos.</p>
+          <p className="text-xs text-muted-foreground">Se informar, use DDD + número.</p>
         </div>
 
         <div className="space-y-2">
