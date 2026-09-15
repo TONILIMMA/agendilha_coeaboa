@@ -51,10 +51,15 @@ export function FreeAdsFooter() {
               <button
                 type="button"
                 onClick={() => setSelecionado(ad)}
-                className="w-full text-left py-2.5 flex items-center justify-between gap-3 hover:text-primary transition-colors"
+                className="w-full text-left py-2.5 space-y-0.5 hover:text-primary transition-colors"
               >
-                <span className="text-sm text-foreground truncate">{ad.title}</span>
-                <span className="text-xs text-muted-foreground shrink-0">{adDate(ad)}</span>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium text-foreground truncate">{ad.title}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">{adDate(ad)}</span>
+                </div>
+                {ad.description && (
+                  <p className="text-xs text-muted-foreground truncate">{ad.description}</p>
+                )}
               </button>
             </li>
           ))}
