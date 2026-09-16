@@ -1,6 +1,7 @@
 export const ROUTES = {
   LANDING: "/",
   AGENDA: "/agenda",
+  COE_A_BOA: "/coe-a-boa",
   ARTISTAS: "/artistas",
   AUTH: "/auth",
   CONFIGURAR_ARTISTA: "/configurar-artista",

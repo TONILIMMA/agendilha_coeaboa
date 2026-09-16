@@ -28,6 +28,7 @@ const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminReports = lazy(() => import("./pages/AdminReports"));
 const AdminEvents = lazy(() => import("./pages/AdminEvents"));
 const AgendaCultural = lazy(() => import("./pages/AgendaCultural"));
+const CoeABoa = lazy(() => import("./pages/CoeABoa"));
 const Eventos = lazy(() => import("./pages/Eventos"));
 const Explorar = lazy(() => import("./pages/Explorar"));
 const AdminCollaborators = lazy(() => import("./pages/AdminCollaborators"));
@@ -200,6 +201,7 @@ export const AppRoutes = () => (
         {/* App Wrapper for standard pages */}
         <Route element={<AppShell maxWidth="md"><Outlet /></AppShell>}>
           <Route path={ROUTES.AGENDA} element={<AgendaCultural />} />
+          <Route path={ROUTES.COE_A_BOA} element={<CoeABoa />} />
           <Route path={ROUTES.ARTISTAS} element={<ArtistFeed />} />
           <Route path={ROUTES.AUTH} element={<Auth />} />
           <Route path={ROUTES.CONFIGURAR_ARTISTA} element={<ProtectedRoute><ArtistSetup /></ProtectedRoute>} />
