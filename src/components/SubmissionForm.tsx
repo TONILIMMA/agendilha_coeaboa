@@ -10,7 +10,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
 import { z } from "zod";
-import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2, RotateCcw, Check, Clock } from "lucide-react";
+import { Send, Loader2, Save, ArrowLeft, ArrowRight, CheckCircle2, RotateCcw, Check, Clock, Crown } from "lucide-react";
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ import { generateFallbackFlyer } from "@/lib/generateFallbackFlyer";
 import { emitEntityCreated } from "@/lib/entityEvents";
 import { usePromotorProfile, useUpsertPromotorProfile } from "@/data/usePromotorProfile";
 import { measureFlowOperation, startFlowMeasure } from "@/lib/flow-performance";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   imageSource: z.enum(["upload", "ai"]).optional(),
@@ -179,6 +180,7 @@ export default function SubmissionForm() {
   const [imageSource, setImageSource] = useState<"upload" | "ai" | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [destaqueRecolhido, setDestaqueRecolhido] = useState(false);
+  const [tipoAnuncio, setTipoAnuncio] = useState<"gratuito" | "destaque">("gratuito");
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
   const { addSubmission } = useSubmissions();
@@ -864,12 +866,61 @@ export default function SubmissionForm() {
                 <LegalStep form={form} />
               </div>
 
-              <DestaquePremiumSection
-                submitting={submitting}
-                eventTitle={form.watch("eventTitle")}
-                dismissed={destaqueRecolhido}
-                onDismissedChange={setDestaqueRecolhido}
-              />
+              {/* Seletor: evento gratuito x evento com destaque */}
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <h2 className="text-base font-bold text-foreground">Visibilidade do evento</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Escolha como seu rolê será publicado. Com destaque, você vê os planos de visibilidade.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    aria-pressed={tipoAnuncio === "gratuito"}
+                    onClick={() => setTipoAnuncio("gratuito")}
+                    className={cn(
+                      "rounded-2xl border p-4 text-left transition-all",
+                      tipoAnuncio === "gratuito"
+                        ? "border-primary ring-2 ring-primary/30 bg-primary/5"
+                        : "border-border bg-card/30 hover:border-primary/40"
+                    )}
+                  >
+                    <div className="font-bold text-foreground">Evento gratuito</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Publicação normal na agenda, sem custo.
+                    </p>
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={tipoAnuncio === "destaque"}
+                    onClick={() => setTipoAnuncio("destaque")}
+                    className={cn(
+                      "rounded-2xl border p-4 text-left transition-all",
+                      tipoAnuncio === "destaque"
+                        ? "border-amber-400 ring-2 ring-amber-400/30 bg-amber-400/5"
+                        : "border-border bg-card/30 hover:border-amber-400/40"
+                    )}
+                  >
+                    <div className="font-bold text-foreground flex items-center gap-2">
+                      <Crown className="h-4 w-4 text-amber-500" aria-hidden />
+                      Evento com destaque
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Flyer em evidência no carrossel e mais alcance.
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              {tipoAnuncio === "destaque" && (
+                <DestaquePremiumSection
+                  submitting={submitting}
+                  eventTitle={form.watch("eventTitle")}
+                  dismissed={false}
+                  onDismissedChange={setDestaqueRecolhido}
+                />
+              )}
             </div>
           )}
 
