@@ -14,9 +14,7 @@ function isPreviewOrDev(): boolean {
   const host = window.location.hostname;
   if (host === "localhost" || host === "127.0.0.1") return true;
   if (host.startsWith("id-preview--") || host.startsWith("preview--")) return true;
-  if (host === "lovableproject.com" || host.endsWith(".lovableproject.com")) return true;
-  if (host === "lovableproject-dev.com" || host.endsWith(".lovableproject-dev.com")) return true;
-  if (host === "beta.lovable.dev" || host.endsWith(".beta.lovable.dev")) return true;
+  if (host.includes("lovable")) return true;
   if (new URLSearchParams(window.location.search).get("sw") === "off") return true;
   return false;
 }
