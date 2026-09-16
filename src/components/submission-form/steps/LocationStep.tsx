@@ -116,7 +116,7 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
         name="locationName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nome do local/estabelecimento *</FormLabel>
+            <FormLabel>Nome do local/estabelecimento</FormLabel>
             <FormControl>
               <EstabelecimentoAutocomplete
                 value={field.value ?? ""}
@@ -214,7 +214,7 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
         name="eventAddress"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Endereço resumido *</FormLabel>
+            <FormLabel>Endereço resumido</FormLabel>
             <FormControl>
               <SuggestInput
                 placeholder="Ex.: Rua X, 123 — próximo à Praça Y"
@@ -236,7 +236,7 @@ export function LocationStep({ form }: { form: UseFormReturn<any> }) {
         name="addressNeighborhood"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Bairro do local *</FormLabel>
+            <FormLabel>Bairro do local</FormLabel>
             <FormControl>
               <SuggestInput
                 placeholder="Ex.: Jardim Guanabara"

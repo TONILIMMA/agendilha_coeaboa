@@ -92,7 +92,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         name="atrativoName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nome do atrativo ou artista *</FormLabel>
+            <FormLabel>Nome do atrativo ou artista</FormLabel>
             <FormControl>
               <AtrativoAutocomplete
                 key={refreshKey}
@@ -137,7 +137,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
           const showErr = field.value && !v.valid;
           return (
             <FormItem>
-              <FormLabel>Celular / WhatsApp *</FormLabel>
+              <FormLabel>Celular / WhatsApp</FormLabel>
               <FormControl>
                 <Input
                   placeholder="(21) 99999-9999"
@@ -192,7 +192,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
         name="atrativoCategory"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Categoria *</FormLabel>
+            <FormLabel>Categoria</FormLabel>
             <div className="grid grid-cols-2 gap-2">
               {QUICK_CATEGORIES.map((cat) => {
                 const active = field.value === cat.value;

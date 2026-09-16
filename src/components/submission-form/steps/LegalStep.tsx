@@ -205,7 +205,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
           name="responsavelNome"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Responsável pela divulgação *</FormLabel>
+              <FormLabel>Responsável pela divulgação</FormLabel>
               <FormControl>
                 <PromotorAutocomplete
                   value={field.value ?? ""}
@@ -253,7 +253,7 @@ export function LegalStep({ form, isPublished = false, submissionId }: { form: U
         name="duvidasWhatsapp"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>WhatsApp para dúvidas *</FormLabel>
+            <FormLabel>WhatsApp para dúvidas</FormLabel>
             <FormControl>
               <TooltipProvider>
                 <Tooltip>

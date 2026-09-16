@@ -57,7 +57,7 @@ export function EventStep({ form, section = "all" }: { form: UseFormReturn<any>;
           const selected = field.value ? new Date(field.value) : undefined;
           return (
             <FormItem className="flex flex-col">
-              <FormLabel className="mb-1.5">Data do evento *</FormLabel>
+              <FormLabel className="mb-1.5">Data do evento</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -104,7 +104,7 @@ export function EventStep({ form, section = "all" }: { form: UseFormReturn<any>;
         name="startTime"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Horário de início *</FormLabel>
+            <FormLabel>Horário de início</FormLabel>
             <FormControl>
               <SuggestInput
                 type="time"
@@ -129,7 +129,7 @@ export function EventStep({ form, section = "all" }: { form: UseFormReturn<any>;
         name="ageRating"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Classificação (obrigatório por lei) *</FormLabel>
+            <FormLabel>Classificação</FormLabel>
             <Select
               value={field.value || "Livre"}
               defaultValue="Livre"
@@ -180,7 +180,7 @@ export function EventStep({ form, section = "all" }: { form: UseFormReturn<any>;
         name="category"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Categoria *</FormLabel>
+            <FormLabel>Categoria</FormLabel>
             <FormControl>
               <FrameworkAutocomplete
                 value={field.value}
