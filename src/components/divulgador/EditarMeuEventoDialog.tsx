@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Lock } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ export type EventoEditavel = {
   end_time?: string | null;
   location?: string | null;
   description?: string | null;
+  status?: string | null;
 };
 
 type Props = {
@@ -30,13 +32,20 @@ type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onSaved?: () => void;
+  /**
+   * Se true, permite editar mesmo quando o evento já foi aprovado/publicado.
+   * Reservado para admin/master. Divulgador comum recebe false.
+   */
+  canEditApproved?: boolean;
 };
 
 /**
  * Edição rápida do próprio rolê.
- * Só aparece pra Divulgador dono do evento — o RLS confere de novo no banco.
+ * Depois de aprovado/publicado, o divulgador comum não edita mais: precisa
+ * pedir alteração à curadoria. Só admin/master (canEditApproved) segue editando.
+ * O RLS confere de novo no banco.
  */
-export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved }: Props) {
+export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved, canEditApproved = false }: Props) {
   const { user } = useAuth();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<EventoEditavel | null>(evento);
@@ -44,11 +53,21 @@ export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved }: P
   // sincroniza quando troca o evento selecionado
   if (evento && (!form || form.id !== evento.id)) setForm(evento);
 
+  const isLocked =
+    !canEditApproved &&
+    (form?.status === "aprovado" || form?.status === "publicado");
+
   const set = (k: keyof EventoEditavel, v: string) =>
     setForm((f) => (f ? { ...f, [k]: v } : f));
 
   const salvar = async () => {
     if (!form || !user) return;
+    if (isLocked) {
+      toast.error("Evento travado para edição", {
+        description: "Depois de aprovado, só a curadoria pode alterar. Peça a mudança pra moderação.",
+      });
+      return;
+    }
     if (!form.event_title?.trim()) {
       toast.error("Falta o nome do rolê", { description: "Coloca um título pra galera reconhecer." });
       return;
@@ -90,6 +109,16 @@ export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved }: P
           </DialogDescription>
         </DialogHeader>
 
+        {isLocked && (
+          <div className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50/70 px-3 py-2.5 text-sm text-amber-800">
+            <Lock className="h-4 w-4 mt-0.5 shrink-0" />
+            <span>
+              Este evento já foi aprovado e está travado para edição comum. Para mudar algo, peça
+              autorização à curadoria/moderação.
+            </span>
+          </div>
+        )}
+
         {form && (
           <div className="space-y-3">
             <div className="space-y-1.5">
@@ -97,6 +126,7 @@ export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved }: P
               <Input
                 id="ev-title"
                 value={form.event_title || ""}
+                disabled={isLocked}
                 onChange={(e) => set("event_title", e.target.value)}
               />
             </div>
@@ -107,6 +137,7 @@ export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved }: P
                   id="ev-date"
                   type="date"
                   value={form.date || ""}
+                  disabled={isLocked}
                   onChange={(e) => set("date", e.target.value)}
                 />
               </div>
@@ -116,6 +147,7 @@ export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved }: P
                   id="ev-start"
                   type="time"
                   value={form.start_time || ""}
+                  disabled={isLocked}
                   onChange={(e) => set("start_time", e.target.value)}
                 />
               </div>
@@ -125,6 +157,7 @@ export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved }: P
                   id="ev-end"
                   type="time"
                   value={form.end_time || ""}
+                  disabled={isLocked}
                   onChange={(e) => set("end_time", e.target.value)}
                 />
               </div>
@@ -134,6 +167,7 @@ export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved }: P
               <Input
                 id="ev-local"
                 value={form.location || ""}
+                disabled={isLocked}
                 onChange={(e) => set("location", e.target.value)}
               />
             </div>
@@ -143,6 +177,7 @@ export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved }: P
                 id="ev-desc"
                 rows={4}
                 value={form.description || ""}
+                disabled={isLocked}
                 onChange={(e) => set("description", e.target.value)}
               />
             </div>
@@ -151,11 +186,13 @@ export function EditarMeuEventoDialog({ evento, open, onOpenChange, onSaved }: P
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancelar
+            {isLocked ? "Fechar" : "Cancelar"}
           </Button>
-          <Button onClick={salvar} disabled={saving}>
-            {saving ? "Salvando…" : "Salvar alterações"}
-          </Button>
+          {!isLocked && (
+            <Button onClick={salvar} disabled={saving}>
+              {saving ? "Salvando…" : "Salvar alterações"}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

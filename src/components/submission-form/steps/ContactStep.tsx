@@ -72,7 +72,7 @@ export function ContactStep({ form, onRestoreFromProfile, hasProfile }: ContactS
           <FormItem>
             <FormLabel className="flex items-center gap-2">
               <Phone className="h-4 w-4" />
-              WhatsApp para contato
+              WhatsApp para contato <span className="text-xs font-normal text-muted-foreground">(opcional)</span>
             </FormLabel>
             <FormControl>
               <Input 
@@ -88,7 +88,6 @@ export function ContactStep({ form, onRestoreFromProfile, hasProfile }: ContactS
                 }}
                 onBlur={() => {
                   field.onBlur();
-                  form.trigger("basicPhone");
                 }}
               />
             </FormControl>
@@ -98,7 +97,7 @@ export function ContactStep({ form, onRestoreFromProfile, hasProfile }: ContactS
               <p className="text-xs text-destructive">{v.reason}</p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Use DDD + 9 + 8 dígitos. Apenas celulares brasileiros recebem WhatsApp.
+                Opcional — use DDD + 9 + 8 dígitos se quiser receber WhatsApp.
               </p>
             )}
             <FormMessage />

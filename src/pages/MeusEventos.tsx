@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubmissions } from "@/data";
+import { useAppPermissions } from "@/hooks/useAppPermissions";
 import { EditarMeuEventoDialog, type EventoEditavel } from "@/components/divulgador/EditarMeuEventoDialog";
 import { Pencil, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,8 @@ export default function MeusEventos() {
   const { user } = useAuth();
   const [tab, setTab] = useState<StatusKey>("todos");
   const { isDivulgador } = useDivulgadorStatus();
+  const { isAdmin, isMaster } = useAppPermissions();
+  const canEditApproved = isAdmin || isMaster;
   const [editing, setEditing] = useState<EventoEditavel | null>(null);
 
   const { data: rows = [], isLoading: loading, refetch } = useSubmissions<Row>(
@@ -220,10 +223,10 @@ export default function MeusEventos() {
                   )}
                   {isDivulgador && user && r.user_id === user.id && (
                     <div className="pt-1">
-                      {r.status === "publicado" ? (
+                      {(r.status === "aprovado" || r.status === "publicado") && !canEditApproved ? (
                         <span className="inline-flex items-center gap-1.5 text-[11px] text-foreground/55">
                           <Lock className="h-3 w-3" />
-                          Já publicado — peça alteração pra curadoria.
+                          Já aprovado — peça alteração pra curadoria.
                         </span>
                       ) : (
                         <Button
@@ -256,6 +259,7 @@ export default function MeusEventos() {
       <EditarMeuEventoDialog
         evento={editing}
         open={!!editing}
+        canEditApproved={canEditApproved}
         onOpenChange={(v) => !v && setEditing(null)}
         onSaved={() => refetch?.()}
       />
