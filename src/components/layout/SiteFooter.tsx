@@ -1,4 +1,5 @@
 import logo from "@/assets/coeaboa-logo.webp";
+import { Link } from "react-router-dom";
 
 interface SiteFooterProps {
   variant?: "default" | "muted";
@@ -17,8 +18,24 @@ export function SiteFooter({ variant = "default", className = "" }: SiteFooterPr
   const bg = variant === "muted" ? "bg-muted/30" : "bg-card/30";
 
   return (
-    <footer className={`w-full py-10 px-6 border-t border-border/40 ${bg} ${className}`}>
-      <div className="mx-auto max-w-6xl grid grid-cols-1 sm:grid-cols-3 items-center gap-6 text-center sm:text-left">
+    <footer className={`flex flex-col w-full px-6 py-8 md:py-10 border-t border-border/40 gap-8 ${bg} ${className}`}>
+      {/* Links Adicionais Acima do Rodapé Superior */}
+      <div className="mx-auto flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm font-medium text-foreground/80 w-full max-w-6xl">
+        <Link to="/" className="hover:text-primary transition-colors">
+          Agenda Coé a boa?
+        </Link>
+        <Link to="/agenda" className="hover:text-primary transition-colors">
+          Agenda Cultural
+        </Link>
+        <Link to="/enviar-evento" className="hover:text-primary transition-colors">
+          Divulgue seu evento
+        </Link>
+        <Link to="/contato" className="hover:text-primary transition-colors">
+          Contato
+        </Link>
+      </div>
+
+      <div className="mx-auto max-w-6xl w-full grid grid-cols-1 sm:grid-cols-3 items-center gap-6 text-center sm:text-left pt-6 border-t border-border/20">
         {/* Copyright */}
         <div className="text-xs text-foreground/60 font-medium order-2 sm:order-1">
           © {year} — Todos os direitos reservados
