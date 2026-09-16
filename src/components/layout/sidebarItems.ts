@@ -52,14 +52,6 @@ export const sidebarConfig: SidebarSection[] = [
     roles: ["public_guest", "public_registered", "promoter", "admin", "master"],
     items: [
       { 
-        id: "events", 
-        label: "Eventos", 
-        path: ROUTES.AGENDA, 
-        icon: CalendarDays, 
-        roles: ["public_guest", "public_registered", "promoter", "admin", "master"],
-        exact: true
-      },
-      { 
         id: "favorites", 
         label: "Meus Favoritos", 
         path: `${ROUTES.AGENDA}?view=favorites`, 
