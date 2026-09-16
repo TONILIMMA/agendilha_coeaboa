@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { SectionErrorBoundary } from "@/components/errors/SectionErrorBoundary";
 import { InlineError } from "@/components/errors/InlineError";
 import { SeoHead } from "@/components/seo/SeoHead";
+import { asArray } from "@/lib/safe";
 
 const NEIGHBORHOODS: string[] = [];
 
@@ -90,7 +91,7 @@ function ExplorarInner() {
         .eq("status", "aprovado")
         .order("date", { ascending: true });
       if (error) throw error;
-      return data || [];
+      return asArray(data);
     },
   });
 
@@ -129,7 +130,7 @@ function ExplorarInner() {
 
   const filtered = useMemo(() => {
     const q = term.trim().toLowerCase();
-    const list = events.filter(ev => {
+    const list = asArray<(typeof events)[number]>(events).filter(ev => {
       if (datePreset !== "free" && datePreset !== "kids" && !presetMatches(ev.date, datePreset as any, customDate)) return false;
       if (datePreset === "free" && !["0", "gratuito", "grátis", "free"].includes(ev.sale_price?.toLowerCase().trim() || "")) return false;
       if (datePreset === "kids" && !ev.is_suitable_for_minors && ev.age_rating !== "Livre") return false;
