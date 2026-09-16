@@ -1,5 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SuggestInput } from "@/components/ui/SuggestInput";
 import { Button } from "@/components/ui/button";
 import { UseFormReturn } from "react-hook-form";
 import { User, Phone, RefreshCw } from "lucide-react";
@@ -45,9 +46,11 @@ export function ContactStep({ form, onRestoreFromProfile, hasProfile }: ContactS
           <FormItem>
             <FormLabel>Seu nome ou apelido</FormLabel>
             <FormControl>
-              <Input
+              <SuggestInput
                 placeholder="Como quer ser chamado?"
                 className="h-12"
+                suggestFrom="public_submissions"
+                suggestColumn="responsible_name"
                 {...field}
                 name="name"
                 autoComplete="name"
