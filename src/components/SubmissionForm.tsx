@@ -113,7 +113,9 @@ const formSchema = z.object({
   atrativoCategory: z.string().trim().optional().or(z.literal("")),
   atrativoCategoryOther: z.string().trim().optional(),
   // Vínculo com cadastro externo (snapshot: draft NÃO segue mudanças posteriores do perfil)
-  atrativoSourceId: z.string().uuid("Selecione um atrativo da lista").optional().or(z.literal("")),
+  // Opcional: o autocomplete preenche quando o usuário escolhe um item da lista,
+  // mas o envio segue normalmente mesmo sem vínculo.
+  atrativoSourceId: z.string().optional().or(z.literal("")),
   atrativoSourceType: z.enum(["artist", "atrativo"]).optional(),
   atrativoLinkedAt: z.string().optional(),
   atrativoLinkedName: z.string().optional(),
@@ -143,9 +145,10 @@ const formSchema = z.object({
   ageRating: z.enum(["Livre", "10+", "12+", "14+", "16+", "18+"]).default("Livre"),
   isSuitableForMinors: z.boolean().default(true),
 }).superRefine((data, ctx) => {
-  // Se "Outro" for selecionado em tipoResponsavel, o telefone deve estar no formato correto.
-  // A validação padrão do campo já cobre o fluxo normal; aqui tratamos apenas o caso especial.
-  if (data.tipoResponsavel === "outro") {
+  // Cadastro de eventos: todos os campos são opcionais, inclusive no modo "Outro".
+  // A flag abaixo mantém a checagem desligada para não bloquear o envio quando o WhatsApp ficar vazio.
+  const exigirWhatsappModoOutro = false;
+  if (exigirWhatsappModoOutro && data.tipoResponsavel === "outro") {
     const outroPhone = (data.duvidasWhatsapp as string || "").trim();
     if (!outroPhone) {
       ctx.addIssue({
