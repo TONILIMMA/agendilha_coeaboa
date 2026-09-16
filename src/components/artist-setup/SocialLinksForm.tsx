@@ -65,7 +65,7 @@ export function SocialLinksForm({ form }: SocialLinksFormProps) {
       <div className="pt-4 border-t border-border/50">
         <div className="space-y-2">
           <Label htmlFor="whatsapp" className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-            <MessageCircle className="h-3 w-3 text-green-500" /> WhatsApp Profissional *
+            <MessageCircle className="h-3 w-3 text-green-500" /> WhatsApp Profissional (opcional)
           </Label>
           <Input 
             id="whatsapp" 

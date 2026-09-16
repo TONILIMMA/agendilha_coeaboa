@@ -52,7 +52,7 @@ export default function CadastroArtista() {
         e.responsavel = "Informe o nome do responsável.";
       if (!nomeArtistico.trim() || nomeArtistico.trim().length < 2)
         e.nomeArtistico = "Informe o nome artístico.";
-      if (!isWhatsappValido(whatsapp))
+      if (whatsapp.trim() && !isWhatsappValido(whatsapp))
         e.whatsapp = "WhatsApp inválido. Use DDD + número.";
     }
     if (s === 2) {
@@ -153,7 +153,6 @@ export default function CadastroArtista() {
             inputMode="tel"
             autoComplete="tel"
             maxLength={15}
-            required
             error={errors.whatsapp}
           />
         </>

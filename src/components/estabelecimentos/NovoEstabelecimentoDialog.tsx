@@ -262,7 +262,7 @@ export function NovoEstabelecimentoDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-sm font-semibold">Contato (WhatsApp)</Label>
+            <Label className="text-sm font-semibold">Contato do local (opcional)</Label>
             <Input
               value={contato}
               onChange={(e) => setContato(e.target.value)}

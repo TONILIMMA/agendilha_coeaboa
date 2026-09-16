@@ -6,7 +6,7 @@ export type TipoPerfil = "publico" | "divulgador" | "artista";
 interface ContatoBase {
   tipo_perfil: TipoPerfil;
   nome: string;
-  whatsapp: string;
+  whatsapp?: string;
   bairro: string;
   endereco?: string | null;
 }
@@ -18,7 +18,7 @@ async function insertContato(base: ContatoBase) {
     .insert({
       tipo_perfil: base.tipo_perfil,
       nome: base.nome.trim(),
-      whatsapp: normalizePhone(base.whatsapp),
+      whatsapp: base.whatsapp?.trim() ? normalizePhone(base.whatsapp) : null,
       bairro: base.bairro,
       endereco: base.endereco?.trim() || null,
       user_id: userData.user?.id ?? null,
@@ -89,7 +89,7 @@ export async function saveDivulgador(p: DivulgadorPayload) {
 export interface ArtistaPayload {
   nome_responsavel: string;
   nome_artistico: string;
-  whatsapp: string;
+  whatsapp?: string;
   endereco: string;
   bairro: string;
   quantidade_integrantes: number;

@@ -272,9 +272,7 @@ export default function CadastroBanda() {
     else if (trimmedRep.length < 2) e.representativeName = "Nome muito curto — pelo menos 2 letras.";
     else if (trimmedRep.length > 100) e.representativeName = "Nome muito longo — até 100 caracteres.";
 
-    if (!whatsapp.trim()) {
-      e.whatsapp = "WhatsApp é obrigatório pra receber contato de show.";
-    } else {
+    if (whatsapp.trim()) {
       const v = validateBrazilianMobile(whatsapp);
       if (!v.valid) e.whatsapp = "reason" in v && v.reason ? v.reason : "Celular inválido. Use DDD + 9 + 8 dígitos.";
     }
@@ -650,7 +648,7 @@ export default function CadastroBanda() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2" data-field="whatsapp">
                   <Label htmlFor="whatsapp" className="text-base font-semibold">
-                    WhatsApp <span className="text-destructive">*</span>
+                    WhatsApp (opcional)
                   </Label>
                   <Input
                     id="whatsapp"

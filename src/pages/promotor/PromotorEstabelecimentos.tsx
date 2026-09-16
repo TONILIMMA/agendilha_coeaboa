@@ -200,7 +200,7 @@ function PromotorEstabelecimentosInner() {
               autoComplete="street-address"
             />
             <Field label="Bairro" value={form.bairro} onChange={(v) => setForm({ ...form, bairro: v })} autoComplete="address-level3" />
-            <Field label="Contato geral" value={form.contato} onChange={(v) => setForm({ ...form, contato: v })} placeholder="WhatsApp ou e-mail" autoComplete="off" />
+            <Field label="Contato do local (opcional)" value={form.contato} onChange={(v) => setForm({ ...form, contato: v })} placeholder="WhatsApp ou e-mail" autoComplete="off" />
           </div>
         </div>
 
@@ -238,7 +238,7 @@ function PromotorEstabelecimentosInner() {
           <p className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Responsável pelos contatos</p>
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="Nome" value={form.responsavel_nome} onChange={(v) => setForm({ ...form, responsavel_nome: v })} />
-            <Field label="Telefone / WhatsApp" value={form.responsavel_telefone} onChange={(v) => setForm({ ...form, responsavel_telefone: v })} />
+            <Field label="Telefone / WhatsApp (opcional)" value={form.responsavel_telefone} onChange={(v) => setForm({ ...form, responsavel_telefone: v })} />
             <Field label="E-mail" value={form.responsavel_email} onChange={(v) => setForm({ ...form, responsavel_email: v })} />
             <Field label="Redes sociais" value={form.responsavel_redes} onChange={(v) => setForm({ ...form, responsavel_redes: v })} placeholder="@instagram, Facebook…" />
           </div>

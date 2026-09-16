@@ -442,7 +442,7 @@ export default function PromotorAtrativos() {
               <Input value={form.responsavel_nome} onChange={(e) => setForm({ ...form, responsavel_nome: e.target.value })} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm font-semibold">Telefone / WhatsApp</Label>
+              <Label className="text-sm font-semibold">Telefone / WhatsApp (opcional)</Label>
               <Input value={form.responsavel_telefone} onChange={(e) => setForm({ ...form, responsavel_telefone: e.target.value })} />
             </div>
             <div className="space-y-1.5">

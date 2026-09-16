@@ -149,7 +149,7 @@ export default function AdminEstabelecimentos() {
               <NewField label="Bairro" value={newForm.bairro} onChange={(v) => setNewForm({ ...newForm, bairro: v })} />
               <NewField label="CEP" value={newForm.cep} onChange={(v) => setNewForm({ ...newForm, cep: v })} />
               <NewField label="Complemento" value={newForm.complemento} onChange={(v) => setNewForm({ ...newForm, complemento: v })} />
-              <NewField label="Contato" value={newForm.contato} onChange={(v) => setNewForm({ ...newForm, contato: v })} />
+              <NewField label="Contato (opcional)" value={newForm.contato} onChange={(v) => setNewForm({ ...newForm, contato: v })} />
             </div>
             <div className="flex gap-2">
               <Button size="sm" onClick={handleCreate} disabled={creating || !newForm.nome.trim()}>

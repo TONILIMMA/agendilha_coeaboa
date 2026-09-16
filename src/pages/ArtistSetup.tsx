@@ -120,7 +120,7 @@ export default function ArtistSetup() {
   const calculateCompleteness = () => {
     const fields = [
       'name', 'representative_name', 'genre', 'neighborhood', 'artist_type', 
-      'bio', 'work_description', 'styles', 'whatsapp', 'instagram'
+       'bio', 'work_description', 'styles', 'instagram'
     ];
     const values = form.getValues();
     const filled = fields.filter(f => {
@@ -141,7 +141,6 @@ export default function ArtistSetup() {
       bio: "Biografia Curta",
       work_description: "Descrição do Trabalho",
       styles: "Estilos Musicais",
-      whatsapp: "WhatsApp Profissional",
       instagram: "Instagram"
     };
     const values = form.getValues();
