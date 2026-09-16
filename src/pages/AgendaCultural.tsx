@@ -23,6 +23,7 @@ import { AgendaEmptyState } from "@/components/agenda/AgendaEmptyState";
 import { HighlightCard } from "@/components/agenda/HighlightCard";
 import { DayEventCard } from "@/components/agenda/DayEventCard";
 import { EventDetailDialog } from "@/components/agenda/EventDetailDialog";
+import { FreeAdsFooter } from "@/components/anuncios/FreeAdsFooter";
 import { buildWhatsAppShare } from "@/components/agenda/agenda-utils";
 import type { AgendaEvent } from "@/components/agenda/types";
 
@@ -243,7 +244,8 @@ function AgendaCulturalInner() {
         )}
       </main>
 
-      
+      {activeTab === "events" && <FreeAdsFooter />}
+
       <PersonalizationDialog open={personalizationOpen} onOpenChange={setPersonalizationOpen} />
       {shareData && (
         <ShareDialog
