@@ -104,7 +104,8 @@ const formSchema = z.object({
   atrativoType: z.string().trim().optional(),
   atrativoStyle: z.string().trim().optional(),
   atrativoDescription: z.string().trim().max(500).optional(),
-  atrativoContact: z.string().trim().min(1, "WhatsApp do atrativo é obrigatório").superRefine((val, ctx) => {
+  atrativoContact: z.string().trim().optional().superRefine((val, ctx) => {
+    if (!val) return;
     const v = validateBrazilianMobile(val);
     if (v.valid === false) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
@@ -122,7 +123,13 @@ const formSchema = z.object({
   locationName: z.string().trim().min(1, "Informe o nome do local/estabelecimento"),
   eventAddress: z.string().trim().min(1, "Informe o endereço resumido"),
   locationType: z.enum(["public", "commercial"], { required_error: "Selecione a categoria do espaço" }),
-  locationContact: z.string().trim().optional(),
+  locationContact: z.string().trim().optional().superRefine((val, ctx) => {
+    if (!val) return;
+    const v = validateBrazilianMobile(val);
+    if (v.valid === false) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: v.reason });
+    }
+  }),
   locationCep: z.string().trim().optional().superRefine((val, ctx) => {
     if (!val) return;
     const d = val.replace(/\D/g, "");
@@ -143,14 +150,6 @@ const formSchema = z.object({
   addressState: z.string().optional(),
   ageRating: z.enum(["Livre", "10+", "12+", "14+", "16+", "18+"]).default("Livre"),
   isSuitableForMinors: z.boolean().default(true),
-}).refine((data) => {
-  if (data.locationType === "commercial" && !data.locationContact) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Contato do responsável é obrigatório para estabelecimentos comerciais",
-  path: ["locationContact"],
 }).superRefine((data, ctx) => {
   // Se "Outro" for selecionado em tipoResponsavel, o telefone deve estar no formato correto.
   // A validação padrão do campo já cobre o fluxo normal; aqui tratamos apenas o caso especial.
@@ -411,10 +410,10 @@ export default function SubmissionForm() {
       // Etapa 1 — informações principais do evento (obrigatórias + complementos)
       case 1: return [
         "date", "startTime",
-        "atrativoName", "atrativoContact",
+        "atrativoName",
         "locationName", "eventAddress", "addressNeighborhood",
         "category", "ageRating", "atrativoCategory",
-        "locationType", "locationContact", "duvidasWhatsapp",
+        "locationType", "duvidasWhatsapp",
       ];
       // Etapa 2 — seleções obrigatórias restantes + contato e termos
       case 2: return [

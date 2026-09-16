@@ -137,7 +137,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
           const showErr = field.value && !v.valid;
           return (
             <FormItem>
-              <FormLabel>Celular / WhatsApp *</FormLabel>
+              <FormLabel>Celular / WhatsApp (opcional)</FormLabel>
               <FormControl>
                 <Input
                   placeholder="(21) 99999-9999"
@@ -156,7 +156,7 @@ export function AtrativoStep({ form }: { form: UseFormReturn<any> }) {
               {showErr ? (
                 <p className="text-xs text-destructive">Informe um WhatsApp válido com DDD.</p>
               ) : (
-                <p className="text-xs text-muted-foreground">DDD + 9 + 8 dígitos.</p>
+                <p className="text-xs text-muted-foreground">Se informar, use DDD + número.</p>
               )}
               <FormMessage />
             </FormItem>

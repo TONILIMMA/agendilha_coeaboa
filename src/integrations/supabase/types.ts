@@ -148,11 +148,13 @@ export type Database = {
       }
       ads: {
         Row: {
+          ad_type: string
           category: string
           city: string | null
           contact_whatsapp: string
           created_at: string
           description: string
+          event_date: string | null
           highlight_plan_id: string | null
           highlight_until: string | null
           id: string
@@ -169,11 +171,13 @@ export type Database = {
           views_count: number
         }
         Insert: {
+          ad_type?: string
           category: string
           city?: string | null
           contact_whatsapp: string
           created_at?: string
           description: string
+          event_date?: string | null
           highlight_plan_id?: string | null
           highlight_until?: string | null
           id?: string
@@ -190,11 +194,13 @@ export type Database = {
           views_count?: number
         }
         Update: {
+          ad_type?: string
           category?: string
           city?: string | null
           contact_whatsapp?: string
           created_at?: string
           description?: string
+          event_date?: string | null
           highlight_plan_id?: string | null
           highlight_until?: string | null
           id?: string
