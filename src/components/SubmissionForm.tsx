@@ -135,7 +135,7 @@ const formSchema = z.object({
 
   description: z.string().trim().max(500).optional(),
   contactSocial: z.string().trim().max(300).optional(),
-  videoLink: z.string().url("URL inválida").optional().or(z.literal("")),
+  videoLink: z.string().trim().optional().or(z.literal("")).or(z.null()),
   additionalDetails: z.string().trim().optional(),
   stage: z.string().optional(),
   responsiblePerson: z.string().trim().optional(),
