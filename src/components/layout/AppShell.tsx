@@ -10,6 +10,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useLocation } from "react-router-dom";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { FreeAdsFooter } from "@/components/anuncios/FreeAdsFooter";
+import { FreeAdsCarousel } from "@/components/anuncios/FreeAdsCarousel";
 import { PwaInstallNotice } from "@/components/pwa/PwaInstallNotice";
 
 interface AppShellProps {
@@ -73,6 +74,7 @@ export function AppShell({
         </main>
 
         {/* Anúncios gratuitos (acima do rodapé) */}
+        <FreeAdsCarousel />
         <FreeAdsFooter />
 
         {/* Footer */}
